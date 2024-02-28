@@ -15,7 +15,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="pt-br">
+      <head>
+        <link
+          rel="shortcut icon"
+          href="../assets/images/fogo.png"
+          type="image/x-icon"
+        />
+      </head>
       <body className={inter.className}>{children}</body>
     </html>
   );
