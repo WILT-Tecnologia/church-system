@@ -26,13 +26,13 @@ O sistema inclui as seguintes funcionalidades principais:
 
 1. Clone este repositório:
 
-   ```
+   ```bash
    git clone git@github.com:thiagopersch/church-system.git
    ```
 
 2. Instale as dependências do servidor e do cliente:
 
-   ```
+   ```bash
    cd backend && yarn install
    cd frontend && yarn install
    ```
@@ -44,7 +44,7 @@ O sistema inclui as seguintes funcionalidades principais:
 
 4. Inicie o servidor e o cliente em ambiente de desenvolvimento:
 
-   ```
+   ```bash
    # No diretório backend/
    yarn dev
 
@@ -54,8 +54,8 @@ O sistema inclui as seguintes funcionalidades principais:
 
 5. Acesse o sistema no seu navegador:
 
-   ```
-   http://localhost:3000
+   ```bash
+      http://localhost:3000
    ```
 
 ## Licença
