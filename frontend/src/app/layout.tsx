@@ -16,13 +16,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-br">
-      <head>
-        <link
-          rel="shortcut icon"
-          href="../assets/images/fogo.png"
-          type="image/x-icon"
-        />
-      </head>
       <body className={inter.className}>{children}</body>
     </html>
   );

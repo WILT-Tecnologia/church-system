@@ -1,6 +1,6 @@
 import styled, { css, DefaultTheme } from 'styled-components';
 
-import { BadgeProps } from './';
+import { BadgeProps } from '.';
 
 export type WrapperProps = Pick<BadgeProps, 'styledType'>;
 
