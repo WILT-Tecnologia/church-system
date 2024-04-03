@@ -1,7 +1,5 @@
-export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24 dark:bg-slate-950">
-      Index
-    </main>
-  );
+import Home from "@/templates/Home";
+
+export default function HomePage() {
+  return <Home />;
 }

@@ -16,12 +16,17 @@ type Story = StoryObj<typeof Navbar>;
 export const Default: Story = {
   args: {
     color: "white",
+    position: "relative",
+    enableColorOnDark: false,
+    percentDark: 0,
   },
 };
 
 export const Dark: Story = {
   args: {
     color: "white",
+    position: "relative",
     enableColorOnDark: true,
+    percentDark: 0.5,
   },
 };

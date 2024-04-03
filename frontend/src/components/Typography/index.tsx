@@ -3,7 +3,7 @@ import { DefaultTheme } from "styled-components";
 import * as S from "./styles";
 
 export type TypographyProps = {
-  children: string | JSX.Element;
+  children: string | React.ReactNode;
   color: keyof DefaultTheme["colors"];
   size: keyof DefaultTheme["fonts"]["sizes"];
   align?: "center" | "inherit" | "justify" | "left" | "right";

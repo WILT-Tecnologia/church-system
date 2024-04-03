@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { darken } from "polished";
 import styled, { css } from "styled-components";
 import media from "styled-media-query";
@@ -24,24 +23,21 @@ const navbarModifiers = {
 };
 
 export const Wrapper = styled.nav<NavbarProps>`
-  ${({ theme, color, position, enableColorOnDark }) => css`
+  ${({ theme, color, position, enableColorOnDark, percentDark = 0.5 }) => css`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
     height: 8rem;
     width: 100%;
+    max-width: 100%;
     color: ${theme.colors.white};
     background-color: ${enableColorOnDark
-      ? darken(0.1, theme.colors[color])
+      ? darken(percentDark, theme.colors[color])
       : theme.colors[color]};
     padding: ${theme.spacings.xsmall};
     transition: ${theme.transitions.fast};
-
-    ${media.greaterThan("medium")`
-      width: 100%;
-      max-width: 100%;
-    `}
+    box-shadow: ${theme.shadows.navbar};
 
     ${!!position && navbarModifiers[position]};
   `}
@@ -63,23 +59,22 @@ export const LogoLink = styled.div`
   `}
 `;
 
-export const Logo = styled(Link)`
+export const Logo = styled.div`
   ${({ theme }) => css`
-    grid-area: logo;
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100%;
     cursor: pointer;
-    transform: scale(0.9);
-    transition: ${theme.transitions.fast};
+    /* transform: scale(0.9);
+    transition: ${theme.transitions.fast}; */
 
-    &:hover {
+    /* &:hover {
       transform: scale(1);
-    }
+    } */
 
     ${media.lessThan("medium")`
-      display: none;
+      max-width: 16.5rem;
     `}
   `}
 `;
@@ -87,9 +82,8 @@ export const Logo = styled(Link)`
 export const ProfileContainer = styled.div`
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
   align-items: center;
-  max-width: 100%;
-  width: 100%;
   gap: 2rem;
 `;
 
@@ -99,5 +93,3 @@ export const Profile = styled.div`
   align-items: center;
   justify-content: center;
 `;
-
-export const NameProfile = styled.div``;
