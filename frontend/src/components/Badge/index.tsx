@@ -1,12 +1,12 @@
-import * as S from './styles';
+import * as S from "./styles";
 
 export type BadgeProps = {
   children: React.ReactNode | string;
-  styledType: 'success' | 'info' | 'orange' | 'error';
+  variant: "success" | "info" | "orange" | "error";
 };
 
-const Badge = ({ children, styledType = 'success' }: BadgeProps) => (
-  <S.Wrapper styledType={styledType}>{children}</S.Wrapper>
+const Badge = ({ children, variant = "success" }: BadgeProps) => (
+  <S.Wrapper variant={variant}>{children}</S.Wrapper>
 );
 
 export default Badge;

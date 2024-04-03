@@ -1,5 +1,6 @@
 import { Meta, StoryObj } from "@storybook/react";
 import { Plus } from "@styled-icons/feather";
+
 import Button from ".";
 
 const meta: Meta<typeof Button> = {

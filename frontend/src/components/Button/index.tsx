@@ -2,10 +2,11 @@ import {
   AnchorHTMLAttributes,
   ButtonHTMLAttributes,
   ElementType,
-  ReactNode,
   forwardRef,
+  ReactNode,
 } from "react";
 import { DefaultTheme } from "styled-components";
+
 import * as S from "./styles";
 
 type ButtonTypes =
@@ -39,7 +40,7 @@ const Button: React.ForwardRefRenderFunction<HTMLButtonElement, ButtonProps> = (
     as,
     ...props
   },
-  ref
+  ref,
 ) => (
   <S.Wrapper
     color={color}

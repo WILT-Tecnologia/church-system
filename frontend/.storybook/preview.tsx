@@ -1,13 +1,13 @@
-import type { Preview } from '@storybook/react';
-import React from 'react';
-import { ThemeProvider } from 'styled-components';
+import type { Preview } from "@storybook/react";
+import React from "react";
+import { ThemeProvider } from "styled-components";
 
-import GlobalStyles from '../src/styles/global';
-import theme from '../src/styles/theme';
+import GlobalStyles from "../src/styles/global";
+import theme from "../src/styles/theme";
 
 const preview: Preview = {
   parameters: {
-    actions: { argTypesRegex: '^on[A-Z].*' },
+    actions: { argTypesRegex: "^on[A-Z].*" },
     controls: {
       matchers: {
         color: /(background|color)$/i,
@@ -15,14 +15,14 @@ const preview: Preview = {
       },
     },
     backgrounds: {
-      default: 'white',
+      default: "black",
       values: [
         {
-          name: 'white',
+          name: "white",
           value: theme.colors.white,
         },
         {
-          name: 'black',
+          name: "black",
           value: theme.colors.black,
         },
       ],
@@ -31,7 +31,7 @@ const preview: Preview = {
 };
 
 export const decorators = [
-  (Story) => (
+  (Story: any) => (
     <ThemeProvider theme={theme}>
       <GlobalStyles />
       <Story />

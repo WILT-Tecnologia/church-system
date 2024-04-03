@@ -1,8 +1,8 @@
-import styled, { css, DefaultTheme } from 'styled-components';
+import styled, { css, DefaultTheme } from "styled-components";
 
-import { BadgeProps } from '.';
+import { BadgeProps } from ".";
 
-export type WrapperProps = Pick<BadgeProps, 'styledType'>;
+export type WrapperProps = Pick<BadgeProps, "variant">;
 
 const wrapperModifiers = {
   success: (theme: DefaultTheme) => css`
@@ -24,7 +24,7 @@ const wrapperModifiers = {
 };
 
 export const Wrapper = styled.span<WrapperProps>`
-  ${({ theme, styledType }) => css`
+  ${({ theme, variant }) => css`
     display: inline-block;
     padding: 0.2rem 2rem;
     font-size: ${theme.fonts.sizes.xsmall};
@@ -35,6 +35,6 @@ export const Wrapper = styled.span<WrapperProps>`
     border-radius: 10rem;
     box-shadow: ${theme.shadows.default};
 
-    ${wrapperModifiers[styledType](theme)}
+    ${wrapperModifiers[variant](theme)}
   `}
 `;

@@ -1,17 +1,13 @@
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from "@storybook/react";
 
-import Badge from '.';
+import Badge from ".";
 
 const meta: Meta<typeof Badge> = {
-  title: 'Data display/Badge',
+  title: "Display/Badge",
   component: Badge,
   argTypes: {
     children: {
-      type: 'string',
-    },
-    styledType: {
-      control: { type: 'radio' },
-      options: ['success', 'info', 'orange', 'error'],
+      type: "string",
     },
   },
 };
@@ -21,7 +17,7 @@ type Story = StoryObj<typeof Badge>;
 
 export const Default: Story = {
   args: {
-    children: 'Badge',
-    styledType: 'success',
+    children: "Badge",
+    variant: "success",
   },
 };
