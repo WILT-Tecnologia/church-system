@@ -15,9 +15,12 @@ export type ItemProps = {
 const Item = ({ children, color, dark, size, icon }: ItemProps) => {
   return (
     <S.Wrapper size={size} color={color} dark={dark}>
-      <Icon color={color} size={size}>
-        {!!icon && icon}
-      </Icon>
+      {!!icon && (
+        <Icon color={color} size={size}>
+          {icon}
+        </Icon>
+      )}
+
       {children}
     </S.Wrapper>
   );

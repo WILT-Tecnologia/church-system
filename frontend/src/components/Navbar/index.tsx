@@ -39,18 +39,20 @@ const Navbar = ({
       percentDark={percentDark}
     >
       <S.Logo>
-        <Typography color="gray" size="small">
+        <Typography color="gray" size="xsmall">
           Perfil:&nbsp;
         </Typography>
-        <Dropdown.Root>
+        <Dropdown.Root isOpen={show}>
           <Dropdown.Header color="primary" size="xsmall" onClick={toggleBase}>
             Administrador - Templo Sede
           </Dropdown.Header>
-          <Dropdown.Content isOpen={show} onClick={toggleBase}>
+          <Dropdown.Content isOpen={show}>
             <Dropdown.ListItem color="white">
-              <Dropdown.Item color="gray" size="xsmall">
-                Usuário comum
-              </Dropdown.Item>
+              <Link href="/dashboard">
+                <Dropdown.Item color="primary" size="xsmall" dark>
+                  Usuário comum
+                </Dropdown.Item>
+              </Link>
             </Dropdown.ListItem>
           </Dropdown.Content>
         </Dropdown.Root>

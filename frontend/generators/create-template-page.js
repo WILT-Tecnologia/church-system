@@ -3,8 +3,12 @@ const path = require("path");
 const readline = require("readline");
 
 const createTemplatePage = async (name) => {
+  const capitalizeFirstLetter = (str) =>
+    str.charAt(0).toLowerCase() + str.slice(1);
+  const capitalizedName = capitalizeFirstLetter(name);
+
   const dirTemplate = path.join(process.cwd(), `src/templates/${name}`);
-  const dirPage = path.join(process.cwd(), `src/app/${name}/`);
+  const dirPage = path.join(process.cwd(), `src/app/${capitalizedName}/`);
 
   if (fs.existsSync(dirTemplate)) {
     console.error(`A template with the name ${name} already exists.`);

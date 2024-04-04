@@ -29,25 +29,11 @@ export const Container = styled.div<BasePropsPick>`
   `}
 `;
 
-export const HeaderContainer = styled.div<BasePropsPick>`
-  ${({ theme }) => css`
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    align-content: center;
-    padding: 0 ${theme.spacings.xsmall};
-  `}
-`;
-
-type overlayProps = {
-  isOpen: boolean;
-};
-
-export const Overlay = styled.div<overlayProps>`
+export const Overlay = styled.div<BasePropsPick>`
   ${({ isOpen }) => css`
     display: ${isOpen ? "block" : "none"};
     opacity: ${isOpen ? 1 : 0};
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.2);
     position: fixed;
     top: 0;
     bottom: 0;
