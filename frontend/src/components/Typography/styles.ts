@@ -5,7 +5,7 @@ import { TypographyProps } from ".";
 
 export type TypographyPropsPicker = Pick<
   TypographyProps,
-  "align" | "color" | "size" | "transform" | "bold" | "mobile"
+  "align" | "color" | "size" | "transform" | "bold" | "mobile" | "ocult"
 >;
 
 const typographyModifiers = {
@@ -47,10 +47,19 @@ const typographyModifiers = {
 };
 
 export const Wrapper = styled.span<TypographyPropsPicker>`
-  ${({ theme, color, size, align, transform, bold, mobile }) => css`
+  ${({ theme, color, size, align, transform, bold, mobile, ocult }) => css`
     color: ${theme.colors[color]};
     transition: ${theme.transitions.fast};
     font-size: ${theme.fonts.sizes[size]};
+
+    ${media.lessThan("medium")`
+  ${
+    !!ocult &&
+    css`
+      display: none;
+    `
+  }
+    `}
 
     ${!!mobile && typographyModifiers.mobile(theme)};
     ${!!bold && typographyModifiers.bold(theme)};

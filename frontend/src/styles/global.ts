@@ -1,4 +1,4 @@
-import { createGlobalStyle, css } from 'styled-components';
+import { createGlobalStyle, css } from "styled-components";
 
 const GlobalStyles = createGlobalStyle`
   * {
@@ -18,7 +18,7 @@ const GlobalStyles = createGlobalStyle`
 
   ::selection {
     ${({ theme }) => css`
-      color: ${theme.colors.black};
+      color: ${theme.colors.white};
       background-color: ${theme.colors.primary};
     `}
     }

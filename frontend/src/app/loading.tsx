@@ -1,5 +1,7 @@
 "use client";
 
+import LoadingComponent from "@/components/Loading";
+
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -10,5 +12,9 @@ export default function Loading() {
     router.refresh();
   }, [router]);
 
-  return <main>Loading...</main>;
+  return (
+    <main className="flex justify-center items-center h-screen bg-zinc-200">
+      <LoadingComponent />
+    </main>
+  );
 }

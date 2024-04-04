@@ -43,38 +43,35 @@ export const Wrapper = styled.nav<NavbarProps>`
   `}
 `;
 
-export const LogoLink = styled.div`
+export const WrapperHamburguerAndProfileAndPermission = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+`;
+
+export const Hamburguer = styled.a`
   ${({ theme }) => css`
     display: flex;
     align-items: center;
-    font-family: ${theme.fonts.family.primary};
-    font-size: ${theme.fonts.sizes.medium};
-    height: 100%;
-
-    > span {
-      font-weight: ${theme.fonts.weight.normal};
-      color: ${theme.colors.black};
-      margin-right: ${theme.spacings.xxsmall};
-    }
+    border: 0.2rem solid ${theme.colors.primary};
+    border-radius: 30rem;
+    padding: 0.5rem;
+    cursor: pointer;
   `}
 `;
 
-export const Logo = styled.div`
+export const ProfileAndPermission = styled.div`
   ${({ theme }) => css`
     display: flex;
+
     align-items: center;
     justify-content: center;
     height: 100%;
     cursor: pointer;
-    /* transform: scale(0.9);
-    transition: ${theme.transitions.fast}; */
-
-    /* &:hover {
-      transform: scale(1);
-    } */
 
     ${media.lessThan("medium")`
-      max-width: 16.5rem;
+      flex-wrap: wrap;
     `}
   `}
 `;

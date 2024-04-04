@@ -10,6 +10,7 @@ export type TypographyProps = {
   transform?: "capitalize" | "lowercase" | "uppercase" | "none";
   bold?: boolean;
   mobile?: boolean;
+  ocult?: boolean;
 };
 
 const Typography = ({
@@ -20,6 +21,7 @@ const Typography = ({
   transform = "none",
   bold,
   mobile,
+  ocult,
 }: TypographyProps) => {
   return (
     <S.Wrapper
@@ -29,6 +31,7 @@ const Typography = ({
       size={size}
       transform={transform}
       mobile={mobile}
+      ocult={ocult}
     >
       {children}
     </S.Wrapper>

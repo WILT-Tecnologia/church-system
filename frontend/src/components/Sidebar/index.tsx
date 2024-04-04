@@ -23,11 +23,15 @@ const routes: Routes = {
   global,
 };
 
-const Sidebar = () => {
+type SidebarProps = {
+  onClick: () => void;
+};
+
+const Sidebar = ({ onClick }: SidebarProps) => {
   const pathname = usePathname();
 
   return (
-    <S.Wrapper>
+    <S.Wrapper onClick={onClick}>
       <S.Logo href="/" passHref>
         <Image src={Logo} width={150} quality={80} alt="Logo" priority />
       </S.Logo>
