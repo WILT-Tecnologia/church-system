@@ -14,7 +14,7 @@ export type HeaderProps = {
 
 const Header = ({
   children,
-  color,
+  color = "primary",
   size = "medium",
   disabled = false,
   dark = false,

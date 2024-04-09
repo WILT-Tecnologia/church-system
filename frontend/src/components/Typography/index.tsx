@@ -16,22 +16,22 @@ export type TypographyProps = {
 const Typography = ({
   children,
   align = "left",
-  color,
+  color = "primary",
   size = "small",
   transform = "none",
   bold,
-  mobile,
   ocult,
+  mobile,
 }: TypographyProps) => {
   return (
     <S.Wrapper
-      bold={bold}
       align={align}
       color={color}
       size={size}
       transform={transform}
-      mobile={mobile}
+      bold={bold}
       ocult={ocult}
+      mobile={mobile}
     >
       {children}
     </S.Wrapper>

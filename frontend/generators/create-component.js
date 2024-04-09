@@ -39,7 +39,7 @@ const ${name} = ({ children }: ${name}Props) => {
 };
 
 export default ${name};
-`,
+`
   );
 
   const stylesFile = path.join(componentDir, "styles.ts");
@@ -50,7 +50,7 @@ export default ${name};
 export const Wrapper = styled.div\`
   \${({ theme }) => css\`\`}
 \`;
-`,
+`
   );
 
   if (await shouldCreateStoriesFile()) {
@@ -76,7 +76,7 @@ export const Default: Story = {
   args: {
     children: 'My ${name}',
   },
-};`,
+};`
     );
   }
 };

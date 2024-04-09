@@ -58,6 +58,8 @@ export const Hamburguer = styled.a`
     border-radius: 30rem;
     padding: 0.5rem;
     cursor: pointer;
+    height: 3rem;
+    width: 3rem;
   `}
 `;
 

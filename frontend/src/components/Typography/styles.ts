@@ -46,7 +46,7 @@ const typographyModifiers = {
   `,
 };
 
-export const Wrapper = styled.span<TypographyPropsPicker>`
+export const Wrapper = styled.p<TypographyPropsPicker>`
   ${({ theme, color, size, align, transform, bold, mobile, ocult }) => css`
     color: ${theme.colors[color]};
     transition: ${theme.transitions.fast};
@@ -54,7 +54,7 @@ export const Wrapper = styled.span<TypographyPropsPicker>`
 
     ${media.lessThan("medium")`
   ${
-    !!ocult &&
+    ocult &&
     css`
       display: none;
     `

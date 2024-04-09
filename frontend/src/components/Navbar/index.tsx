@@ -8,8 +8,6 @@ import { DefaultTheme } from "styled-components";
 import Logo from "../../../public/assets/storage/app/public/default.png";
 import Avatar from "../Avatar/avatar";
 import Button from "../Button";
-import { Dropdown } from "../Dropdown";
-import Icon from "../Icon";
 import Typography from "../Typography";
 
 import * as S from "./styles";
@@ -44,30 +42,15 @@ const Navbar = ({
     >
       <S.WrapperHamburguerAndProfileAndPermission>
         <S.Hamburguer onClick={onClick}>
-          <Icon color="primary" size="medium">
-            <Menu />
-          </Icon>
+          <Menu color="primary" height={32} width={32} />
         </S.Hamburguer>
         <S.ProfileAndPermission>
           <Typography color="gray" size="xsmall" ocult>
             Perfil:&nbsp;
           </Typography>
-          <Dropdown.Root isOpen={show}>
-            <Dropdown.Header color="primary" size="xsmall" onClick={toggleBase}>
-              Administrador - Templo Sede
-            </Dropdown.Header>
-            <Dropdown.Content isOpen={show}>
-              <Dropdown.ListItem color="white">
-                <Link href="/dashboard">
-                  <Dropdown.Item color="primary" size="xsmall" dark>
-                    Usuário comum
-                  </Dropdown.Item>
-                </Link>
-              </Dropdown.ListItem>
-            </Dropdown.Content>
-          </Dropdown.Root>
         </S.ProfileAndPermission>
       </S.WrapperHamburguerAndProfileAndPermission>
+      <input type="checkbox" onClick={toggleBase} />
       <S.ProfileContainer>
         {show && (
           <Link href="/sign-in">

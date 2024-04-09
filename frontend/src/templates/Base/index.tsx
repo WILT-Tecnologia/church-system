@@ -1,12 +1,9 @@
 "use client";
 
-import Navbar from "@/components/Navbar";
-import PageContainer from "@/components/PageContainer";
-import Sidebar from "@/components/Sidebar";
-
 import { useState } from "react";
 
-import * as S from "./styles";
+import Navbar from "@/components/Navbar";
+import { Box } from "@mui/material";
 
 type BaseProps = {
   children?: string | React.ReactNode;
@@ -20,12 +17,28 @@ export default function Base({ children }: BaseProps) {
   };
 
   return (
-    <S.Wrapper>
-      <Navbar color="white" onClick={handleVisible} />
-      <Sidebar onClick={handleVisible} />
-      <S.Content>
-        <PageContainer>{children}</PageContainer>
-      </S.Content>
-    </S.Wrapper>
+    <Box
+      sx={{
+        display: "grid",
+        gridTemplateAreas: `
+        sidebar header
+        sidebar main-content`,
+        gridTemplateColumns: "29rem 1fr",
+      }}
+    >
+      <Box>
+        <Navbar />
+      </Box>
+      {/* <S.SidebarContent>
+        <Sidebar onClick={handleVisible} />
+      </S.SidebarContent> */}
+      <Box
+        sx={{
+          gridArea: "main-content",
+        }}
+      >
+        {children}
+      </Box>
+    </Box>
   );
 }

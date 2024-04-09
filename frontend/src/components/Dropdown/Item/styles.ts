@@ -3,7 +3,9 @@ import styled, { css } from "styled-components";
 
 import { ItemProps } from ".";
 
-type ItemPropsPick = Pick<ItemProps, "color" | "dark" | "size">;
+type ItemPropsPick = {
+  dark?: boolean;
+} & Pick<ItemProps, "color" | "size">;
 
 export const Wrapper = styled.span<ItemPropsPick>`
   ${({ theme, color, size, dark }) => css`

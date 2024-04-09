@@ -1,23 +1,15 @@
 "use client";
 
-import GlobalStyles from "@/styles/global";
+import "@/styles/global.css";
 import theme from "@/styles/theme";
-
 import { ThemeProvider } from "styled-components";
 
 type ThemeProviderPageProps = {
   children: React.ReactNode;
 };
 
-export default function ThemeProviderPage({
-  children,
-}: ThemeProviderPageProps) {
-  return (
-    <>
-      <ThemeProvider theme={theme}>
-        <GlobalStyles />
-        {children}
-      </ThemeProvider>
-    </>
-  );
-}
+const ThemeProviderPage = ({ children }: ThemeProviderPageProps) => {
+  return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
+};
+
+export default ThemeProviderPage;

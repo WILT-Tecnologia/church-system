@@ -38,7 +38,7 @@ export const masks = {
   cnpj: (value: string) => {
     const newValue = value.replace(
       /(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,
-      "$1.$2.$3/$4-$5",
+      "$1.$2.$3/$4-$5"
     );
 
     return newValue;

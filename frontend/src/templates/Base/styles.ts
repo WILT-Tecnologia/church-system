@@ -1,4 +1,5 @@
-import styled, { css } from "styled-components";
+import { css } from "@emotion/react";
+import styled from "@emotion/styled";
 import media from "styled-media-query";
 
 export const Wrapper = styled.div`
@@ -12,7 +13,7 @@ export const Wrapper = styled.div`
     grid-row-gap: 0.2rem;
     width: 100vw;
     height: 100vh;
-    background: ${theme.colors.white};
+    background: ${theme.palette.primary.main};
 
     ${media.lessThan("medium")`
       grid-template-columns: 100% 1fr;
@@ -26,7 +27,7 @@ export const Wrapper = styled.div`
 export const Content = styled.section`
   ${({ theme }) => css`
     grid-area: main-content;
-    padding: ${theme.spacings.small};
+    padding: 1.6rem;
     overflow-y: auto;
   `}
 `;
