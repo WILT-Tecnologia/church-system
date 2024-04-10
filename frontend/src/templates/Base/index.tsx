@@ -12,7 +12,7 @@ type BaseProps = {
 };
 
 export default function Base({ children }: BaseProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const toggleSidebar = () => {
     setSidebarOpen((prevState) => !prevState);

@@ -30,7 +30,7 @@ export type SidebarProps = {
   toggleSidebar?: () => void;
 };
 
-const Sidebar = ({ isOpen = true, toggleSidebar }: SidebarProps) => {
+const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
   const pathname = usePathname();
 
   return (
