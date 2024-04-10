@@ -4,26 +4,9 @@ import media from "styled-media-query";
 
 import { NavbarProps } from ".";
 
-const navbarModifiers = {
-  absolute: () => css`
-    position: absolute;
-  `,
-  fixed: () => css`
-    position: fixed;
-  `,
-  relative: () => css`
-    position: relative;
-  `,
-  static: () => css`
-    position: static;
-  `,
-  sticky: () => css`
-    position: sticky;
-  `,
-};
-
 export const Wrapper = styled.nav<NavbarProps>`
-  ${({ theme, color, position, enableColorOnDark, percentDark = 0.5 }) => css`
+  ${({ theme, color, enableColorOnDark, percentDark = 0.5 }) => css`
+    position: relative;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -35,11 +18,9 @@ export const Wrapper = styled.nav<NavbarProps>`
     background-color: ${enableColorOnDark
       ? darken(percentDark, theme.colors[color])
       : theme.colors[color]};
-    padding: ${theme.spacings.xsmall};
+    padding: ${theme.spacings.large};
     transition: ${theme.transitions.fast};
     box-shadow: ${theme.shadows.navbar};
-
-    ${!!position && navbarModifiers[position]};
   `}
 `;
 
@@ -50,23 +31,9 @@ export const WrapperHamburguerAndProfileAndPermission = styled.div`
   gap: 1rem;
 `;
 
-export const Hamburguer = styled.a`
-  ${({ theme }) => css`
-    display: flex;
-    align-items: center;
-    border: 0.2rem solid ${theme.colors.primary};
-    border-radius: 30rem;
-    padding: 0.5rem;
-    cursor: pointer;
-    height: 3rem;
-    width: 3rem;
-  `}
-`;
-
 export const ProfileAndPermission = styled.div`
   ${({ theme }) => css`
     display: flex;
-
     align-items: center;
     justify-content: center;
     height: 100%;

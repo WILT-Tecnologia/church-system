@@ -1,20 +1,16 @@
 import { Meta, StoryObj } from "@storybook/react";
 
-import Sidebar from '.';
+import Sidebar from ".";
 
 const meta: Meta<typeof Sidebar> = {
-  title: 'Sidebar',
+  title: "Surfaces/Sidebar",
   component: Sidebar,
-  argTypes: {
-    children: { type: 'string' },
-  },
+  argTypes: {},
 };
 
 export default meta;
 type Story = StoryObj<typeof Sidebar>;
 
 export const Default: Story = {
-  args: {
-    children: 'My Sidebar',
-  },
+  args: {},
 };

@@ -3,7 +3,7 @@ import { Meta, StoryObj } from "@storybook/react";
 import Loading from ".";
 
 const meta: Meta<typeof Loading> = {
-  title: "Loading",
+  title: "Feedback/Loading",
   component: Loading,
 };
 

@@ -1,44 +1,36 @@
 "use client";
 
+import Navbar from "@/components/Navbar";
+import Sidebar from "@/components/Sidebar";
+
 import { useState } from "react";
 
-import Navbar from "@/components/Navbar";
-import { Box } from "@mui/material";
+import * as S from "./styles";
 
 type BaseProps = {
   children?: string | React.ReactNode;
 };
 
 export default function Base({ children }: BaseProps) {
-  const [show, setShow] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const handleVisible = () => {
-    setShow(!show);
+  const toggleSidebar = () => {
+    setSidebarOpen((prevState) => !prevState);
   };
 
   return (
-    <Box
-      sx={{
-        display: "grid",
-        gridTemplateAreas: `
-        sidebar header
-        sidebar main-content`,
-        gridTemplateColumns: "29rem 1fr",
-      }}
-    >
-      <Box>
-        <Navbar />
-      </Box>
-      {/* <S.SidebarContent>
-        <Sidebar onClick={handleVisible} />
-      </S.SidebarContent> */}
-      <Box
-        sx={{
-          gridArea: "main-content",
-        }}
-      >
-        {children}
-      </Box>
-    </Box>
+    <S.Wrapper>
+      <S.NavbarWrapper>
+        <Navbar
+          color="white"
+          toggleSidebar={toggleSidebar}
+          sidebarOpen={sidebarOpen}
+        />
+      </S.NavbarWrapper>
+      <S.SidebarWrapper>
+        <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+      </S.SidebarWrapper>
+      <S.Content>{children}</S.Content>
+    </S.Wrapper>
   );
 }

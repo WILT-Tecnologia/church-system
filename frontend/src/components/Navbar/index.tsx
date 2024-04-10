@@ -8,6 +8,7 @@ import { DefaultTheme } from "styled-components";
 import Logo from "../../../public/assets/storage/app/public/default.png";
 import Avatar from "../Avatar/avatar";
 import Button from "../Button";
+import Hamburguer from "../Hamburguer";
 import Typography from "../Typography";
 
 import * as S from "./styles";
@@ -16,18 +17,18 @@ export type NavbarProps = {
   color: keyof DefaultTheme["colors"];
   enableColorOnDark?: boolean;
   percentDark?: number;
-  position?: "absolute" | "fixed" | "relative" | "static" | "sticky";
-  onClick?: () => void;
+  toggleSidebar?: () => void;
+  sidebarOpen?: boolean;
 };
 
 const Navbar = ({
   color = "white",
-  position = "relative",
   enableColorOnDark = false,
   percentDark = 0.5,
-  onClick,
+  toggleSidebar,
+  sidebarOpen,
 }: NavbarProps) => {
-  const [show, setShow] = useState(false);
+  const [show, setShow] = useState(true);
 
   const toggleBase = () => {
     setShow((current) => !current);
@@ -36,22 +37,25 @@ const Navbar = ({
   return (
     <S.Wrapper
       color={color}
-      position={position}
       enableColorOnDark={enableColorOnDark}
       percentDark={percentDark}
     >
       <S.WrapperHamburguerAndProfileAndPermission>
-        <S.Hamburguer onClick={onClick}>
-          <Menu color="primary" height={32} width={32} />
-        </S.Hamburguer>
+        {!sidebarOpen && (
+          <Hamburguer
+            position="relative"
+            onClick={toggleSidebar}
+            icon={<Menu />}
+          />
+        )}
         <S.ProfileAndPermission>
           <Typography color="gray" size="xsmall" ocult>
             Perfil:&nbsp;
           </Typography>
         </S.ProfileAndPermission>
       </S.WrapperHamburguerAndProfileAndPermission>
-      <input type="checkbox" onClick={toggleBase} />
       <S.ProfileContainer>
+        <input type="checkbox" onClick={toggleBase} />
         {show && (
           <Link href="/sign-in">
             <Button color="primary" labelColor="white" variant="contained">

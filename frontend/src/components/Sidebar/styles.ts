@@ -1,40 +1,20 @@
-import { ArrowLeft, ArrowRight } from "@styled-icons/feather";
 import Link from "next/link";
 import { darken } from "polished";
 import styled, { DefaultTheme, css } from "styled-components";
 import media from "styled-media-query";
 
-export const FloatingButton = styled.button`
-  ${({ theme }) => css`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    z-index: 100;
-    border: 0.1rem solid ${theme.colors.primary};
-    border-radius: 1.5rem;
-    color: ${theme.colors.primary};
-    width: 3rem;
-    height: 3rem;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
+export const HamburguerWrapper = styled.div`
+  padding-left: 25rem;
+`;
+
+export const SidebarWrapper = styled.div<{ isOpen: boolean }>`
+  ${({ theme, isOpen }) => css`
+    width: ${isOpen ? "30rem" : "0"};
+    transition: width 0.3s ease-in-out;
+    overflow: hidden;
+    background: ${theme.colors.white};
+    box-shadow: ${theme.shadows.default};
   `}
-`;
-
-export const OpenIcon = styled(ArrowRight)`
-  width: 2.4rem;
-  height: 2.4rem;
-`;
-
-export const CloseIcon = styled(ArrowLeft)`
-  width: 2.4rem;
-  height: 2.4rem;
-`;
-
-export const SidebarWrapper = styled.div<{ show: boolean }>`
-  width: ${(props) => (props.show ? "30rem" : "0")};
-  transition: width 0.3s ease-in-out;
-  overflow: hidden;
 `;
 
 export const Wrapper = styled.aside`
@@ -45,10 +25,9 @@ export const Wrapper = styled.aside`
       "logo"
       "menu";
     grid-template-rows: 8rem 1fr;
-    background: ${theme.colors.white};
-    box-shadow: ${theme.shadows.default};
     text-align: center;
     height: 100vh;
+    box-shadow: ${theme.shadows.default};
 
     ${media.lessThan("medium")`
       display: none;
@@ -73,7 +52,7 @@ export const Logo = styled(Link)`
   `}
 `;
 
-export const Menu = styled.ul`
+export const MenuItems = styled.ul`
   ${({ theme }) => css`
     grid-area: menu;
     padding: ${theme.spacings.small} ${theme.spacings.xxsmall};

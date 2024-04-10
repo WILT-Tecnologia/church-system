@@ -11,6 +11,13 @@ const GlobalStyles = createGlobalStyle`
     }
   }
 
+
+  html {
+    font-size: 62.5%;
+    scroll-behavior: smooth;
+  }
+
+  
   html {
     font-size: 62.5%;
     scroll-behavior: smooth;
@@ -22,6 +29,11 @@ const GlobalStyles = createGlobalStyle`
       background-color: ${theme.colors.primary};
     `}
     }
+
+  html {
+    font-size: 62.5%;
+  }
+
 
   body {
     ${({ theme }) => css`

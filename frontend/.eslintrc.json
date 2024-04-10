@@ -1,6 +1,49 @@
 {
-  "extends": [
-    "next/core-web-vitals",
-    "plugin:storybook/recommended"
-  ]
+  "extends": ["next", "next/core-web-vitals", "plugin:storybook/recommended"],
+  "parser": "@typescript-eslint/parser",
+  "settings": {
+    "babel": {
+      "rootMode": "upward"
+    }
+  },
+  "rules": {
+    "prefer-arrow-callback": "error",
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "sort-imports": [
+      "error",
+      {
+        "ignoreCase": true,
+        "ignoreDeclarationSort": true,
+        "ignoreMemberSort": true,
+        "memberSyntaxSortOrder": ["single", "all", "multiple", "none"],
+        "allowSeparatedGroups": true
+      }
+    ],
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          "builtin",
+          "unknown",
+          "external",
+          "internal",
+          "parent",
+          "sibling",
+          "index"
+        ],
+        "pathGroups": [
+          {
+            "pattern": "react",
+            "group": "external",
+            "position": "before"
+          }
+        ],
+        "newlines-between": "always",
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        }
+      }
+    ]
+  }
 }

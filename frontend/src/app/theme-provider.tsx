@@ -1,7 +1,8 @@
 "use client";
 
-import "@/styles/global.css";
+import GlobalStyles from "@/styles/global";
 import theme from "@/styles/theme";
+
 import { ThemeProvider } from "styled-components";
 
 type ThemeProviderPageProps = {
@@ -9,7 +10,12 @@ type ThemeProviderPageProps = {
 };
 
 const ThemeProviderPage = ({ children }: ThemeProviderPageProps) => {
-  return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
+  return (
+    <ThemeProvider theme={theme}>
+      <GlobalStyles />
+      {children}
+    </ThemeProvider>
+  );
 };
 
 export default ThemeProviderPage;

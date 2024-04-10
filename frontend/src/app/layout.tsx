@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
+import { Suspense } from "react";
+
+import Loading from "./loading";
 import ThemeProviderPage from "./theme-provider";
 
 const poppins = Poppins({ weight: "500", subsets: ["latin"] });
@@ -17,7 +20,9 @@ export default function RootLayout({
   return (
     <html lang="pt-br">
       <body className={poppins.className}>
-        <ThemeProviderPage>{children}</ThemeProviderPage>
+        <ThemeProviderPage>
+          <Suspense fallback={<Loading />}>{children}</Suspense>
+        </ThemeProviderPage>
       </body>
     </html>
   );

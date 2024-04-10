@@ -87,4 +87,10 @@ export default {
     xhuge: "6.4rem",
     auto: "auto",
   },
+  position: {
+    static: "static",
+    relative: "relative",
+    absolute: "absolute",
+    fixed: "fixed",
+  },
 } as const;
