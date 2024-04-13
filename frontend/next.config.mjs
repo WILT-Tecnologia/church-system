@@ -5,7 +5,6 @@ const nextConfig = {
   experimental: { esmExternals: true },
   output: "standalone",
   swcMinify: true,
-
   compiler: {
     styledComponents: true,
   },
