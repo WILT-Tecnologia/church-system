@@ -1,11 +1,10 @@
-import { darken } from "polished";
 import styled, { css } from "styled-components";
 import media from "styled-media-query";
 
 import { NavbarProps } from ".";
 
 export const Wrapper = styled.nav<NavbarProps>`
-  ${({ theme, color, enableColorOnDark, percentDark = 0.5 }) => css`
+  ${({ theme, color }) => css`
     position: relative;
     display: flex;
     flex-direction: row;
@@ -15,9 +14,7 @@ export const Wrapper = styled.nav<NavbarProps>`
     width: 100%;
     max-width: 100%;
     color: ${theme.colors.white};
-    background-color: ${enableColorOnDark
-      ? darken(percentDark, theme.colors[color])
-      : theme.colors[color]};
+    background-color: ${theme.colors.black};
     padding: ${theme.spacings.large};
     transition: ${theme.transitions.fast};
     box-shadow: ${theme.shadows.navbar};

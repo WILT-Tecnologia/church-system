@@ -5,7 +5,7 @@ const FetchPrimaryColor = () => {
 
   useEffect(() => {
     async function fetchPrimaryColor() {
-      const response = await fetch("/api/color");
+      const response = await fetch("/api/main_settings");
       const data = await response.json();
       setPrimaryColor(data.color);
     }

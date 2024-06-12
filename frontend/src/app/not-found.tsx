@@ -1,7 +1,6 @@
 "use client";
 
-import Button from "@/components/Button";
-
+import { Button } from "@mui/material";
 import Link from "next/link";
 
 export default function NotFound() {
@@ -10,8 +9,8 @@ export default function NotFound() {
       <p className="text-6xl font-bold">Não encontrada</p>
       <p className="text-2xl">Sorry, this page does not exist 🥺</p>
       <Link href="/">
-        <Button color="primary" labelColor="primary" variant="text">
-          Return Home
+        <Button color="primary" variant="text">
+          Returnar a página inicial
         </Button>
       </Link>
     </div>

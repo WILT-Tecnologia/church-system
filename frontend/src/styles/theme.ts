@@ -1,96 +1,25 @@
-export default {
-  colors: {
-    primary: "#0393BE",
-    secondary: "#0DBF87",
-    red: "#EE4C4C",
-    yellow: "#F4DA85",
-    lightGrey: "#BFC1C2",
-    gray: "#717273",
-    white: "#F8FAFA",
-    black: "#13110C",
-    disabled: "#E0E0E0E0",
-    background: "#F0F0F0",
-    transparent: "transparent",
-  },
-  shadows: {
-    none: "none",
-    default: `-0.1rem -0.1rem 0.5rem 0rem rgba(0, 0, 0, 0.3),
-       0.2rem 0.2rem 0.5rem 0rem rgba(0, 0, 0, 0.3)`,
-    navbar: `0.3rem 0rem 0.5rem 0rem rgba(0, 0, 0, 0.5)`,
-    notFocus: `0.3rem 0.3rem 0.1rem 0.1rem rgba(0,0,0,0.2)`,
-    focus: `0.1rem 0.1rem 0.3rem 0px rgba(0,0,0,0.25)`,
-    hover: `0px 4px 2px -3px rgba(0, 0, 0, 0.2),
-        0px 3px 3px 0px rgba(0, 0, 0, 0.14),
-        0px 2px 7px 0px rgba(0, 0, 0, 0.12)`,
-  },
-  fonts: {
-    family: {
-      primary: "'Poppins', sans-serif",
+import { createTheme } from "@mui/material";
+
+const theme = createTheme({
+  palette: {
+    mode: "light",
+    primary: {
+      main: "#0393BE",
     },
-    weight: {
-      light: 300,
-      normal: 400,
-      medium: 500,
-      bold: 600,
-      mediumBold: 700,
-      black: 800,
-      extraBlack: 900,
+    secondary: {
+      main: "#0DBF87",
     },
-    sizes: {
-      xxsmall: "1rem",
-      xsmall: "1.2rem",
-      small: "1.6rem",
-      medium: "2.4rem",
-      large: "3.2rem",
-      xlarge: "4.0rem",
-      xxlarge: "4.8rem",
-      huge: "5.6rem",
-      xhuge: "6.4rem",
+    error: {
+      main: "#EE4C4C",
     },
-    style: {
-      normal: "normal",
-      italic: "italic",
-      oblique: "oblique",
+    warning: {
+      main: "#F4DA85",
+    },
+    common: {
+      black: "#13110C",
+      white: "#F8FAFA",
     },
   },
-  breakpoints: {
-    phone: "(max-width: 768px)",
-  },
-  transitions: {
-    fast: "all 0.3s ease-in-out;",
-    normal: "all 1s ease-in-out;",
-    slow: "all 2s ease-in-out;",
-    hover: `background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0s,
-        box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0s,
-        border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0s,
-        color 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0s`,
-  },
-  layers: {
-    base: 10,
-    menu: 20,
-    cardOverlay: 30,
-    card: 40,
-    overlay: 50,
-    modal: 60,
-    alwaysOnTop: 70,
-  },
-  spacings: {
-    none: "0rem",
-    xxsmall: "0.8rem",
-    xsmall: "1.8rem",
-    small: "2.4rem",
-    medium: "3.2rem",
-    large: "4.0rem",
-    xlarge: "4.8rem",
-    xxlarge: "5.6rem",
-    huge: "6.2rem",
-    xhuge: "6.4rem",
-    auto: "auto",
-  },
-  position: {
-    static: "static",
-    relative: "relative",
-    absolute: "absolute",
-    fixed: "fixed",
-  },
-} as const;
+});
+
+export default theme;

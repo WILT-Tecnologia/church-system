@@ -1,9 +1,14 @@
 "use client";
 
+import FetchPrimaryColor from "@/requests/queries/FetchPrimaryColor";
 import GlobalStyles from "@/styles/global";
 import theme from "@/styles/theme";
-import FetchPrimaryColor from "@/utils/FetchPrimaryColor";
-import { DefaultTheme, ThemeProvider } from "styled-components";
+import ThemeStyledComponent from "@/styles/themeStyledComponent";
+import { ThemeProvider } from "@mui/material";
+import {
+  DefaultTheme,
+  ThemeProvider as ThemeProviderStyledComponent,
+} from "styled-components";
 
 type ThemeProviderPageProps = {
   children: React.ReactNode;
@@ -19,17 +24,19 @@ const ThemeProviderPage = ({ children }: ThemeProviderPageProps) => {
   const primaryColor: string | any = FetchPrimaryColor();
 
   const customTheme: CustomTheme = {
-    ...theme,
+    ...ThemeStyledComponent,
     colors: {
-      ...theme.colors,
+      ...ThemeStyledComponent.colors,
       primary: primaryColor,
     },
   };
 
   return (
-    <ThemeProvider theme={customTheme}>
-      <GlobalStyles />
-      {children}
+    <ThemeProvider theme={theme}>
+      <ThemeProviderStyledComponent theme={customTheme}>
+        <GlobalStyles />
+        {children}
+      </ThemeProviderStyledComponent>
     </ThemeProvider>
   );
 };
