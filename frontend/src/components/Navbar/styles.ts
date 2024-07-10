@@ -24,10 +24,18 @@ export const Header = styled(AppBar)`
   `}
 `;
 
-export const MenuAndProfile = styled(Box)`
+export const Profile = styled(Box)`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
+`;
+
+export const Menu = styled(Box)`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
   gap: 1rem;
 `;

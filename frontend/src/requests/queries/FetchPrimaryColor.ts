@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
 
 const FetchPrimaryColor = () => {
@@ -5,8 +6,8 @@ const FetchPrimaryColor = () => {
 
   useEffect(() => {
     async function fetchPrimaryColor() {
-      const response = await fetch("/api/main_settings");
-      const data = await response.json();
+      const response = await axios.get("/api/main_settings");
+      const data = await response.data;
       setPrimaryColor(data.color);
     }
 

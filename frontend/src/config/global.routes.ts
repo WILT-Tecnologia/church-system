@@ -1,26 +1,30 @@
 const global = [
   {
-    path: "/dashboard/",
+    path: "/",
+    name: "Inicio",
+  },
+  {
+    path: "/admin/dashboard/",
     name: "Dashboard",
   },
   {
-    path: "/persons",
+    path: "/admin/persons",
     name: "Pessoas",
   },
   {
-    path: "/registrations",
+    path: "/admin/registrations",
     name: "Cadastros",
   },
   {
-    path: "/queries",
+    path: "/admin/queries",
     name: "Consultas",
   },
   {
-    path: "/events",
+    path: "/admin/events",
     name: "Eventos",
   },
   {
-    path: "/settings",
+    path: "/admin/settings",
     name: "Configurações",
   },
 ];

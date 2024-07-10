@@ -1,26 +1,43 @@
-"use client";
-
 import Link from "next/link";
 
-import { Menu } from "@mui/icons-material";
-import { Button, IconButton, Typography } from "@mui/material";
+import { global } from "@/config/global.routes";
+import { Button, Typography } from "@mui/material";
+import { Fragment } from "react";
 import * as S from "./styles";
 
-export type NavbarProps = {
-  toggleSidebar?: () => void;
-  sidebarOpen?: boolean;
+type Route = {
+  path: string;
+  name: string;
 };
 
-const Navbar = ({ toggleSidebar }: NavbarProps) => {
+type Routes = {
+  [key: string]: Route[];
+};
+
+const routes: Routes = {
+  global,
+};
+
+const Navbar = () => {
   return (
     <S.Wrapper component="nav" sx={{ flexGrow: 1 }}>
       <S.Header color="inherit" position="static">
-        <S.MenuAndProfile>
-          <IconButton onClick={toggleSidebar}>
-            <Menu color="primary" />
-          </IconButton>
+        <S.Profile>
           <Typography color="primary">Perfil:&nbsp;</Typography>
-        </S.MenuAndProfile>
+        </S.Profile>
+        <S.Menu>
+          {Object.entries(routes).map(([key, value]) => (
+            <Fragment key={key}>
+              {value.map((route) => (
+                <Link href={route.path} key={route.path}>
+                  <Button color="primary" variant="text" key={route.path}>
+                    {route.name}
+                  </Button>
+                </Link>
+              ))}
+            </Fragment>
+          ))}
+        </S.Menu>
         <Link href="/sign-in">
           <Button color="primary" variant="contained">
             Login
