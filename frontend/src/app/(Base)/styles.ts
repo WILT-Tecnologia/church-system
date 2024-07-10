@@ -10,8 +10,8 @@ export const Wrapper = styled.div`
     grid-template-columns: auto 1fr;
     grid-template-rows: 8rem 1fr;
     grid-row-gap: 0.2rem;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100dvh;
     background: ${theme.colors.white};
 
     ${media.lessThan("medium")`

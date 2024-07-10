@@ -1,15 +1,19 @@
 "use client";
 
-import { Menu } from "@styled-icons/feather";
+import { Fragment, useEffect, useState } from "react";
+
+import { Home } from "@mui/icons-material";
+import {
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Fragment } from "react";
-
 import Logo from "../../../public/next.svg";
 import { global } from "../../config/global.routes";
-import Hamburguer from "../Hamburguer";
-
 import * as S from "./styles";
 
 type Route = {
@@ -31,39 +35,60 @@ export type SidebarProps = {
 };
 
 const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
-  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+
+  const toggleDrawer = (newOpen: boolean) => () => {
+    setOpen(newOpen);
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768 && isOpen) {
+        toggleSidebar?.();
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [isOpen, toggleSidebar]);
 
   return (
     <>
       {isOpen && (
-        <S.HamburguerWrapper>
-          <Hamburguer onClick={toggleSidebar} icon={<Menu />} />
-        </S.HamburguerWrapper>
-      )}
-      {isOpen && (
-        <S.SidebarWrapper isOpen={isOpen}>
-          <S.Wrapper>
-            <S.Logo href="/" passHref>
+        <S.Wrapper
+          sx={{
+            width: "15rem",
+            backgroundColor: "white",
+            height: "100dvh",
+          }}
+          component="aside"
+          role="presentation"
+          onClick={toggleDrawer(false)}
+        >
+          <List>
+            <S.Logo href="/">
               <Image src={Logo} width={150} quality={80} alt="Logo" priority />
             </S.Logo>
-            <S.MenuItems>
-              {Object.entries(routes).map(([key, value]) => (
-                <Fragment key={key}>
-                  {value.map((route) => (
-                    <S.MenuItem
-                      key={route.path}
-                      active={pathname === route.path}
-                    >
-                      <Link href={route.path} passHref>
-                        {route.name}
-                      </Link>
-                    </S.MenuItem>
-                  ))}
-                </Fragment>
-              ))}
-            </S.MenuItems>
-          </S.Wrapper>
-        </S.SidebarWrapper>
+            {Object.entries(routes).map(([key, value]) => (
+              <Fragment key={key}>
+                {value.map((route) => (
+                  <Link href={route.path}>
+                    <ListItem disablePadding key={route.path}>
+                      <ListItemButton>
+                        <ListItemIcon>
+                          <Home />
+                        </ListItemIcon>
+                        <ListItemText primary={route.name} />
+                      </ListItemButton>
+                    </ListItem>
+                  </Link>
+                ))}
+              </Fragment>
+            ))}
+          </List>
+        </S.Wrapper>
       )}
     </>
   );

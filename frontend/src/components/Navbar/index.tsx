@@ -1,14 +1,9 @@
 "use client";
 
-import { Menu } from "@styled-icons/feather";
 import Link from "next/link";
-import { useState } from "react";
 
-import { AppBar, Box, Button, Typography } from "@mui/material";
-import Logo from "../../../public/assets/storage/app/public/default.png";
-import Avatar from "../Avatar/avatar";
-
-import Hamburguer from "../Hamburguer";
+import { Menu } from "@mui/icons-material";
+import { Button, IconButton, Typography } from "@mui/material";
 import * as S from "./styles";
 
 export type NavbarProps = {
@@ -16,48 +11,23 @@ export type NavbarProps = {
   sidebarOpen?: boolean;
 };
 
-const Navbar = ({ toggleSidebar, sidebarOpen }: NavbarProps) => {
-  const [show, setShow] = useState(true);
-
-  const toggleBase = () => {
-    setShow((current) => !current);
-  };
-
+const Navbar = ({ toggleSidebar }: NavbarProps) => {
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
-        <S.WrapperHamburguerAndProfileAndPermission>
-          {!sidebarOpen && (
-            <Hamburguer
-              position="relative"
-              onClick={toggleSidebar}
-              icon={<Menu />}
-            />
-          )}
-          <S.ProfileAndPermission>
-            <Typography>Perfil:&nbsp;</Typography>
-          </S.ProfileAndPermission>
-        </S.WrapperHamburguerAndProfileAndPermission>
-        <S.ProfileContainer>
-          <input type="checkbox" onClick={toggleBase} />
-          {show && (
-            <Link href="/sign-in">
-              <Button color="primary" variant="contained">
-                Login
-              </Button>
-            </Link>
-          )}
-          {!show && (
-            <Link href="/profile">
-              <S.Profile>
-                <Typography>Tiago Persch</Typography>
-                <Avatar src={Logo} height={50} width={50} />
-              </S.Profile>
-            </Link>
-          )}
-        </S.ProfileContainer>
-      </AppBar>
-    </Box>
+    <S.Wrapper component="nav" sx={{ flexGrow: 1 }}>
+      <S.Header color="inherit" position="static">
+        <S.MenuAndProfile>
+          <IconButton onClick={toggleSidebar}>
+            <Menu color="primary" />
+          </IconButton>
+          <Typography color="primary">Perfil:&nbsp;</Typography>
+        </S.MenuAndProfile>
+        <Link href="/sign-in">
+          <Button color="primary" variant="contained">
+            Login
+          </Button>
+        </Link>
+      </S.Header>
+    </S.Wrapper>
   );
 };
 
