@@ -1,5 +1,5 @@
-const SignIn = () => {
-  return <>Login</>;
-};
+import SignIn from "@/templates/client/sign-in/sign-in";
 
-export default SignIn;
+export default function SignInPage() {
+  return <SignIn />;
+}
