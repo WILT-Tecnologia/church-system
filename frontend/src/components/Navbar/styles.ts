@@ -4,11 +4,11 @@ import styled, { css } from "styled-components";
 export const Wrapper = styled(Box)`
   ${({ theme }) => css`
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
+    align-content: stretch;
     width: 100%;
     height: 5rem;
-    background-color: ${theme.colors.white};
   `}
 `;
 
