@@ -1,20 +1,22 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-const FetchPrimaryColor = () => {
-  const [primaryColor, setPrimaryColor] = useState("#0DBF87");
+export default function useFetchPrimaryColor(): string {
+  const [primaryColor, setPrimaryColor] = useState<string>("#0393BE");
 
   useEffect(() => {
-    async function fetchPrimaryColor() {
-      const response = await axios.get("/api/main_settings");
-      const data = await response.data;
-      setPrimaryColor(data.color);
-    }
+    const fetchColor = async () => {
+      try {
+        const response = await axios.get("/api/color");
+        const color = response.data.color || primaryColor;
+        setPrimaryColor(color);
+      } catch (error) {
+        console.error("Failed to fetch primary color", error);
+      }
+    };
 
-    fetchPrimaryColor();
+    fetchColor();
   }, []);
 
   return primaryColor;
-};
-
-export default FetchPrimaryColor;
+}

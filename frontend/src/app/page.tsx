@@ -1,9 +1,5 @@
-const Index = ({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) => {
-  return children;
-};
+import { redirect } from "next/navigation";
 
-export default Index;
+export default function PageRedirectInDasboard() {
+  redirect("/admin/dashboard");
+}

@@ -1,21 +1,20 @@
 "use client";
 
-// import NextAuthSessionProvider from "@/providers/sessionProvider";
-import FetchPrimaryColor from "@/requests/queries/FetchPrimaryColor";
+import Navbar from "@/components/Navbar";
+import useFetchPrimaryColor from "@/requests/queries/FetchPrimaryColor";
 import GlobalStyles from "@/styles/global";
-import theme from "@/styles/theme";
-import ThemeStyledComponent from "@/styles/themeStyledComponent";
-import Base from "@/templates/Base";
-import { ThemeProvider } from "@mui/material";
+import themeStyledComponent from "@/styles/theme-styled-component";
+import { createTheme, ThemeProvider } from "@mui/material";
 import {
   hydrate,
   HydrationBoundary,
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
+import { usePathname } from "next/navigation";
 import {
   DefaultTheme,
-  ThemeProvider as ThemeProviderStyledComponent,
+  ThemeProvider as StyledComponentsThemeProvider,
 } from "styled-components";
 
 type ThemeProviderPageProps = {
@@ -29,25 +28,50 @@ type CustomTheme = {
 } & DefaultTheme;
 
 const ThemeProviderPage = ({ children }: ThemeProviderPageProps) => {
+  const pathname = usePathname();
   const queryClient = new QueryClient();
-  const primaryColor: string | any = FetchPrimaryColor();
+  const isAdminRoute = pathname.startsWith("/admin");
+  const primaryColor = useFetchPrimaryColor();
 
   const customTheme: CustomTheme = {
-    ...ThemeStyledComponent,
+    ...themeStyledComponent,
     colors: {
-      ...ThemeStyledComponent.colors,
+      ...themeStyledComponent.colors,
       primary: primaryColor,
     },
   };
+
+  const theme = createTheme({
+    palette: {
+      mode: "light",
+      primary: {
+        main: primaryColor,
+      },
+      secondary: {
+        main: "#0DBF87",
+      },
+      error: {
+        main: "#EE4C4C",
+      },
+      warning: {
+        main: "#F4DA85",
+      },
+      common: {
+        black: "#13110C",
+        white: "#F8FAFA",
+      },
+    },
+  });
 
   return (
     <QueryClientProvider client={queryClient}>
       <HydrationBoundary state={hydrate}>
         <ThemeProvider theme={theme}>
-          <ThemeProviderStyledComponent theme={customTheme}>
-            <Base>{children}</Base>
+          <StyledComponentsThemeProvider theme={customTheme}>
+            {isAdminRoute && <Navbar />}
+            {children}
             <GlobalStyles />
-          </ThemeProviderStyledComponent>
+          </StyledComponentsThemeProvider>
         </ThemeProvider>
       </HydrationBoundary>
     </QueryClientProvider>
