@@ -12,7 +12,7 @@ class UpdateChurchRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -25,8 +25,8 @@ class UpdateChurchRequest extends FormRequest
         return [
             'name' => ['sometimes', 'required'],
             'email' => ['sometimes', 'required', 'email'],
-            'cnpj' => ['sometimes', 'required', new Cnpj()],
-            'cep' => ['sometimes', 'required'],
+            'cnpj' => ['sometimes', 'required', 'numeric', new Cnpj()],
+            'cep' => ['sometimes', 'required', 'numeric'],
             'street' => ['sometimes', 'required'],
             'number' => ['sometimes', 'required', 'numeric'],
             'complement' => ['nullable'],

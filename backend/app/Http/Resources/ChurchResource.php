@@ -28,8 +28,7 @@ class ChurchResource extends JsonResource
             'state' => $this->state,
             'country' => $this->country,
             'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'deleted' => $this->deleted_at
+            'updated_at' => $this->updated_at
         ];
     }
 }

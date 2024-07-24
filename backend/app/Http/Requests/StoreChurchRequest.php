@@ -25,8 +25,8 @@ class StoreChurchRequest extends FormRequest
         return [
             'name' => ['required'],
             'email' => ['required', 'email'],
-            'cnpj' => ['required', new Cnpj](),
-            'cep' => ['required'],
+            'cnpj' => ['required', 'numeric', new Cnpj()],
+            'cep' => ['required', 'numeric'],
             'street' => ['required'],
             'number' => ['required', 'numeric'],
             'complement' => ['nullable'],
