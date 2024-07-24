@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\Cnpj;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateChurchRequest extends FormRequest
@@ -24,7 +25,7 @@ class UpdateChurchRequest extends FormRequest
         return [
             'name' => ['sometimes', 'required'],
             'email' => ['sometimes', 'required', 'email'],
-            'cnpj' => ['sometimes', 'required'],
+            'cnpj' => ['sometimes', 'required', new Cnpj()],
             'cep' => ['sometimes', 'required'],
             'street' => ['sometimes', 'required'],
             'number' => ['sometimes', 'required', 'numeric'],
