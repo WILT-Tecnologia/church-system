@@ -15,7 +15,7 @@ class Church extends Model
 
     protected $table = 'churches';
 
-    protected $primaryKey = 'uuid';
+    protected $primaryKey = 'id';
 
     protected $fillable = [
         'name',

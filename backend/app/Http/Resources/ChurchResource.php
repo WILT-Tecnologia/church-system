@@ -15,7 +15,7 @@ class ChurchResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->uuid,
+            'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
             'cnpj' => $this->cnpj,
