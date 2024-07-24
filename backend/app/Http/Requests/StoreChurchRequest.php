@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\Cnpj;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreChurchRequest extends FormRequest
@@ -24,7 +25,7 @@ class StoreChurchRequest extends FormRequest
         return [
             'name' => ['required'],
             'email' => ['required', 'email'],
-            'cnpj' => ['required'],
+            'cnpj' => ['required', new Cnpj](),
             'cep' => ['required'],
             'street' => ['required'],
             'number' => ['required', 'numeric'],
