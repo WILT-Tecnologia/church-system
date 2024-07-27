@@ -2,7 +2,7 @@
 const nextConfig = {
   optimizeFonts: true,
   reactStrictMode: true,
-  experimental: { esmExternals: true },
+  experimental: { esmExternals: true, optimizeCss: true },
   output: "standalone",
   swcMinify: true,
   compiler: {

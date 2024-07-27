@@ -15,8 +15,9 @@ const global = [
     path: "/admin/persons",
     name: "Pessoas",
     subRoutes: [
+      { path: "/admin/persons/users", name: "Usuários" },
+      { path: "/admin/persons/create", name: "Adicionar Pessoa" },
       { path: "/admin/persons/list", name: "Lista de Pessoas" },
-      { path: "/admin/persons/add", name: "Adicionar Pessoa" },
     ],
   },
   {

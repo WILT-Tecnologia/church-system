@@ -35,7 +35,7 @@ const PatternFormattedTextField = forwardRef<
   ) => (
     <PatternFormat
       {...field}
-      inputRef={ref}
+      getInputRef={ref}
       customInput={TextField}
       format={format}
       mask={mask}
