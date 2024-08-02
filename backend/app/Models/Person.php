@@ -35,7 +35,7 @@ class Person extends Model
         'country'
     ];
 
-    protected $cats = [
+    protected $casts = [
         'sex' => SexEnum::class,
     ];
 }
