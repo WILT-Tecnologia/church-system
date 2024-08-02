@@ -19,5 +19,11 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        if (env('APP_ENV') == 'local') {
+            $this->call([
+                PersonSeeder::class,
+            ]);
+        }
     }
 }
