@@ -9,7 +9,7 @@ declare module "next-auth" {
       name: string;
       login: string;
       token: string;
-      changePassword: boolean;
+      change_password: boolean;
     };
     configs: {
       name_client?: string;

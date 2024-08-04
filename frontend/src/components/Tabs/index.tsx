@@ -27,7 +27,14 @@ export default function CustomTabs({ children, labels }: TabPanelProps) {
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
         <Tabs value={value} onChange={handleChange} aria-label="Settings menu">
           {labels.map((label, index) => (
-            <Tab label={label} key={index} {...a11yProps(index)} />
+            <Tab
+              label={label}
+              key={index}
+              {...a11yProps(index)}
+              sx={{
+                textTransform: "capitalize",
+              }}
+            />
           ))}
         </Tabs>
       </Box>
