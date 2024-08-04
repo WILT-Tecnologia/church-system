@@ -86,7 +86,9 @@ export default function Navbar() {
             </Drawer>
           </>
         )}
-        <Image src="/vercel.svg" alt="logo" width={100} height={100} />
+        <S.Logo href={"/"}>
+          <Image src="/vercel.svg" alt="logo" width={100} height={100} />
+        </S.Logo>
         {/* {!isMobile && (
           <>
             <S.Menu>

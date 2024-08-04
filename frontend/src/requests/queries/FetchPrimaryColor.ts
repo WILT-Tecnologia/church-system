@@ -2,7 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 
 export default function useFetchPrimaryColor(): string {
-  const [primaryColor, setPrimaryColor] = useState<string>("#0393BE");
+  const [primaryColor, setPrimaryColor] = useState<string>("#0DBF87");
 
   useEffect(() => {
     const fetchColor = async () => {

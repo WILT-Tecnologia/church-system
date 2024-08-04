@@ -1,84 +1,31 @@
-"use client";
-
+import Table from "@/components/Table";
 import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
 import { Chip, Tooltip } from "@mui/material";
 import { GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
+import useEventTypeForm from "../hook";
 
-import Table from "@/components/Table";
-import useChurchForm from "../hooks";
-
-const ChurchShow = () => {
-  const { isLoading, rowModesModel, setRowModesModel, churchs } =
-    useChurchForm();
+export default function EventTypeShow() {
+  const { isLoading, rowModesModel, setRowModesModel, eventType } =
+    useEventTypeForm();
 
   const columns: GridColDef[] = [
+    { field: "church_id", headerName: "Igreja", width: 200 },
     { field: "name", headerName: "Nome", width: 200 },
-    { field: "email", headerName: "E-mail", width: 200 },
-    { field: "cnpj", headerName: "CNPJ", width: 200 },
     {
-      field: "cep",
-      headerName: "CEP",
-      width: 200,
-    },
-    {
-      field: "street",
-      headerName: "Rua",
-      width: 200,
-    },
-    {
-      field: "number",
-      headerName: "Número",
-      width: 200,
-    },
-    {
-      field: "complement",
-      headerName: "Complemento",
-      width: 200,
-    },
-    {
-      field: "district",
-      headerName: "Bairro",
-      width: 200,
-    },
-    {
-      field: "city",
-      headerName: "Cidade",
-      width: 200,
-    },
-    {
-      field: "state",
-      headerName: "Estado",
-      width: 100,
-    },
-    {
-      field: "responsible_id",
-      headerName: "Pastor responsável",
+      field: "description",
+      headerName: "Descrição",
       width: 300,
     },
     {
-      field: "logo",
-      headerName: "Logo",
+      field: "status",
+      headerName: "Status",
+      type: "boolean",
       width: 200,
-    },
-    {
-      field: "favicon",
-      headerName: "Favicon",
-      width: 200,
-    },
-    {
-      field: "background",
-      headerName: "Background",
-      width: 200,
-    },
-    {
-      field: "color",
-      headerName: "Cor",
-      width: 100,
-      renderCell(params) {
+      renderCell: (params) => {
         return (
           <Chip
-            label={params.value}
-            style={{ backgroundColor: params.value, width: "100%" }}
+            label={params.value ? "Ativo" : "Inativo"}
+            color={params.value ? "success" : "error"}
           />
         );
       },
@@ -126,17 +73,15 @@ const ChurchShow = () => {
 
   return (
     <Table
-      rows={churchs}
+      rows={eventType}
       columns={columns}
       loading={isLoading}
       isLoading={isLoading}
       rowModesModel={rowModesModel}
       setRowModesModel={setRowModesModel}
       sortingField="name"
-      href="/admin/administrative/churchs/create"
+      href="/admin/administrative/event-type/create"
       label="Adicionar"
     />
   );
-};
-
-export default ChurchShow;
+}

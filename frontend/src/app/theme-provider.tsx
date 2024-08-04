@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import useFetchPrimaryColor from "@/requests/queries/FetchPrimaryColor";
 import GlobalStyles from "@/styles/global";
 import themeStyledComponent from "@/styles/theme-styled-component";
-import { createTheme, ThemeProvider } from "@mui/material";
+import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import {
   hydrate,
   HydrationBoundary,
@@ -16,6 +16,8 @@ import {
   DefaultTheme,
   ThemeProvider as StyledComponentsThemeProvider,
 } from "styled-components";
+
+import "../styles/global.css";
 
 type ThemeProviderPageProps = {
   children: React.ReactNode;
@@ -67,6 +69,7 @@ const ThemeProviderPage = ({ children }: ThemeProviderPageProps) => {
     <QueryClientProvider client={queryClient}>
       <HydrationBoundary state={hydrate}>
         <ThemeProvider theme={theme}>
+          <CssBaseline />
           <StyledComponentsThemeProvider theme={customTheme}>
             {isAdminRoute && <Navbar />}
             {children}

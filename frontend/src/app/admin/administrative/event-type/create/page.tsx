@@ -1,20 +1,25 @@
 "use client";
 
 import * as S from "@/app/admin/administrative/styles";
-
 import CTA from "@/components/Form/CTA";
+import { churchs } from "@/utils/mocks";
 import {
   Card,
   Checkbox,
   Divider,
+  FormControl,
   FormControlLabel,
   FormGroup,
+  FormHelperText,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
   Typography,
 } from "@mui/material";
-import useOfficesForm from "../hook";
+import useEventTypeForm from "../hook";
 
-export default function OfficeCreate() {
+export default function EventTypeCreate() {
   const {
     control,
     errors,
@@ -24,7 +29,8 @@ export default function OfficeCreate() {
     handleBack,
     handleSubmit,
     Controller,
-  } = useOfficesForm();
+    handleChangeSelect,
+  } = useEventTypeForm();
 
   return (
     <S.Wrapper>
@@ -34,7 +40,7 @@ export default function OfficeCreate() {
           color="primary"
           sx={{ textAlign: "center", my: "1rem", fontWeight: "bold" }}
         >
-          Criação de cargos
+          Criação de Tipos de eventos
         </Typography>
         <form onSubmit={handleSubmit(onSubmit)}>
           <S.Inputs>
@@ -62,6 +68,34 @@ export default function OfficeCreate() {
             />
           </S.Inputs>
           <S.Inputs>
+            <FormControl
+              fullWidth
+              error={!!errors.church_id}
+              variant="filled"
+              required
+            >
+              <InputLabel id="church_id">Igreja</InputLabel>
+              <Select
+                id="church_id"
+                type="text"
+                labelId="church_id"
+                label="Igreja"
+                variant="filled"
+                error={!!errors.church_id}
+                onChange={handleChangeSelect}
+                fullWidth
+                required
+              >
+                {churchs.map((church) => (
+                  <MenuItem key={church.id} value={church.id}>
+                    {church.name}
+                  </MenuItem>
+                ))}
+              </Select>
+              {errors.church_id?.message && (
+                <FormHelperText>{errors.church_id?.message}</FormHelperText>
+              )}
+            </FormControl>
             <TextField
               type="text"
               label="Nome"

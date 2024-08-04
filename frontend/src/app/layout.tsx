@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
-import "./globals.css";
 
 import ThemeProviderPage from "./theme-provider";
 
-const poppins = Poppins({ weight: "500", subsets: ["latin"] });
+const poppins = Poppins({
+  weight: "500",
+  subsets: ["latin"],
+  display: "swap",
+  preload: true,
+});
 
 export const metadata: Metadata = {
   title: process.env.customKey,

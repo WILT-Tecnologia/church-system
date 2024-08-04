@@ -2,9 +2,12 @@
 
 import { useSearchCep } from "@/hooks/useSearchCep";
 import { Interpole } from "@/utils/Interpole";
+import { churchs } from "@/utils/mocks";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { SelectChangeEvent } from "@mui/material";
+import { GridRowModesModel } from "@mui/x-data-grid";
 import { useRouter } from "next/navigation";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { schema } from "./schema";
@@ -13,30 +16,31 @@ type Schema = z.infer<typeof schema>;
 
 export default function useChurchForm() {
   const loadingRef = useRef<HTMLDivElement | null>(null);
+  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
   const router = useRouter();
 
   const {
+    control,
     register,
     setValue,
-    control,
     handleSubmit,
-    formState: { errors, isSubmitting },
     setError,
     watch,
+    formState: { errors, isSubmitting, isLoading },
   } = useForm<Schema>({
     criteriaMode: "all",
     mode: "all",
     resolver: zodResolver(schema),
     defaultValues: {
       name: "",
-      // fantasyName: "",
       cnpj: "",
       email: "",
       site: "",
-      shepherd: "",
+      responsible_id: "",
       cep: "",
       street: "",
       number: "",
+      complement: "",
       neighborhood: "",
       city: "",
       state: "",
@@ -85,6 +89,10 @@ export default function useChurchForm() {
     console.log(updatedData);
   };
 
+  const handleChangeShepherd = (event: SelectChangeEvent) => {
+    setValue("responsible_id", event.target.value as string);
+  };
+
   const handleBack = () => {
     router.back();
   };
@@ -98,6 +106,9 @@ export default function useChurchForm() {
     neighborhoodValue,
     cityValue,
     stateValue,
+    isLoading,
+    rowModesModel,
+    churchs,
     setValue,
     watch,
     register,
@@ -105,5 +116,7 @@ export default function useChurchForm() {
     handleSubmit,
     handleBack,
     handleCepChange,
+    handleChangeShepherd,
+    setRowModesModel,
   };
 }
