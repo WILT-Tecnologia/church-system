@@ -1,36 +1,88 @@
 import Table from "@/components/Table";
 import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
-import { Tooltip } from "@mui/material";
-import {
-  GridActionsCellItem,
-  GridColDef,
-  GridRowModesModel,
-} from "@mui/x-data-grid";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Checkbox, Chip, Tooltip } from "@mui/material";
+import { GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
+import useUsersForm from "../hook/useUsersForm";
 
 const Users = () => {
-  const {
-    formState: { errors, isSubmitting, isLoading },
-  } = useForm();
-  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
+  const { users, isLoading, rowModesModel, router, setRowModesModel } =
+    useUsersForm();
 
   const columns: GridColDef[] = [
-    { field: "username", headerName: "Usuário", width: 200 },
+    { field: "login", headerName: "Usuário", width: 200 },
     {
       field: "status",
-      headerName: "Situação",
-      width: 200,
+      headerName: "Status",
+      width: 100,
+      align: "center",
+      headerAlign: "center",
+      renderCell: (params) => {
+        return params.value ? (
+          <Tooltip title="Ativado">
+            <Checkbox checked={!!params.value} color="secondary" />
+          </Tooltip>
+        ) : (
+          <Tooltip title="Desativado">
+            <Checkbox checked={!!params.value} color="error" />
+          </Tooltip>
+        );
+      },
     },
     {
-      field: "formattedCreatedAt",
+      field: "change_password",
+      headerName: "Alterar senha no primeiro login",
+      width: 220,
+      align: "center",
+      headerAlign: "center",
+      renderCell: (params) => {
+        return params.value ? (
+          <Tooltip title="Ativado">
+            <Checkbox checked={!!params.value} color="secondary" />
+          </Tooltip>
+        ) : (
+          <Tooltip title="Desativado">
+            <Checkbox checked={!!params.value} color="error" />
+          </Tooltip>
+        );
+      },
+    },
+    {
+      field: "is_view_admin",
+      headerName: "Super administrador",
+      width: 220,
+      align: "center",
+      headerAlign: "center",
+      renderCell: (params) => {
+        return params.value ? (
+          <Tooltip title="Ativado">
+            <Checkbox checked={!!params.value} color="secondary" />
+          </Tooltip>
+        ) : (
+          <Tooltip title="Desativado">
+            <Checkbox checked={!!params.value} color="error" />
+          </Tooltip>
+        );
+      },
+    },
+    {
+      field: "profile",
+      headerName: "Perfil",
+      width: 200,
+      align: "center",
+      headerAlign: "center",
+      renderCell: (params) => (
+        <Chip color="primary" variant="outlined" label={params.value} />
+      ),
+    },
+    {
+      field: "created_at",
       headerName: "Criado em",
       type: "string",
       width: 200,
       editable: false,
     },
     {
-      field: "formattedUpdatedAt",
+      field: "updated_at",
       headerName: "Atualizado em",
       type: "string",
       width: 200,
@@ -49,6 +101,9 @@ const Users = () => {
               icon={<EditIcon />}
               label="Edit"
               color="primary"
+              onClick={() =>
+                router.push(`/admin/administrative/users/user?id=${id}`)
+              }
             />
           </Tooltip>,
           <Tooltip title="Deletar" key="delete">
@@ -65,14 +120,14 @@ const Users = () => {
 
   return (
     <Table
+      rows={users}
       columns={columns}
-      rows={[]}
       loading={isLoading}
       rowModesModel={rowModesModel}
       isLoading={false}
       setRowModesModel={setRowModesModel}
       sortingField="username"
-      href="/admin/administrative/users/create"
+      href="/admin/administrative/users/user"
       label="Adicionar"
     />
   );

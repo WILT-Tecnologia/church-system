@@ -21,7 +21,7 @@ const GlobalStyles = createGlobalStyle`
       color: ${theme.colors.white};
       background-color: ${theme.colors.primary};
     `}
-    }
+  }
 
   body {
     ${({ theme }) => css`
@@ -34,8 +34,8 @@ const GlobalStyles = createGlobalStyle`
   }
 
   button, a {
-      cursor: pointer;
-      text-decoration: none !important;
-    }
+    cursor: pointer;
+    text-decoration: none !important;
+  }
 `;
 export default GlobalStyles;

@@ -1,3 +1,4 @@
+import { profiles } from "@/utils/mocks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GridRowModesModel } from "@mui/x-data-grid";
 import { useRouter } from "next/navigation";
@@ -20,11 +21,12 @@ export default function useProfilesForm() {
     watch,
     handleSubmit,
     formState: { errors, isSubmitting, isLoading },
-  } = useForm({
+  } = useForm<Schema>({
     criteriaMode: "all",
     mode: "all",
     resolver: zodResolver(useProfilesFormSchema),
     defaultValues: {
+      user_id: "",
       name: "",
       description: "",
       status: true,
@@ -55,6 +57,7 @@ export default function useProfilesForm() {
     showPassword,
     isLoading,
     rowModesModel,
+    profiles,
     setRowModesModel,
     watch,
     setValue,

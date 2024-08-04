@@ -1,7 +1,9 @@
+import { Typography } from "@mui/material";
+
 const ChurchPage = () => {
   return (
     <div>
-      <h1>Igrejas</h1>
+      <Typography>Igrejas</Typography>
     </div>
   );
 };

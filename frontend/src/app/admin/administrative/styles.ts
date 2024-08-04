@@ -20,6 +20,40 @@ export const Inputs = styled(Box)`
   `}
 `;
 
+export const Sections = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  margin: 1rem 0rem;
+`;
+
+export const Section = styled(Box)`
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin: 1rem 0rem;
+
+  ${media.lessThan("medium")`
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+
+  `}
+`;
+
+export const SectionText = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: space-between;
+  width: 100%;
+  margin: 1rem 0rem;
+`;
+
 export const Footer = styled(Box)`
   display: flex;
   justify-content: space-between;

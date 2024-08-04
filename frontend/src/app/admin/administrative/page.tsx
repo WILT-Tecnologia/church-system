@@ -3,6 +3,7 @@
 import CustomTabs from "@/components/Tabs";
 import { Card } from "@mui/material";
 import ChurchShow from "./churchs/show/page";
+import EventTypeShow from "./event-type/show/page";
 import Offices from "./offices/show/page";
 import Persons from "./persons/show/page";
 import Profiles from "./profiles/show/page";
@@ -21,6 +22,7 @@ const Administrative = () => {
             "Usuários",
             "Cargos",
             "Perfis",
+            "Tipos de eventos",
             "Relatórios",
           ]}
         >
@@ -29,6 +31,7 @@ const Administrative = () => {
           <Users />
           <Offices />
           <Profiles />
+          <EventTypeShow />
           <Reports />
         </CustomTabs>
       </Card>

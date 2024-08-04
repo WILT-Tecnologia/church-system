@@ -5,10 +5,6 @@ export const schema = z.object({
     .string()
     .min(1, { message: "Campo obrigatório." })
     .max(255, { message: "Tamanho excedido (255)." }),
-  // fantasyName: z
-  //   .string()
-  //   .min(1, { message: "Campo obrigatório." })
-  //   .max(255, { message: "Tamanho excedido (255)." }),
   cnpj: z
     .string()
     .min(14, { message: "Campo obrigatório." })
@@ -18,12 +14,8 @@ export const schema = z.object({
     .email({ message: "Email inválido." })
     .min(1, { message: "Campo obrigatório." })
     .max(255, { message: "Tamanho excedido (255)." }),
-  // phone: z
-  //   .string()
-  //   .min(10, { message: "Campo obrigatório." })
-  //   .max(15, { message: "Tamanho excedido (15)." }),
   site: z.string().url({ message: "URL inválida." }),
-  shepherd: z.string().min(1, { message: "Campo obrigatório." }),
+  responsible_id: z.string().min(1, { message: "Campo obrigatório." }),
   cep: z.string().min(8, { message: "Campo obrigatório." }),
   street: z
     .string()

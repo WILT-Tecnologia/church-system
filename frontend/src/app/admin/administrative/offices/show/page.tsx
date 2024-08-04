@@ -1,32 +1,46 @@
 import Table from "@/components/Table";
 import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
-import { Tooltip } from "@mui/material";
+import { Chip, Tooltip } from "@mui/material";
 import { GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
 import useOfficesForm from "../hook";
 
 const Offices = () => {
-  const { isLoading, rowModesModel, setRowModesModel } = useOfficesForm();
+  const { isLoading, rowModesModel, offices, setRowModesModel } =
+    useOfficesForm();
 
   const columns: GridColDef[] = [
     { field: "name", headerName: "Nome", width: 200 },
     {
       field: "description",
       headerName: "Descrição",
-      width: 200,
+      width: 300,
     },
     {
-      field: "formattedCreatedAt",
+      field: "status",
+      headerName: "Status",
+      type: "boolean",
+      width: 200,
+      renderCell: (params) => {
+        // params.value ? "Ativo" : "Inativo"
+        return (
+          <Chip
+            label={params.value ? "Ativo" : "Inativo"}
+            color={params.value ? "success" : "error"}
+          />
+        );
+      },
+    },
+    {
+      field: "created_at",
       headerName: "Criado em",
       type: "string",
       width: 200,
-      editable: false,
     },
     {
-      field: "formattedUpdatedAt",
+      field: "updated_at",
       headerName: "Atualizado em",
       type: "string",
       width: 200,
-      editable: false,
     },
     {
       field: "actions",
@@ -57,7 +71,7 @@ const Offices = () => {
 
   return (
     <Table
-      rows={[]}
+      rows={offices}
       columns={columns}
       loading={isLoading}
       isLoading={false}

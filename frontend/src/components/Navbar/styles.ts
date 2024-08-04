@@ -1,4 +1,5 @@
 import { AppBar, Box } from "@mui/material";
+import Link from "next/link";
 import styled, { css } from "styled-components";
 
 export const Wrapper = styled(Box)`
@@ -38,4 +39,15 @@ export const Menu = styled(Box)`
   align-items: center;
   justify-content: center;
   gap: 1rem;
+`;
+
+export const Logo = styled(Link)`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  cursor: pointer;
+  text-decoration: none;
+  color: "palette.primary.main";
 `;

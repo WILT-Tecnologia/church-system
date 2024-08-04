@@ -14,7 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Controller } from "react-hook-form";
-import usePersonForm from "./hook/usePersonForm";
+import usePersonForm from "../hook/usePersonForm";
 
 const PersonCreate = () => {
   const {

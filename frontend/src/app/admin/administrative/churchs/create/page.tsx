@@ -8,7 +8,6 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  SelectChangeEvent,
   TextField,
   Typography,
 } from "@mui/material";
@@ -19,29 +18,25 @@ import PatternFormattedTextField from "@/components/PatternFormattedTextField";
 import * as S from "@/app/admin/administrative/styles";
 import ErrorMessage from "@/components/ErrorMessage";
 import CTA from "@/components/Form/CTA";
-import useChurchForm from "../hooks/ChurchSettings/useChurchForm";
+import useChurchForm from "../hooks";
 
 export default function Churchs() {
   const {
     loadingRef,
-    register,
     control,
-    handleSubmit,
     errors,
     isSubmitting,
-    handleCepChange,
     streetValue,
     neighborhoodValue,
     cityValue,
     stateValue,
+    register,
+    handleSubmit,
+    handleCepChange,
     onSubmit,
-    setValue,
     handleBack,
+    handleChangeShepherd,
   } = useChurchForm();
-
-  const handleChangeShepherd = (event: SelectChangeEvent) => {
-    setValue("shepherd", event.target.value as string);
-  };
 
   return (
     <S.Wrapper>
@@ -61,18 +56,6 @@ export default function Churchs() {
               required
               fullWidth
             />
-            {/* <TextField
-              type="text"
-              label="Nome Fantasia"
-              variant="filled"
-              {...register("fantasyName")}
-              error={!!errors.fantasyName}
-              helperText={errors.fantasyName?.message}
-              required
-              fullWidth
-            /> */}
-          </S.Inputs>
-          <S.Inputs>
             <Controller
               name="cnpj"
               control={control}
@@ -116,18 +99,18 @@ export default function Churchs() {
             />
             <FormControl
               fullWidth
-              error={!!errors.shepherd}
+              error={!!errors.responsible_id}
               variant="filled"
               required
             >
-              <InputLabel id="shepherd">Pastor responsável</InputLabel>
+              <InputLabel id=".responsible_id">Pastor responsável</InputLabel>
               <Select
-                id="shepherd"
+                id=".responsible_id"
                 type="text"
-                labelId="shepherd"
+                labelId=".responsible_id"
                 label="Pastor responsável"
                 variant="filled"
-                error={!!errors.shepherd}
+                error={!!errors.responsible_id}
                 onChange={handleChangeShepherd}
                 fullWidth
                 required
@@ -136,8 +119,8 @@ export default function Churchs() {
                 <MenuItem value="2">Pastor 2</MenuItem>
                 <MenuItem value="3">Pastor 3</MenuItem>
               </Select>
-              {errors.shepherd?.message && (
-                <ErrorMessage>{errors.shepherd?.message}</ErrorMessage>
+              {errors.responsible_id?.message && (
+                <ErrorMessage>{errors.responsible_id?.message}</ErrorMessage>
               )}
             </FormControl>
           </S.Inputs>
@@ -257,10 +240,6 @@ export default function Churchs() {
             />
           </S.Inputs>
           <Divider />
-          {/* <S.Footer> */}
-          {/* <Typography variant="subtitle2" color="gray" sx={{ my: "1rem" }}>
-              Última alteração em 22/03/2022 às 12:00 por Peixola
-            </Typography> */}
           <S.CTA>
             <CTA
               labelCancel="Cancelar"
@@ -269,7 +248,6 @@ export default function Churchs() {
               handleBack={handleBack}
             />
           </S.CTA>
-          {/* </S.Footer> */}
         </form>
       </Card>
     </S.Wrapper>

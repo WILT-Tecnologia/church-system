@@ -11,5 +11,6 @@ export const schemaUsers = z.object({
     .max(255, { message: "Tamanho excedido (255)." }),
   change_password: z.boolean(),
   status: z.boolean(),
-  //profile: z.string(),
+  is_view_admin: z.boolean(),
+  profile: z.string(),
 });

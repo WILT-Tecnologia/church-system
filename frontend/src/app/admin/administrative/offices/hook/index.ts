@@ -1,3 +1,4 @@
+import { offices } from "@/utils/mocks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GridRowModesModel } from "@mui/x-data-grid";
 import { useRouter } from "next/navigation";
@@ -56,6 +57,7 @@ export default function useOfficesForm() {
     showPassword,
     isLoading,
     rowModesModel,
+    offices,
     setRowModesModel,
     watch,
     setValue,

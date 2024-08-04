@@ -1,15 +1,19 @@
 import { useSearchCep } from "@/hooks/useSearchCep";
+import { persons } from "@/utils/mocks";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { GridRowModesModel } from "@mui/x-data-grid";
 import { useRouter } from "next/navigation";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import { schema } from "../../schema";
+import { schema } from "../hook/schema";
 
 type Schema = z.infer<typeof schema>;
 
 export default function usePersonForm() {
   const loadingRef = useRef<HTMLDivElement | null>(null);
+  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
+
   const router = useRouter();
   const {
     control,
@@ -18,14 +22,14 @@ export default function usePersonForm() {
     setError,
     watch,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isLoading },
   } = useForm<Schema>({
     criteriaMode: "all",
     mode: "all",
     resolver: zodResolver(schema),
     defaultValues: {
-      // user_id: "",
-      // church_id: "",
+      user_id: "",
+      image: "",
       name: "",
       cpf: "",
       email: "",
@@ -33,27 +37,6 @@ export default function usePersonForm() {
       phone_one: "",
       phone_two: "",
       birth_date: "",
-      // rg: "",
-      // issuing_body: "",
-      // civil_status: "",
-      // formation: "",
-      // profission: "",
-      // possuiDef: "",
-      // def_physics: "",
-      // def_mental: "",
-      // def_visual: "",
-      // def_hearing: "",
-      // def_intellectual: "",
-      // def_multiple: "",
-      // def_other: "",
-      // def_other_description: "",
-      // color_race: "",
-      // father_name: "",
-      // mother_name: "",
-      // wedding_date: "",
-      // wife_name: "",
-      // wife_is_member: "",
-      // number_children: "",
       cep: "",
       street: "",
       number: "",
@@ -61,16 +44,9 @@ export default function usePersonForm() {
       complement: "",
       city: "",
       state: "",
-      //country: "",
+      country: "",
       nationality_id: "",
       naturalness: "",
-      // baptism_date: "",
-      // baptism_local: "",
-      // baptism_person_performed: "",
-      // baptism_holy_spirit: "",
-      // baptism_holy_spirit_date: "",
-      // member_origin_id: "",
-      // receipt_date: "",
     },
   });
 
@@ -78,9 +54,6 @@ export default function usePersonForm() {
   const neighborhoodValue = watch("neighborhood");
   const cityValue = watch("city");
   const stateValue = watch("state");
-
-  // const possuiDef = watch("possuiDef");
-  // const baptismHolySpirit = watch("baptism_holy_spirit");
 
   const handleCepChange = async (cep: string) => {
     if (loadingRef.current) {
@@ -119,12 +92,13 @@ export default function usePersonForm() {
     neighborhoodValue,
     cityValue,
     stateValue,
-    // possuiDef,
-    // baptismHolySpirit,
     loadingRef,
     control,
     errors,
     isSubmitting,
+    persons,
+    isLoading,
+    rowModesModel,
     watch,
     setValue,
     Controller,
@@ -133,5 +107,6 @@ export default function usePersonForm() {
     onSubmit,
     handleSubmit,
     handleBack,
+    setRowModesModel,
   };
 }

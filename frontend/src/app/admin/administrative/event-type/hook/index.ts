@@ -1,18 +1,20 @@
+import { eventType } from "@/utils/mocks";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { SelectChangeEvent } from "@mui/material";
 import { GridRowModesModel } from "@mui/x-data-grid";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import { schemaUsers } from "../../schema";
+import { useEventTypeFormSchema } from "./schema";
 
-type Schema = z.infer<typeof schemaUsers>;
+type Schema = z.infer<typeof useEventTypeFormSchema>;
 
-const useUsersForm = () => {
-  const [showPassword, setShowPassword] = useState(false);
+export default function useEventTypeForm() {
   const loadingRef = useRef<HTMLDivElement | null>(null);
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
   const router = useRouter();
+
   const {
     control,
     register,
@@ -23,23 +25,14 @@ const useUsersForm = () => {
   } = useForm<Schema>({
     criteriaMode: "all",
     mode: "all",
-    resolver: zodResolver(schemaUsers),
+    resolver: zodResolver(useEventTypeFormSchema),
     defaultValues: {
-      login: "",
-      password: "",
-      change_password: true,
+      church_id: "",
+      name: "",
+      description: "",
       status: true,
-      //profile: "",
     },
   });
-
-  const handleClickShowPassword = () => setShowPassword((show) => !show);
-
-  const handleMouseDownPassword = (
-    event: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    event.preventDefault();
-  };
 
   const onSubmit: SubmitHandler<Schema> = async (data: Schema) => {
     console.log(data);
@@ -49,25 +42,26 @@ const useUsersForm = () => {
     return router.back();
   };
 
+  const handleChangeSelect = (event: SelectChangeEvent) => {
+    setValue("church_id", event.target.value as string);
+  };
+
   return {
     loadingRef,
     control,
     errors,
     isSubmitting,
-    showPassword,
-    rowModesModel,
     isLoading,
+    rowModesModel,
+    eventType,
     setRowModesModel,
     watch,
-    setValue,
-    Controller,
-    register,
-    onSubmit,
-    handleSubmit,
     handleBack,
-    handleClickShowPassword,
-    handleMouseDownPassword,
+    onSubmit,
+    register,
+    setValue,
+    handleSubmit,
+    handleChangeSelect,
+    Controller,
   };
-};
-
-export default useUsersForm;
+}
