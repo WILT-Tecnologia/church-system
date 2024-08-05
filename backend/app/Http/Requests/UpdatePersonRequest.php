@@ -29,7 +29,7 @@ class UpdatePersonRequest extends FormRequest
             'image' => ['nullable'],
             'name' => ['sometimes', 'requied'],
             'cpf' => ['sometimes', 'required', 'numeric', 'unique:persons,cpf', new Cpf()],
-            'birt_date' => ['nullable', 'date'],
+            'birth_date' => ['nullable', 'date'],
             'phone_one' => ['nullable', 'numeric', new Phone()],
             'sex' => ['sometimes', 'required', new Enum(SexEnum::class)],
             'cep' => ['nullable', 'numeric'],

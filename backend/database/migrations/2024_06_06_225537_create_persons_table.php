@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->string('name');
             $table->string('cpf')->unique()->nullable();
-            $table->date('birt_date')->nullable();
+            $table->date('birth_date')->nullable();
             $table->string('email')->nullable();
             $table->string('phone_one')->nullable();
             $table->string('phone_two')->nullable();

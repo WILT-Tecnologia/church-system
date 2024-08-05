@@ -19,7 +19,7 @@ class PersonResource extends JsonResource
             'image' => $this->image,
             'name' => $this->name,
             'cpf' => $this->cpf,
-            'birt_date' => $this->birt_date,
+            'birth_date' => $this->birth_date,
             'email' => $this->email,
             'phone_one' => $this->phone_one,
             'phone_two' => $this->phone_two,

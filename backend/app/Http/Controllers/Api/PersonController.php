@@ -25,6 +25,8 @@ class PersonController extends Controller
 
         $person = Person::create($data);
 
+
+
         return new PersonResource($person);
     }
 
@@ -54,7 +56,7 @@ class PersonController extends Controller
     public function destroy(Person $person)
     {
         $person->delete();
-        
+
         return response()->json([], 204);
     }
 }

@@ -3,9 +3,11 @@
 namespace App\Http\Requests;
 
 use App\Enums\SexEnum;
+use App\Models\Person;
 use App\Rules\Cpf;
 use App\Rules\Phone;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 
 class StorePersonRequest extends FormRequest
@@ -25,13 +27,16 @@ class StorePersonRequest extends FormRequest
      */
     public function rules(): array
     {
+
+        // dd("verificar o arquivo Handler de exception");
         return [
             'image' => ['nullable'],
-            'name' => ['requied'],
-            'cpf' => ['required', 'numeric', 'unique:persons,cpf', new Cpf()],
-            'birt_date' => ['nullable', 'date'],
+            'name' => ['required'],
+            'cpf' => ['required', 'numeric', "unique:persons,cpf", new Cpf()],
+            'email' => ['nullable', 'email'],
+            'birth_date' => ['nullable', 'date'],
             'phone_one' => ['nullable', 'numeric', new Phone()],
-            'sex' => ['required', new Enum(SexEnum::class)],
+            'sex' => ['required', Rule::enum(SexEnum::class)],
             'cep' => ['nullable', 'numeric'],
             'street' => ['nullable', 'required_with:cep'],
             'number' => ['nullable', 'numeric', 'required_with:cep'],

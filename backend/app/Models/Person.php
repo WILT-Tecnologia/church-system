@@ -21,7 +21,7 @@ class Person extends Model
         'image',
         'name',
         'cpf',
-        'birt_date',
+        'birth_date',
         'email',
         'phone_one',
         'phone_two',
