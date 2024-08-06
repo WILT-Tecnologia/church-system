@@ -12,4 +12,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout/{user}', [loginController::class, 'logout']);
     Route::apiResource('persons', \App\Http\Controllers\Api\PersonController::class);
     Route::apiResource('churches', \App\Http\Controllers\ChurchController::class);
+    Route::apiResource('occupations', \App\Http\Controllers\Api\OccupationController::class);
 });
