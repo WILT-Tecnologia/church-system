@@ -1,4 +1,3 @@
-import { MemberCrudSteps } from "@/utils/steps";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SelectChangeEvent } from "@mui/material";
 import { useRouter } from "next/navigation";
@@ -14,6 +13,7 @@ const useMembersForm = () => {
   const methods = useForm<Schema>({
     resolver: zodResolver(schemaMembers),
     mode: "all",
+    criteriaMode: "all",
     reValidateMode: "onSubmit",
     defaultValues: {
       church_id: "",
@@ -44,79 +44,15 @@ const useMembersForm = () => {
     },
   });
 
-  const [currentStep, setCurrentStep] = useState(1);
   const [open, setOpen] = useState(false);
 
-  const canGoToPrevStep = currentStep > 1;
-  const canGoToNextStep = currentStep < MemberCrudSteps.length;
-
-  const getFieldsByStep = (step: number): (keyof Schema)[] => {
-    switch (step) {
-      case 1:
-        return [
-          "rg",
-          "issuing_body",
-          "civil_status",
-          "nationality",
-          "naturalness",
-        ];
-      case 2:
-        return [
-          "color_race",
-          "profission",
-          "formation_course",
-          "formation",
-          "def_hearing",
-          "def_intellectual",
-          "def_mental",
-          "def_multiple",
-          "def_other",
-          "def_other_description",
-          "def_physics",
-          "def_visual",
-        ];
-      case 3:
-        return [
-          "church_id",
-          "baptism_date",
-          "baptism_local",
-          "baptism_officializing",
-          "member_origin",
-          "receiving_date",
-          "baptism_holy_spirit",
-          "baptism_holy_spirit_date",
-        ];
-      default:
-        return [];
-    }
-  };
-
-  const goToNextStep = async () => {
-    const fieldsToValidate = getFieldsByStep(currentStep);
-    const isStepValid = await methods.trigger(fieldsToValidate);
-    if (isStepValid) {
-      setCurrentStep((prevStep) => prevStep + 1);
-    }
-    return isStepValid;
-  };
-
-  const goToPrevStep = () => {
-    setCurrentStep((prev) => prev - 1);
-  };
   const onSubmit: SubmitHandler<Schema> = (data: Schema) => {
-    console.log("data submitted: ", data);
     setOpen(true);
   };
 
-  const handleNext = async () => {
-    const isStepValid = await goToNextStep();
-    if (isStepValid) {
-      await methods.handleSubmit(onSubmit)();
-    }
-  };
-
-  const handleConfirm = async () => {
-    await methods.handleSubmit(onSubmit)();
+  const handleConfirm = () => {
+    setOpen(false);
+    router.refresh();
   };
 
   const handleClose = () => {
@@ -135,25 +71,16 @@ const useMembersForm = () => {
     methods.setValue("church_id", event.target.value as string);
   };
 
-  const watchedValues = methods.watch();
-  console.log(watchedValues);
-
   return {
     ...methods,
-    currentStep,
     open,
-    canGoToPrevStep,
-    canGoToNextStep,
     def_otherValue,
     baptism_holy_spiritValue,
     router,
     Controller,
-    goToNextStep,
-    goToPrevStep,
     onSubmit,
     handleClose,
     handleBack,
-    handleNext,
     handleConfirm,
     handleChuchChange,
   };

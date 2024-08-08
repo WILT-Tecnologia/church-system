@@ -1,31 +1,48 @@
 import { z } from "zod";
 
-export const schemaMembers = z.object({
-  church_id: z.string().min(1, { message: "Campo obrigatório." }),
-  rg: z.string().min(1, { message: "Campo obrigatório." }),
-  issuing_body: z.string().min(1, { message: "Campo obrigatório." }),
-  civil_status: z.string().min(1, { message: "Campo obrigatório." }),
-  nationality: z.string().min(1, { message: "Campo obrigatório." }),
-  naturalness: z.string().min(1, { message: "Campo obrigatório." }),
-  color_race: z.string().min(1, { message: "Campo obrigatório." }),
-  formation: z.string().min(1, { message: "Campo obrigatório." }),
-  formation_course: z.string().min(1, { message: "Campo obrigatório." }),
-  profission: z.string().min(1, { message: "Campo obrigatório." }),
-  def_physics: z.boolean(),
-  def_visual: z.boolean(),
-  def_hearing: z.boolean(),
-  def_intellectual: z.boolean(),
-  def_mental: z.boolean(),
-  def_multiple: z.boolean(),
-  def_other: z.boolean(),
-  def_other_description: z.string().max(255, {
-    message: "Tamanho excedido (255).",
-  }),
-  baptism_date: z.string().min(1, { message: "Campo obrigatório." }),
-  baptism_local: z.string().min(1, { message: "Campo obrigatório." }),
-  baptism_officializing: z.string().min(1, { message: "Campo obrigatório." }),
-  baptism_holy_spirit: z.boolean(),
-  baptism_holy_spirit_date: z.string(),
-  member_origin: z.string().min(1, { message: "Campo obrigatório." }),
-  receiving_date: z.string().min(1, { message: "Campo obrigatório." }),
-});
+export const schemaMembers = z
+  .object({
+    church_id: z.string().min(1, { message: "Campo obrigatório." }),
+    rg: z.string().min(1, { message: "Campo obrigatório." }),
+    issuing_body: z.string().min(1, { message: "Campo obrigatório." }),
+    civil_status: z.string().min(1, { message: "Campo obrigatório." }),
+    nationality: z.string().min(1, { message: "Campo obrigatório." }),
+    naturalness: z.string().min(1, { message: "Campo obrigatório." }),
+    color_race: z.string().min(1, { message: "Campo obrigatório." }),
+    formation: z.string().min(1, { message: "Campo obrigatório." }),
+    formation_course: z.string().min(1, { message: "Campo obrigatório." }),
+    profission: z.string().min(1, { message: "Campo obrigatório." }),
+    def_physics: z.boolean(),
+    def_visual: z.boolean(),
+    def_hearing: z.boolean(),
+    def_intellectual: z.boolean(),
+    def_mental: z.boolean(),
+    def_multiple: z.boolean(),
+    def_other: z.boolean(),
+    def_other_description: z.string().max(255, {
+      message: "Tamanho excedido (255).",
+    }),
+    baptism_date: z.string().min(1, { message: "Campo obrigatório." }),
+    baptism_local: z.string().min(1, { message: "Campo obrigatório." }),
+    baptism_officializing: z.string().min(1, { message: "Campo obrigatório." }),
+    baptism_holy_spirit: z.boolean(),
+    baptism_holy_spirit_date: z.string(),
+    member_origin: z.string().min(1, { message: "Campo obrigatório." }),
+    receiving_date: z.string().min(1, { message: "Campo obrigatório." }),
+  })
+  .refine(
+    (data) => !data.def_other || (data.def_other && data.def_other_description),
+    {
+      message: "Campo obrigatório.",
+      path: ["def_other_description"],
+    }
+  )
+  .refine(
+    (data) =>
+      !data.baptism_holy_spirit ||
+      (data.baptism_holy_spirit && data.baptism_holy_spirit_date),
+    {
+      message: "Campo obrigatório.",
+      path: ["baptism_holy_spirit_date"],
+    }
+  );
