@@ -7,12 +7,13 @@ import TableToolbar from "./TableToolbar";
 type TableProps = {
   columns: any[];
   rows: any[];
-  rowModesModel: any;
-  isLoading: boolean;
   sortingField: string;
-  setRowModesModel: any;
   href: string;
   label: string;
+  isLoading: boolean;
+  rowModesModel: any;
+  setRowModesModel: any;
+  setRows: any;
 } & DataGridProps;
 
 const Table = ({
@@ -22,6 +23,7 @@ const Table = ({
   rows,
   setRowModesModel,
   sortingField,
+  setRows,
   ...rest
 }: TableProps) => {
   return (
@@ -51,6 +53,7 @@ const Table = ({
         }}
         slotProps={{
           toolbar: {
+            setRows,
             setRowModesModel,
             loadingOverlay: {
               variant: "linear-progress",

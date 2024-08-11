@@ -10,6 +10,7 @@ import {
   MenuItem,
   useMediaQuery,
 } from "@mui/material";
+import { signOut } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -45,7 +46,8 @@ export default function Navbar() {
     }
   };
 
-  const handleClose = () => {
+  const handleClose = async () => {
+    await signOut({ callbackUrl: "/login", redirect: true });
     setAnchorEl(null);
     setSubMenuAnchorEl(null);
     setOpenSubMenu(null);

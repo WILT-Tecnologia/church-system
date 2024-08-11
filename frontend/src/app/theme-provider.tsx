@@ -17,6 +17,7 @@ import {
   ThemeProvider as StyledComponentsThemeProvider,
 } from "styled-components";
 
+import NextAuthSessionProvider from "@/providers/sessionProvider";
 import "../styles/global.css";
 
 type ThemeProviderPageProps = {
@@ -30,8 +31,8 @@ type CustomTheme = {
 } & DefaultTheme;
 
 const ThemeProviderPage = ({ children }: ThemeProviderPageProps) => {
+  const queryClientRef = new QueryClient();
   const pathname = usePathname();
-  const queryClient = new QueryClient();
   const isAdminRoute = pathname.startsWith("/admin");
   const primaryColor = useFetchPrimaryColor();
 
@@ -66,18 +67,20 @@ const ThemeProviderPage = ({ children }: ThemeProviderPageProps) => {
   });
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <HydrationBoundary state={hydrate}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <StyledComponentsThemeProvider theme={customTheme}>
-            {isAdminRoute && <Navbar />}
-            {children}
-            <GlobalStyles />
-          </StyledComponentsThemeProvider>
-        </ThemeProvider>
-      </HydrationBoundary>
-    </QueryClientProvider>
+    <NextAuthSessionProvider>
+      <QueryClientProvider client={queryClientRef}>
+        <HydrationBoundary state={hydrate}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <StyledComponentsThemeProvider theme={customTheme}>
+              {isAdminRoute && <Navbar />}
+              {children}
+              <GlobalStyles />
+            </StyledComponentsThemeProvider>
+          </ThemeProvider>
+        </HydrationBoundary>
+      </QueryClientProvider>
+    </NextAuthSessionProvider>
   );
 };
 

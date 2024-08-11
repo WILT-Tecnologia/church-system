@@ -6,7 +6,11 @@ import router from "next/router";
 import useMembersForm from "../hook/useMembersForm";
 
 export default function ShowMembers() {
-  const { isLoading, rowModesModel, setRowModesModel } = useMembersForm();
+  const {
+    rowModesModel,
+    setRowModesModel,
+    formState: { isLoading },
+  } = useMembersForm();
   const columns: GridColDef[] = [
     { field: "church_id", headerName: "Igreja", width: 200 },
     { field: "rg", headerName: "Número de identidade", width: 200 },
@@ -82,8 +86,8 @@ export default function ShowMembers() {
       rows={[]}
       columns={columns}
       loading={isLoading}
-      rowModesModel={rowModesModel}
       isLoading={false}
+      rowModesModel={rowModesModel}
       setRowModesModel={setRowModesModel}
       sortingField="username"
       href="/admin/church/persons/modules/members/member"

@@ -62,4 +62,10 @@ const global = [
   // },
 ];
 
-export { global };
+const routes = {
+  index: "/",
+  church: "/admin/church",
+  administrative: "/admin/administrative",
+};
+
+export { global, routes };

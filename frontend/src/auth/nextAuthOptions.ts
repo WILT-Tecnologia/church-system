@@ -7,47 +7,58 @@ export const nextAuthOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "credentials",
       credentials: {
-        login: { label: "login", type: "email" },
+        email: { label: "email", type: "email" },
         password: { label: "password", type: "password" },
       },
       async authorize(credentials: any) {
         try {
-          const res = await axios.post(`${process.env.API_URL}/auth/signin`, {
-            login: credentials.login,
-            password: credentials.password,
-            jwt: credentials.jwt,
+          const res = await axios.post(`${process.env.API_URL}/teste`, {
+            email: credentials?.email,
+            password: credentials?.password,
           });
 
-          if (res.data.user) {
-            return res.data.user;
-          } else {
-            return null;
+          const { user, token } = res.data;
+
+          if (user && token) {
+            return {
+              ...user,
+              token,
+            };
           }
+          return null;
         } catch (error) {
-          console.error(error);
+          console.error("Login error:", error);
           return null;
         }
       },
     }),
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.name = user.name;
+        token.email = user.email;
+        token.token = user.token;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.id;
+        session.user.name = token.name;
+        session.user.email = token.email;
+        session.user.token = token.token;
+      }
+      return session;
+    },
+  },
   pages: {
     signIn: "/login",
   },
   session: {
     strategy: "jwt",
   },
-  callbacks: {
-    async session({ session, token }) {
-      session.token = token.id;
-      return session;
-    },
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-      }
-      return token;
-    },
-  },
   secret: process.env.NEXTAUTH_SECRET,
-  useSecureCookies: false,
+  useSecureCookies: process.env.NODE_ENV === "production",
 };

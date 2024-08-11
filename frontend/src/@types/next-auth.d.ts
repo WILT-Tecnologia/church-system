@@ -5,30 +5,18 @@ import "next-auth";
 declare module "next-auth" {
   interface Session {
     user: {
-      id: string;
-      name: string;
-      login: string;
-      token: string;
-      change_password: boolean;
+      id?: string;
+      name?: string;
+      email?: string;
+      token?: string; // Ajuste aqui para 'token'
     };
-    configs: {
-      name_client?: string;
-      status_client?: string;
-    };
-    token: string;
-    id: string;
-    profileId?: string;
-    // accessLevel?: AccessLevel;
   }
 
   interface User extends User {
     id: string;
     name: string;
-    login: string;
-    jwt: string;
-    //change_password: boolean;
-    //profileId: string;
-    //accessLevel: AccessLevel;
+    email: string;
+    token: string;
   }
 }
 
@@ -36,11 +24,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     id: string;
     name: string;
-    login: string;
-    jwt: string;
-    changePassword: boolean;
-    profileId: string;
-    accessLevel: AccessLevel;
-    sessionId?: string;
+    email: string;
+    token: string;
   }
 }

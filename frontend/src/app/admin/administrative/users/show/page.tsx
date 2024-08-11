@@ -5,10 +5,18 @@ import { GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
 import useUsersForm from "../hook/useUsersForm";
 
 const Users = () => {
-  const { users, isLoading, rowModesModel, router, setRowModesModel } =
-    useUsersForm();
+  const {
+    isLoading,
+    rowModesModel,
+    rows,
+    setRowModesModel,
+    handleDeleteClick,
+    handleEditClick,
+    setRows,
+  } = useUsersForm();
 
   const columns: GridColDef[] = [
+    { field: "name", headerName: "Nome", width: 200 },
     { field: "login", headerName: "Usuário", width: 200 },
     {
       field: "status",
@@ -75,14 +83,14 @@ const Users = () => {
       ),
     },
     {
-      field: "created_at",
+      field: "createdAt",
       headerName: "Criado em",
       type: "string",
       width: 200,
       editable: false,
     },
     {
-      field: "updated_at",
+      field: "updatedAt",
       headerName: "Atualizado em",
       type: "string",
       width: 200,
@@ -101,9 +109,7 @@ const Users = () => {
               icon={<EditIcon />}
               label="Edit"
               color="primary"
-              onClick={() =>
-                router.push(`/admin/administrative/users/user?id=${id}`)
-              }
+              onClick={handleEditClick(id)}
             />
           </Tooltip>,
           <Tooltip title="Deletar" key="delete">
@@ -111,6 +117,7 @@ const Users = () => {
               icon={<DeleteIcon />}
               label="Delete"
               color="error"
+              onClick={handleDeleteClick(id)}
             />
           </Tooltip>,
         ];
@@ -118,18 +125,23 @@ const Users = () => {
     },
   ];
 
+  //console.log(rows);
+
   return (
-    <Table
-      rows={users}
-      columns={columns}
-      loading={isLoading}
-      rowModesModel={rowModesModel}
-      isLoading={false}
-      setRowModesModel={setRowModesModel}
-      sortingField="username"
-      href="/admin/administrative/users/user"
-      label="Adicionar"
-    />
+    <>
+      <Table
+        rows={rows}
+        columns={columns}
+        rowModesModel={rowModesModel}
+        loading={isLoading}
+        isLoading={false}
+        setRows={setRows}
+        setRowModesModel={setRowModesModel}
+        sortingField="name"
+        href="/admin/administrative/users/user"
+        label="Adicionar"
+      />
+    </>
   );
 };
 
