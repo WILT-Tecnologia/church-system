@@ -26,6 +26,7 @@ class UpdatePersonRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'user_id' => ['nullable'],
             'image' => ['nullable'],
             'name' => ['sometimes', 'requied'],
             'cpf' => ['sometimes', 'required', 'numeric', 'unique:persons,cpf', new Cpf()],

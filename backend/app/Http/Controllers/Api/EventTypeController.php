@@ -16,7 +16,7 @@ class EventTypeController extends Controller
      */
     public function index()
     {
-        return EventTypeResource::collection(EventType::paginate());
+        return EventTypeResource::collection(EventType::all());
     }
 
     /**

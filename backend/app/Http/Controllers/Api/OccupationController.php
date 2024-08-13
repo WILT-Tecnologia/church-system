@@ -16,7 +16,7 @@ class OccupationController extends Controller
      */
     public function index()
     {
-        return OccupationResouce::collection(Occupation::paginate());
+        return OccupationResouce::collection(Occupation::all());
     }
 
     /**
@@ -53,7 +53,7 @@ class OccupationController extends Controller
     public function destroy(Occupation $occupation)
     {
         $occupation->delete();
-        
+
         return response()->json([], 204);
     }
 }
