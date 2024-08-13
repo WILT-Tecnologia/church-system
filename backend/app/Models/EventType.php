@@ -15,11 +15,13 @@ class EventType extends Model
 
     protected $table = 'event_types';
 
+    protected $primaryKey = 'id';
+
     protected $fillable = [
         'id',
         'name',
         'description',
         'status',
     ];
-    
+
 }

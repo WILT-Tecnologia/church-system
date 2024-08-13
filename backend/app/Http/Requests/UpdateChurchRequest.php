@@ -23,6 +23,7 @@ class UpdateChurchRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'responsible_id' => ['sometimes', 'nullable', 'exists:persons,id'],
             'name' => ['sometimes', 'required'],
             'email' => ['sometimes', 'required', 'email'],
             'cnpj' => ['sometimes', 'required', 'numeric', new Cnpj()],
@@ -33,7 +34,11 @@ class UpdateChurchRequest extends FormRequest
             'district' => ['sometimes', 'required'],
             'city' => ['sometimes', 'required'],
             'state' => ['sometimes', 'required'],
-            'country' => ['sometimes', 'required']
+            'country' => ['sometimes', 'required'],
+            'logo' => ['sometimes', 'nullable'],
+            'favicon' => ['sometimes', 'nullable'],
+            'background' => ['sometimes', 'nullable'],
+            'color' => ['sometimes', 'nullable'],
         ];
     }
 }

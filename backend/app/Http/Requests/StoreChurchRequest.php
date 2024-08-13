@@ -23,7 +23,9 @@ class StoreChurchRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'responsible_id' => ['nullable', 'exists:persons,id'],
             'name' => ['required'],
+            'responsible_id' => ['nullable', 'exists:persons,id'],
             'email' => ['required', 'email'],
             'cnpj' => ['required', 'numeric', new Cnpj()],
             'cep' => ['required', 'numeric'],
@@ -33,7 +35,11 @@ class StoreChurchRequest extends FormRequest
             'district' => ['required'],
             'city' => ['required'],
             'state' => ['required'],
-            'country' => ['required']
+            'country' => ['required'],
+            'logo' => 'nullable',
+            'favicon' => 'nullable',
+            'background' => 'nullable',
+            'color' => 'nullable',
         ];
     }
 }
