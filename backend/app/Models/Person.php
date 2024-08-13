@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Person extends Model
@@ -16,6 +17,8 @@ class Person extends Model
     use SoftDeletes;
 
     protected $table = 'persons';
+
+    protected $primaryKey = 'id';
 
     protected $fillable = [
         'id',
@@ -45,5 +48,10 @@ class Person extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function churches(): HasMany
+    {
+        return $this->hasMany(Church::class);
     }
 }

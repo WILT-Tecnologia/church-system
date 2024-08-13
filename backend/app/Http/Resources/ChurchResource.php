@@ -16,6 +16,7 @@ class ChurchResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'responsible' => new PersonResource($this->responsible),
             'name' => $this->name,
             'email' => $this->email,
             'cnpj' => $this->cnpj,
@@ -27,6 +28,10 @@ class ChurchResource extends JsonResource
             'city' => $this->city,
             'state' => $this->state,
             'country' => $this->country,
+            'logo' => $this->logo,
+            'favicon' => $this->favicon,
+            'backgroud' => $this->backgroud,
+            'color' => $this->color,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];

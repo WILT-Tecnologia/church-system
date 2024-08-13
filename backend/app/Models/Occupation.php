@@ -15,6 +15,8 @@ class Occupation extends Model
 
     protected $table = 'occupations';
 
+    protected $primaryKey = 'id';
+
     protected $fillable = [
         'id',
         'name',
