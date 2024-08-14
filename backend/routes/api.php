@@ -14,4 +14,5 @@ Route::prefix('admin')->group(function () {
     Route::apiResource('churches', \App\Http\Controllers\ChurchController::class);
     Route::apiResource('occupations', \App\Http\Controllers\Api\OccupationController::class);
     Route::apiResource('event-types', \App\Http\Controllers\Api\EventTypeController::class);
+    Route::apiResource('member-origins', \App\Http\Controllers\Api\MemberOriginController::class);
 });
