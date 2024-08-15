@@ -2,6 +2,7 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "docker:dev": "docker compose -f ./docker-compose.yml up --build",
         "dev": "php artisan migrate && php artisan serve",
         "build": "vite build"
     },
