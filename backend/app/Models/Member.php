@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\CivilStatusEnum;
+use App\Enums\ColorRaceEnum;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -50,5 +51,6 @@ class Member extends Model
 
     protected $casts = [
         'civil_status' => CivilStatusEnum::class,
+        'color_race' => ColorRaceEnum::class,
     ];
 }
