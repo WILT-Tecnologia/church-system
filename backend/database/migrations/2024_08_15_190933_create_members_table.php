@@ -44,6 +44,10 @@ return new class extends Migration
             $table->date('receipt_date')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('person_id')->references('id')->on('persons');
+            $table->foreign('church_id')->refernces('id')->on('churches');
+            $table->foreign('member_origin_id')->references('id')->on('member_origins');
         });
     }
 
