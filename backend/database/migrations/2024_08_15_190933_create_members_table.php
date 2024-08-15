@@ -17,7 +17,7 @@ return new class extends Migration
             $table->uuid('church_id');
             $table->string('rg')->nullable();
             $table->string('issuing_body')->nullable();
-            $table->enum('civil_status', ['solteiro', 'casado', 'separado', 'divorciado', 'viuvo']);
+            $table->enum('civil_status', ['Solteiro(a)', 'Casado(a)', 'Separado(a)', 'Divorciado(a)', 'Viúvo(a)']);
             $table->string('nacionality');
             $table->string('naturalness');
             $table->enum('color_race', ['branca', 'preta', 'parda', 'amarela', 'indigena']);

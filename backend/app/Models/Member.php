@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CivilStatusEnum;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -45,5 +46,9 @@ class Member extends Model
         'baptism_holy_spirit_date',
         'member_origin_id',
         'receipt_date'
-    ]
+    ];
+
+    protected $casts = [
+        'civil_status' => CivilStatusEnum::class,
+    ];
 }
