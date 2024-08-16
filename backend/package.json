@@ -2,7 +2,6 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "docker:dev:down": "docker compose -f ./docker-compose.yml down",
         "docker:dev": "sudo sh ./command.sh && docker compose -f ./docker-compose.yml up --build",
         "dev": "php artisan migrate && php artisan serve",
         "build": "vite build",
