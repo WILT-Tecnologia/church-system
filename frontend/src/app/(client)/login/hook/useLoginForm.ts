@@ -42,16 +42,14 @@ export default function useLoginForm() {
           callbackUrl: routes.church,
           redirect: true,
         });
-        console.log(result);
         if (result?.status === 200 || result?.status === 201) {
           await createSession({ ...values });
         }
 
         if (result?.error) {
           setError(result?.status);
-        } else {
-          router.push(routes.index);
         }
+        router.push(routes.index);
       } catch (err) {
         console.error(`erro of login: ${err}`);
       }

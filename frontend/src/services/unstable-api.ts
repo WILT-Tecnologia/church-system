@@ -1,9 +1,9 @@
-import { SESSION_KEYS } from "@/requests/queries/session";
-import { isServer } from "@/utils/isServer";
-import { Session } from "next-auth";
-import { getSession } from "next-auth/react";
-import createApi from "./api";
-import queryClient from "./queryClient";
+import { SESSION_KEYS } from '@/requests/queries/session';
+import { isServer } from '@/utils/isServer';
+import { Session } from 'next-auth';
+import { getSession } from 'next-auth/react';
+import createApi from './api';
+import queryClient from './queryClient';
 
 const unstable__api = createApi();
 
@@ -24,7 +24,9 @@ if (!isServer) {
       token = newSession?.user.token;
     }
 
-    const authorization = token ? `Bearer ${token}` : undefined;
+    const authorization = token
+      ? `Bearer ${token}`
+      : `Bearer ${process.env.TOKEN_TEST}`;
     config.headers.Authorization = authorization;
 
     return config;
@@ -34,7 +36,7 @@ if (!isServer) {
 export const createUnstableApi = (session?: Session | null) => {
   const authorization = session?.user.token
     ? `Bearer ${session.user.token}`
-    : undefined;
+    : `Bearer ${process.env.TOKEN_TEST}`;
   unstable__api.defaults.headers.head.Authorization = authorization;
   //unstable__api.defaults.headers.authorization = authorization;
 

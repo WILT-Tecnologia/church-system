@@ -3,7 +3,7 @@ const nextConfig = {
   optimizeFonts: true,
   reactStrictMode: true,
   experimental: { esmExternals: true, optimizeCss: true },
-  output: "standalone",
+  output: 'standalone',
   swcMinify: true,
   compiler: {
     styledComponents: true,
@@ -12,8 +12,9 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   env: {
-    customKey: "Church System",
+    customKey: 'Church System',
     APP_ENV: process.env.APP_ENV,
+    TOKEN_TEST: process.env.TOKEN_TEST,
     DATABASE_URL: process.env.DATABASE_URL,
     API_URL: process.env.API_URL,
     SERVER_API_URL: process.env.SERVER_API_URL,

@@ -1,14 +1,17 @@
-import axios from "axios";
-import { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
+import axios from 'axios';
+import { NextAuthOptions } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import { getSession } from 'next-auth/react';
+import { v4 as uuidv4 } from 'uuid';
 
 export const nextAuthOptions: NextAuthOptions = {
+  cookies: { csrfToken: { name: 'XSRF-TOKEN', options: { httpOnly: true } } },
   providers: [
     CredentialsProvider({
-      name: "credentials",
+      name: 'credentials',
       credentials: {
-        email: { label: "email", type: "email" },
-        password: { label: "password", type: "password" },
+        email: { label: 'email', type: 'email' },
+        password: { label: 'password', type: 'password' },
       },
       async authorize(credentials: any) {
         try {
@@ -27,7 +30,7 @@ export const nextAuthOptions: NextAuthOptions = {
           }
           return null;
         } catch (error) {
-          console.error("Login error:", error);
+          console.error('Login error:', error);
           return null;
         }
       },
@@ -52,13 +55,24 @@ export const nextAuthOptions: NextAuthOptions = {
       }
       return session;
     },
+    async signIn(account: any) {
+      const session = await getSession();
+      const csrfToken = session?.csrfToken || uuidv4();
+      // Armazena o token CSRF em session.csrfToken
+      if (session) {
+        session.csrfToken = csrfToken;
+      }
+      // Inclui o token CSRF na requisição
+      account.params = { _token: csrfToken };
+      return true;
+    },
   },
   pages: {
-    signIn: "/login",
+    signIn: '/login',
   },
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
   },
   secret: process.env.NEXTAUTH_SECRET,
-  useSecureCookies: process.env.NODE_ENV === "production",
+  useSecureCookies: process.env.NODE_ENV === 'production',
 };

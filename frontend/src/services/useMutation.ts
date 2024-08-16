@@ -2,10 +2,10 @@ import {
   MutationFunction,
   useQueryClient,
   useMutation as useReactQueryUseMutation,
-} from "@tanstack/react-query";
-import { AxiosError } from "axios";
-import { Flip, ToastContent, toast } from "react-toastify";
-import { v4 as uuidv4 } from "uuid";
+} from '@tanstack/react-query';
+import { AxiosError } from 'axios';
+import { Flip, ToastContent, toast } from 'react-toastify';
+import { v4 as uuidv4 } from 'uuid';
 
 type ProcessQueryDataFn = (oldData: any, newData: any) => any;
 
@@ -20,7 +20,7 @@ type UseMutationOptions<TData = unknown, TError = unknown> = {
 const useMutation = <TData = string, TError = unknown>(
   key: string,
   mutationFn: MutationFunction<any, any>,
-  options: UseMutationOptions<TData, TError> = {}
+  options: UseMutationOptions<TData, TError> = {},
 ) => {
   const queryClient = useQueryClient();
 
@@ -31,12 +31,12 @@ const useMutation = <TData = string, TError = unknown>(
       const toastKey = options.renderLoading ? `${key}-${uuidv4()}` : undefined;
       if (toastKey && options.renderLoading) {
         toast.info(options.renderLoading(data), {
-          position: "top-right",
+          position: 'bottom-center',
           toastId: toastKey,
-          autoClose: 3000,
+          autoClose: 5000,
           closeButton: true,
-          type: "info",
-          theme: "colored",
+          type: 'info',
+          theme: 'colored',
         });
       }
       const previousQueriesData: Record<string, any> = {};
@@ -47,11 +47,11 @@ const useMutation = <TData = string, TError = unknown>(
 
             const previousData = queryClient.getQueryData([query]);
             queryClient.setQueryData([query], (old: any) =>
-              processQueryFn(old, data)
+              processQueryFn(old, data),
             );
 
             previousQueriesData[query] = previousData;
-          }
+          },
         );
         await Promise.all(promises);
       }
@@ -73,9 +73,9 @@ const useMutation = <TData = string, TError = unknown>(
         if (ctx.toastKey) {
           toast.update(ctx.toastKey, {
             ...toastObj,
-            type: "error",
+            type: 'error',
             transition: Flip,
-            theme: "colored",
+            theme: 'colored',
           });
         } else {
           toast(toastObj as unknown as ToastContent);
@@ -85,7 +85,7 @@ const useMutation = <TData = string, TError = unknown>(
       }
 
       Object.entries(ctx.previousQueriesData || {}).forEach(
-        ([key, value]: [string, any]) => queryClient.setQueryData([key], value)
+        ([key, value]: [string, any]) => queryClient.setQueryData([key], value),
       );
     },
     onSuccess: (data: any, variables: any, context: any) => {
@@ -99,9 +99,9 @@ const useMutation = <TData = string, TError = unknown>(
         if (context?.toastKey) {
           toast.update(context.toastKey, {
             ...toastObj,
-            type: "success",
+            type: 'success',
             transition: Flip,
-            theme: "colored",
+            theme: 'colored',
           });
         } else {
           toast(toastObj as unknown as ToastContent);
@@ -114,7 +114,7 @@ const useMutation = <TData = string, TError = unknown>(
     onSettled: () => {
       if (options.linkedQueries) {
         Object.keys(options.linkedQueries).forEach((query) =>
-          queryClient.invalidateQueries({ queryKey: [query] })
+          queryClient.invalidateQueries({ queryKey: [query] }),
         );
       }
     },

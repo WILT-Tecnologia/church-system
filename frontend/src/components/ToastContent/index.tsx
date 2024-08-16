@@ -1,5 +1,5 @@
-import { CircularProgress } from "@mui/material";
-import * as S from "./styles";
+import { CircularProgress } from '@mui/material';
+import * as S from './styles';
 
 type ToastContentProps = {
   children: React.ReactNode;

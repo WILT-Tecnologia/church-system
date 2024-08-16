@@ -1,10 +1,14 @@
-"use client";
+'use client';
 
-import * as S from "@/app/admin/administrative/styles";
-import CTA from "@/components/Form/CTA";
+import * as S from '@/app/admin/administrative/styles';
+
+import CTA from '@/components/Form/CTA';
+import Loading from '@/components/Loading';
+import MaskedTextField from '@/components/PatternFormattedTextField';
+import { cpfMasked, phoneMasked } from '@/utils/masks';
 import {
+  Alert,
   Card,
-  CircularProgress,
   Divider,
   FormControl,
   InputLabel,
@@ -12,22 +16,23 @@ import {
   Select,
   TextField,
   Typography,
-} from "@mui/material";
-import { Controller } from "react-hook-form";
-import usePersonForm from "../hook/usePersonForm";
+} from '@mui/material';
+import { Controller } from 'react-hook-form';
+import usePersonForm from '../hook/usePersonForm';
 
 const PersonCreate = () => {
   const {
+    isSubmitting,
+    control,
+    loadingCircular,
+    streetValue,
+    districtValue,
+    stateValue,
+    cityValue,
+    errors,
+    messageValue,
     onSubmit,
     handleSubmit,
-    isSubmitting,
-    cityValue,
-    control,
-    loadingRef,
-    neighborhoodValue,
-    stateValue,
-    streetValue,
-    errors,
     handleCepChange,
     register,
     handleBack,
@@ -39,29 +44,42 @@ const PersonCreate = () => {
         <Typography
           variant="h4"
           color="primary"
-          sx={{ textAlign: "center", my: "1rem", fontWeight: "bold" }}
+          sx={{ textAlign: 'center', my: '1rem', fontWeight: 'bold' }}
         >
           Pessoa
         </Typography>
+        {messageValue && <Alert severity="error">{messageValue}</Alert>}
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Typography color="gray" sx={{ my: "1rem", fontWeight: "bold" }}>
+          <Typography color="gray" sx={{ my: '1rem', fontWeight: 'bold' }}>
             Dados básicos
           </Typography>
           <S.Inputs>
             <TextField
               type="text"
+              label="Usuário"
+              {...register('user_id')}
+              error={!!errors.user_id}
+              helperText={errors.user_id?.message}
+              variant="filled"
+              //required
+              fullWidth
+            />
+            <TextField
+              type="text"
               label="Nome"
-              {...register("name")}
+              {...register('name')}
               error={!!errors.name}
               helperText={errors.name?.message}
               variant="filled"
               required
               fullWidth
             />
-            <TextField
-              type="text"
+            <MaskedTextField
+              control={control}
+              name="cpf"
+              format="###.###.###-##"
               label="CPF"
-              {...register("cpf")}
+              maskFunction={cpfMasked}
               error={!!errors.cpf}
               helperText={errors.cpf?.message}
               variant="filled"
@@ -71,7 +89,7 @@ const PersonCreate = () => {
             <TextField
               type="text"
               label="E-mail"
-              {...register("email")}
+              {...register('email')}
               error={!!errors.email}
               helperText={errors.email?.message}
               variant="filled"
@@ -83,13 +101,13 @@ const PersonCreate = () => {
             <TextField
               type="date"
               label="Data de nascimento"
-              {...register("birth_date")}
+              {...register('birth_date')}
               error={!!errors.birth_date}
-              helperText={
-                errors.birth_date?.message ||
-                "De preferência, informe o Whatsapp."
-              }
+              helperText={errors.birth_date?.message}
               variant="filled"
+              InputLabelProps={{
+                shrink: true,
+              }}
               required
               fullWidth
             />
@@ -119,30 +137,34 @@ const PersonCreate = () => {
                 </FormControl>
               )}
             />
-            <TextField
-              type="text"
+            <MaskedTextField
+              control={control}
               label="Celular"
-              {...register("phone_one")}
+              name="phone_one"
+              format="(##)#####-####"
+              maskFunction={phoneMasked}
               error={!!errors.phone_one}
               helperText={
                 errors.phone_one?.message ||
-                "De preferência, informe o Whatsapp."
+                'De preferência, informe o Whatsapp.'
               }
               variant="filled"
               required
               fullWidth
             />
-            <TextField
-              type="text"
-              label="Telefone 2"
-              {...register("phone_two")}
+            <MaskedTextField
+              control={control}
+              label="Telefone II"
+              name="phone_two"
+              format="(##)#####-####"
+              maskFunction={phoneMasked}
               error={!!errors.phone_two}
               helperText={errors.phone_two?.message}
               variant="filled"
               fullWidth
             />
           </S.Inputs>
-          <Typography color="gray" sx={{ my: "1rem", fontWeight: "bold" }}>
+          <Typography color="gray" sx={{ my: '1rem', fontWeight: 'bold' }}>
             Endereço
           </Typography>
           <S.Inputs>
@@ -157,7 +179,7 @@ const PersonCreate = () => {
                   error={!!errors.cep}
                   helperText={errors.cep?.message}
                   onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, "");
+                    const value = e.target.value.replace(/\D/g, '');
                     if (value.length <= 8) {
                       field.onChange(value);
                       if (value.length === 8) {
@@ -169,21 +191,22 @@ const PersonCreate = () => {
                   required
                   inputProps={{
                     maxLength: 8,
-                    pattern: "[0-9]{8}",
+                    pattern: '[0-9]{8}',
                   }}
                 />
               )}
             />
-            <CircularProgress
+            {loadingCircular && <Loading />}
+            {/* <CircularProgress
               ref={loadingRef}
-              style={{ display: "none" }}
+              style={{ display: 'none' }}
               size={24}
-            />
+            /> */}
             <TextField
               type="text"
               label="Rua"
               variant="filled"
-              {...register("street")}
+              {...register('street')}
               error={!!errors.street}
               helperText={errors.street?.message}
               disabled={isSubmitting}
@@ -197,7 +220,7 @@ const PersonCreate = () => {
               type="text"
               label="Número"
               variant="filled"
-              {...register("number")}
+              {...register('number')}
               error={!!errors.number}
               helperText={errors.number?.message}
               disabled={isSubmitting}
@@ -209,7 +232,7 @@ const PersonCreate = () => {
               type="text"
               label="Complemento"
               variant="filled"
-              {...register("complement")}
+              {...register('complement')}
               error={!!errors.complement}
               helperText={errors.complement?.message}
               disabled={isSubmitting}
@@ -219,12 +242,12 @@ const PersonCreate = () => {
               type="text"
               label="Bairro"
               variant="filled"
-              {...register("neighborhood")}
-              error={!!errors.neighborhood}
-              helperText={errors.neighborhood?.message}
+              {...register('district')}
+              error={!!errors.district}
+              helperText={errors.district?.message}
               disabled={isSubmitting}
               InputLabelProps={{
-                shrink: !!neighborhoodValue,
+                shrink: !!districtValue,
               }}
               required
               fullWidth
@@ -233,7 +256,7 @@ const PersonCreate = () => {
               type="text"
               label="Cidade"
               variant="filled"
-              {...register("city")}
+              {...register('city')}
               error={!!errors.city}
               helperText={errors.city?.message}
               disabled={isSubmitting}
@@ -247,13 +270,24 @@ const PersonCreate = () => {
               type="text"
               label="Estado"
               variant="filled"
-              {...register("state")}
+              {...register('state')}
               error={!!errors.state}
               helperText={errors.state?.message}
               disabled={isSubmitting}
               InputLabelProps={{
                 shrink: !!stateValue,
               }}
+              required
+              fullWidth
+            />
+            <TextField
+              type="text"
+              label="País"
+              variant="filled"
+              {...register('country')}
+              error={!!errors.country}
+              helperText={errors.country?.message}
+              disabled={isSubmitting}
               required
               fullWidth
             />

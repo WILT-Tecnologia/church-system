@@ -1,15 +1,15 @@
 const global = [
   {
-    path: "/",
-    name: "Inicio",
+    path: '/',
+    name: 'Inicio',
   },
   {
-    path: "/admin/church",
-    name: "Igreja",
+    path: '/admin/church',
+    name: 'Igreja',
   },
   {
-    path: "/admin/administrative",
-    name: "Administrativo",
+    path: '/admin/administrative',
+    name: 'Administrativo',
   },
   // {
   //   path: "/admin/dashboard/",
@@ -63,9 +63,18 @@ const global = [
 ];
 
 const routes = {
-  index: "/",
-  church: "/admin/church",
-  administrative: "/admin/administrative",
+  index: '/',
+  church: '/admin/church',
+  administrative: {
+    index: '/admin/administrative',
+    churchs: '/admin/administrative/church',
+    persons: '/admin/administrative/persons',
+    users: '/admin/administrative/users',
+    occupations: '/admin/administrative/offices',
+    profiles: '/admin/administrative/profiles',
+    eventType: '/admin/administrative/event-type',
+    reports: '/admin/administrative/reports',
+  },
 };
 
 export { global, routes };

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Card,
@@ -10,15 +10,14 @@ import {
   Select,
   TextField,
   Typography,
-} from "@mui/material";
-import { Controller } from "react-hook-form";
+} from '@mui/material';
+import { Controller } from 'react-hook-form';
 
-import PatternFormattedTextField from "@/components/PatternFormattedTextField";
-
-import * as S from "@/app/admin/administrative/styles";
-import ErrorMessage from "@/components/ErrorMessage";
-import CTA from "@/components/Form/CTA";
-import useChurchForm from "../hooks";
+import * as S from '@/app/admin/administrative/styles';
+import ErrorMessage from '@/components/ErrorMessage';
+import CTA from '@/components/Form/CTA';
+import MaskedTextField from '@/components/PatternFormattedTextField';
+import useChurchForm from '../hooks';
 
 export default function Churchs() {
   const {
@@ -41,7 +40,7 @@ export default function Churchs() {
   return (
     <S.Wrapper>
       <Card variant="elevation" sx={{ p: 3 }}>
-        <Typography color="gray" sx={{ my: "1rem", fontWeight: "bold" }}>
+        <Typography color="gray" sx={{ my: '1rem', fontWeight: 'bold' }}>
           Identificação
         </Typography>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -50,7 +49,7 @@ export default function Churchs() {
               type="text"
               label="Nome"
               variant="filled"
-              {...register("name")}
+              {...register('name')}
               error={!!errors.name}
               helperText={errors.name?.message}
               required
@@ -60,7 +59,7 @@ export default function Churchs() {
               name="cnpj"
               control={control}
               render={({ field }) => (
-                <PatternFormattedTextField
+                <MaskedTextField
                   field={field}
                   format="##.###.###/####-##"
                   mask="_"
@@ -79,7 +78,7 @@ export default function Churchs() {
               type="email"
               label="E-mail"
               variant="filled"
-              {...register("email")}
+              {...register('email')}
               error={!!errors.email}
               helperText={errors.email?.message}
               required
@@ -91,7 +90,7 @@ export default function Churchs() {
               type="url"
               label="Site"
               variant="filled"
-              {...register("site")}
+              {...register('site')}
               error={!!errors.site}
               helperText={errors.site?.message}
               required
@@ -125,7 +124,7 @@ export default function Churchs() {
             </FormControl>
           </S.Inputs>
           <Divider />
-          <Typography color="gray" sx={{ my: "1rem", fontWeight: "bold" }}>
+          <Typography color="gray" sx={{ my: '1rem', fontWeight: 'bold' }}>
             Endereço
           </Typography>
           <S.Inputs>
@@ -140,7 +139,7 @@ export default function Churchs() {
                   error={!!errors.cep}
                   helperText={errors.cep?.message}
                   onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, "");
+                    const value = e.target.value.replace(/\D/g, '');
                     if (value.length <= 8) {
                       field.onChange(value);
                       if (value.length === 8) {
@@ -152,19 +151,19 @@ export default function Churchs() {
                   required
                   inputProps={{
                     maxLength: 8,
-                    pattern: "[0-9]{8}",
+                    pattern: '[0-9]{8}',
                   }}
                 />
               )}
             />
-            <div ref={loadingRef} style={{ display: "none" }}>
+            <div ref={loadingRef} style={{ display: 'none' }}>
               <CircularProgress size={24} />
             </div>
             <TextField
               type="text"
               label="Rua"
               variant="filled"
-              {...register("street")}
+              {...register('street')}
               error={!!errors.street}
               helperText={errors.street?.message}
               disabled={isSubmitting}
@@ -178,7 +177,7 @@ export default function Churchs() {
               type="text"
               label="Número"
               variant="filled"
-              {...register("number")}
+              {...register('number')}
               error={!!errors.number}
               helperText={errors.number?.message}
               disabled={isSubmitting}
@@ -190,7 +189,7 @@ export default function Churchs() {
               type="text"
               label="Complemento"
               variant="filled"
-              {...register("complement")}
+              {...register('complement')}
               error={!!errors.complement}
               helperText={errors.complement?.message}
               disabled={isSubmitting}
@@ -200,7 +199,7 @@ export default function Churchs() {
               type="text"
               label="Bairro"
               variant="filled"
-              {...register("neighborhood")}
+              {...register('neighborhood')}
               error={!!errors.neighborhood}
               helperText={errors.neighborhood?.message}
               disabled={isSubmitting}
@@ -214,7 +213,7 @@ export default function Churchs() {
               type="text"
               label="Cidade"
               variant="filled"
-              {...register("city")}
+              {...register('city')}
               error={!!errors.city}
               helperText={errors.city?.message}
               disabled={isSubmitting}
@@ -228,7 +227,7 @@ export default function Churchs() {
               type="text"
               label="Estado"
               variant="filled"
-              {...register("state")}
+              {...register('state')}
               error={!!errors.state}
               helperText={errors.state?.message}
               disabled={isSubmitting}

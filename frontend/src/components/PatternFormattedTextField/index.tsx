@@ -1,53 +1,47 @@
-import { TextField } from "@mui/material";
-import { forwardRef } from "react";
-import { ControllerRenderProps } from "react-hook-form";
-import { PatternFormat } from "react-number-format";
+import { TextField, TextFieldProps } from '@mui/material';
+import { Controller } from 'react-hook-form';
 
-type PatternFormattedTextFieldProps = {
-  field: ControllerRenderProps<any>;
+type MaskedTextFieldProps = TextFieldProps & {
+  name: string;
+  control: any;
   format: string;
-  mask: string;
-  label: string;
-  error: boolean;
-  helperText?: string;
-  required?: boolean;
-  fullWidth?: boolean;
-  onValueChange: (values: any) => void;
+  maskFunction: (value: string) => string;
 };
 
-const PatternFormattedTextField = forwardRef<
-  HTMLInputElement,
-  PatternFormattedTextFieldProps
->(
-  (
-    {
-      field,
-      format,
-      mask,
-      label,
-      error,
-      helperText,
-      required,
-      fullWidth,
-      onValueChange,
-    },
-    ref
-  ) => (
-    <PatternFormat
-      {...field}
-      getInputRef={ref}
-      customInput={TextField}
-      format={format}
-      mask={mask}
-      variant="filled"
-      label={label}
-      error={error}
-      helperText={helperText}
-      required={required}
-      fullWidth={fullWidth}
-      onValueChange={onValueChange}
-    />
-  )
-);
+const MaskedTextField = ({
+  name,
+  control,
+  label,
+  format,
+  maskFunction,
+  ...props
+}: MaskedTextFieldProps) => {
+  return (
+    <Controller
+      name={name}
+      control={control}
+      render={({ field }) => {
+        const { onChange, value, ...rest } = field;
 
-export default PatternFormattedTextField;
+        // Função para manipular mudanças no campo
+        const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+          const unmaskedValue = e.target.value;
+          const newValue = maskFunction(unmaskedValue);
+          onChange(newValue.replace(/\D/g, ''));
+        };
+
+        return (
+          <TextField
+            label={label}
+            value={maskFunction(value)}
+            onChange={handleChange}
+            {...rest}
+            {...props}
+          />
+        );
+      }}
+    />
+  );
+};
+
+export default MaskedTextField;
