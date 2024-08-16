@@ -13,7 +13,7 @@ class ChurchController extends Controller
 
     public function index()
     {
-        return ChurchResource::collection(Church::paginate());
+        return ChurchResource::collection(Church::all());
     }
 
     public function store(StoreChurchRequest $request)

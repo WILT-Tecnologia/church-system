@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('persons', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->uuid('user_id')->nullable();
             $table->string('image')->nullable();
             $table->string('name');
             $table->string('cpf')->unique()->nullable();
@@ -28,6 +29,8 @@ return new class extends Migration
             $table->string('country')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 

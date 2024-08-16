@@ -30,6 +30,7 @@ class StorePersonRequest extends FormRequest
 
         // dd("verificar o arquivo Handler de exception");
         return [
+            'user_id' => ['nullable'],
             'image' => ['nullable'],
             'name' => ['required'],
             'cpf' => ['required', 'numeric', "unique:persons,cpf", new Cpf()],

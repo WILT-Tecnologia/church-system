@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('churches', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->uuid('responsible_id')->nullable();
             $table->string('name');
             $table->string('email');
             $table->string('cnpj');
@@ -24,8 +25,14 @@ return new class extends Migration
             $table->string('city');
             $table->string('state');
             $table->string('country');
+            $table->string('logo')->nullable();
+            $table->string('favicon')->nullable();
+            $table->string('background')->nullable();
+            $table->string('color')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('responsible_id')->references('id')->on('persons');
         });
     }
 
