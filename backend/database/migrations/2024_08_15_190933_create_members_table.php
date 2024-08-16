@@ -21,10 +21,10 @@ return new class extends Migration
             $table->string('nacionality');
             $table->string('naturalness');
             $table->enum('color_race', ['Branca', 'Preta', 'Parda', 'Amarela', 'indÍgena']);
-            $table->enum('formation', ['analfabeto', 'lê e escreve', 'ensino fundamental incompleto',
-                    'ensino fundamental completo', 'ensino médio incompleto', 'ensino médio completo',
-                    'superior incompleto', 'superior completo', 'pós-graduado', 'mestrado', 'doutorado',
-                    'pós-doutorado']);
+            $table->enum('formation', ['Analfabeto', 'Lê e Escreve', 'Ensino Fundamental Incompleto',
+                    'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 'Ensino Médio Completo',
+                    'Superior Incompleto', 'Superior Completo', 'Pós-Graduado', 'Mestrado', 'Doutorado',
+                    'Pós-Doutorado']);
             $table->string('formation_course')->nullable();
             $table->string('profission')->nullable();
             $table->boolean('def_physical')->default(false);
