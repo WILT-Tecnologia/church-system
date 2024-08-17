@@ -7,11 +7,11 @@ export default function useFetchPrimaryColor(): string {
   useEffect(() => {
     const fetchColor = async () => {
       try {
-        const response = await axios.get("/api/color");
+        const response = await axios.get("/admin/users");
         const color = response.data.color || primaryColor;
         setPrimaryColor(color);
       } catch (error) {
-        console.error("Failed to fetch primary color", error);
+        console.error("Deu erro em buscar a cor primária");
       }
     };
 

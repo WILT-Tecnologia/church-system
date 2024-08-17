@@ -4,7 +4,8 @@
     "scripts": {
         "docker:dev": "sudo sh ./command.sh && docker compose -f ./docker-compose.yml up --build",
         "dev": "php artisan migrate && php artisan serve",
-        "build": "vite build"
+        "build": "vite build",
+        "seed": "php artisan migrate:fresh --seed && php artisan serve"
     },
     "devDependencies": {
         "axios": "^1.6.4",

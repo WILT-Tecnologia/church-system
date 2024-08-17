@@ -1,6 +1,9 @@
+import { FormattedUsers } from "@/model/User";
+import { listUsers } from "@/requests/queries/users";
 import { profiles, users } from "@/utils/mocks";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { GridRowModesModel } from "@mui/x-data-grid";
+import { GridRowId, GridRowModesModel } from "@mui/x-data-grid";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
@@ -11,22 +14,28 @@ type Schema = z.infer<typeof schemaUsers>;
 type User = typeof users;
 
 const useUsersForm = (initialData?: Schema) => {
-  const loadingRef = useRef<HTMLDivElement | null>(null);
+  const [rows, setRows] = useState<FormattedUsers[]>([]);
+  const [openPopup, setOpenPopup] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
   const [userData, setUserData] = useState<User | any>(null);
+  const loadingRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
 
-  // Simula a obtenção de dados para edição
+  const {
+    data: users,
+    isError,
+    refetch,
+  } = useQuery<FormattedUsers[]>({
+    queryKey: ["get-users"],
+    queryFn: () => listUsers(),
+  });
+
   useEffect(() => {
-    const userId = new URLSearchParams(window.location.search).get("id");
-    if (userId) {
-      const user = users.find((user) => user.id === userId);
-      if (user) {
-        setUserData(user);
-      }
+    if (users) {
+      setRows(users);
     }
-  }, []);
+  }, [users]);
 
   const {
     control,
@@ -70,6 +79,29 @@ const useUsersForm = (initialData?: Schema) => {
     event.preventDefault();
   };
 
+  const handleEditClick = (id: GridRowId) => async () => {
+    const userToEdit = rows.find((row) => row.id === id);
+    if (userToEdit) {
+      setOpenPopup(true);
+      //setUserToEdit(userToEdit);
+    }
+  };
+
+  const handleDeleteClick = (id: GridRowId) => async () => {
+    try {
+      const userToDelete = rows.find((row) => row.id === id);
+      if (userToDelete) {
+        //confirmDelete(userToDelete);
+        const updatedRows = rows.filter((row) => row.id !== id);
+        setRows(updatedRows);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      refetch();
+    }
+  };
+
   const onSubmit: SubmitHandler<Schema> = async (data: Schema) => {
     console.log(data);
   };
@@ -80,6 +112,7 @@ const useUsersForm = (initialData?: Schema) => {
 
   return {
     loadingRef,
+    isError,
     control,
     errors,
     isSubmitting,
@@ -91,6 +124,8 @@ const useUsersForm = (initialData?: Schema) => {
     profiles,
     userData,
     router,
+    rows,
+    setRows,
     setRowModesModel,
     watch,
     setValue,
@@ -99,6 +134,8 @@ const useUsersForm = (initialData?: Schema) => {
     onSubmit,
     handleSubmit,
     handleBack,
+    handleEditClick,
+    handleDeleteClick,
     handleClickShowPassword,
     handleMouseDownPassword,
   };

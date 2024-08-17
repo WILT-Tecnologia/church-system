@@ -11,13 +11,16 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   DefaultTheme,
   ThemeProvider as StyledComponentsThemeProvider,
 } from "styled-components";
 
+import NextAuthSessionProvider from "@/providers/sessionProvider";
+import { useEffect, useState } from "react";
 import "../styles/global.css";
+import Loading from "./loading";
 
 type ThemeProviderPageProps = {
   children: React.ReactNode;
@@ -30,10 +33,27 @@ type CustomTheme = {
 } & DefaultTheme;
 
 const ThemeProviderPage = ({ children }: ThemeProviderPageProps) => {
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const queryClientRef = new QueryClient();
   const pathname = usePathname();
-  const queryClient = new QueryClient();
   const isAdminRoute = pathname.startsWith("/admin");
   const primaryColor = useFetchPrimaryColor();
+
+  useEffect(() => {
+    const handleStart = () => setLoading(true);
+    const handleComplete = () => setLoading(false);
+
+    // Inicia o loading quando o pathname muda
+    handleStart();
+
+    // Simula a finalização do carregamento
+    handleComplete();
+
+    return () => {
+      // Limpeza se fosse necessário
+    };
+  }, [pathname]);
 
   const customTheme: CustomTheme = {
     ...themeStyledComponent,
@@ -66,18 +86,21 @@ const ThemeProviderPage = ({ children }: ThemeProviderPageProps) => {
   });
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <HydrationBoundary state={hydrate}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <StyledComponentsThemeProvider theme={customTheme}>
-            {isAdminRoute && <Navbar />}
-            {children}
-            <GlobalStyles />
-          </StyledComponentsThemeProvider>
-        </ThemeProvider>
-      </HydrationBoundary>
-    </QueryClientProvider>
+    <NextAuthSessionProvider>
+      <QueryClientProvider client={queryClientRef}>
+        <HydrationBoundary state={hydrate}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <StyledComponentsThemeProvider theme={customTheme}>
+              {loading && <Loading />}
+              {!loading && isAdminRoute && <Navbar />}
+              {!loading && children}
+              <GlobalStyles />
+            </StyledComponentsThemeProvider>
+          </ThemeProvider>
+        </HydrationBoundary>
+      </QueryClientProvider>
+    </NextAuthSessionProvider>
   );
 };
 

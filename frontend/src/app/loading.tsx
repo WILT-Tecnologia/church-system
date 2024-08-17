@@ -1,18 +1,26 @@
 "use client";
 
-import LoadingComponent from "@/components/Loading";
-
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { Box, CircularProgress } from "@mui/material";
 
 const Loading = () => {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.refresh();
-  }, [router]);
-
-  return <LoadingComponent />;
+  return (
+    <Box
+      sx={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(255, 255, 255, 0.8)",
+        zIndex: 9999,
+      }}
+    >
+      <CircularProgress />
+    </Box>
+  );
 };
 
 export default Loading;

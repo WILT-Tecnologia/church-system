@@ -1,4 +1,4 @@
-import { createGlobalStyle, css } from "styled-components";
+import { createGlobalStyle, css } from 'styled-components';
 
 const GlobalStyles = createGlobalStyle`
   * {
@@ -26,7 +26,7 @@ const GlobalStyles = createGlobalStyle`
   body {
     ${({ theme }) => css`
       background-color: ${theme.colors.white};
-      font-size: ${theme.fonts.sizes.small};
+      font-size: ${theme.fonts.sizes.xxsmall};
       font-family: ${theme.fonts.family.primary};
       color: ${theme.colors.black};
       outline: none;

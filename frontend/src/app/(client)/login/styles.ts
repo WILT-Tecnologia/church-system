@@ -22,8 +22,8 @@ export const Wrapper = styled(Box)`
 export const WrapperForm = styled(Box)`
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  width: 30dvw;
+  gap: 2rem;
+  width: 40dvw;
 
   ${media.lessThan("medium")`
     width: 100%;
