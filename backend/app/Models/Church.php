@@ -44,4 +44,8 @@ class Church extends Model
         return $this->belongsTo(Person::class, 'responsible_id');
     }
 
+    public function members(): HasMany
+    {
+        return $this->hasMany(Member::class);
+    }
 }

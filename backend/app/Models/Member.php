@@ -8,6 +8,7 @@ use App\Enums\FormationEnum;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Member extends Model
@@ -55,4 +56,19 @@ class Member extends Model
         'color_race' => ColorRaceEnum::class,
         'formation' => FormationEnum::class,
     ];
+
+    public function person(): BelongsTo
+    {
+        return $this->belongsTo(Person::class);
+    }
+
+    public function church(): BelongsTo
+    {
+        return $this->belongsTo(Church::class);
+    }
+
+    public function memberOrigin(): BelongsTo
+    {
+        return $this->belongsTo(MemberOrigin::class);
+    }
 }
