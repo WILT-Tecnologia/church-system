@@ -44,7 +44,7 @@ class StoreMemberRequest extends FormRequest
             'def_mental' => ['sometimes', 'boolean'],
             'def_multiple' => ['sometimes', 'boolean'],
             'def_other' => ['sometimes', 'boolean'],
-            'def_other_description' => 'required_unless:def_other,true',
+            'def_other_description' => 'required_unless:def_other,false',
             'baptism_date' => ['nullable', 'date'],
             'baptism_locale' => 'nullable',
             'baptism_official' => 'nullable',

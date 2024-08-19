@@ -44,7 +44,7 @@ class UpdateMemberRequest extends FormRequest
             'def_mental' => ['sometimes', 'boolean'],
             'def_multiple' => ['sometimes', 'boolean'],
             'def_other' => ['sometimes', 'boolean'],
-            'def_other_description' => ['sometimes', 'required_unless:def_other,true'],
+            'def_other_description' => ['sometimes', 'required_unless:def_other,false'],
             'baptism_date' => ['sometimes', 'nullable', 'date'],
             'baptism_locale' => ['sometimes','nullable'],
             'baptism_official' => ['sometimes','nullable'],

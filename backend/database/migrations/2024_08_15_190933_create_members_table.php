@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('rg')->nullable();
             $table->string('issuing_body')->nullable();
             $table->enum('civil_status', ['Solteiro(a)', 'Casado(a)', 'Separado(a)', 'Divorciado(a)', 'Viúvo(a)']);
-            $table->string('nacionality')->default('Brasileira');
+            $table->string('nationality')->default('Brasileira');
             $table->string('naturalness');
             $table->enum('color_race', ['Branca', 'Preta', 'Parda', 'Amarela', 'indÍgena']);
             $table->enum('formation', ['Analfabeto', 'Lê e Escreve', 'Ensino Fundamental Incompleto',
@@ -46,7 +46,7 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->foreign('person_id')->references('id')->on('persons');
-            $table->foreign('church_id')->refernces('id')->on('churches');
+            $table->foreign('church_id')->references('id')->on('churches');
             $table->foreign('member_origin_id')->references('id')->on('member_origins');
         });
     }
