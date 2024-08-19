@@ -16,3 +16,7 @@ Route::prefix('admin')->group(function () {
     Route::apiResource('event-types', \App\Http\Controllers\Api\EventTypeController::class);
     Route::apiResource('member-origins', \App\Http\Controllers\Api\MemberOriginController::class);
 });
+
+Route::prefix('church')->group(function (){
+    Route::apiResource('members', \App\Http\Controllers\Api\MemberController::class);
+});
