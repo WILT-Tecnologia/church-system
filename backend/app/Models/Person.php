@@ -54,4 +54,9 @@ class Person extends Model
     {
         return $this->hasMany(Church::class);
     }
+
+    public function member(): BelongsTo
+    {
+        return $this->belongsTo(Member::class);
+    }
 }
