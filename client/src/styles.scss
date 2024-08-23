@@ -1,0 +1,140 @@
+@use 'styles/theme.scss'as theme;
+@use "@angular/material"as mat;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+$church-system-primary: mat.define-palette(theme.$primaryColors);
+$church-system-accent: mat.define-palette(mat.$amber-palette, A200, A100, A400);
+$church-system-warn: mat.define-palette(mat.$red-palette);
+
+$church-system-theme: mat.define-light-theme((color: (primary: $church-system-primary,
+      accent: $church-system-accent,
+      warn: $church-system-warn,
+    ),
+    typography: mat.define-typography-config(),
+    density: 0,
+  ));
+
+@include mat.all-component-themes($church-system-theme);
+
+@include mat.core();
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  outline: none;
+  font-family: 'Poppins', sans-serif;
+}
+
+::selection {
+  background-color: theme.$greenMain;
+  color: theme.$defaultText;
+}
+
+html {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background-color: theme.$backgroundColor;
+  color: theme.$textColor;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+  padding: 2rem;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.items-aligns {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.ps-nav-separator {
+  width: 2px;
+  height: 30px;
+  background: theme.$separator;
+  margin: 0 1.4rem;
+}
+
+.text-default {
+  color: theme.$textColor;
+  font-size: 1rem;
+}
+
+.center {
+  text-align: center;
+}
+
+.rbPadding0x15 {
+  padding: 0px 15px;
+}
+
+.rbPadding20x20 {
+  padding: 20px;
+}
+
+.rbPadding5x0 {
+  padding: 5px 0px;
+}
+
+.rbPadding0x20 {
+  padding: 0px 20px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.custom-snackbar {
+  .mat-mdc-snack-bar-container .mdc-snackbar__surface {
+    border-radius: 0.8rem !important;
+  }
+
+  .mat-mdc-button.mat-mdc-snack-bar-action {
+    color: theme.$white !important;
+  }
+}
+
+.snackbar-success {
+  .mdc-snackbar__surface {
+    background-color: theme.$greenMain !important;
+  }
+
+  .mdc-snackbar__label {
+    color: theme.$white !important;
+  }
+}
+
+.snackbar-error {
+  .mdc-snackbar__surface {
+    background-color: theme.$redMain !important;
+  }
+
+  .mdc-snackbar__label {
+    color: theme.$white !important;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .items-aligns {
+    flex-direction: column;
+  }
+}

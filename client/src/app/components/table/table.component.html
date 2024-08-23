@@ -1,0 +1,50 @@
+<mat-card>
+  @if (ctaLabel && ctaFn){
+  <div class="add-button">
+    <button mat-raised-button color="primary" (click)="ctaFn()">
+      {{ ctaLabel }}
+    </button>
+  </div>
+  }
+
+  <div class="filter-container spacer items-aligns">
+    <mat-form-field>
+      <mat-label>Pesquisar</mat-label>
+      <input matInput (keyup)="applyFilter($event)">
+    </mat-form-field>
+    <mat-paginator [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" showFirstLastButtons></mat-paginator>
+  </div>
+
+  <mat-table [dataSource]="dataSourceMat" mat-table matSort class="mat-elevation-z1 mat-table-responsive">
+    <ng-container *ngFor="let column of displayedColumns">
+      <ng-container [matColumnDef]="column">
+        <mat-header-cell #headerCells *matHeaderCellDef mat-sort-header>
+          {{ columnDefinitions[column] || column }}
+        </mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <ng-container *ngIf="column === 'change_password' || column === 'status'">
+            <mat-checkbox [checked]="element[column]" class="checkbox-readonly" color="primary"></mat-checkbox>
+          </ng-container>
+          <ng-container *ngIf="column === 'created_at' || column === 'updated_at'">
+            {{ element[column] ? (element[column] | date:'dd/MM/yyyy') + ' às ' + (element[column] | date:'HH:mm:ss') : '' }}
+          </ng-container>
+          <ng-container
+            *ngIf="column !== 'change_password' && column !== 'status' && column !== 'created_at' && column !== 'updated_at' && column !== 'actions'">
+            {{ element[column] || '' }}
+          </ng-container>
+          <ng-container *ngIf="column === 'actions'">
+            <button mat-icon-button color="primary" (click)="editFn(element)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="deleteFn(element)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </ng-container>
+        </mat-cell>
+      </ng-container>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+  </mat-table>
+</mat-card>

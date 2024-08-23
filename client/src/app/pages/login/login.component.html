@@ -1,0 +1,27 @@
+<div class="container">
+  <mat-card class="card">
+    <mat-card-header>
+      <mat-card-title>Acessar sua conta</mat-card-title>
+    </mat-card-header>
+      <mat-card-content class="login-container">
+        <form class="login-form" [formGroup]="form" (ngSubmit)="onSubmit()">
+          <mat-form-field appearance="fill">
+            <mat-label>E-mail</mat-label>
+            <input type='email' matInput formControlName="login" placeholder="Ex. email@email.com" required />
+            <mat-error *ngIf="form.get('login')?.hasError('required')">E-mail é obrigatório</mat-error>
+            <mat-error *ngIf="form.get('login')?.hasError('email')">E-mail inválido</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="fill">
+            <mat-label>Senha</mat-label>
+            <input type="password" formControlName="password" matInput required />
+            <mat-error *ngIf="form.get('password')?.hasError('required')">Senha é obrigatória</mat-error>
+            <mat-error *ngIf="form.get('password')?.hasError('minlength')">Senha deve ter no mínimo 8 caracteres</mat-error>
+            <mat-error *ngIf="form.get('password')?.hasError('maxlength')">Senha deve ter no máximo 20 caracteres</mat-error>
+          </mat-form-field>
+          <div class="actions">
+            <button mat-raised-button color="primary" type="submit" class="button-submit" [disabled]="form.invalid" >Entrar</button>
+          </div>
+        </form>
+      </mat-card-content>
+  </mat-card>
+</div>

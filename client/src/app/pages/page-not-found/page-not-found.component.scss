@@ -1,0 +1,80 @@
+@import '../../../styles/theme.scss';
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  height: 100dvh;
+  width: 100dvw;
+  background-color: $white ;
+  overflow: hidden;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.background {
+  position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.backgroundImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.title-404 {
+  font-size: 1.875rem;;
+  color: $textColor;
+  margin: 0.83rem 0;
+}
+
+.sub-title-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem;
+}
+
+.sub-title-404 {
+  font-size: 0.9rem;
+  color: grey;
+}
+
+button {
+  height: 3rem;
+  margin-top: 4rem;
+}
+
+@media screen and (max-width: 768px) {
+  .title-404 {
+    font-size: 1.5rem;
+  }
+
+  .sub-title-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+    width: 76%;
+    margin: 0rem;
+  }
+}

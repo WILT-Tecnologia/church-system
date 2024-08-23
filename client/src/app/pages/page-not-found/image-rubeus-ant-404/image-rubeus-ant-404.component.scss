@@ -1,0 +1,14 @@
+svg {
+  display: flex;
+  margin: 0 auto;
+  width: 40rem;
+  max-width: 50rem;
+  fill: none;
+}
+
+@media screen and (max-width: 768px) {
+  svg {
+    width: 80%;
+    height: auto;
+  }
+}
