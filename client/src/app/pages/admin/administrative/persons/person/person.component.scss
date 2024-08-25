@@ -1,0 +1,54 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  width: 100%;
+
+  @media screen and (max-width: 768px) {
+    padding: 0.5rem;
+  }
+}
+
+mat-card-title {
+  margin-bottom: 1rem;
+}
+
+.form-field-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 100%;
+  gap: 1rem;
+}
+
+.inputs {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.reduction {
+  max-width: 21rem !important;
+
+  @media screen and (max-width: 768px) {
+    max-width: 100% !important;
+  }
+}
+
+.cta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1rem 0;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column-reverse;
+  }
+}

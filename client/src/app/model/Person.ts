@@ -22,8 +22,3 @@ export type Person = {
 };
 
 export type PersonForm = Omit<Person, 'created_at' | 'updated_at'>;
-
-export type FormattedPerson = Person & {
-  createdAt: string;
-  updatedAt: string;
-};

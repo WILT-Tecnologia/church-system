@@ -1,0 +1,30 @@
+import { Pipe, PipeTransform } from '@angular/core';
+import dayjs from 'dayjs';
+
+@Pipe({
+  name: 'birthDateFormat',
+})
+export class BirthDateFormatPipe implements PipeTransform {
+  transform(value: string): string {
+    if (!value) return 'Data não disponível';
+
+    let dateFormated = dayjs(value).format('DD/MM/YYYY');
+
+    if (dayjs(value).isValid()) {
+      return dateFormated;
+    }
+
+    const parts = value.split(/[-\/]/);
+    if (parts.length === 3) {
+      const [day, month, year] = parts;
+      const reformattedValue = `${year}-${month}-${day}`;
+      dateFormated = dayjs(reformattedValue).format('DD/MM/YYYY');
+
+      if (dayjs(reformattedValue).isValid()) {
+        return dateFormated;
+      }
+    }
+
+    return 'Data inválida';
+  }
+}

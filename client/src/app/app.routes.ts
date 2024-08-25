@@ -20,5 +20,21 @@ export const routes: Routes = [
     path: 'administrative/persons/person',
     component: PersonComponent /*canActivate: [AuthGuard]*/,
   },
+  {
+    path: 'administrative/persons',
+    component: PersonComponent /*canActivate: [AuthGuard]*/,
+  },
+  {
+    path: 'administrative/persons/person/new',
+    component: PersonComponent,
+  },
+  {
+    path: 'administrative/persons/person/edit/:id',
+    component: PersonComponent,
+  },
+  {
+    path: 'administrative/persons/person/delete/:id',
+    component: PersonComponent,
+  },
   { path: '**', component: PageNotFoundComponent },
 ];

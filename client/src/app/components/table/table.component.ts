@@ -76,10 +76,15 @@ export class TableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngAfterViewInit() {
-    if (this.paginator && this.sort) {
-      this.dataSourceMat.paginator = this.paginator;
-      this.dataSourceMat.sort = this.sort;
-    }
+    setTimeout(() => {
+      if (this.paginator && this.sort) {
+        this.dataSourceMat.paginator = this.paginator;
+        this.dataSourceMat.sort = this.sort;
+        this.sort.active = this.sortColumn;
+        this.sort.direction = this.sortDirection;
+        this.sort.sortChange.emit();
+      }
+    });
   }
 
   applyFilter(event: Event) {

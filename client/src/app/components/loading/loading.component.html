@@ -1,4 +1,15 @@
-<div class="loading-overlay">
-  <mat-spinner></mat-spinner>
-  <p>Carregando...</p>
+<div *ngIf="loading$ | async" class="loading-overlay">
+  <div class="spinner-container">
+    <div class="spinner">
+      <div class="spinner">
+        <div class="spinner">
+          <div class="spinner">
+            <div class="spinner">
+              <div class="spinner"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

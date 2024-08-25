@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
+import { LoadingService } from '../../../../components/loading/loading.service';
 import { TableComponent } from '../../../../components/table/table.component';
 import { Person } from '../../../../model/Person';
 import { SnackbarService } from '../../../../service/snackbar/snackbar.service';
@@ -12,13 +15,20 @@ import { PersonsService } from './persons.service';
   standalone: true,
   templateUrl: './persons.component.html',
   styleUrls: ['./persons.component.scss'],
-  imports: [MatCardModule, TableComponent, MatDialogModule],
+  imports: [
+    MatCardModule,
+    MatTableModule,
+    TableComponent,
+    MatDialogModule,
+    MatIconModule,
+  ],
 })
 export class PersonsComponent implements OnInit {
   constructor(
     private router: Router,
     private snackbarService: SnackbarService,
-    private personsService: PersonsService
+    private personsService: PersonsService,
+    private loadingService: LoadingService
   ) {}
 
   persons: Person[] = [];
@@ -27,10 +37,7 @@ export class PersonsComponent implements OnInit {
     'cpf',
     'birth_date',
     'email',
-    'phone_one',
     'sex',
-    'created_at',
-    'updated_at',
     'actions',
   ];
   columnDefinitions = {
@@ -38,10 +45,7 @@ export class PersonsComponent implements OnInit {
     cpf: 'CPF',
     birth_date: 'Data de Nascimento',
     email: 'Email',
-    phone_one: 'Celular',
     sex: 'Sexo',
-    created_at: 'Criado em',
-    updated_at: 'Atualizado em',
     actions: 'Ações',
   };
 
@@ -49,18 +53,18 @@ export class PersonsComponent implements OnInit {
     this.loadPersons();
   }
 
-  loadPersons(): void {
+  loadPersons = () => {
     this.personsService.getPersons().subscribe((persons) => {
       this.persons = persons;
     });
-  }
+  };
 
   addNewPerson = (): void => {
-    this.router.navigate(['persons/new']);
+    this.router.navigate(['administrative/persons/person/new']);
   };
 
   editPerson = (person: Person): void => {
-    this.router.navigate(['persons/edit', person.id]);
+    this.router.navigate(['administrative/persons/person/edit', person.id]);
   };
 
   deletePerson = (person: Person): void => {

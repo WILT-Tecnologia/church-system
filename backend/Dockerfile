@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Copia arquivos da aplicação e instala dependências
 COPY . /app
-RUN npm install
+RUN yarn install
 
 # Etapa 2: PHP
 FROM php:8.2-fpm

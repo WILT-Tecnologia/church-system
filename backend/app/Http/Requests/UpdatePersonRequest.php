@@ -28,10 +28,11 @@ class UpdatePersonRequest extends FormRequest
         return [
             'user_id' => ['nullable'],
             'image' => ['nullable'],
-            'name' => ['sometimes', 'requied'],
-            'cpf' => ['sometimes', 'required', 'numeric', 'unique:persons,cpf', new Cpf()],
+            'name' => ['sometimes', 'required'],
+            'cpf' => ['sometimes', 'required', 'numeric', 'unique:persons,cpf,' . $this->person->id, new Cpf()],
             'birth_date' => ['nullable', 'date'],
             'phone_one' => ['nullable', 'numeric', new Phone()],
+            'phone_two' => 'nullable|string',
             'sex' => ['sometimes', 'required', new Enum(SexEnum::class)],
             'cep' => ['nullable', 'numeric'],
             'street' => ['nullable', 'required_with:cep'],
