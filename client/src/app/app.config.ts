@@ -15,6 +15,7 @@ import {
   JwtModuleOptions,
 } from '@auth0/angular-jwt';
 import { routes } from './app.routes';
+
 import { LoadingInterceptor } from './components/loading/loading.interceptor';
 import { getPtBrPaginatorIntl } from './utils/paginator-pt-br';
 
