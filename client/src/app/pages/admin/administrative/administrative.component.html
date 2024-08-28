@@ -1,10 +1,22 @@
 <mat-card appearance="outlined">
   <mat-tab-group dynamicHeight>
+    <mat-tab label="Igrejas">
+      <app-churchs></app-churchs>
+    </mat-tab>
     <mat-tab label="Pessoas">
       <app-persons></app-persons>
     </mat-tab>
     <mat-tab label="Usuários">
-      <div class="mat-elevation-z4">Usuários</div>
+      <app-users></app-users>
+    </mat-tab>
+    <mat-tab label="Tipos de eventos">
+      <app-eventTypes></app-eventTypes>
+    </mat-tab>
+    <mat-tab label="Ocupações">
+      <app-occupations></app-occupations>
+    </mat-tab>
+    <mat-tab label="Perfis">
+      <app-profiles></app-profiles>
     </mat-tab>
   </mat-tab-group>
 </mat-card>

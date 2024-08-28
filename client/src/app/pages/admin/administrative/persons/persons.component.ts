@@ -1,10 +1,9 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
-import { LoadingService } from '../../../../components/loading/loading.service';
+import { NotFoundRegisterComponent } from '../../../../components/not-found-register/not-found-register.component';
 import { TableComponent } from '../../../../components/table/table.component';
 import { Person } from '../../../../model/Person';
 import { SnackbarService } from '../../../../service/snackbar/snackbar.service';
@@ -17,18 +16,17 @@ import { PersonsService } from './persons.service';
   styleUrls: ['./persons.component.scss'],
   imports: [
     MatCardModule,
-    MatTableModule,
     TableComponent,
-    MatDialogModule,
     MatIconModule,
+    NotFoundRegisterComponent,
+    CommonModule,
   ],
 })
 export class PersonsComponent implements OnInit {
   constructor(
     private router: Router,
     private snackbarService: SnackbarService,
-    private personsService: PersonsService,
-    private loadingService: LoadingService
+    private personsService: PersonsService
   ) {}
 
   persons: Person[] = [];

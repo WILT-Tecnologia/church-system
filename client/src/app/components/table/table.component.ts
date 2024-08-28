@@ -14,6 +14,8 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -21,6 +23,7 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSort, MatSortModule, SortDirection } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-table',
@@ -31,6 +34,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
     MatCardModule,
     MatTableModule,
     MatSortModule,
+    MatDividerModule,
     MatPaginatorModule,
     MatFormFieldModule,
     MatInputModule,
@@ -38,7 +42,9 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
     MatIconModule,
     MatButtonModule,
     MatCheckboxModule,
+    MatChipsModule,
     CommonModule,
+    MatTooltipModule,
   ],
 })
 export class TableComponent<T> implements OnInit, AfterViewInit, OnChanges {
@@ -51,6 +57,7 @@ export class TableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   @Input() editFn!: (element: T) => void;
   @Input() deleteFn!: (element: T) => void;
   @Input() ctaFn?: () => void;
+  @Input() isTooltip?: boolean = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -89,7 +96,13 @@ export class TableComponent<T> implements OnInit, AfterViewInit, OnChanges {
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSourceMat.filter = filterValue.trim().toLowerCase();
+    const normalizedFilterValue = filterValue
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, ''); // Remove os acentos
+
+    this.dataSourceMat.filter = normalizedFilterValue;
 
     if (this.dataSourceMat.paginator) {
       this.dataSourceMat.paginator.firstPage();

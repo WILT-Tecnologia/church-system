@@ -119,7 +119,6 @@ export class PersonComponent implements OnInit {
   personId: string | null = null;
   tooltipTextStatus: string = '';
   tooltipTextChangePassword: string = '';
-  isLinear = false;
   sexs: Sex[] = [
     { value: 'M', viewValue: 'Masculino' },
     { value: 'F', viewValue: 'Feminino' },
@@ -157,10 +156,12 @@ export class PersonComponent implements OnInit {
     this.personService.createPerson(this.personForm.value).subscribe({
       next: () => {
         this.snackbarService.openSuccess('Pessoa criada com sucesso!');
-        this.router.navigate(['/home']);
+        this.handleBack();
       },
-      error: () => {
-        this.snackbarService.openError('Erro ao criar a pessoa!');
+      error: (error) => {
+        this.snackbarService.openError(
+          error.error.message || 'Erro ao criar a pessoa!'
+        );
       },
     });
   };
@@ -172,10 +173,12 @@ export class PersonComponent implements OnInit {
       .subscribe({
         next: () => {
           this.snackbarService.openSuccess('Pessoa atualizada com sucesso!');
-          this.router.navigate(['/home']);
+          this.handleBack();
         },
-        error: () => {
-          this.snackbarService.openError('Erro ao atualizar a pessoa!');
+        error: (error) => {
+          this.snackbarService.openError(
+            error.error.message || 'Erro ao atualizar a pessoa!'
+          );
         },
       });
   };

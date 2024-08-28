@@ -1,0 +1,40 @@
+<mat-card class="wrapper">
+  <mat-card-header class="mb-1">
+    <mat-card-title>
+      {{pageTitle}}
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="occupationForm" (ngSubmit)="handleSubmit()" class="form-field-group">
+      <div class="inputs">
+        <mat-slide-toggle formControlName="status" color="primary">Ativo</mat-slide-toggle>
+      </div>
+      <div class="inputs">
+        <mat-form-field appearance="fill">
+          <mat-label>Nome</mat-label>
+          <input matInput formControlName="name" maxlength="255" required>
+          <mat-error *ngIf="occupationForm.get('name')?.hasError('required')">Campo obrigatório.</mat-error>
+          <mat-error *ngIf="occupationForm.get('name')?.hasError('maxlength')">Máximo de 255 caracteres.</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="inputs">
+        <mat-form-field appearance="fill">
+          <mat-label>Descrição</mat-label>
+          <textarea matInput rows="5" formControlName="description" maxlength="255"></textarea>
+          <mat-error *ngIf="occupationForm.get('description')?.hasError('maxlength')">Máximo de 255
+            caracteres.</mat-error>
+        </mat-form-field>
+      </div>
+      @if (this.isEditMode && occupationForm.get('updated_at')?.value) {
+      <span class="info">Atualizado em {{ occupationForm.get('updated_at')?.value }}</span>
+      }
+      <mat-divider></mat-divider>
+      <div class="cta">
+        <button type="button" mat-stroked-button color="primary" (click)="handleBack()">Cancelar</button>
+        <button type="submit" mat-raised-button color="primary" [disabled]="!occupationForm.valid">
+          {{this.isEditMode ? 'Atualizar' : 'Cadastrar'}}
+        </button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>
