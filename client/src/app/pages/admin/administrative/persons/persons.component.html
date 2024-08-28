@@ -1,4 +1,11 @@
-<app-table [dataSource]="persons" [displayedColumns]="displayedColumns" [columnDefinitions]="columnDefinitions"
-  [editFn]="editPerson" [deleteFn]="deletePerson" [ctaFn]="addNewPerson" [ctaLabel]="'Adicionar'" [sortColumn]="'name'"
-  [sortDirection]="'asc'">
-</app-table>
+<ng-container *ngIf="persons && persons.length > 0; else noDataTemplate">
+  <app-table [dataSource]="persons" [displayedColumns]="displayedColumns" [columnDefinitions]="columnDefinitions"
+    [editFn]="editPerson" [deleteFn]="deletePerson" [ctaFn]="addNewPerson" [ctaLabel]="'Adicionar'"
+    [sortColumn]="'name'" [sortDirection]="'asc'" [isTooltip]="true">
+  </app-table>
+</ng-container>
+
+<ng-template #noDataTemplate>
+  <app-not-found-register [template]="'pessoa'" [ctaLabel]="'Adicionar Nova Pessoa'"
+    [addRegisterFn]="addNewPerson"></app-not-found-register>
+</ng-template>

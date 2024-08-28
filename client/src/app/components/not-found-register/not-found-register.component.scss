@@ -1,0 +1,19 @@
+.p-10 {
+  padding: 10rem;
+
+  @media screen and (max-width: 768px) {
+    padding: 2rem;
+  }
+}
+
+.mt-3 {
+  margin-top: 3rem;
+}
+
+.p-xsmall {
+  font-size: x-small;
+}
+
+.bold {
+  font-weight: bold;
+}

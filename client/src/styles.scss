@@ -65,6 +65,10 @@ a:hover {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+  }
 }
 
 .ps-nav-separator {
@@ -75,7 +79,11 @@ a:hover {
 }
 
 .title {
-  margin: 2rem 0;
+  margin: 1rem 0;
+}
+
+.mb-1 {
+  margin-bottom: 1rem;
 }
 
 .text-default {
@@ -83,24 +91,16 @@ a:hover {
   font-size: 1rem;
 }
 
+.bold {
+  font-weight: bold;
+}
+
 .center {
   text-align: center;
 }
 
-.rbPadding0x15 {
-  padding: 0px 15px;
-}
-
-.rbPadding20x20 {
-  padding: 20px;
-}
-
-.rbPadding5x0 {
-  padding: 5px 0px;
-}
-
-.rbPadding0x20 {
-  padding: 0px 20px;
+.spacing-items {
+  margin: 1rem 0;
 }
 
 .spacer {
@@ -137,8 +137,51 @@ a:hover {
   }
 }
 
-@media screen and (max-width: 768px) {
-  .items-aligns {
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  width: 100%;
+
+  @media screen and (max-width: 768px) {
+    padding: 0.5rem;
+  }
+}
+
+.form-field-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 100%;
+  gap: 1rem;
+}
+
+.inputs {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+
+  @media screen and (max-width: 768px) {
     flex-direction: column;
+  }
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.reduction {
+  max-width: 21rem !important;
+
+  @media screen and (max-width: 768px) {
+    max-width: 100% !important;
+  }
+}
+
+.cta {
+  display: flex;
+  justify-content: space-between;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column-reverse;
   }
 }

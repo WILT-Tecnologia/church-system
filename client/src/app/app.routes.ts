@@ -1,6 +1,14 @@
 import { Routes } from '@angular/router';
 import { AdministrativeComponent } from './pages/admin/administrative/administrative.component';
+import { ChurchComponent as Church } from './pages/admin/administrative/churchs/church/church.component';
+import { ChurchsComponent } from './pages/admin/administrative/churchs/churchs.component';
+import { EventTypeComponent } from './pages/admin/administrative/eventTypes/eventType/eventType.component';
+import { EventTypesComponent } from './pages/admin/administrative/eventTypes/eventTypes.component';
+import { OccupationComponent } from './pages/admin/administrative/occupations/occupation/occupation.component';
+import { OccupationsComponent } from './pages/admin/administrative/occupations/occupations.component';
 import { PersonComponent } from './pages/admin/administrative/persons/person/person.component';
+import { ProfileComponent } from './pages/admin/administrative/profiles/profile/profile.component';
+import { ProfilesComponent } from './pages/admin/administrative/profiles/profiles.component';
 import { ChurchComponent } from './pages/admin/church/church.component';
 import { LoginComponent } from './pages/login/login.component';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
@@ -17,10 +25,6 @@ export const routes: Routes = [
     component: ChurchComponent /*canActivate: [AuthGuard]*/,
   },
   {
-    path: 'administrative/persons/person',
-    component: PersonComponent /*canActivate: [AuthGuard]*/,
-  },
-  {
     path: 'administrative/persons',
     component: PersonComponent /*canActivate: [AuthGuard]*/,
   },
@@ -35,6 +39,67 @@ export const routes: Routes = [
   {
     path: 'administrative/persons/person/delete/:id',
     component: PersonComponent,
+  },
+  {
+    path: 'administrative/churchs',
+    component: ChurchsComponent /*canActivate: [AuthGuard]*/,
+  },
+  {
+    path: 'administrative/churchs/church/new',
+    component: Church,
+  },
+  {
+    path: 'administrative/churchs/church/edit/:id',
+    component: Church,
+  },
+  {
+    path: 'administrative/churchs/church/delete/:id',
+    component: Church,
+  },
+  { path: 'administrative/eventTypes', component: EventTypesComponent },
+  {
+    path: 'administrative/eventTypes/eventType/new',
+    component: EventTypeComponent,
+  },
+  {
+    path: 'administrative/eventTypes/eventType/edit/:id',
+    component: EventTypeComponent,
+  },
+  {
+    path: 'administrative/eventTypes/eventType/delete/:id',
+    component: EventTypeComponent,
+  },
+  {
+    path: 'administrative/occupations',
+    component: OccupationsComponent,
+  },
+  {
+    path: 'administrative/occupations/occupation/new',
+    component: OccupationComponent,
+  },
+  {
+    path: 'administrative/occupations/occupation/edit/:id',
+    component: OccupationComponent,
+  },
+  {
+    path: 'administrative/occupations/occupation/delete/:id',
+    component: OccupationComponent,
+  },
+  {
+    path: 'administrative/profiles',
+    component: ProfilesComponent,
+  },
+  {
+    path: 'administrative/profiles/profile/new',
+    component: ProfileComponent,
+  },
+  {
+    path: 'administrative/profiles/profile/edit/:id',
+    component: ProfileComponent,
+  },
+  {
+    path: 'administrative/profiles/profile/delete/:id',
+    component: ProfileComponent,
   },
   { path: '**', component: PageNotFoundComponent },
 ];
