@@ -63,10 +63,11 @@ export class TableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChildren('headerCells') headerCells!: QueryList<ElementRef>;
 
-  dataSourceMat!: MatTableDataSource<T>;
+  //dataSourceMat!: MatTableDataSource<T>;
+  dataSourceMat = new MatTableDataSource<T>();
 
-  pageSizeOptions: number[] = [10, 25, 50, 100];
-  pageSize: number = 10;
+  pageSizeOptions: number[] = [25, 50, 100, 200];
+  pageSize: number = 25;
 
   ngOnInit() {
     this.dataSourceMat = new MatTableDataSource(this.dataSource);
@@ -75,10 +76,8 @@ export class TableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['dataSource']) {
-      if (this.dataSourceMat) {
-        this.dataSourceMat.data = this.dataSource;
-      }
+    if (changes['dataSource'] && changes['dataSource'].currentValue) {
+      this.dataSourceMat.data = this.dataSource;
     }
   }
 
@@ -94,13 +93,19 @@ export class TableComponent<T> implements OnInit, AfterViewInit, OnChanges {
     });
   }
 
+  initializeTableDataSource() {
+    this.dataSourceMat.data = this.dataSource;
+    this.dataSourceMat.paginator = this.paginator;
+    this.dataSourceMat.sort = this.sort;
+  }
+
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     const normalizedFilterValue = filterValue
       .trim()
       .toLowerCase()
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, ''); // Remove os acentos
+      .replace(/[\u0300-\u036f]/g, '');
 
     this.dataSourceMat.filter = normalizedFilterValue;
 

@@ -1,0 +1,238 @@
+<form [formGroup]="memberForm" (ngSubmit)="handleSubmit()" class="form-field-group">
+  <div class="inputs">
+    <!-- Campo de Pesquisa e Seleção de Pessoa -->
+    <mat-form-field appearance="fill">
+      <mat-label>Pessoa</mat-label>
+      <mat-select formControlName="person_id" (openedChange)="onSelectOpenedChangePerson($event)">
+        <mat-select-trigger>
+          {{ getPersonName() }}
+        </mat-select-trigger>
+
+        <mat-form-field class="search" appearance="outline" (click)="$event.stopPropagation()">
+          <mat-label>Pesquisar</mat-label>
+          <input matInput placeholder="Digite para buscar" [formControl]="searchControl"
+            (click)="$event.stopPropagation()" />
+        </mat-form-field>
+
+        <mat-option *ngFor="let person of filteredPerson$ | async" [value]="person.id">
+          {{ person.name }}
+        </mat-option>
+
+        <mat-option class="add-option" (click)="openAddPersonModal()">
+          Adicionar nova pessoa
+        </mat-option>
+      </mat-select>
+      <mat-error
+        *ngIf="memberForm.get('person_id')?.invalid && memberForm.get('person_id')?.touched">{{getErrorMessage('person_id')}}</mat-error>
+    </mat-form-field>
+
+    <!-- Campo de Pesquisa e Seleção de Igreja -->
+    <mat-form-field appearance="fill">
+      <mat-label>Igreja</mat-label>
+      <mat-select formControlName="church_id" (openedChange)="onSelectOpenedChangeChurch($event)">
+        <mat-select-trigger>
+          {{ getChurchName() }}
+        </mat-select-trigger>
+
+        <mat-form-field class="search" appearance="outline">
+          <mat-label>Pesquisar</mat-label>
+          <input matInput [formControl]="searchChurchControl" placeholder="Digite para buscar" />
+        </mat-form-field>
+
+        <mat-option *ngFor="let church of filteredChurch$ | async" [value]="church.id">
+          {{ church.name }}
+        </mat-option>
+
+        <!-- Opção para Adicionar Nova Igreja -->
+        <mat-option class="add-option" (click)="openAddChurchModal()">
+          Adicionar nova igreja
+        </mat-option>
+      </mat-select>
+      <mat-error
+        *ngIf="memberForm.get('church_id')?.invalid && memberForm.get('church_id')?.touched">{{getErrorMessage('church_id')}}</mat-error>
+    </mat-form-field>
+  </div>
+  <div class="inputs">
+    <mat-form-field appearance="fill">
+      <mat-label>RG</mat-label>
+      <input matInput formControlName="rg" />
+      <mat-error
+        *ngIf="memberForm.get('rg')?.invalid && memberForm.get('rg')?.touched">{{ getErrorMessage('rg') }}</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Orgão Expedidor</mat-label>
+      <input matInput formControlName="issuing_body" />
+      <mat-error
+        *ngIf="memberForm.get('issuing_body')?.invalid && memberForm.get('issuing_body')?.touched">{{ getErrorMessage('issuing_body') }}</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Estado Civil</mat-label>
+      <input matInput formControlName="civil_status" />
+      <mat-error
+        *ngIf="memberForm.get('civil_status')?.invalid && memberForm.get('civil_status')?.touched">{{ getErrorMessage('civil_status') }}</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Raça</mat-label>
+      <input matInput formControlName="color_race" />
+      <mat-error
+        *ngIf="memberForm.get('color_race')?.invalid && memberForm.get('color_race')?.touched">{{ getErrorMessage('color_race') }}</mat-error>
+    </mat-form-field>
+  </div>
+  <div class="inputs">
+    <mat-form-field appearance="fill">
+      <mat-label>Nacionalidade</mat-label>
+      <input matInput formControlName="nationality" />
+      <mat-error
+        *ngIf="memberForm.get('nationality')?.invalid && memberForm.get('nationality')?.touched">{{ getErrorMessage('nationality') }}</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Naturalidade</mat-label>
+      <input matInput formControlName="naturalness" />
+      <mat-error
+        *ngIf="memberForm.get('naturalness')?.invalid && memberForm.get('naturalness')?.touched">{{ getErrorMessage('naturalness') }}</mat-error>
+    </mat-form-field>
+  </div>
+  <div class="inputs">
+    <mat-form-field appearance="fill">
+      <mat-label>Formação</mat-label>
+      <input matInput formControlName="formation" />
+      <mat-error
+        *ngIf="memberForm.get('formation')?.invalid && memberForm.get('formation')?.touched">{{ getErrorMessage('formation') }}</mat-error>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Curso de Formação</mat-label>
+      <input matInput formControlName="formation_course" />
+      <mat-error
+        *ngIf="memberForm.get('formation_course')?.invalid && memberForm.get('formation_course')?.touched">{{ getErrorMessage('formation_course') }}</mat-error>
+    </mat-form-field>
+  </div>
+  <div class="inputs">
+    <mat-form-field appearance="fill">
+      <mat-label>Profissão</mat-label>
+      <input matInput formControlName="profission" />
+      <mat-error
+        *ngIf="memberForm.get('profission')?.invalid && memberForm.get('profission')?.touched">{{ getErrorMessage('profission') }}</mat-error>
+    </mat-form-field>
+  </div>
+
+  <!-- Sagrados -->
+  <div class="inputs">
+    <mat-form-field appearance="fill">
+      <mat-label>Data do batismo</mat-label>
+      <input matInput [matDatepicker]="baptismDate" formControlName="baptism_date">
+      <mat-datepicker-toggle *ngIf="!memberForm.get('baptism_date')?.value" matSuffix
+        [for]="baptismDate"></mat-datepicker-toggle>
+      <mat-datepicker #baptismDate></mat-datepicker>
+      <button *ngIf="memberForm.get('baptism_date')?.value" mat-icon-button matSuffix
+        (click)="clearDate('baptism_date')">
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-error *ngIf="memberForm.get('baptism_date')?.invalid && memberForm.get('baptism_date')?.touched">
+        {{ getErrorMessage('baptism_date') }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Local do batismo</mat-label>
+      <input matInput formControlName="baptism_locale" />
+      <mat-error
+        *ngIf="memberForm.get('baptism_locale')?.invalid && memberForm.get('baptism_locale')?.touched">{{ getErrorMessage('baptism_locale') }}</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Oficial do batismo</mat-label>
+      <input matInput formControlName="baptism_official" />
+      <mat-error
+        *ngIf="memberForm.get('baptism_official')?.invalid && memberForm.get('baptism_official')?.touched">{{ getErrorMessage('baptism_official') }}</mat-error>
+    </mat-form-field>
+  </div>
+
+  <div class="chekcbox-spacing-holy">
+    <mat-checkbox color="primary" formControlName="baptism_holy_spirit"
+      (change)="onCheckboxChange('baptism_holy_spirit_date', 'baptism_holy_spirit')">Batizado pelo Espírito
+      Santo?</mat-checkbox>
+
+    <mat-form-field class="input-date" appearance="fill" *ngIf="memberForm.value.baptism_holy_spirit">
+      <mat-label>Data do batismo do Espírito Santo</mat-label>
+      <input matInput [matDatepicker]="baptismHolySpiritDate" formControlName="baptism_holy_spirit_date">
+      <mat-datepicker-toggle matSuffix *ngIf="!memberForm.get('baptism_holy_spirit_date')?.value"
+        [for]="baptismHolySpiritDate"></mat-datepicker-toggle>
+      <mat-datepicker #baptismHolySpiritDate></mat-datepicker>
+      <button *ngIf="memberForm.get('baptism_holy_spirit_date')?.value" mat-icon-button matSuffix
+        (click)="clearDate('baptism_holy_spirit_date')">
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-error
+        *ngIf="memberForm.get('baptism_holy_spirit_date')?.hasError('required') && memberForm.get('baptism_holy_spirit_date')?.touched">
+        A data do batismo no Espírito Santo é obrigatória.
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+
+  <!-- Recepção -->
+  <div class="inputs">
+    <mat-form-field appearance="fill">
+      <mat-label>Data da recepção</mat-label>
+      <input matInput [matDatepicker]="receiptDate" formControlName="receipt_date">
+      <mat-datepicker-toggle matSuffix *ngIf="!memberForm.get('receipt_date')?.value"
+        [for]="receiptDate"></mat-datepicker-toggle>
+      <mat-datepicker #receiptDate></mat-datepicker>
+      <button *ngIf="memberForm.get('receipt_date')?.value" mat-icon-button matSuffix
+        (click)="clearDate('receipt_date')">
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-error *ngIf="memberForm.get('receipt_date')?.invalid && memberForm.get('receipt_date')?.touched">
+        {{ getErrorMessage('receipt_date') }}
+      </mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Origem do membro</mat-label>
+      <input matInput formControlName="member_origin_id" />
+      <mat-error
+        *ngIf="memberForm.get('member_origin_id')?.invalid && memberForm.get('member_origin_id')?.touched">{{ getErrorMessage('member_origin_id') }}</mat-error>
+    </mat-form-field>
+  </div>
+
+  <!-- Deficiencias -->
+  <div class="inputs checkbox-column" style="max-width: 20rem;">
+    <mat-label>Deficiências</mat-label>
+    <div class="checkbox-group">
+      <div class="checkbox-column">
+        <mat-checkbox color="primary" formControlName="def_hearing">Auditiva</mat-checkbox>
+        <mat-checkbox color="primary" formControlName="def_visual">Visual</mat-checkbox>
+        <mat-checkbox color="primary" formControlName="def_physical">Física</mat-checkbox>
+        <mat-checkbox color="primary" formControlName="def_other">Outra</mat-checkbox>
+      </div>
+      <div class="checkbox-column">
+        <mat-checkbox color="primary" formControlName="def_mental">Mental</mat-checkbox>
+        <mat-checkbox color="primary" formControlName="def_intellectual">Intelectual</mat-checkbox>
+        <mat-checkbox color="primary" formControlName="def_multiple">Múltipla</mat-checkbox>
+      </div>
+    </div>
+
+    <mat-form-field appearance="fill" *ngIf="memberForm.get('def_other')?.value">
+      <mat-label>Descrição da Outra Deficiência</mat-label>
+      <textarea matInput rows="7" formControlName="def_other_description" matTextareaAutosize></textarea>
+      <mat-error
+        *ngIf="memberForm.get('def_other_description')?.invalid && memberForm.get('def_other_description')?.touched">{{ getErrorMessage('def_other_description') }}</mat-error>
+    </mat-form-field>
+  </div>
+
+
+  @if (this.isEditMode && memberForm.get('updated_at')?.value) {
+  <span class="info">Atualizado em {{ memberForm.get('updated_at')?.value }}</span>
+  }
+  <mat-divider></mat-divider>
+  <div class="cta">
+    <button type="button" mat-stroked-button color="primary" (click)="handleBack()">Cancelar</button>
+    <button type="submit" mat-raised-button color="primary" [disabled]="!memberForm.valid">
+      {{this.isEditMode ? 'Atualizar' : 'Cadastrar'}}
+    </button>
+  </div>
+</form>

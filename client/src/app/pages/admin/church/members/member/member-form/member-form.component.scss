@@ -1,0 +1,34 @@
+.search {
+  display: flex;
+  align-items: center;
+}
+
+.search>input {
+  height: 3rem;
+  width: 100rem;
+}
+
+.icon {
+  margin-right: 0.8rem;
+}
+
+.chekcbox-spacing-holy {
+  display: flex;
+  gap: 2rem;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+  }
+
+  &>.input-date {
+    margin-left: 1rem;
+    width: 30rem;
+    max-width: 30rem;
+
+    @media screen and (max-width: 768px) {
+      margin-left: 0rem;
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+}
