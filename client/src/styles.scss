@@ -1,6 +1,9 @@
 @use 'styles/theme.scss'as theme;
 @use '@angular/material'as mat;
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 $church-system-primary: mat.define-palette(theme.$primaryColors);
 $church-system-accent: mat.define-palette(mat.$amber-palette, A200, A100, A400);
@@ -81,13 +84,6 @@ a:hover {
   margin: 0 1.4rem;
 }
 
-.title {
-  margin: 1rem 0;
-}
-
-.mb-1 {
-  margin-bottom: 1rem;
-}
 
 .text-default {
   color: theme.$textColor;
@@ -200,10 +196,11 @@ mat-form-field {
 .cta {
   display: flex;
   justify-content: space-between;
-  margin: 1rem 0;
+  margin-top: 1rem;
+  gap: 1rem;
 
   @media screen and (max-width: 768px) {
-    gap: 1rem;
+    width: 100%;
     flex-direction: column-reverse;
   }
 }
@@ -231,27 +228,4 @@ mat-form-field {
 .checkbox-column {
   display: flex;
   flex-direction: column;
-}
-
-
-
-/* Spacings */
-.p-1 {
-  padding: 1rem;
-}
-
-.p-2 {
-  padding: 2rem;
-}
-
-.p-3 {
-  padding: 3rem;
-}
-
-.p-4 {
-  padding: 4rem;
-}
-
-.p-5 {
-  padding: 5rem;
 }

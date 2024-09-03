@@ -1,6 +1,5 @@
 <form [formGroup]="memberForm" (ngSubmit)="handleSubmit()" class="form-field-group">
   <div class="inputs">
-    <!-- Campo de Pesquisa e Seleção de Pessoa -->
     <mat-form-field appearance="fill">
       <mat-label>Pessoa</mat-label>
       <mat-select formControlName="person_id" (openedChange)="onSelectOpenedChangePerson($event)">
@@ -26,7 +25,6 @@
         *ngIf="memberForm.get('person_id')?.invalid && memberForm.get('person_id')?.touched">{{getErrorMessage('person_id')}}</mat-error>
     </mat-form-field>
 
-    <!-- Campo de Pesquisa e Seleção de Igreja -->
     <mat-form-field appearance="fill">
       <mat-label>Igreja</mat-label>
       <mat-select formControlName="church_id" (openedChange)="onSelectOpenedChangeChurch($event)">
@@ -43,7 +41,6 @@
           {{ church.name }}
         </mat-option>
 
-        <!-- Opção para Adicionar Nova Igreja -->
         <mat-option class="add-option" (click)="openAddChurchModal()">
           Adicionar nova igreja
         </mat-option>
@@ -120,7 +117,6 @@
     </mat-form-field>
   </div>
 
-  <!-- Sagrados -->
   <div class="inputs">
     <mat-form-field appearance="fill">
       <mat-label>Data do batismo</mat-label>
@@ -174,8 +170,6 @@
     </mat-form-field>
   </div>
 
-
-  <!-- Recepção -->
   <div class="inputs">
     <mat-form-field appearance="fill">
       <mat-label>Data da recepção</mat-label>
@@ -199,7 +193,6 @@
     </mat-form-field>
   </div>
 
-  <!-- Deficiencias -->
   <div class="inputs checkbox-column" style="max-width: 20rem;">
     <mat-label>Deficiências</mat-label>
     <div class="checkbox-group">

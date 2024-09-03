@@ -8,6 +8,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
   MAT_DATE_LOCALE,
@@ -26,20 +27,27 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute } from '@angular/router';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { Church } from 'app/model/Church';
+import { Members } from 'app/model/Members';
+import { Person } from 'app/model/Person';
+import { CoreService } from 'app/service/core/core.service';
+import { SnackbarService } from 'app/service/snackbar/snackbar.service';
+import { ValidationService } from 'app/service/validation/validation.service';
 import dayjs from 'dayjs';
 import { provideNgxMask } from 'ngx-mask';
 import { map, Observable, startWith } from 'rxjs';
-import { LoadingService } from '../../../../../../components/loading/loading.service';
-import { Church } from '../../../../../../model/Church';
-import { Members } from '../../../../../../model/Members';
-import { Person } from '../../../../../../model/Person';
-import { CoreService } from '../../../../../../service/core/core.service';
-import { SnackbarService } from '../../../../../../service/snackbar/snackbar.service';
-import { ValidationService } from '../../../../../../service/validation/validation.service';
 import { MembersService } from '../../members.service';
-import { AddChurchDialogComponent } from './add-church-dialog/add-church-dialog.component';
-import { AddPersonDialogComponent } from './add-person-dialog/add-person-dialog.component';
+import { AdditionalDataFormComponent } from './additional-data-form/additional-data-form.component';
+import { AddChurchDialogComponent } from './components/modal/add-church-dialog/add-church-dialog.component';
+import { AddPersonDialogComponent } from './components/modal/add-person-dialog/add-person-dialog.component';
+import { MemberStatusDataFormComponent } from './member-status-data-form/member-status-data-form.component';
+import { MembershipDataFormComponent } from './membership-data-form/membership-data-form.component';
+import { OrdinationDataFormComponent } from './ordination-data-form/ordination-data-form.component';
+import { PersonalDataFormComponent } from './personal-data-form/personal-data-form.component';
+import { SpiritualDataFormComponent } from './spiritual-data-form/spiritual-data-form.component';
 
 @Component({
   selector: 'app-member-form',
@@ -52,6 +60,8 @@ import { AddPersonDialogComponent } from './add-person-dialog/add-person-dialog.
     provideNgxMask(),
   ],
   imports: [
+    MatTabsModule,
+    MatCardModule,
     ReactiveFormsModule,
     CommonModule,
     MatButtonModule,
@@ -66,6 +76,12 @@ import { AddPersonDialogComponent } from './add-person-dialog/add-person-dialog.
     MatDatepickerModule,
     MatGridListModule,
     MemberFormComponent,
+    PersonalDataFormComponent,
+    AdditionalDataFormComponent,
+    SpiritualDataFormComponent,
+    MembershipDataFormComponent,
+    OrdinationDataFormComponent,
+    MemberStatusDataFormComponent,
   ],
 })
 export class MemberFormComponent implements OnInit {
@@ -221,9 +237,7 @@ export class MemberFormComponent implements OnInit {
       error: () => {
         this.loadingService.hide();
         this.snackbarService.openError(
-          `Erro ao criar o membro ${
-            this.memberForm.get('name')?.value
-          }. Tente novamente.`
+          'Erro ao criar o membro. Verifique os dados e tente novamente.'
         );
       },
     });

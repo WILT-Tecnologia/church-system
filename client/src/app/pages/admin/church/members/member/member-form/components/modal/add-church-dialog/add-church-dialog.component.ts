@@ -20,15 +20,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute } from '@angular/router';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { Responsables } from 'app/model/Church';
+import { ChurchComponent } from 'app/pages/admin/administrative/churchs/church/church.component';
+import { ChurchsService } from 'app/pages/admin/administrative/churchs/churchs.service';
+import { CoreService } from 'app/service/core/core.service';
+import { CepService } from 'app/service/SearchCEP/CepService.service';
+import { SnackbarService } from 'app/service/snackbar/snackbar.service';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { map, Observable, startWith } from 'rxjs';
-import { LoadingService } from '../../../../../../../components/loading/loading.service';
-import { Responsables } from '../../../../../../../model/Church';
-import { CoreService } from '../../../../../../../service/core/core.service';
-import { CepService } from '../../../../../../../service/SearchCEP/CepService.service';
-import { SnackbarService } from '../../../../../../../service/snackbar/snackbar.service';
-import { ChurchsService } from '../../../../../administrative/churchs/churchs.service';
-import { ChurchComponent } from '../../../../church.component';
 
 @Component({
   selector: 'app-add-church-dialog',

@@ -6,6 +6,31 @@
   </mat-card-header>
 
   <mat-card-content>
-    <app-member-form></app-member-form>
+    <mat-tab-group dynamicHeight>
+      <mat-tab label="Dados pessoais">
+        <mat-divider></mat-divider>
+        <app-personal-data-form></app-personal-data-form>
+      </mat-tab>
+      <mat-tab label="Dados complementares">
+        <mat-divider></mat-divider>
+        <app-additional-data-form></app-additional-data-form>
+      </mat-tab>
+      <mat-tab label="Dados espirituais">
+        <mat-divider></mat-divider>
+        <app-spiritual-data-form></app-spiritual-data-form>
+      </mat-tab>
+      <mat-tab label="Dados de filiação">
+        <mat-divider></mat-divider>
+        <app-membership-data-form></app-membership-data-form>
+      </mat-tab>
+      <mat-tab label="Dados de ordenação">
+        <mat-divider></mat-divider>
+        <app-ordination-data-form></app-ordination-data-form>
+      </mat-tab>
+      <mat-tab label="Status do membro">
+        <mat-divider></mat-divider>
+        <app-member-status-data-form></app-member-status-data-form>
+      </mat-tab>
+    </mat-tab-group>
   </mat-card-content>
 </mat-card>

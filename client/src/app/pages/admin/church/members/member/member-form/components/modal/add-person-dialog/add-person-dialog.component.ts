@@ -27,11 +27,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MembersService } from 'app/pages/admin/church/members/members.service';
+import { SnackbarService } from 'app/service/snackbar/snackbar.service';
+import { cpfValidator } from 'app/utils/validators/cpf-validator';
+import { phoneValidator } from 'app/utils/validators/phone-validator';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
-import { cpfValidator } from '../../../../../../../utils/validators/cpf-validator';
-import { phoneValidator } from '../../../../../../../utils/validators/phone-validator';
-import { SnackbarService } from './../../../../../../../service/snackbar/snackbar.service';
-import { MembersService } from './../../../members.service';
 
 type Sex = {
   value: string;

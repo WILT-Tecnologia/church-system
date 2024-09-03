@@ -10,76 +10,62 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatOptionModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute } from '@angular/router';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { Church } from 'app/model/Church';
+import { Members } from 'app/model/Members';
+import { Person } from 'app/model/Person';
+import { CoreService } from 'app/service/core/core.service';
+import { SnackbarService } from 'app/service/snackbar/snackbar.service';
+import { ValidationService } from 'app/service/validation/validation.service';
 import dayjs from 'dayjs';
 import { map, Observable, startWith } from 'rxjs';
-import { LoadingService } from '../../../../../components/loading/loading.service';
-import { Church } from '../../../../../model/Church';
-import { Members } from '../../../../../model/Members';
-import { Person } from '../../../../../model/Person';
-import { CoreService } from '../../../../../service/core/core.service';
-import { SnackbarService } from '../../../../../service/snackbar/snackbar.service';
-import { MembersService } from '../members.service';
-import { AdditionalDataFormComponent } from './member-form/additional-data-form/additional-data-form.component';
-import { MemberFormComponent } from './member-form/member-form.component';
-import { MemberStatusDataFormComponent } from './member-form/member-status-data-form/member-status-data-form.component';
-import { MembershipDataFormComponent } from './member-form/membership-data-form/membership-data-form.component';
-import { OrdinationDataFormComponent } from './member-form/ordination-data-form/ordination-data-form.component';
-import { PersonalDataFormComponent } from './member-form/personal-data-form/personal-data-form.component';
-import { SpiritualDataFormComponent } from './member-form/spiritual-data-form/spiritual-data-form.component';
+import { MembersService } from '../../../members.service';
+import { AddChurchDialogComponent } from '../components/modal/add-church-dialog/add-church-dialog.component';
+import { AddPersonDialogComponent } from '../components/modal/add-person-dialog/add-person-dialog.component';
 
 @Component({
-  selector: 'app-member',
-  templateUrl: './member.component.html',
-  styleUrls: ['./member.component.scss'],
+  selector: 'app-personal-data-form',
+  templateUrl: './personal-data-form.component.html',
+  styleUrls: ['./personal-data-form.component.scss'],
   standalone: true,
   imports: [
-    MatTabsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatInputModule,
-    MatOptionModule,
-    MatRadioModule,
-    MatSelectModule,
-    MatFormFieldModule,
-    MatDividerModule,
-    MatIconModule,
     ReactiveFormsModule,
     CommonModule,
-    MemberFormComponent,
-    PersonalDataFormComponent,
-    AdditionalDataFormComponent,
-    SpiritualDataFormComponent,
-    MembershipDataFormComponent,
-    OrdinationDataFormComponent,
-    MemberStatusDataFormComponent,
+    MatInputModule,
+    MatOptionModule,
+    MatSelectModule,
+    MatFormFieldModule,
+    MatCardModule,
+    MatButtonModule,
+    MatDividerModule,
   ],
 })
-export class MemberComponent implements OnInit {
+export class PersonalDataFormComponent implements OnInit {
   memberForm: FormGroup;
-  isEditMode: boolean = false;
   memberId: string | null = null;
+  isEditMode: boolean = false;
   searchControl = new FormControl();
-  filteredPerson$!: Observable<Person[]>;
-  filteredChurch$!: Observable<Church[]>;
+  searchChurchControl = new FormControl();
+  filteredPerson$: Observable<Person[]>;
+  filteredChurch$: Observable<Church[]>;
   isSelectOpen: boolean = true;
   persons: Person[] = [];
   churchs: Church[] = [];
-
   constructor(
     private fb: FormBuilder,
     private core: CoreService,
     private route: ActivatedRoute,
     private snackbarService: SnackbarService,
     private membersService: MembersService,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private dialog: MatDialog,
+    private validationService: ValidationService
   ) {
     this.memberForm = this.fb.group({
       person_id: ['', [Validators.required]],
@@ -90,44 +76,60 @@ export class MemberComponent implements OnInit {
       nationality: ['', [Validators.required]],
       naturalness: ['', [Validators.required]],
       color_race: ['', [Validators.required]],
-      formation: ['', [Validators.required]],
-      formation_course: ['', [Validators.required, Validators.maxLength(255)]],
-      profission: ['', [Validators.required, Validators.maxLength(255)]],
-      def_physical: [''],
-      def_visual: [''],
-      def_hearing: [''],
-      def_intellectual: [''],
-      def_mental: [''],
-      def_multiple: [''],
-      def_other: [''],
-      def_other_description: ['', [Validators.maxLength(255)]],
-      baptism_date: [''],
-      baptism_locale: ['', [Validators.maxLength(255)]],
-      baptism_official: ['', [Validators.maxLength(255)]],
-      baptism_holy_spirit: [''],
-      baptism_holy_spirit_date: [''],
-      member_origin_id: [''],
-      receipt_date: [''],
-      updated_at: [''],
     });
-
     this.filteredPerson$ = this.searchControl.valueChanges.pipe(
       startWith(''),
       map((searchTerm) => this.filterPerson(searchTerm ?? ''))
     );
+
+    this.filteredChurch$ = this.searchChurchControl.valueChanges.pipe(
+      startWith(''),
+      map((searchTerm) => this.filterChurch(searchTerm ?? ''))
+    );
   }
 
-  ngOnInit() {
-    this.fetchPerson();
-    this.memberId = this.route.snapshot.paramMap.get('id');
-    if (this.memberId) {
-      this.isEditMode = true;
-      this.handleEditMode();
-    }
+  ngOnInit() {}
+
+  getErrorMessage(controlName: string) {
+    const control = this.memberForm.get(controlName);
+    if (control) return this.validationService.getErrorMessage(control);
+    return null;
   }
 
-  get pageTitle() {
-    return this.isEditMode ? `Editar membro` : `Cadastrar membro`;
+  openAddPersonModal() {
+    const dialogRef = this.dialog.open(AddPersonDialogComponent, {
+      width: '100%',
+      maxWidth: '100%',
+      height: 'auto',
+      maxHeight: '90vh',
+      role: 'dialog',
+      panelClass: 'dialog',
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.fetchPerson();
+      }
+    });
+  }
+
+  openAddChurchModal() {
+    const dialogRef = this.dialog.open(AddChurchDialogComponent, {
+      width: '100%',
+      maxWidth: '100%',
+      height: 'auto',
+      maxHeight: '90vh',
+      role: 'dialog',
+      panelClass: 'dialog',
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.fetchChurch();
+      }
+    });
   }
 
   handleBack = () => {
@@ -157,9 +159,7 @@ export class MemberComponent implements OnInit {
       error: () => {
         this.loadingService.hide();
         this.snackbarService.openError(
-          `Erro ao criar o membro ${
-            this.memberForm.get('name')?.value
-          }. Tente novamente.`
+          'Erro ao criar o membro. Verifique os dados e tente novamente.'
         );
       },
     });
@@ -226,6 +226,10 @@ export class MemberComponent implements OnInit {
     this.membersService.getChurch().subscribe({
       next: (church) => {
         this.churchs = church.sort((a, b) => a.name.localeCompare(b.name));
+        this.filteredChurch$ = this.searchChurchControl.valueChanges.pipe(
+          startWith(''),
+          map((searchTerm) => this.filterChurch(searchTerm ?? ''))
+        );
       },
       error: () => {
         this.snackbarService.openError('Erro ao buscar o igreja.');
@@ -251,7 +255,7 @@ export class MemberComponent implements OnInit {
       const person = this.persons.find((r) => r.id === personId);
       return person?.name ?? '';
     }
-    return 'Selecione a pessoa';
+    return personId ? 'Selecione a pessoa' : 'Selecione a pessoa';
   }
 
   getChurchName(): string {
@@ -264,9 +268,15 @@ export class MemberComponent implements OnInit {
     return churchId ? 'Selecione a igreja' : 'Selecione a igreja';
   }
 
-  onSelectOpenedChange(isOpen: boolean) {
+  onSelectOpenedChangePerson(isOpen: boolean) {
     if (isOpen) {
       this.fetchPerson();
+    }
+  }
+
+  onSelectOpenedChangeChurch(isOpen: boolean) {
+    if (isOpen) {
+      this.fetchChurch();
     }
   }
 }

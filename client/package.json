@@ -41,6 +41,7 @@
     "@types/jasmine": "~5.1.0",
     "@types/node": "^18.18.0",
     "@types/webpack": "^5.28.5",
+    "autoprefixer": "^10.4.20",
     "css-loader": "^7.1.2",
     "jasmine-core": "~5.1.0",
     "karma": "~6.4.0",
@@ -48,10 +49,12 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "postcss": "^8.4.44",
     "postcss-loader": "^8.1.1",
     "sass": "^1.77.8",
     "sass-loader": "^16.0.1",
     "style-loader": "^4.0.0",
+    "tailwindcss": "^3.4.10",
     "typescript": "~5.4.2"
   }
 }

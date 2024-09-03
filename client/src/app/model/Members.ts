@@ -9,15 +9,15 @@ TODO: Criar um model para os membros
     [] formation
     [] profission
   [] Separar a tela de membro em: Dados pessoais, Dados complementares e Dados espirituais
-    [] Em dados pessoais deve conter os campos:
-      [] person_id
-      [] church_id
-      [] rg
-      [] issuing_body
-      [] civil_status
-      [] nationality
-      [] naturalness
-      [] color_race
+    [x] Em dados pessoais deve conter os campos:
+      [x] person_id
+      [x] church_id
+      [x] rg
+      [x] issuing_body
+      [x] civil_status
+      [x] nationality
+      [x] naturalness
+      [x] color_race
     [] Em dados complementares deve conter os campos:
       [] formation
       [] formation_course
