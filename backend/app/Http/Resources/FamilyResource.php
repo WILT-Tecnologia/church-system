@@ -18,6 +18,7 @@ class FamilyResource extends JsonResource
             'id' => $this->id,
             'member' => new MemberResource($this->member),
             'person' => new PersonResource($this->person),
+            'name' => $this->name,
             'kinship' => $this->kinship,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
