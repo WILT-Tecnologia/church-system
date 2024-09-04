@@ -22,7 +22,6 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
@@ -74,7 +73,6 @@ import { SpiritualDataFormComponent } from './spiritual-data-form/spiritual-data
     MatDividerModule,
     MatIconModule,
     MatDatepickerModule,
-    MatGridListModule,
     MemberFormComponent,
     PersonalDataFormComponent,
     AdditionalDataFormComponent,

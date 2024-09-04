@@ -229,3 +229,13 @@ mat-form-field {
   display: flex;
   flex-direction: column;
 }
+
+mat-label {
+  @media screen and (max-width: 768px) {
+    font-size: 0.5rem;
+  }
+}
+
+mat-error {
+  font-size: 0.5rem;
+}

@@ -14,7 +14,7 @@
               {{ getResponsableName() }}
             </mat-select-trigger>
 
-            <mat-form-field class="search" appearance="outline" (click)="$event.stopPropagation()">
+            <mat-form-field class="search" appearance="fill" (click)="$event.stopPropagation()">
               <mat-label>Pesquisar</mat-label>
               <input matInput placeholder="Digite para buscar" [formControl]="searchControl"
                 (click)="$event.stopPropagation()" />

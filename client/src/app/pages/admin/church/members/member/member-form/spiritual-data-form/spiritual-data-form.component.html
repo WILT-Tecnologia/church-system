@@ -1,3 +1,93 @@
-<p>
-  spiritual-data-form works!
-</p>
+<section class="py-4">
+  <mat-card appearance="outlined" class="wrapper">
+    <mat-card-header class="pb-6">
+      <mat-card-title>Informações sobre o batismo</mat-card-title>
+      <mat-card-subtitle>Preencha as informações sobre o batismo e a recepção do membro.</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="memberForm" (ngSubmit)="isEditMode ? handleSubmit(): null" class="form-field-group">
+        <div class="inputs">
+          <mat-form-field appearance="fill">
+            <mat-label>Data do batismo</mat-label>
+            <input matInput [matDatepicker]="baptismDate" formControlName="baptism_date">
+            <mat-datepicker-toggle *ngIf="!memberForm.get('baptism_date')?.value" matSuffix
+              [for]="baptismDate"></mat-datepicker-toggle>
+            <mat-datepicker #baptismDate></mat-datepicker>
+            <button *ngIf="memberForm.get('baptism_date')?.value" mat-icon-button matSuffix
+              (click)="clearDate('baptism_date')">
+              <mat-icon>close</mat-icon>
+            </button>
+            <mat-error *ngIf="memberForm.get('baptism_date')?.invalid && memberForm.get('baptism_date')?.touched">
+              {{ getErrorMessage('baptism_date') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Local do batismo</mat-label>
+            <input matInput formControlName="baptism_locale" />
+            <mat-error
+              *ngIf="memberForm.get('baptism_locale')?.invalid && memberForm.get('baptism_locale')?.touched">{{ getErrorMessage('baptism_locale') }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Oficial do batismo</mat-label>
+            <input matInput formControlName="baptism_official" />
+            <mat-error
+              *ngIf="memberForm.get('baptism_official')?.invalid && memberForm.get('baptism_official')?.touched">{{ getErrorMessage('baptism_official') }}</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="chekcbox-spacing-holy">
+          <mat-checkbox color="primary" formControlName="baptism_holy_spirit"
+            (change)="onCheckboxChange('baptism_holy_spirit_date', 'baptism_holy_spirit')">Batizado pelo Espírito
+            Santo?</mat-checkbox>
+
+          <mat-form-field class="input-date" appearance="fill" *ngIf="memberForm.value.baptism_holy_spirit">
+            <mat-label>Data do batismo do Espírito Santo</mat-label>
+            <input matInput [matDatepicker]="baptismHolySpiritDate" formControlName="baptism_holy_spirit_date">
+            <mat-datepicker-toggle matSuffix *ngIf="!memberForm.get('baptism_holy_spirit_date')?.value"
+              [for]="baptismHolySpiritDate"></mat-datepicker-toggle>
+            <mat-datepicker #baptismHolySpiritDate></mat-datepicker>
+            <button *ngIf="memberForm.get('baptism_holy_spirit_date')?.value" mat-icon-button matSuffix
+              (click)="clearDate('baptism_holy_spirit_date')">
+              <mat-icon>close</mat-icon>
+            </button>
+            <mat-error
+              *ngIf="memberForm.get('baptism_holy_spirit_date')?.hasError('required') && memberForm.get('baptism_holy_spirit_date')?.touched">
+              A data do batismo no Espírito Santo é obrigatória.
+            </mat-error>
+          </mat-form-field>
+        </div>
+        <div class="inputs">
+          <mat-form-field appearance="fill">
+            <mat-label>Data da recepção</mat-label>
+            <input matInput [matDatepicker]="receiptDate" formControlName="receipt_date">
+            <mat-datepicker-toggle matSuffix *ngIf="!memberForm.get('receipt_date')?.value"
+              [for]="receiptDate"></mat-datepicker-toggle>
+            <mat-datepicker #receiptDate></mat-datepicker>
+            <button *ngIf="memberForm.get('receipt_date')?.value" mat-icon-button matSuffix
+              (click)="clearDate('receipt_date')">
+              <mat-icon>close</mat-icon>
+            </button>
+            <mat-error *ngIf="memberForm.get('receipt_date')?.invalid && memberForm.get('receipt_date')?.touched">
+              {{ getErrorMessage('receipt_date') }}
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="fill">
+            <mat-label>Origem do membro</mat-label>
+            <input matInput formControlName="member_origin_id" />
+            <mat-error
+              *ngIf="memberForm.get('member_origin_id')?.invalid && memberForm.get('member_origin_id')?.touched">{{ getErrorMessage('member_origin_id') }}</mat-error>
+          </mat-form-field>
+        </div>
+      </form>
+    </mat-card-content>
+
+    <mat-card-footer class="cta">
+      <button mat-button mat-stroked-button color="warn" type="button"
+        (click)="activeTabIndex ? navigationService.previousTab() : handleBack()">{{activeTabIndex ? 'Voltar' : 'Cancelar'}}</button>
+      <button mat-raised-button color="primary" [disabled]="memberForm.invalid"
+        (click)="navigationService.nextTab()">{{isEditMode ? 'Salvar' : 'Continuar'}}</button>
+    </mat-card-footer>
+  </mat-card>
+</section>

@@ -4,30 +4,29 @@
       {{pageTitle}}
     </mat-card-title>
   </mat-card-header>
-
   <mat-card-content>
-    <mat-tab-group dynamicHeight>
-      <mat-tab label="Dados pessoais">
+    <mat-tab-group preserveContent [(selectedIndex)]="activeTabIndex" dynamicHeight>
+      <mat-tab label="Dados pessoais" [disabled]="isTabDisabled(0)">
         <mat-divider></mat-divider>
         <app-personal-data-form></app-personal-data-form>
       </mat-tab>
-      <mat-tab label="Dados complementares">
+      <mat-tab label="Dados complementares" [disabled]="isTabDisabled(1)">
         <mat-divider></mat-divider>
         <app-additional-data-form></app-additional-data-form>
       </mat-tab>
-      <mat-tab label="Dados espirituais">
+      <mat-tab label="Dados espirituais" [disabled]="isTabDisabled(2)">
         <mat-divider></mat-divider>
         <app-spiritual-data-form></app-spiritual-data-form>
       </mat-tab>
-      <mat-tab label="Dados de filiação">
+      <mat-tab label="Dados de filiação" [disabled]="isTabDisabled(3)">
         <mat-divider></mat-divider>
         <app-membership-data-form></app-membership-data-form>
       </mat-tab>
-      <mat-tab label="Dados de ordenação">
+      <mat-tab label="Dados de ordenação" [disabled]="isTabDisabled(4)">
         <mat-divider></mat-divider>
         <app-ordination-data-form></app-ordination-data-form>
       </mat-tab>
-      <mat-tab label="Status do membro">
+      <mat-tab label="Status do membro" [disabled]="isTabDisabled(5)">
         <mat-divider></mat-divider>
         <app-member-status-data-form></app-member-status-data-form>
       </mat-tab>

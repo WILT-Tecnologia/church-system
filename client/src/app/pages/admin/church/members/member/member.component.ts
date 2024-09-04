@@ -18,6 +18,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute } from '@angular/router';
+import { NavigationService } from 'app/service/navigation/navigation.service';
 import dayjs from 'dayjs';
 import { map, Observable, startWith } from 'rxjs';
 import { LoadingService } from '../../../../../components/loading/loading.service';
@@ -70,6 +71,7 @@ export class MemberComponent implements OnInit {
   filteredPerson$!: Observable<Person[]>;
   filteredChurch$!: Observable<Church[]>;
   isSelectOpen: boolean = true;
+  activeTabIndex = 0;
   persons: Person[] = [];
   churchs: Church[] = [];
 
@@ -79,7 +81,8 @@ export class MemberComponent implements OnInit {
     private route: ActivatedRoute,
     private snackbarService: SnackbarService,
     private membersService: MembersService,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    public navigationService: NavigationService
   ) {
     this.memberForm = this.fb.group({
       person_id: ['', [Validators.required]],
@@ -115,6 +118,10 @@ export class MemberComponent implements OnInit {
       startWith(''),
       map((searchTerm) => this.filterPerson(searchTerm ?? ''))
     );
+
+    this.navigationService.activeTabIndex$.subscribe((index) => {
+      this.activeTabIndex = index;
+    });
   }
 
   ngOnInit() {
@@ -128,6 +135,10 @@ export class MemberComponent implements OnInit {
 
   get pageTitle() {
     return this.isEditMode ? `Editar membro` : `Cadastrar membro`;
+  }
+
+  isTabDisabled(index: number): boolean {
+    return index !== this.activeTabIndex;
   }
 
   handleBack = () => {

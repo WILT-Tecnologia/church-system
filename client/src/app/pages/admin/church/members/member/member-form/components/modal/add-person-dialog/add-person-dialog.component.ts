@@ -27,7 +27,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { ActivatedRoute } from '@angular/router';
+import { LoadingService } from 'app/components/loading/loading.service';
 import { MembersService } from 'app/pages/admin/church/members/members.service';
+import { CoreService } from 'app/service/core/core.service';
+import { CepService } from 'app/service/SearchCEP/CepService.service';
 import { SnackbarService } from 'app/service/snackbar/snackbar.service';
 import { cpfValidator } from 'app/utils/validators/cpf-validator';
 import { phoneValidator } from 'app/utils/validators/phone-validator';
@@ -72,9 +76,13 @@ export class AddPersonDialogComponent implements OnInit {
   ];
   constructor(
     private fb: FormBuilder,
-    private dialogRef: MatDialogRef<AddPersonDialogComponent>,
+    private route: ActivatedRoute,
+    private core: CoreService,
     private membersService: MembersService,
-    private snackbarService: SnackbarService
+    private snackbarService: SnackbarService,
+    private cepService: CepService,
+    private loadingService: LoadingService,
+    private dialogRef: MatDialogRef<AddPersonDialogComponent>
   ) {
     this.addPersonForm = this.fb.group({
       user_id: [''],
@@ -97,7 +105,13 @@ export class AddPersonDialogComponent implements OnInit {
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.addPersonForm.get('cep')?.valueChanges.subscribe((cep: string) => {
+      if (cep.length === 8) {
+        this.searchCep(cep);
+      }
+    });
+  }
 
   addPerson() {
     if (this.addPersonForm.valid) {
@@ -119,5 +133,24 @@ export class AddPersonDialogComponent implements OnInit {
 
   cancel() {
     this.dialogRef.close();
+  }
+
+  searchCep(cep: string) {
+    if (this.addPersonForm.get('cep')?.value?.length === '') {
+      return;
+    }
+
+    this.loadingService.show();
+    this.cepService.searchCep(cep).subscribe((data: any) => {
+      if (data) {
+        this.addPersonForm.patchValue({
+          street: data.street || '',
+          district: data.neighborhood || '',
+          city: data.city || '',
+          state: data.state || '',
+        });
+      }
+      this.loadingService.hide();
+    });
   }
 }

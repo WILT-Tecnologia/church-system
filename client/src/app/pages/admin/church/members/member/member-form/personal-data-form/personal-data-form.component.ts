@@ -21,6 +21,7 @@ import { Church } from 'app/model/Church';
 import { Members } from 'app/model/Members';
 import { Person } from 'app/model/Person';
 import { CoreService } from 'app/service/core/core.service';
+import { NavigationService } from 'app/service/navigation/navigation.service';
 import { SnackbarService } from 'app/service/snackbar/snackbar.service';
 import { ValidationService } from 'app/service/validation/validation.service';
 import dayjs from 'dayjs';
@@ -54,6 +55,7 @@ export class PersonalDataFormComponent implements OnInit {
   searchChurchControl = new FormControl();
   filteredPerson$: Observable<Person[]>;
   filteredChurch$: Observable<Church[]>;
+  activeTabIndex: number = 0;
   isSelectOpen: boolean = true;
   persons: Person[] = [];
   churchs: Church[] = [];
@@ -65,7 +67,8 @@ export class PersonalDataFormComponent implements OnInit {
     private membersService: MembersService,
     private loadingService: LoadingService,
     private dialog: MatDialog,
-    private validationService: ValidationService
+    private validationService: ValidationService,
+    public navigationService: NavigationService
   ) {
     this.memberForm = this.fb.group({
       person_id: ['', [Validators.required]],
@@ -86,6 +89,10 @@ export class PersonalDataFormComponent implements OnInit {
       startWith(''),
       map((searchTerm) => this.filterChurch(searchTerm ?? ''))
     );
+
+    this.navigationService.activeTabIndex$.subscribe((index) => {
+      this.activeTabIndex = index;
+    });
   }
 
   ngOnInit() {}
@@ -143,8 +150,6 @@ export class PersonalDataFormComponent implements OnInit {
 
     if (this.isEditMode) {
       this.updateMember();
-    } else {
-      this.createMember();
     }
   };
 
