@@ -22,11 +22,11 @@ class UpdateOrdinationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'member_id' => ['somtimes', 'required', 'exists:members,id'],
-            'occupation_id' => ['somtimes', 'nullable', 'exists:occupations,id'],
-            'status' => ['somtimes', 'boolean'],
-            'initial_date' => ['somtimes', 'nullable', 'date'],
-            'end_date' => ['somtimes', 'nullable', 'date']
+            'member_id' => ['sometimes', 'required', 'exists:members,id'],
+            'occupation_id' => ['sometimes', 'nullable', 'exists:occupations,id'],
+            'status' => ['sometimes', 'boolean'],
+            'initial_date' => ['sometimes', 'nullable', 'date'],
+            'end_date' => ['sometimes', 'nullable', 'date']
         ];
     }
 }
