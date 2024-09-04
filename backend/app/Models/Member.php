@@ -77,4 +77,9 @@ class Member extends Model
     {
         return $this->hasMany(Family::class);
     }
+
+    public function ordination(): BelongsTo
+    {
+        return $this->belongsTo(Ordination::class);
+    }
 }
