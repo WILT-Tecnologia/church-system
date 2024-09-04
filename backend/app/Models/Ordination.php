@@ -23,6 +23,8 @@ class Ordination extends Model
         'member_id',
         'occupation_id',
         'status',
+        'initial_date',
+        'end_date',
     ];
 
     public function member(): BelongsTo

@@ -23,8 +23,6 @@ class Occupation extends Model
         'name',
         'description',
         'status',
-        'initial_date',
-        'end_date',
     ];
 
     public function ordination(): BelongsTo
