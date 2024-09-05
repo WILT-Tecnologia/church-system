@@ -86,13 +86,12 @@ export class ChurchComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.fetchResponsables();
     this.churchId = this.route.snapshot.paramMap.get('id');
     this.isEditMode = !!this.churchId;
     if (this.churchId) {
       this.handleEditMode();
     }
-
-    this.fetchResponsables();
 
     if (!this.isEditMode) {
       this.churchForm.get('cep')?.valueChanges.subscribe((cep: string) => {
@@ -126,7 +125,7 @@ export class ChurchComponent implements OnInit {
 
   get pageTitle(): string {
     return this.isEditMode
-      ? `Editar Igreja: ${this.churchForm.get('name')?.value || ''}`
+      ? `Editando a ogreja: ${this.churchForm.get('name')?.value || ''}`
       : `Cadastrar Igreja: ${this.churchForm.get('name')?.value || ''}`;
   }
 

@@ -14,9 +14,9 @@
               {{ getResponsableName() }}
             </mat-select-trigger>
 
-            <mat-form-field appearance="outline" (click)="$event.stopPropagation()">
+            <mat-form-field appearance="fill" (click)="$event.stopPropagation()">
               <mat-label>Pesquisar responsável...</mat-label>
-              <input matInput placeholder="Digite para buscar" [formControl]="searchControl"
+              <input matInput placeholder="Digite aqui para buscar" [formControl]="searchControl"
                 (click)="$event.stopPropagation()">
             </mat-form-field>
 
@@ -102,8 +102,8 @@
       }
       <mat-divider></mat-divider>
       <div class="cta">
-        <button type="button" mat-stroked-button color="primary" (click)="handleBack()">Cancelar</button>
-        <button type="submit" mat-raised-button color="primary">Cadastrar</button>
+        <button type="button" mat-stroked-button color="warn" (click)="handleBack()">Cancelar</button>
+        <button type="submit" mat-raised-button color="primary">{{isEditMode ? 'Atualizar' : 'Cadastrar'}}</button>
       </div>
     </form>
   </mat-card-content>
