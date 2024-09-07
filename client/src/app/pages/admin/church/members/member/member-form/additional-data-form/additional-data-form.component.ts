@@ -15,7 +15,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { LoadingService } from 'app/components/loading/loading.service';
-import { Members } from 'app/model/Members';
+import { Formation, Members } from 'app/model/Members';
 import { Person } from 'app/model/Person';
 import { CoreService } from 'app/service/core/core.service';
 import { NavigationService } from 'app/service/navigation/navigation.service';
@@ -23,6 +23,11 @@ import { SnackbarService } from 'app/service/snackbar/snackbar.service';
 import { ValidationService } from 'app/service/validation/validation.service';
 import dayjs from 'dayjs';
 import { MembersService } from '../../../members.service';
+
+type Selects = {
+  value: string;
+  viewValue: string;
+};
 
 @Component({
   selector: 'app-additional-data-form',
@@ -48,6 +53,11 @@ export class AdditionalDataFormComponent implements OnInit {
   isEditMode: boolean = false;
   activeTabIndex: number = 0;
   persons: Person[] = [];
+
+  formationOptions: Selects[] = Object.keys(Formation).map((key) => ({
+    value: Formation[key as keyof typeof Formation],
+    viewValue: Formation[key as keyof typeof Formation],
+  }));
   constructor(
     private fb: FormBuilder,
     private core: CoreService,

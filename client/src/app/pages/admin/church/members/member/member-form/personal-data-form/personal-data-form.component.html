@@ -70,14 +70,22 @@
 
           <mat-form-field appearance="fill">
             <mat-label>Estado Civil</mat-label>
-            <input matInput formControlName="civil_status" />
+            <mat-select formControlName="civil_status">
+              <mat-option *ngFor="let option of civilStatusOptions" [value]="option.value">
+                {{ option.viewValue }}
+              </mat-option>
+            </mat-select>
             <mat-error
               *ngIf="memberForm.get('civil_status')?.invalid && memberForm.get('civil_status')?.touched">{{ getErrorMessage('civil_status') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="fill">
-            <mat-label>Raça</mat-label>
-            <input matInput formControlName="color_race" />
+            <mat-label>Cor/Raça</mat-label>
+            <mat-select formControlName="color_race">
+              <mat-option *ngFor="let option of colorRaceOptions" [value]="option.value">
+                {{ option.viewValue }}
+              </mat-option>
+            </mat-select>
             <mat-error
               *ngIf="memberForm.get('color_race')?.invalid && memberForm.get('color_race')?.touched">{{ getErrorMessage('color_race') }}</mat-error>
           </mat-form-field>

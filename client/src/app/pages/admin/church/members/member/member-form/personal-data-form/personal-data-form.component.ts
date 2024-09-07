@@ -18,7 +18,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute } from '@angular/router';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { Church } from 'app/model/Church';
-import { Members } from 'app/model/Members';
+import { ColorRace, EstadoCivil, Members } from 'app/model/Members';
 import { Person } from 'app/model/Person';
 import { CoreService } from 'app/service/core/core.service';
 import { NavigationService } from 'app/service/navigation/navigation.service';
@@ -29,6 +29,11 @@ import { map, Observable, startWith } from 'rxjs';
 import { MembersService } from '../../../members.service';
 import { AddChurchDialogComponent } from '../components/modal/add-church-dialog/add-church-dialog.component';
 import { AddPersonDialogComponent } from '../components/modal/add-person-dialog/add-person-dialog.component';
+
+type Selects = {
+  value: string;
+  viewValue: string;
+};
 
 @Component({
   selector: 'app-personal-data-form',
@@ -59,6 +64,18 @@ export class PersonalDataFormComponent implements OnInit {
   isSelectOpen: boolean = true;
   persons: Person[] = [];
   churchs: Church[] = [];
+
+  // Listas de opções usando os enums
+  colorRaceOptions: Selects[] = Object.keys(ColorRace).map((key) => ({
+    value: ColorRace[key as keyof typeof ColorRace],
+    viewValue: ColorRace[key as keyof typeof ColorRace],
+  }));
+
+  civilStatusOptions: Selects[] = Object.keys(EstadoCivil).map((key) => ({
+    value: EstadoCivil[key as keyof typeof EstadoCivil],
+    viewValue: EstadoCivil[key as keyof typeof EstadoCivil],
+  }));
+
   constructor(
     private fb: FormBuilder,
     private core: CoreService,

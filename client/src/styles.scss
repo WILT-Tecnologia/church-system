@@ -28,6 +28,7 @@ $church-system-theme: mat.define-light-theme((color: (primary: $church-system-pr
   box-sizing: border-box;
   outline: none;
   font-family: 'Poppins', sans-serif;
+  scroll-behavior: smooth;
 }
 
 ::selection {

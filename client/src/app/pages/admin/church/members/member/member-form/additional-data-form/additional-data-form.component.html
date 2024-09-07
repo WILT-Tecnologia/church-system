@@ -6,7 +6,11 @@
         <div class="inputs">
           <mat-form-field appearance="fill">
             <mat-label>Formação</mat-label>
-            <input matInput formControlName="formation" />
+            <mat-select formControlName="formation">
+              <mat-option *ngFor="let option of formationOptions" [value]="option.value">
+                {{ option.viewValue }}
+              </mat-option>
+            </mat-select>
             <mat-error
               *ngIf="memberForm.get('formation')?.invalid && memberForm.get('formation')?.touched">{{ getErrorMessage('formation') }}</mat-error>
           </mat-form-field>
@@ -26,7 +30,7 @@
               *ngIf="memberForm.get('profission')?.invalid && memberForm.get('profission')?.touched">{{ getErrorMessage('profission') }}</mat-error>
           </mat-form-field>
         </div>
-        <div class="inputs checkbox-column" style="max-width: 20rem;">
+        <div class="inputs checkbox-column" style="max-width: 40rem;">
           <mat-label>Deficiências</mat-label>
           <div class="checkbox-group">
             <div class="checkbox-column">
