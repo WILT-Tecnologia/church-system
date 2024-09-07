@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Member extends Model
@@ -70,5 +71,15 @@ class Member extends Model
     public function memberOrigin(): BelongsTo
     {
         return $this->belongsTo(MemberOrigin::class);
+    }
+
+    public function families(): HasMany
+    {
+        return $this->hasMany(Family::class);
+    }
+
+    public function ordination(): BelongsTo
+    {
+        return $this->belongsTo(Ordination::class);
     }
 }

@@ -59,4 +59,9 @@ class Person extends Model
     {
         return $this->belongsTo(Member::class);
     }
+
+    public function family(): BelongsTo
+    {
+        return $this->belongsTo(Family::class);
+    }
 }
