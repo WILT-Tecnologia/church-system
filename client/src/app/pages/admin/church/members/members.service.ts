@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { MemberOrigin } from 'app/model/MemberOrigins';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { Church } from '../../../../model/Church';
@@ -20,6 +21,12 @@ export class MembersService {
 
   getChurch(): Observable<Church[]> {
     return this.http.get<Church[]>(`${environment.apiUrl}/admin/churches`);
+  }
+
+  getMemberOrigins(): Observable<MemberOrigin[]> {
+    return this.http.get<MemberOrigin[]>(
+      `${environment.apiUrl}/admin/member-origins`
+    );
   }
 
   getMembers(): Observable<Members[]> {
@@ -57,5 +64,15 @@ export class MembersService {
 
   deleteMember(memberId: string): Observable<Members> {
     return this.http.delete<Members>(`${this.api}/${memberId}`);
+  }
+
+  createOrUpdateMember(member: Members): Observable<Members> {
+    if (member.id) {
+      // Se o membro tem um ID, atualizamos o membro existente
+      return this.updateMember(member.id, member);
+    } else {
+      // Se o membro não tem um ID, criamos um novo membro
+      return this.createMember(member);
+    }
   }
 }

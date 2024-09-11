@@ -1,8 +1,10 @@
 <section class="py-4">
   <mat-card appearance="outlined" class="wrapper">
-    <mat-card-title class="pb-3">Informações pessoais</mat-card-title>
+    <mat-card-header>
+      <mat-card-title class="pb-6">Informações pessoais</mat-card-title>
+    </mat-card-header>
     <mat-card-content>
-      <form [formGroup]="memberForm" (ngSubmit)="isEditMode ? handleSubmit(): null" class="form-field-group">
+      <form [formGroup]="memberForm" class="form-field-group">
         <div class="inputs">
           <mat-form-field appearance="fill">
             <mat-label>Pessoa</mat-label>
@@ -107,10 +109,13 @@
         </div>
         <mat-divider></mat-divider>
         <mat-card-footer class="cta">
-          <button mat-button mat-stroked-button color="warn" type="button"
-            (click)="activeTabIndex ? navigationService.previousTab() : handleBack()">{{activeTabIndex ? 'Voltar' : 'Cancelar'}}</button>
-          <button mat-raised-button color="primary" [disabled]="memberForm.invalid"
-            (click)="navigationService.nextTab()">{{isEditMode ? 'Salvar' : 'Continuar'}}</button>
+          <button mat-button mat-stroked-button color="warn" type="button" (click)="handleBack()">
+            {{activeTabIndex ? 'Voltar' : 'Cancelar'}}
+          </button>
+          <button mat-raised-button color="primary" type="button" (click)="handleSubmit()"
+            [disabled]="memberForm.invalid">
+            {{isEditMode ? 'Salvar' : 'Continuar'}}
+          </button>
         </mat-card-footer>
       </form>
     </mat-card-content>

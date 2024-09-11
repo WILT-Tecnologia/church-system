@@ -4,6 +4,8 @@ import { ChurchComponent as Church } from './pages/admin/administrative/churchs/
 import { ChurchsComponent } from './pages/admin/administrative/churchs/churchs.component';
 import { EventTypeComponent } from './pages/admin/administrative/eventTypes/eventType/eventType.component';
 import { EventTypesComponent } from './pages/admin/administrative/eventTypes/eventTypes.component';
+import { MemberOriginFormComponent } from './pages/admin/administrative/member-origin/member-origin-form/member-origin-form.component';
+import { MemberOriginComponent } from './pages/admin/administrative/member-origin/member-origin.component';
 import { OccupationComponent } from './pages/admin/administrative/occupations/occupation/occupation.component';
 import { OccupationsComponent } from './pages/admin/administrative/occupations/occupations.component';
 import { PersonComponent } from './pages/admin/administrative/persons/person/person.component';
@@ -98,6 +100,22 @@ export const routes: Routes = [
   {
     path: 'administrative/profiles/profile/delete/:id',
     component: ProfileComponent,
+  },
+  {
+    path: 'administrative/member-origin',
+    component: MemberOriginComponent,
+  },
+  {
+    path: 'administrative/member-origin/member-origin-form/new',
+    component: MemberOriginFormComponent,
+  },
+  {
+    path: 'administrative/member-origin/member-origin-form/edit/:id',
+    component: MemberOriginFormComponent,
+  },
+  {
+    path: 'administrative/member-origin/member-origin-form/delete/:id',
+    component: MemberOriginFormComponent,
   },
   {
     path: 'church',

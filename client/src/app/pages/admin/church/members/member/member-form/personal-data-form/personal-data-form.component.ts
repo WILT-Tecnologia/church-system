@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -15,17 +15,15 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute } from '@angular/router';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { Church } from 'app/model/Church';
-import { ColorRace, EstadoCivil, Members } from 'app/model/Members';
+import { ColorRace, EstadoCivil } from 'app/model/Members';
 import { Person } from 'app/model/Person';
 import { CoreService } from 'app/service/core/core.service';
 import { NavigationService } from 'app/service/navigation/navigation.service';
 import { SnackbarService } from 'app/service/snackbar/snackbar.service';
 import { ValidationService } from 'app/service/validation/validation.service';
-import dayjs from 'dayjs';
-import { map, Observable, startWith } from 'rxjs';
+import { catchError, debounceTime, map, Observable, of, startWith } from 'rxjs';
 import { MembersService } from '../../../members.service';
 import { AddChurchDialogComponent } from '../components/modal/add-church-dialog/add-church-dialog.component';
 import { AddPersonDialogComponent } from '../components/modal/add-person-dialog/add-person-dialog.component';
@@ -41,18 +39,19 @@ type Selects = {
   styleUrls: ['./personal-data-form.component.scss'],
   standalone: true,
   imports: [
-    ReactiveFormsModule,
-    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatDividerModule,
     MatInputModule,
     MatOptionModule,
     MatSelectModule,
     MatFormFieldModule,
-    MatCardModule,
-    MatButtonModule,
-    MatDividerModule,
+    ReactiveFormsModule,
+    CommonModule,
   ],
 })
 export class PersonalDataFormComponent implements OnInit {
+  @Input() memberFormio!: FormGroup;
   memberForm: FormGroup;
   memberId: string | null = null;
   isEditMode: boolean = false;
@@ -65,7 +64,6 @@ export class PersonalDataFormComponent implements OnInit {
   persons: Person[] = [];
   churchs: Church[] = [];
 
-  // Listas de opções usando os enums
   colorRaceOptions: Selects[] = Object.keys(ColorRace).map((key) => ({
     value: ColorRace[key as keyof typeof ColorRace],
     viewValue: ColorRace[key as keyof typeof ColorRace],
@@ -79,7 +77,6 @@ export class PersonalDataFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private core: CoreService,
-    private route: ActivatedRoute,
     private snackbarService: SnackbarService,
     private membersService: MembersService,
     private loadingService: LoadingService,
@@ -98,13 +95,23 @@ export class PersonalDataFormComponent implements OnInit {
       color_race: ['', [Validators.required]],
     });
     this.filteredPerson$ = this.searchControl.valueChanges.pipe(
+      debounceTime(300),
       startWith(''),
-      map((searchTerm) => this.filterPerson(searchTerm ?? ''))
+      map((searchTerm) =>
+        this.filterPerson(searchTerm ?? '').sort((a, b) =>
+          a.name.localeCompare(b.name)
+        )
+      )
     );
 
     this.filteredChurch$ = this.searchChurchControl.valueChanges.pipe(
+      debounceTime(300),
       startWith(''),
-      map((searchTerm) => this.filterChurch(searchTerm ?? ''))
+      map((searchTerm) =>
+        this.filterChurch(searchTerm ?? '').sort((a, b) =>
+          a.name.localeCompare(b.name)
+        )
+      )
     );
 
     this.navigationService.activeTabIndex$.subscribe((index) => {
@@ -112,12 +119,29 @@ export class PersonalDataFormComponent implements OnInit {
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.fetchData(this.membersService.getPersons()).subscribe((persons) => {
+      this.persons = persons;
+      this.filteredPerson$ = this.searchControl.valueChanges.pipe(
+        debounceTime(300),
+        startWith(''),
+        map((searchTerm) => this.filterPerson(searchTerm ?? ''))
+      );
+    });
+
+    this.fetchData(this.membersService.getChurch()).subscribe((churchs) => {
+      this.churchs = churchs;
+      this.filteredChurch$ = this.searchChurchControl.valueChanges.pipe(
+        debounceTime(300),
+        startWith(''),
+        map((searchTerm) => this.filterChurch(searchTerm ?? ''))
+      );
+    });
+  }
 
   getErrorMessage(controlName: string) {
     const control = this.memberForm.get(controlName);
-    if (control) return this.validationService.getErrorMessage(control);
-    return null;
+    return control ? this.validationService.getErrorMessage(control) : null;
   }
 
   openAddPersonModal() {
@@ -133,7 +157,16 @@ export class PersonalDataFormComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.fetchPerson();
+        this.fetchData(this.membersService.getPersons()).subscribe(
+          (persons) => {
+            this.persons = persons;
+            this.filteredPerson$ = this.searchControl.valueChanges.pipe(
+              debounceTime(300),
+              startWith(''),
+              map((searchTerm) => this.filterPerson(searchTerm ?? ''))
+            );
+          }
+        );
       }
     });
   }
@@ -151,13 +184,22 @@ export class PersonalDataFormComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.fetchChurch();
+        this.fetchData(this.membersService.getChurch()).subscribe((churchs) => {
+          this.churchs = churchs;
+          this.filteredChurch$ = this.searchChurchControl.valueChanges.pipe(
+            debounceTime(300),
+            startWith(''),
+            map((searchTerm) => this.filterChurch(searchTerm ?? ''))
+          );
+        });
       }
     });
   }
 
   handleBack = () => {
-    this.core.handleBack();
+    this.activeTabIndex
+      ? this.navigationService.previousTab()
+      : this.core.handleBack();
   };
 
   handleSubmit = () => {
@@ -167,44 +209,9 @@ export class PersonalDataFormComponent implements OnInit {
 
     if (this.isEditMode) {
       this.updateMember();
+    } else {
+      this.navigationService.nextTab();
     }
-  };
-
-  createMember = () => {
-    this.loadingService.show();
-    this.membersService.createMember(this.memberForm.value).subscribe({
-      next: () => {
-        this.loadingService.hide();
-        this.snackbarService.openSuccess('Membro criado com sucesso.');
-        this.core.handleBack();
-      },
-      error: () => {
-        this.loadingService.hide();
-        this.snackbarService.openError(
-          'Erro ao criar o membro. Verifique os dados e tente novamente.'
-        );
-      },
-    });
-    this.loadingService.hide();
-  };
-
-  handleEditMode = () => {
-    this.loadingService.show();
-    this.membersService
-      .getMemberById(this.memberId!)
-      .subscribe((member: Members) => {
-        const formattedMembers = dayjs(member.updated_at).format(
-          'DD/MM/YYYY [às] HH:mm:ss'
-        );
-
-        this.memberForm.patchValue({
-          ...member,
-          updated_at: formattedMembers,
-        });
-
-        this.loadingService.hide();
-      });
-    this.loadingService.hide();
   };
 
   updateMember = () => {
@@ -220,43 +227,20 @@ export class PersonalDataFormComponent implements OnInit {
         error: () => {
           this.loadingService.hide();
           this.snackbarService.openError(
-            `Erro ao atualizar o membro ${
-              this.memberForm.get('name')?.value
-            }. Tente novamente.`
+            `Erro ao atualizar o membro. Verifique os dados e tente novamente.`
           );
         },
+        complete: () => this.loadingService.hide(),
       });
-    this.loadingService.hide();
   };
 
-  fetchPerson() {
-    this.membersService.getPersons().subscribe({
-      next: (person) => {
-        this.persons = person.sort((a, b) => a.name.localeCompare(b.name));
-        this.filteredPerson$ = this.searchControl.valueChanges.pipe(
-          startWith(''),
-          map((searchTerm) => this.filterPerson(searchTerm ?? ''))
-        );
-      },
-      error: () => {
-        this.snackbarService.openError('Erro ao buscar a pessoa.');
-      },
-    });
-  }
-
-  fetchChurch() {
-    this.membersService.getChurch().subscribe({
-      next: (church) => {
-        this.churchs = church.sort((a, b) => a.name.localeCompare(b.name));
-        this.filteredChurch$ = this.searchChurchControl.valueChanges.pipe(
-          startWith(''),
-          map((searchTerm) => this.filterChurch(searchTerm ?? ''))
-        );
-      },
-      error: () => {
-        this.snackbarService.openError('Erro ao buscar o igreja.');
-      },
-    });
+  fetchData<T>(serviceMethod: Observable<T[]>): Observable<T[]> {
+    return serviceMethod.pipe(
+      catchError(() => {
+        this.snackbarService.openError('Erro ao buscar dados.');
+        return of([]);
+      })
+    );
   }
 
   filterPerson(searchTerm: string): Person[] {
@@ -292,13 +276,35 @@ export class PersonalDataFormComponent implements OnInit {
 
   onSelectOpenedChangePerson(isOpen: boolean) {
     if (isOpen) {
-      this.fetchPerson();
+      this.fetchData(this.membersService.getPersons()).subscribe((persons) => {
+        this.persons = persons;
+        this.filteredPerson$ = this.searchControl.valueChanges.pipe(
+          debounceTime(300),
+          startWith(''),
+          map((searchTerm) =>
+            this.filterPerson(searchTerm ?? '').sort((a, b) =>
+              a.name.localeCompare(b.name)
+            )
+          )
+        );
+      });
     }
   }
 
   onSelectOpenedChangeChurch(isOpen: boolean) {
     if (isOpen) {
-      this.fetchChurch();
+      this.fetchData(this.membersService.getChurch()).subscribe((churchs) => {
+        this.churchs = churchs;
+        this.filteredChurch$ = this.searchChurchControl.valueChanges.pipe(
+          debounceTime(300),
+          startWith(''),
+          map((searchTerm) =>
+            this.filterChurch(searchTerm ?? '').sort((a, b) =>
+              a.name.localeCompare(b.name)
+            )
+          )
+        );
+      });
     }
   }
 }

@@ -91,6 +91,14 @@ a:hover {
   font-size: 1rem;
 }
 
+.active {
+  color: theme.$greenMain;
+}
+
+.inactive {
+  color: theme.$redMain;
+}
+
 .bold {
   font-weight: bold;
 }
@@ -132,7 +140,7 @@ a:hover {
 
 .snackbar-error {
   .mdc-snackbar__surface {
-    background-color: theme.$redMain !important;
+    background-color: theme.$redLight !important;
   }
 
   .mdc-snackbar__label {

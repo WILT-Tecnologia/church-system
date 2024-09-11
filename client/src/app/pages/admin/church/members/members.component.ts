@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { NotFoundRegisterComponent } from '../../../../components/not-found-register/not-found-register.component';
 import { TableComponent } from '../../../../components/table/table.component';
 
+import { LoadingService } from 'app/components/loading/loading.service';
 import { Members } from '../../../../model/Members';
 import { SnackbarService } from '../../../../service/snackbar/snackbar.service';
 import { MembersService } from './members.service';
@@ -34,7 +35,8 @@ export class MembersComponent implements OnInit {
   constructor(
     private router: Router,
     private memberService: MembersService,
-    private snackbarService: SnackbarService
+    private snackbarService: SnackbarService,
+    private loading: LoadingService
   ) {}
 
   ngOnInit() {
@@ -42,9 +44,11 @@ export class MembersComponent implements OnInit {
   }
 
   loadMembers = () => {
+    this.loading.show();
     this.memberService.getMembers().subscribe((members) => {
       this.members = members;
     });
+    this.loading.hide();
   };
 
   addNewMembers = (): void => {
@@ -56,14 +60,17 @@ export class MembersComponent implements OnInit {
   };
 
   deleteMembers = (members: Members): void => {
+    this.loading.show();
     this.memberService.deleteMember(members.id).subscribe({
       next: () => {
-        this.snackbarService.openSuccess('Membro excluídos com sucesso!');
+        this.snackbarService.openSuccess('Membro excluído com sucesso!');
         this.loadMembers();
       },
       error: () => {
+        this.loading.hide();
         this.snackbarService.openError('Erro ao excluir membros');
       },
     });
+    this.loading.hide();
   };
 }

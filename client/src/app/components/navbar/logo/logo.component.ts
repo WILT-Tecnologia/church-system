@@ -1,20 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { Router } from '@angular/router';
+import { CoreService } from 'app/service/core/core.service';
 
 @Component({
   selector: 'app-logo',
-  standalone: true,
   templateUrl: './logo.component.html',
   styleUrls: ['./logo.component.scss'],
+  standalone: true,
   imports: [MatButtonModule],
 })
 export class LogoComponent implements OnInit {
-  constructor(private router: Router) {}
+  constructor(private core: CoreService) {}
 
   ngOnInit() {}
 
   goTo() {
-    this.router.navigate(['/']);
+    this.core.handleBack();
   }
 }

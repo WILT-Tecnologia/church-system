@@ -32,7 +32,7 @@
       <div class="cta">
         <button type="button" mat-stroked-button color="primary" (click)="handleBack()">Cancelar</button>
         <button type="submit" mat-raised-button color="primary" [disabled]="!eventTypeForm.valid">
-          {{this.isEditMode ? 'Atualizar' : 'Cadastrar'}}
+          {{isEditMode ? 'Atualizar' : 'Cadastrar'}}
         </button>
       </div>
     </form>

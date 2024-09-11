@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import {
   FormBuilder,
+  FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
@@ -21,6 +22,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { MemberOrigin } from 'app/model/MemberOrigins';
 import { Members } from 'app/model/Members';
 import { Person } from 'app/model/Person';
 import { CoreService } from 'app/service/core/core.service';
@@ -29,6 +31,7 @@ import { SnackbarService } from 'app/service/snackbar/snackbar.service';
 import { ValidationService } from 'app/service/validation/validation.service';
 import dayjs from 'dayjs';
 import { provideNgxMask } from 'ngx-mask';
+import { map, Observable, startWith } from 'rxjs';
 import { MembersService } from '../../../members.service';
 
 @Component({
@@ -57,11 +60,16 @@ import { MembersService } from '../../../members.service';
   ],
 })
 export class SpiritualDataFormComponent implements OnInit {
+  @Input() memberFormio!: FormGroup;
   memberForm: FormGroup;
   memberId: string | null = null;
   isEditMode: boolean = false;
   activeTabIndex: number = 0;
   persons: Person[] = [];
+  memberOrigins: MemberOrigin[] = [];
+  searchControl = new FormControl();
+  filterMemberOrigins: Observable<MemberOrigin[]>;
+  @Output() memberCreated = new EventEmitter<string>();
 
   constructor(
     private fb: FormBuilder,
@@ -80,15 +88,21 @@ export class SpiritualDataFormComponent implements OnInit {
       baptism_holy_spirit_date: [''],
       member_origin_id: ['', [Validators.required]],
       receipt_date: ['', [Validators.required]],
-      updated_at: [''],
     });
+
+    this.filterMemberOrigins = this.searchControl.valueChanges.pipe(
+      startWith(''),
+      map((searchTerm) => this.filterMemberOrigin(searchTerm ?? ''))
+    );
 
     this.navigationService.activeTabIndex$.subscribe((index) => {
       this.activeTabIndex = index;
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.fetchMemberOrigins();
+  }
 
   onCheckboxChange(fieldName: string, checkboxControlName: string): void {
     const isChecked = this.memberForm.get(checkboxControlName)?.value;
@@ -103,8 +117,7 @@ export class SpiritualDataFormComponent implements OnInit {
 
   getErrorMessage(controlName: string) {
     const control = this.memberForm.get(controlName);
-    if (control) return this.validationService.getErrorMessage(control);
-    return null;
+    return control ? this.validationService.getErrorMessage(control) : null;
   }
 
   handleBack = () => {
@@ -113,12 +126,39 @@ export class SpiritualDataFormComponent implements OnInit {
 
   handleSubmit = () => {
     if (this.memberForm.invalid) {
+      this.snackbarService.openError(
+        'Por favor, preencha todos os campos obrigatórios corretamente.'
+      );
       return;
     }
 
-    if (this.isEditMode) {
-      this.updateMember();
-    }
+    this.loadingService.show();
+    const memberData = this.memberForm.value;
+
+    const saveObservable = this.isEditMode
+      ? this.membersService.updateMember(this.memberId!, memberData)
+      : this.membersService.createMember(memberData);
+
+    saveObservable.subscribe({
+      next: (response: Members) => {
+        this.memberId = response.id;
+        this.snackbarService.openSuccess(
+          this.isEditMode
+            ? 'Dados espirituais atualizados com sucesso!'
+            : 'Dados espirituais salvos com sucesso!'
+        );
+        this.isEditMode = true;
+        this.navigationService.nextTab();
+        this.memberCreated.emit(this.memberId);
+      },
+      error: () => {
+        this.loadingService.hide();
+        this.snackbarService.openError(
+          'Erro ao salvar os dados espirituais. Por favor, tente novamente.'
+        );
+      },
+      complete: () => this.loadingService.hide(),
+    });
   };
 
   handleEditMode = () => {
@@ -156,7 +196,52 @@ export class SpiritualDataFormComponent implements OnInit {
             `Erro ao atualizar o membro. Verique os dados e tente novamente.`
           );
         },
+        complete: () => this.loadingService.hide(),
       });
+  };
+
+  fetchMemberOrigins = () => {
+    this.loadingService.show();
+    this.membersService.getMemberOrigins().subscribe({
+      next: (memberOrigin) => {
+        this.memberOrigins = memberOrigin.sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
+        this.filterMemberOrigins = this.searchControl.valueChanges.pipe(
+          startWith(''),
+          map((searchTerm) => this.filterMemberOrigin(searchTerm ?? ''))
+        );
+      },
+      error: () => {
+        this.loadingService.hide();
+        this.snackbarService.openError('Erro ao buscar a origem do membro.');
+      },
+    });
     this.loadingService.hide();
+  };
+
+  filterMemberOrigin(searchTerm: string): MemberOrigin[] {
+    return this.memberOrigins.filter((memberOrigin) =>
+      memberOrigin.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }
+
+  getMemberOriginName(): string {
+    const memberOriginId = this.memberForm.get('member_origin_id')?.value;
+    if (memberOriginId) {
+      const memberOrigin = this.memberOrigins.find(
+        (r) => r.id === memberOriginId
+      );
+      return memberOrigin?.name ?? '';
+    }
+    return memberOriginId
+      ? 'Selecione a origem do membro'
+      : 'Selecione a origem do membro';
+  }
+
+  onSelectOpenedChangeMemberOrigin = (isOpen: boolean) => {
+    if (isOpen) {
+      this.fetchMemberOrigins();
+    }
   };
 }
