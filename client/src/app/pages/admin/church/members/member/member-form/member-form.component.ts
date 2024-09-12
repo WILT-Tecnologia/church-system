@@ -43,14 +43,8 @@ import dayjs from 'dayjs';
 import { provideNgxMask } from 'ngx-mask';
 import { debounceTime, map, Observable, startWith } from 'rxjs';
 import { MembersService } from '../../members.service';
-import { AdditionalDataFormComponent } from './additional-data-form/additional-data-form.component';
 import { AddChurchDialogComponent } from './components/modal/add-church-dialog/add-church-dialog.component';
 import { AddPersonDialogComponent } from './components/modal/add-person-dialog/add-person-dialog.component';
-import { MemberStatusDataFormComponent } from './member-status-data-form/member-status-data-form.component';
-import { MembershipDataFormComponent } from './membership-data-form/membership-data-form.component';
-import { OrdinationDataFormComponent } from './ordination-data-form/ordination-data-form.component';
-import { PersonalDataFormComponent } from './personal-data-form/personal-data-form.component';
-import { SpiritualDataFormComponent } from './spiritual-data-form/spiritual-data-form.component';
 
 type Selects = {
   value: string;
@@ -83,12 +77,6 @@ type Selects = {
     MatIconModule,
     MatDatepickerModule,
     MemberFormComponent,
-    PersonalDataFormComponent,
-    AdditionalDataFormComponent,
-    SpiritualDataFormComponent,
-    MembershipDataFormComponent,
-    OrdinationDataFormComponent,
-    MemberStatusDataFormComponent,
   ],
 })
 export class MemberFormComponent implements OnInit {
@@ -96,7 +84,6 @@ export class MemberFormComponent implements OnInit {
   memberId: string | null = null;
   isEditMode: boolean = false;
   memberForm: FormGroup;
-  activeTabIndex: number = 0;
   searchControl = new FormControl();
   filteredPerson$: Observable<Person[]>;
   filteredChurch$: Observable<Church[]>;
@@ -105,7 +92,7 @@ export class MemberFormComponent implements OnInit {
   persons: Person[] = [];
   churchs: Church[] = [];
   memberOrigins: MemberOrigin[] = [];
-
+  currentStep = 0;
   colorRaceOptions: Selects[] = this.mapEnumToSelectOptions(ColorRace);
   civilStatusOptions: Selects[] = this.mapEnumToSelectOptions(EstadoCivil);
   formationOptions: Selects[] = this.mapEnumToSelectOptions(Formation);
@@ -122,48 +109,61 @@ export class MemberFormComponent implements OnInit {
     public navigationService: NavigationService
   ) {
     this.memberForm = this.createMemberForm();
-
     this.filteredPerson$ = this.setupSearchObservable('Person');
     this.filteredChurch$ = this.setupSearchObservable('Church');
     this.filterMemberOrigins = this.setupSearchObservable('MemberOrigin');
 
-    this.navigationService.activeTabIndex$.subscribe((index) => {
-      this.activeTabIndex = index;
+    this.navigationService.currentStep$.subscribe((index: number) => {
+      this.currentStep = index;
     });
   }
 
   createMemberForm(): FormGroup {
     return this.fb.group({
-      person_id: ['', [Validators.required]],
-      church_id: ['', [Validators.required]],
-      rg: ['', [Validators.required, Validators.maxLength(15)]],
-      issuing_body: ['', [Validators.required, Validators.maxLength(255)]],
-      civil_status: ['', [Validators.required]],
-      color_race: ['', [Validators.required]],
-      nationality: ['', [Validators.required]],
-      naturalness: ['', [Validators.required]],
-      formation: ['', [Validators.required]],
-      formation_course: ['', [Validators.required, Validators.maxLength(255)]],
-      profission: ['', [Validators.required, Validators.maxLength(255)]],
-      def_physical: [false],
-      def_visual: [false],
-      def_hearing: [false],
-      def_intellectual: [false],
-      def_mental: [false],
-      def_multiple: [false],
-      def_other: [false],
-      def_other_description: ['', [Validators.maxLength(255)]],
-      baptism_date: [
-        '',
-        [this.validateBirthDate.bind(this), Validators.required],
-      ],
-      baptism_locale: ['', [Validators.maxLength(255), Validators.required]],
-      baptism_official: ['', [Validators.maxLength(255), Validators.required]],
-      baptism_holy_spirit: [false],
-      baptism_holy_spirit_date: [''],
-      member_origin_id: ['', [Validators.required]],
-      receipt_date: ['', [Validators.required]],
-      updated_at: [''],
+      stepOne: this.fb.group({
+        person_id: ['', [Validators.required]],
+        church_id: ['', [Validators.required]],
+        rg: ['', [Validators.required, Validators.maxLength(15)]],
+        issuing_body: ['', [Validators.required, Validators.maxLength(255)]],
+        civil_status: ['', [Validators.required]],
+        color_race: ['', [Validators.required]],
+        nationality: ['', [Validators.required]],
+        naturalness: ['', [Validators.required]],
+        updated_at: [''],
+      }),
+      stepTwo: this.fb.group({
+        formation: ['', [Validators.required]],
+        formation_course: [
+          '',
+          [Validators.required, Validators.maxLength(255)],
+        ],
+        profission: ['', [Validators.required, Validators.maxLength(255)]],
+        def_physical: [false],
+        def_visual: [false],
+        def_hearing: [false],
+        def_intellectual: [false],
+        def_mental: [false],
+        def_multiple: [false],
+        def_other: [false],
+        def_other_description: ['', [Validators.maxLength(255)]],
+        updated_at: [''],
+      }),
+      stepThree: this.fb.group({
+        baptism_date: [
+          '',
+          [this.validateBirthDate.bind(this), Validators.required],
+        ],
+        baptism_locale: ['', [Validators.maxLength(255), Validators.required]],
+        baptism_official: [
+          '',
+          [Validators.maxLength(255), Validators.required],
+        ],
+        baptism_holy_spirit: [false],
+        baptism_holy_spirit_date: [''],
+        member_origin_id: ['', [Validators.required]],
+        receipt_date: ['', [Validators.required]],
+        updated_at: [''],
+      }),
     });
   }
 
@@ -245,11 +245,53 @@ export class MemberFormComponent implements OnInit {
     this.core.handleBack();
   };
 
-  handleNextStep = () => {
-    this.memberForm.valid
-      ? this.navigationService.nextTab()
-      : this.memberForm.markAllAsTouched();
-  };
+  onNext() {
+    const currentStepFormGroup = this.getCurrentStepFormGroup();
+
+    if (currentStepFormGroup.valid) {
+      if (this.currentStep < 2) {
+        this.currentStep++;
+      }
+    } else {
+      currentStepFormGroup.markAllAsTouched();
+    }
+  }
+
+  onBack() {
+    this.currentStep > 0 ? this.currentStep-- : this.handleBack();
+  }
+
+  getCurrentStepFormGroup(): FormGroup {
+    switch (this.currentStep) {
+      case 0:
+        return this.memberForm.get('stepOne') as FormGroup;
+      case 1:
+        return this.memberForm.get('stepTwo') as FormGroup;
+      case 2:
+        return this.memberForm.get('stepThree') as FormGroup;
+      default:
+        return this.memberForm;
+    }
+  }
+
+  canProceedToNextStep(): boolean {
+    const currentStepGroup = this.getCurrentStepFormGroup();
+    return currentStepGroup ? currentStepGroup.valid : false;
+  }
+
+  combineStepData() {
+    const stepOneData = this.memberForm.get('stepOne')?.value;
+    const stepTwoData = this.memberForm.get('stepTwo')?.value;
+    const stepThreeData = this.memberForm.get('stepThree')?.value;
+
+    const combinedData = {
+      ...stepOneData,
+      ...stepTwoData,
+      ...stepThreeData,
+    };
+
+    return combinedData;
+  }
 
   handleSubmit() {
     if (this.memberForm.invalid) return;
@@ -264,7 +306,9 @@ export class MemberFormComponent implements OnInit {
 
   createMember() {
     this.loadingService.show();
-    this.membersService.createMember(this.memberForm.value).subscribe({
+    const memberData = this.combineStepData();
+
+    this.membersService.createMember(memberData).subscribe({
       next: () => this.onSuccess('Membro criado com sucesso.'),
       error: () => this.onError('Erro ao criar o membro.'),
     });
@@ -274,13 +318,11 @@ export class MemberFormComponent implements OnInit {
     this.membersService
       .getMemberById(this.memberId!)
       .subscribe((member: Members) => {
-        const formattedMembers = dayjs(member.updated_at).format(
-          'DD/MM/YYYY [às] HH:mm:ss'
-        );
-
         this.memberForm.patchValue({
           ...member,
-          updated_at: formattedMembers,
+          updated_at: dayjs(member.updated_at).format(
+            'DD/MM/YYYY [às] HH:mm:ss'
+          ),
         });
       });
   };
@@ -349,7 +391,7 @@ export class MemberFormComponent implements OnInit {
   }
 
   getPersonName(): string {
-    const personId = this.memberForm.get('person_id')?.value;
+    const personId = this.memberForm.get('stepOne.person_id')?.value;
     if (personId) {
       const person = this.persons.find((r) => r.id === personId);
       return person?.name ?? '';
@@ -358,7 +400,7 @@ export class MemberFormComponent implements OnInit {
   }
 
   getChurchName(): string {
-    const churchId = this.memberForm.get('church_id')?.value;
+    const churchId = this.memberForm.get('stepOne.church_id')?.value;
     if (churchId) {
       const church = this.churchs.find((r) => r.id === churchId);
       return church?.name ?? '';
@@ -368,7 +410,9 @@ export class MemberFormComponent implements OnInit {
   }
 
   getMemberOriginName(): string {
-    const memberOriginId = this.memberForm.get('member_origin_id')?.value;
+    const memberOriginId = this.memberForm.get(
+      'stepThree.member_origin_id'
+    )?.value;
     if (memberOriginId) {
       const memberOrigin = this.memberOrigins.find(
         (r) => r.id === memberOriginId
@@ -387,7 +431,11 @@ export class MemberFormComponent implements OnInit {
         this.filteredPerson$ = this.searchControl.valueChanges.pipe(
           debounceTime(300),
           startWith(''),
-          map((searchTerm) => this.filterPerson(searchTerm ?? ''))
+          map((searchTerm) =>
+            this.filterPerson(searchTerm ?? '').sort((a, b) =>
+              a.name.localeCompare(b.name)
+            )
+          )
         );
       });
     }
@@ -400,7 +448,11 @@ export class MemberFormComponent implements OnInit {
         this.filteredChurch$ = this.searchControl.valueChanges.pipe(
           debounceTime(300),
           startWith(''),
-          map((searchTerm) => this.filterChurch(searchTerm ?? ''))
+          map((searchTerm) =>
+            this.filterChurch(searchTerm ?? '').sort((a, b) =>
+              a.name.localeCompare(b.name)
+            )
+          )
         );
       });
     }
@@ -414,7 +466,11 @@ export class MemberFormComponent implements OnInit {
         );
         this.filterMemberOrigins = this.searchControl.valueChanges.pipe(
           startWith(''),
-          map((searchTerm) => this.filterMemberOrigin(searchTerm ?? ''))
+          map((searchTerm) =>
+            this.filterMemberOrigin(searchTerm ?? '').sort((a, b) =>
+              a.name.localeCompare(b.name)
+            )
+          )
         );
       });
     }

@@ -6,20 +6,20 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class NavigationService {
   constructor() {}
-  private activeTabIndex = new BehaviorSubject<number>(0);
-  activeTabIndex$ = this.activeTabIndex.asObservable();
+  private current = new BehaviorSubject<number>(0);
+  currentStep$ = this.current.asObservable();
 
   setActiveTab(index: number) {
-    this.activeTabIndex.next(index);
+    this.current.next(index);
   }
 
   nextTab() {
-    const currentIndex = this.activeTabIndex.getValue();
+    const currentIndex = this.current.getValue();
     this.setActiveTab(currentIndex < 5 ? currentIndex + 1 : currentIndex);
   }
 
   previousTab() {
-    const currentIndex = this.activeTabIndex.getValue();
+    const currentIndex = this.current.getValue();
     this.setActiveTab(currentIndex > 0 ? currentIndex - 1 : currentIndex);
   }
 }

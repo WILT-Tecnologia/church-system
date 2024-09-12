@@ -36,7 +36,7 @@ export class AuthService {
   getUser(): any {
     if (isPlatformBrowser(this.platformId)) {
       const user = localStorage.getItem('user');
-      return user ? JSON.parse(user) : null;
+      return user ? JSON.parse(user) : 'Peixola';
     }
     return null;
   }

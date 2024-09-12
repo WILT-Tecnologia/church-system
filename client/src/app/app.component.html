@@ -1,5 +1,5 @@
 <app-loading></app-loading>
-<app-navbar></app-navbar>
+<app-navbar *ngIf="isLoggedIn"></app-navbar>
 <div class="containerSettings">
   <router-outlet></router-outlet>
 </div>

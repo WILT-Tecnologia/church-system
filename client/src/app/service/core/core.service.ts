@@ -14,7 +14,7 @@ export class CoreService {
     this.location.back();
   };
 
-  emitMemberCreated(id: string) {
-    this.memberCreatedSubject.next(id);
-  }
+  handleHome = () => {
+    this.location.go('/');
+  };
 }

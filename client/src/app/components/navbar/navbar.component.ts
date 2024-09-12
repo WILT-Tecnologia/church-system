@@ -11,7 +11,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router } from '@angular/router';
 
-import { isPlatformBrowser } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { AuthService } from '../../service/auth/auth.service';
 import { LogoComponent } from '../navbar/logo/logo.component';
 
@@ -23,9 +23,10 @@ import { LogoComponent } from '../navbar/logo/logo.component';
   imports: [
     MatToolbarModule,
     MatButtonModule,
-    MatIconModule,
-    LogoComponent,
     MatMenuModule,
+    MatIconModule,
+    CommonModule,
+    LogoComponent,
   ],
 })
 export class NavbarComponent implements OnInit {
