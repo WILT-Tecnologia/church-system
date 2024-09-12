@@ -1,6 +1,9 @@
 @use 'styles/theme.scss'as theme;
-@use "@angular/material"as mat;
+@use '@angular/material'as mat;
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 $church-system-primary: mat.define-palette(theme.$primaryColors);
 $church-system-accent: mat.define-palette(mat.$amber-palette, A200, A100, A400);
@@ -18,13 +21,14 @@ $church-system-theme: mat.define-light-theme((color: (primary: $church-system-pr
 
 @include mat.core();
 
-
+/* Estilos gerais */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   outline: none;
   font-family: 'Poppins', sans-serif;
+  scroll-behavior: smooth;
 }
 
 ::selection {
@@ -46,16 +50,9 @@ a:hover {
   text-decoration: none;
 }
 
-.container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  width: 100%;
-  padding: 2rem;
-}
+/* Estilos gerais */
 
+/* Estilos específicos */
 .row {
   display: flex;
   flex-direction: row;
@@ -78,17 +75,18 @@ a:hover {
   margin: 0 1.4rem;
 }
 
-.title {
-  margin: 1rem 0;
-}
-
-.mb-1 {
-  margin-bottom: 1rem;
-}
 
 .text-default {
   color: theme.$textColor;
   font-size: 1rem;
+}
+
+.active {
+  color: theme.$greenMain;
+}
+
+.inactive {
+  color: theme.$redMain;
 }
 
 .bold {
@@ -107,6 +105,9 @@ a:hover {
   flex: 1 1 auto;
 }
 
+/* Estilos específicos */
+
+/* Estilos de SnackBar */
 .custom-snackbar {
   .mat-mdc-snack-bar-container .mdc-snackbar__surface {
     border-radius: 0.8rem !important;
@@ -129,7 +130,7 @@ a:hover {
 
 .snackbar-error {
   .mdc-snackbar__surface {
-    background-color: theme.$redMain !important;
+    background-color: theme.$redLight !important;
   }
 
   .mdc-snackbar__label {
@@ -137,14 +138,23 @@ a:hover {
   }
 }
 
+/* Estilos de SnackBar */
+
+/***********************************************************/
+/***********************************************************/
+/***************** Estilos de Formulário *******************/
+/***********************************************************/
+/***********************************************************/
 .wrapper {
   display: flex;
   flex-direction: column;
   padding: 2rem;
-  width: 100%;
+  max-height: 100vh;
+  overflow-y: auto;
+  box-sizing: border-box;
 
   @media screen and (max-width: 768px) {
-    padding: 0.5rem;
+    padding: 1rem;
   }
 }
 
@@ -158,11 +168,16 @@ a:hover {
 .inputs {
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
   gap: 1rem;
 
   @media screen and (max-width: 768px) {
     flex-direction: column;
   }
+}
+
+.add-option {
+  color: theme.$greenMain !important;
 }
 
 mat-form-field {
@@ -180,8 +195,46 @@ mat-form-field {
 .cta {
   display: flex;
   justify-content: space-between;
+  margin-top: 1rem;
+  gap: 1rem;
 
   @media screen and (max-width: 768px) {
+    width: 100%;
     flex-direction: column-reverse;
   }
+}
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.mat-dialog-container {
+  padding: 0;
+  max-width: 100%;
+  width: 100%;
+}
+
+.checkbox-group {
+  display: flex;
+  justify-content: space-between;
+}
+
+.checkbox-column {
+  display: flex;
+  flex-direction: column;
+}
+
+mat-label {
+  @media screen and (max-width: 768px) {
+    font-size: 0.5rem;
+  }
+}
+
+mat-error {
+  font-size: 0.5rem;
 }

@@ -4,6 +4,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ChurchsComponent } from './churchs/churchs.component';
 import { EventTypesComponent } from './eventTypes/eventTypes.component';
+import { MemberOriginComponent } from './member-origin/member-origin.component';
 import { OccupationsComponent } from './occupations/occupations.component';
 import { PersonsComponent } from './persons/persons.component';
 import { ProfilesComponent } from './profiles/profiles.component';
@@ -24,6 +25,7 @@ import { UsersComponent } from './users/users.component';
     EventTypesComponent,
     OccupationsComponent,
     ProfilesComponent,
+    MemberOriginComponent,
   ],
 })
 export class AdministrativeComponent implements OnInit {

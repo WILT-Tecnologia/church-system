@@ -1,4 +1,4 @@
-<mat-toolbar>
+<mat-toolbar class="navbar">
   <div class="container-section-one-nav">
     <app-logo></app-logo>
     @if(!isMobile) {
@@ -7,21 +7,26 @@
     }
   </div>
   <span class="spacer"></span>
-  @if (!userName) {
-  <div class="row">
-    <button mat-button color="primary" (click)="navigateToChurch()">Igreja</button>
-    <button mat-button class="spacing-components" color="primary"
-      (click)="navigateToAdministrative()">Administrativo</button>
-    <button class="user-button" mat-button [matMenuTriggerFor]="userMenu">
-      <span class="button-text text-default">{{ userName || 'Peixola' }}</span>
-      <span class="button-icon">
-        <mat-icon>arrow_drop_down</mat-icon>
-      </span>
-    </button>
-  </div>
-  } @else {
-  <button mat-raised-button color="primary" (click)="navigateToLogin()">Login</button>
-  }
+  <ng-container *ngIf="userName || 'Tiago Persch' ">
+    <div class="row p-4">
+      <button mat-button color="primary" (click)="navigateToChurch()">Igreja</button>
+      <button mat-button class="spacing-components" color="primary"
+        (click)="navigateToAdministrative()">Administrativo</button>
+      <button class="user-button" mat-button [matMenuTriggerFor]="userMenu">
+        <span class="button-text text-default">{{ userName || 'Usuário' }}</span>
+        <span class="button-icon">
+          <mat-icon>arrow_drop_down</mat-icon>
+        </span>
+      </button>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!userName">
+    <div class="p-4">
+      <button mat-raised-button color="primary" (click)="navigateToLogin()">Login</button>
+    </div>
+  </ng-container>
+
 </mat-toolbar>
 
 <mat-menu #userMenu="matMenu">

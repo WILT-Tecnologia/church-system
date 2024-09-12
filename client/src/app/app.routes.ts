@@ -4,25 +4,25 @@ import { ChurchComponent as Church } from './pages/admin/administrative/churchs/
 import { ChurchsComponent } from './pages/admin/administrative/churchs/churchs.component';
 import { EventTypeComponent } from './pages/admin/administrative/eventTypes/eventType/eventType.component';
 import { EventTypesComponent } from './pages/admin/administrative/eventTypes/eventTypes.component';
+import { MemberOriginFormComponent } from './pages/admin/administrative/member-origin/member-origin-form/member-origin-form.component';
+import { MemberOriginComponent } from './pages/admin/administrative/member-origin/member-origin.component';
 import { OccupationComponent } from './pages/admin/administrative/occupations/occupation/occupation.component';
 import { OccupationsComponent } from './pages/admin/administrative/occupations/occupations.component';
 import { PersonComponent } from './pages/admin/administrative/persons/person/person.component';
 import { ProfileComponent } from './pages/admin/administrative/profiles/profile/profile.component';
 import { ProfilesComponent } from './pages/admin/administrative/profiles/profiles.component';
 import { ChurchComponent } from './pages/admin/church/church.component';
+import { MemberComponent } from './pages/admin/church/members/member/member.component';
+import { MembersComponent } from './pages/admin/church/members/members.component';
 import { LoginComponent } from './pages/login/login.component';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/administrative', pathMatch: 'full' },
+  { path: '', redirectTo: '/church', pathMatch: 'full' },
   { path: 'login', component: LoginComponent /*canActivate: [AuthGuard]*/ },
   {
     path: 'administrative',
     component: AdministrativeComponent /*canActivate: [AuthGuard]*/,
-  },
-  {
-    path: 'church',
-    component: ChurchComponent /*canActivate: [AuthGuard]*/,
   },
   {
     path: 'administrative/persons',
@@ -101,5 +101,29 @@ export const routes: Routes = [
     path: 'administrative/profiles/profile/delete/:id',
     component: ProfileComponent,
   },
+  {
+    path: 'administrative/member-origin',
+    component: MemberOriginComponent,
+  },
+  {
+    path: 'administrative/member-origin/member-origin-form/new',
+    component: MemberOriginFormComponent,
+  },
+  {
+    path: 'administrative/member-origin/member-origin-form/edit/:id',
+    component: MemberOriginFormComponent,
+  },
+  {
+    path: 'administrative/member-origin/member-origin-form/delete/:id',
+    component: MemberOriginFormComponent,
+  },
+  {
+    path: 'church',
+    component: ChurchComponent /*canActivate: [AuthGuard]*/,
+  },
+  { path: 'church/members', component: MembersComponent },
+  { path: 'church/members/member/new', component: MemberComponent },
+  { path: 'church/members/member/edit/:id', component: MemberComponent },
+  { path: 'church/members/member/delete/:id', component: MemberComponent },
   { path: '**', component: PageNotFoundComponent },
 ];

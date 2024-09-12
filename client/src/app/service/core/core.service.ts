@@ -1,13 +1,20 @@
+import { Location } from '@angular/common';
 import { Injectable } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CoreService {
-  constructor(private router: Router, private route: ActivatedRoute) {}
+  constructor(private location: Location) {}
+  private memberCreatedSubject = new Subject<string>();
+  memberCreated$ = this.memberCreatedSubject.asObservable();
 
   handleBack = () => {
-    this.router.navigate(['../'], { relativeTo: this.route });
+    this.location.back();
+  };
+
+  handleHome = () => {
+    this.location.go('/');
   };
 }

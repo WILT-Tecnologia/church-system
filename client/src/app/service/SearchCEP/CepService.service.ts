@@ -1,5 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { LoadingService } from 'app/components/loading/loading.service';
 import { catchError, Observable, of, throwError } from 'rxjs';
 import { SnackbarService } from '../snackbar/snackbar.service';
 
@@ -13,7 +14,8 @@ export class CepService {
 
   constructor(
     private http: HttpClient,
-    private snackbarService: SnackbarService
+    private snackbarService: SnackbarService,
+    private loading: LoadingService
   ) {}
 
   searchCep(cep: string): Observable<any> {

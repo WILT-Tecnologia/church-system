@@ -1,0 +1,109 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>
+      Cadastrar igreja
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="churchForm" (ngSubmit)="handleSubmit()" class="form-field-group wrapper">
+      <div class="inputs">
+        <mat-form-field appearance="fill">
+          <mat-label>Responsável</mat-label>
+          <mat-select formControlName="responsible_id" (openedChange)="onSelectOpenedChange($event)">
+            <mat-select-trigger>
+              {{ getResponsableName() }}
+            </mat-select-trigger>
+
+            <mat-form-field class="search" appearance="fill" (click)="$event.stopPropagation()">
+              <mat-label>Pesquisar</mat-label>
+              <input matInput placeholder="Digite para buscar" [formControl]="searchControl"
+                (click)="$event.stopPropagation()" />
+            </mat-form-field>
+
+            <mat-option *ngFor="let responsable of filteredResponsables$ | async" [value]="responsable.id">
+              {{ responsable.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Nome</mat-label>
+          <input matInput formControlName="name" maxlength="255" required>
+          <mat-error *ngIf="churchForm.get('name')?.hasError('required')">Campo obrigatório.</mat-error>
+          <mat-error *ngIf="churchForm.get('name')?.hasError('maxlength')">Máximo de 255 caracteres.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>E-mail</mat-label>
+          <input matInput formControlName="email" maxlength="255" required>
+          <mat-error *ngIf="churchForm.get('email')?.hasError('required')">Campo obrigatório.</mat-error>
+          <mat-error *ngIf="churchForm.get('email')?.hasError('maxlength')">Máximo de 255 caracteres.</mat-error>
+          <mat-error *ngIf="churchForm.get('email')?.hasError('email')">E-mail inválido.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>CNPJ</mat-label>
+          <input matInput formControlName="cnpj" mask="00.000.000/0000-00" required>
+          <mat-error *ngIf="churchForm.get('cnpj')?.hasError('required')">Campo obrigatório.</mat-error>
+        </mat-form-field>
+      </div>
+      <mat-divider></mat-divider>
+      <mat-card-subtitle>Endereço</mat-card-subtitle>
+      <div class="inputs">
+        <mat-form-field class="reduction" appearance="fill">
+          <mat-label>CEP</mat-label>
+          <input matInput formControlName="cep" mask="00000-000" required>
+          <mat-error *ngIf="churchForm.get('cep')?.hasError('required')">Campo obrigatório.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Rua</mat-label>
+          <input matInput formControlName="street" maxlength="255" required>
+          <mat-error *ngIf="churchForm.get('street')?.hasError('required')">Campo obrigatório.</mat-error>
+          <mat-error *ngIf="churchForm.get('street')?.hasError('maxlength')">Máximo de 255 caracteres.</mat-error>
+        </mat-form-field>
+        <mat-form-field class="reduction" appearance="fill">
+          <mat-label>Número</mat-label>
+          <input matInput formControlName="number" maxlength="255" required>
+          <mat-error *ngIf="churchForm.get('number')?.hasError('required')">Campo obrigatório.</mat-error>
+          <mat-error *ngIf="churchForm.get('number')?.hasError('maxlength')">Máximo de 255 caracteres.</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="inputs">
+        <mat-form-field appearance="fill">
+          <mat-label>Complemento</mat-label>
+          <input matInput formControlName="complement" maxlength="255">
+          <mat-error *ngIf="churchForm.get('complement')?.hasError('maxlength')">Máximo de 255 caracteres.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Bairro</mat-label>
+          <input matInput formControlName="district" maxlength="255" required>
+          <mat-error *ngIf="churchForm.get('district')?.hasError('required')">Campo obrigatório.</mat-error>
+          <mat-error *ngIf="churchForm.get('district')?.hasError('maxlength')">Máximo de 255 caracteres.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Cidade</mat-label>
+          <input matInput formControlName="city" maxlength="255" required>
+          <mat-error *ngIf="churchForm.get('city')?.hasError('required')">Campo obrigatório.</mat-error>
+          <mat-error *ngIf="churchForm.get('city')?.hasError('maxlength')">Máximo de 255 caracteres.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Estado</mat-label>
+          <input matInput formControlName="state" maxlength="255" required>
+          <mat-error *ngIf="churchForm.get('state')?.hasError('required')">Campo obrigatório.</mat-error>
+          <mat-error *ngIf="churchForm.get('state')?.hasError('maxlength')">Máximo de 255 caracteres.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Pais</mat-label>
+          <input matInput formControlName="country" maxlength="255" required>
+          <mat-error *ngIf="churchForm.get('country')?.hasError('required')">Campo obrigatório.</mat-error>
+          <mat-error *ngIf="churchForm.get('country')?.hasError('maxlength')">Máximo de 255 caracteres.</mat-error>
+        </mat-form-field>
+      </div>
+      @if (churchForm.get('updated_at')?.value) {
+      <span class="info">Atualizado em {{ churchForm.get('updated_at')?.value }}</span>
+      }
+      <mat-divider></mat-divider>
+      <mat-card-footer class="cta">
+        <button type="button" mat-stroked-button color="primary" (click)="handleBack()">Cancelar</button>
+        <button type="submit" mat-raised-button color="primary">Cadastrar</button>
+      </mat-card-footer>
+    </form>
+  </mat-card-content>
+</mat-card>

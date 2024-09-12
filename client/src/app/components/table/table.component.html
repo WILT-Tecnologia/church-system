@@ -1,5 +1,4 @@
 <mat-card>
-  <mat-divider></mat-divider>
   <!-- Botão de adicionar (opcional) -->
   <div *ngIf="ctaLabel && ctaFn" class="add-button">
     <button mat-raised-button color="primary" (click)="ctaFn()">
@@ -17,47 +16,42 @@
   </div>
 
   <!-- Tabela responsiva -->
-  <mat-table [dataSource]="dataSourceMat" mat-table matSort class="mat-elevation-z1 mat-table-responsive">
-    <!-- Definição das colunas dinamicamente -->
-    <ng-container *ngFor="let column of displayedColumns">
-      <ng-container [matColumnDef]="column">
-        <mat-header-cell *matHeaderCellDef mat-sort-header [matTooltipPosition]="'below'"
-          [matTooltip]="isTooltip ? (columnDefinitions[column] || column) : ''">
-          {{ columnDefinitions[column] || column }}
-        </mat-header-cell>
-        <mat-cell *matCellDef="let element" [matTooltipPosition]="'below'" [matTooltip]="(isTooltip || element[column] === 'responsible')
-               ? (element[column]?.name || element[column])
-               : ''">
-          <ng-container [ngSwitch]="column">
-            <mat-checkbox *ngSwitchCase="'change_password'" [checked]="element[column]" class="checkbox-readonly"
-              color="primary"></mat-checkbox>
-            <mat-chip-row [ngClass]="element[column] ? 'active' : 'inactive'" *ngSwitchCase="'status'">
-              {{ element[column] ? 'Ativo' : 'Inativo' }}
-            </mat-chip-row>
-            <span *ngSwitchCase="'created_at'">{{ element[column] | date:'dd/MM/yyyy' }} às
-              {{ element[column] | date:'HH:mm:ss' }}</span>
-            <span *ngSwitchCase="'updated_at'">{{ element[column] | date:'dd/MM/yyyy' }} às
-              {{ element[column] | date:'HH:mm:ss' }}</span>
-            <ng-container *ngSwitchCase="'actions'">
-              <button mat-icon-button color="primary" [matTooltipPosition]="'below'" matTooltip="Editar"
-                (click)="editFn(element)">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button mat-icon-button color="warn" [matTooltipPosition]="'below'" matTooltip="Excluir"
-                (click)="deleteFn(element)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </ng-container>
-            <span *ngSwitchDefault>
-              {{ column === 'responsible' ? element[column]?.name : element[column] || '' }}
-            </span>
-          </ng-container>
-        </mat-cell>
-      </ng-container>
-    </ng-container>
+  <div class="mat-table-responsive">
+    <table mat-table [dataSource]="dataSourceMat" matSort class="mat-elevation-z1">
 
-    <!-- Definição das linhas -->
-    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-  </mat-table>
+      <!-- Definição das colunas dinamicamente -->
+      <ng-container *ngFor="let column of displayedColumns">
+        <ng-container [matColumnDef]="column">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnDefinitions[column] || column }}</th>
+          <td mat-cell *matCellDef="let element">
+            <ng-container [ngSwitch]="column">
+              <mat-checkbox *ngSwitchCase="'change_password'" [checked]="element[column]" class="checkbox-readonly"
+                color="primary"></mat-checkbox>
+              <mat-chip-row [ngClass]="element[column] ? 'active' : 'inactive'" *ngSwitchCase="'status'">
+                {{ element[column] ? 'Ativo' : 'Inativo' }}
+              </mat-chip-row>
+              <span *ngSwitchCase="'created_at'">{{ element[column] | date:'dd/MM/yyyy' }} às
+                {{ element[column] | date:'HH:mm:ss' }}</span>
+              <span *ngSwitchCase="'updated_at'">{{ element[column] | date:'dd/MM/yyyy' }} às
+                {{ element[column] | date:'HH:mm:ss' }}</span>
+              <ng-container *ngSwitchCase="'actions'">
+                <button mat-icon-button color="primary" matTooltip="Editar" (click)="editFn(element)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" matTooltip="Excluir" (click)="deleteFn(element)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </ng-container>
+              <span
+                *ngSwitchDefault>{{ column === 'responsible' ? element[column]?.name : element[column] || '' }}</span>
+            </ng-container>
+          </td>
+        </ng-container>
+      </ng-container>
+
+      <!-- Definição das linhas -->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
 </mat-card>

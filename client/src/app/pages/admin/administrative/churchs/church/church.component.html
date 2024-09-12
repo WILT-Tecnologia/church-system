@@ -10,22 +10,22 @@
         <mat-form-field appearance="fill">
           <mat-label>Responsável</mat-label>
           <mat-select formControlName="responsible_id" (openedChange)="onSelectOpenedChange($event)">
-            <mat-select-trigger (click)="fetchResponsables()">
+            <mat-select-trigger>
               {{ getResponsableName() }}
             </mat-select-trigger>
 
-            <!-- Campo de busca -->
-            <mat-option *ngIf="isSelectOpen">
-              <mat-icon>search</mat-icon>
+            <mat-form-field appearance="fill" (click)="$event.stopPropagation()">
               <mat-label>Pesquisar responsável...</mat-label>
-              <input matInput [formControl]="searchControl" (click)="$event.stopPropagation()">
-            </mat-option>
+              <input matInput placeholder="Digite aqui para buscar" [formControl]="searchControl"
+                (click)="$event.stopPropagation()">
+            </mat-form-field>
 
             <!-- Lista de opções filtradas -->
             <mat-option *ngFor="let responsable of filteredResponsables$ | async" [value]="responsable.id">
               {{ responsable.name }}
             </mat-option>
           </mat-select>
+          <mat-error *ngIf="churchForm.get('responsible_id')?.hasError('required')">Campo obrigatório.</mat-error>
         </mat-form-field>
         <mat-form-field appearance="fill">
           <mat-label>Nome</mat-label>
@@ -102,8 +102,8 @@
       }
       <mat-divider></mat-divider>
       <div class="cta">
-        <button type="button" mat-stroked-button color="primary" (click)="handleBack()">Cancelar</button>
-        <button type="submit" mat-raised-button color="primary">Cadastrar</button>
+        <button type="button" mat-stroked-button color="warn" (click)="handleBack()">Cancelar</button>
+        <button type="submit" mat-raised-button color="primary">{{isEditMode ? 'Atualizar' : 'Cadastrar'}}</button>
       </div>
     </form>
   </mat-card-content>

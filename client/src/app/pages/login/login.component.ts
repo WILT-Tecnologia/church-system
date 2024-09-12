@@ -64,7 +64,6 @@ export class LoginComponent implements OnInit {
         login: this.form.get('login')?.value as string,
         password: this.form.get('password')?.value as string,
       };
-
       return this.loginService.login(credentials);
     }
   }

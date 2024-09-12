@@ -11,9 +11,9 @@ import { OccupationsService } from './occupations.service';
 
 @Component({
   selector: 'app-occupations',
-  standalone: true,
   templateUrl: './occupations.component.html',
   styleUrls: ['./occupations.component.scss'],
+  standalone: true,
   imports: [
     MatCardModule,
     MatButtonModule,

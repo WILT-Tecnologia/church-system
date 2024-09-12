@@ -18,12 +18,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import dayjs from 'dayjs';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { map, Observable, startWith } from 'rxjs';
 import { LoadingService } from '../../../../../components/loading/loading.service';
 import { Responsables } from '../../../../../model/Church';
+import { CoreService } from '../../../../../service/core/core.service';
 import { CepService } from '../../../../../service/SearchCEP/CepService.service';
 import { SnackbarService } from '../../../../../service/snackbar/snackbar.service';
 import { ChurchsService } from '../churchs.service';
@@ -45,6 +46,7 @@ import { ChurchsService } from '../churchs.service';
     NgxMaskDirective,
     ReactiveFormsModule,
     CommonModule,
+    ChurchComponent,
   ],
   providers: [provideNgxMask()],
 })
@@ -52,14 +54,14 @@ export class ChurchComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private router: Router,
+    private core: CoreService,
     private churchsService: ChurchsService,
     private snackbarService: SnackbarService,
     private cepService: CepService,
     private loadingService: LoadingService
   ) {
     this.churchForm = this.fb.group({
-      responsible_id: [''],
+      responsible_id: ['', [Validators.required]],
       name: ['', [Validators.required, Validators.maxLength(255)]],
       email: ['', [Validators.required, Validators.email]],
       cnpj: ['', [Validators.required]],
@@ -84,13 +86,12 @@ export class ChurchComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.fetchResponsables();
     this.churchId = this.route.snapshot.paramMap.get('id');
     this.isEditMode = !!this.churchId;
     if (this.churchId) {
       this.handleEditMode();
     }
-
-    this.fetchResponsables();
 
     if (!this.isEditMode) {
       this.churchForm.get('cep')?.valueChanges.subscribe((cep: string) => {
@@ -124,12 +125,12 @@ export class ChurchComponent implements OnInit {
 
   get pageTitle(): string {
     return this.isEditMode
-      ? `Editar Igreja: ${this.churchForm.get('name')?.value || ''}`
+      ? `Editando a ogreja: ${this.churchForm.get('name')?.value || ''}`
       : `Cadastrar Igreja: ${this.churchForm.get('name')?.value || ''}`;
   }
 
   handleBack = () => {
-    this.router.navigate(['/']);
+    this.core.handleBack();
   };
 
   fetchResponsables() {
@@ -138,9 +139,13 @@ export class ChurchComponent implements OnInit {
         this.responsables = responsables.sort((a, b) =>
           a.name.localeCompare(b.name)
         );
+        this.filteredResponsables$ = this.searchControl.valueChanges.pipe(
+          startWith(''),
+          map((searchTerm) => this.filterResponsables(searchTerm ?? ''))
+        );
       },
       error: (error) => {
-        console.error('Erro ao buscar os responsáveis', error);
+        this.snackbarService.openError(error.message);
       },
     });
   }
@@ -157,11 +162,15 @@ export class ChurchComponent implements OnInit {
       const responsable = this.responsables.find((r) => r.id === responsableId);
       return responsable?.name ?? '';
     }
-    return 'Selecione o responsável';
+    return responsableId
+      ? 'Selecione o responsável'
+      : 'Selecione o responsável';
   }
 
   onSelectOpenedChange(isOpen: boolean) {
-    this.isSelectOpen = isOpen;
+    if (isOpen) {
+      this.fetchResponsables();
+    }
   }
 
   handleEditMode = () => {
