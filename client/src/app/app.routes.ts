@@ -18,15 +18,17 @@ import { LoginComponent } from './pages/login/login.component';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/church', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent /*canActivate: [AuthGuard]*/ },
+  {
+    path: 'login',
+    component: LoginComponent,
+  },
   {
     path: 'administrative',
-    component: AdministrativeComponent /*canActivate: [AuthGuard]*/,
+    component: AdministrativeComponent,
   },
   {
     path: 'administrative/persons',
-    component: PersonComponent /*canActivate: [AuthGuard]*/,
+    component: PersonComponent,
   },
   {
     path: 'administrative/persons/person/new',
@@ -42,7 +44,7 @@ export const routes: Routes = [
   },
   {
     path: 'administrative/churchs',
-    component: ChurchsComponent /*canActivate: [AuthGuard]*/,
+    component: ChurchsComponent,
   },
   {
     path: 'administrative/churchs/church/new',
@@ -119,11 +121,12 @@ export const routes: Routes = [
   },
   {
     path: 'church',
-    component: ChurchComponent /*canActivate: [AuthGuard]*/,
+    component: ChurchComponent,
   },
   { path: 'church/members', component: MembersComponent },
   { path: 'church/members/member/new', component: MemberComponent },
   { path: 'church/members/member/edit/:id', component: MemberComponent },
   { path: 'church/members/member/delete/:id', component: MemberComponent },
+  { path: '', redirectTo: '/administrative', pathMatch: 'full' },
   { path: '**', component: PageNotFoundComponent },
 ];

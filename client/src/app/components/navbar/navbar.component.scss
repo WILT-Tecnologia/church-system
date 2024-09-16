@@ -15,10 +15,22 @@
   display: flex
 }
 
+.row-padding {
+  padding: 0 1rem;
+
+  @media screen and (max-width: 768px) {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+  }
+}
+
 .user-button {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   vertical-align: middle;
   margin-left: auto;

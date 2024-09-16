@@ -37,12 +37,13 @@ export class NavbarComponent implements OnInit {
   ) {}
   userMenu: any;
   userName: string | null = null;
+  isLoggedIn: boolean = true;
   isMobile: boolean = false;
   windowLength = 768;
 
   ngOnInit(): void {
     const user = this.authService.getUser();
-    this.userName = user ? user.name : null;
+    this.userName = user ? user.name : this.userName;
 
     if (isPlatformBrowser(this.platformId)) {
       this.isMobile = window.innerWidth <= this.windowLength;

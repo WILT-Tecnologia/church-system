@@ -63,7 +63,6 @@ export class TableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChildren('headerCells') headerCells!: QueryList<ElementRef>;
 
-  //dataSourceMat!: MatTableDataSource<T>;
   dataSourceMat = new MatTableDataSource<T>();
 
   pageSizeOptions: number[] = [25, 50, 100, 200];

@@ -15,6 +15,6 @@ export class CoreService {
   };
 
   handleHome = () => {
-    this.location.go('/');
+    this.location.go('');
   };
 }

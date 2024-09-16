@@ -1,0 +1,28 @@
+<div class="ps-dialog-container-confirm" [ngClass]="data.customClassContainer" fxLayout="row">
+  <div [ngClass]="{badTheme: data.badTheme}" fxFlex fxLayoutAlign="start center">
+    <span class="ps-title-medium ps-confirm-title-mobile">{{ data.title }}</span>
+  </div>
+</div>
+<div [ngClass]="{badTheme: data.badTheme}" class="ps-dialog-content">
+  <div class="ps-dialog-info-confirm" fxLayout="row" fxLayoutAlign="center center">
+    <p>{{ data.message }}</p>
+  </div>
+  <div fxLayout="row" class="ps-container-dialog-confirm" fxLayoutAlign="end end" *ngIf="!data.reverseBtn">
+    <div fxFlex="60" class="ps-confirm-margin-mobile max-width-60" fxLayoutAlign="end end">
+      <button mat-button [mat-dialog-close]="false" class="btnCancel">{{ data.btnCancelText }}</button>
+    </div>
+    <div fxFlex="33" class="ps-confirm-margin-mobile max-width-33" fxLayoutAlign="end end">
+      <button mat-raised-button color="primary" class="btnOK" [mat-dialog-close]="true">{{ data.btnOkText }}</button>
+    </div>
+  </div>
+
+  <div fxLayout="row" class="ps-container-dialog-confirm" fxLayoutAlign="end end" *ngIf="data.reverseBtn">
+    <div fxFlex="60" class="ps-confirm-margin-mobile max-width-60" fxLayoutAlign="end end">
+      <button mat-raised-button color="primary" class="btnOK" [mat-dialog-close]="true">{{ data.btnOkText }}</button>
+    </div>
+    <div fxFlex="33" class="ps-confirm-margin-mobile max-width-33" fxLayoutAlign="end end">
+      <button mat-button [mat-dialog-close]="false" class="btnCancel">{{ data.btnCancelText }}</button>
+    </div>
+  </div>
+
+</div>

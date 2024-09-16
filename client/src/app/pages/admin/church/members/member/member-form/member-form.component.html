@@ -16,18 +16,15 @@
                     <mat-select-trigger>
                       {{ getPersonName() }}
                     </mat-select-trigger>
-
                     <ng-container *ngIf="filteredPerson$ | async as persons">
                       <mat-form-field appearance="fill" class="search-field">
                         <mat-label>Pesquisar</mat-label>
                         <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
                       </mat-form-field>
-
                       <mat-option *ngFor="let person of persons" [value]="person.id">
                         {{ person.name }}
                       </mat-option>
                     </ng-container>
-
                     <mat-option class="add-option" (click)="openAddPersonDialog()">
                       Adicionar nova pessoa
                     </mat-option>
@@ -37,25 +34,21 @@
                     {{ getErrorMessage('stepOne.person_id') }}
                   </mat-error>
                 </mat-form-field>
-
                 <mat-form-field appearance="fill">
                   <mat-label>Igreja</mat-label>
                   <mat-select formControlName="church_id" (openedChange)="onSelectOpenedChangeChurch($event)">
                     <mat-select-trigger>
                       {{ getChurchName() }}
                     </mat-select-trigger>
-
                     <ng-container *ngIf="filteredChurch$ | async as churches">
                       <mat-form-field appearance="fill" class="search-field">
                         <mat-label>Pesquisar</mat-label>
                         <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
                       </mat-form-field>
-
                       <mat-option *ngFor="let church of churches" [value]="church.id">
                         {{ church.name }}
                       </mat-option>
                     </ng-container>
-
                     <mat-option class="add-option" (click)="openAddChurchDialog()">
                       Adicionar nova igreja
                     </mat-option>
@@ -66,7 +59,6 @@
                   </mat-error>
                 </mat-form-field>
               </div>
-
               <div class="inputs">
                 <mat-form-field appearance="fill">
                   <mat-label>RG</mat-label>
@@ -75,7 +67,6 @@
                     {{ getErrorMessage('stepOne.rg') }}
                   </mat-error>
                 </mat-form-field>
-
                 <mat-form-field appearance="fill">
                   <mat-label>Orgão Expedidor</mat-label>
                   <input matInput formControlName="issuing_body" />
@@ -85,7 +76,6 @@
                   </mat-error>
                 </mat-form-field>
               </div>
-
               <div class="inputs">
                 <mat-form-field appearance="fill">
                   <mat-label>Estado Civil</mat-label>
@@ -99,7 +89,6 @@
                     {{ getErrorMessage('stepOne.civil_status') }}
                   </mat-error>
                 </mat-form-field>
-
                 <mat-form-field appearance="fill">
                   <mat-label>Cor/Raça</mat-label>
                   <mat-select formControlName="color_race">
@@ -113,7 +102,6 @@
                   </mat-error>
                 </mat-form-field>
               </div>
-
               <div class="inputs">
                 <mat-form-field appearance="fill">
                   <mat-label>Nacionalidade</mat-label>
@@ -123,7 +111,6 @@
                     {{ getErrorMessage('stepOne.nationality') }}
                   </mat-error>
                 </mat-form-field>
-
                 <mat-form-field appearance="fill">
                   <mat-label>Naturalidade</mat-label>
                   <input matInput formControlName="naturalness" />
@@ -133,7 +120,6 @@
                   </mat-error>
                 </mat-form-field>
               </div>
-
               <span *ngIf="isEditMode && memberForm.get('stepOne.updated_at')?.value" class="info">
                 Atualizado em {{ memberForm.get('stepOne.updated_at')?.value }}
               </span>
@@ -165,7 +151,6 @@
                     {{ getErrorMessage('stepTwo.formation') }}
                   </mat-error>
                 </mat-form-field>
-
                 <mat-form-field>
                   <mat-label>Curso de Formação</mat-label>
                   <input matInput formControlName="formation_course" />
@@ -200,10 +185,9 @@
                     <mat-checkbox color="primary" formControlName="def_multiple">Múltipla</mat-checkbox>
                   </div>
                 </div>
-
-                <mat-form-field appearance="fill" *ngIf="memberForm.get('def_other')?.value">
+                <mat-form-field appearance="fill" *ngIf="memberForm.get('stepTwo.def_other')?.value">
                   <mat-label>Descrição da Outra Deficiência</mat-label>
-                  <textarea matInput rows="7" formControlName="def_other_description" matTextareaAutosize></textarea>
+                  <textarea matInput rows="4" formControlName="def_other_description" matTextareaAutosize></textarea>
                   <mat-error
                     *ngIf="memberForm.get('stepTwo.def_other_description')?.invalid && memberForm.get('stepTwo.def_other_description')?.touched">
                     {{ getErrorMessage('stepTwo.def_other_description') }}
@@ -244,14 +228,12 @@
                     {{ getErrorMessage('stepThree.baptism_date') }}
                   </mat-error>
                 </mat-form-field>
-
                 <mat-form-field appearance="fill">
                   <mat-label>Local do batismo</mat-label>
                   <input matInput formControlName="baptism_locale" />
                   <mat-error
                     *ngIf="memberForm.get('stepThree.baptism_locale')?.invalid && memberForm.get('stepThree.baptism_locale')?.touched">{{ getErrorMessage('stepThree.baptism_locale') }}</mat-error>
                 </mat-form-field>
-
                 <mat-form-field appearance="fill">
                   <mat-label>Oficial do batismo</mat-label>
                   <input matInput formControlName="baptism_official" />
@@ -259,12 +241,10 @@
                     *ngIf="memberForm.get('stepThree.baptism_official')?.invalid && memberForm.get('stepThree.baptism_official')?.touched">{{ getErrorMessage('stepThree.baptism_official') }}</mat-error>
                 </mat-form-field>
               </div>
-
               <div class="chekcbox-spacing-holy">
                 <mat-checkbox color="primary" formControlName="baptism_holy_spirit"
                   (change)="onCheckboxChange('baptism_holy_spirit_date', 'baptism_holy_spirit')">Batizado pelo Espírito
                   Santo?</mat-checkbox>
-
                 <mat-form-field class="input-date" appearance="fill" *ngIf="memberForm.value.baptism_holy_spirit">
                   <mat-label>Data do batismo do Espírito Santo</mat-label>
                   <input matInput [matDatepicker]="baptismHolySpiritDate" formControlName="baptism_holy_spirit_date">
@@ -281,7 +261,6 @@
                   </mat-error>
                 </mat-form-field>
               </div>
-
               <div class="inputs">
                 <mat-form-field appearance="fill">
                   <mat-label>Data da recepção</mat-label>
@@ -298,7 +277,6 @@
                     {{ getErrorMessage('stepThree.receipt_date') }}
                   </mat-error>
                 </mat-form-field>
-
                 <mat-form-field>
                   <mat-label>Origem do membro</mat-label>
                   <mat-select formControlName="member_origin_id"
@@ -306,13 +284,11 @@
                     <mat-select-trigger>
                       {{getMemberOriginName()}}
                     </mat-select-trigger>
-
                     <mat-form-field appearance="fill" (click)="$event.stopPropagation()">
                       <mat-label>Pesquisar</mat-label>
                       <input matInput placeholder="Digite para buscar" [formControl]="searchControl"
                         (click)="$event.stopPropagation()" />
                     </mat-form-field>
-
                     <mat-option *ngFor="let memberOrigin of filterMemberOrigins | async" [value]="memberOrigin.id">
                       {{ memberOrigin.name }}
                     </mat-option>
@@ -346,9 +322,9 @@
   <mat-divider></mat-divider>
 
   <div class="cta">
-    <button mat-button mat-stroked-button color="warn" type="button"
+    <button mat-stroked-button color="warn" type="button"
       (click)="onBack()">{{currentStep === 0 ? 'Cancelar' : 'Voltar'}}</button>
-    <button mat-raised-button (click)="onNext()" color="primary" [disabled]="!canProceedToNextStep()"
+    <button mat-raised-button (click)="onNext()" type="submit" color="primary" [disabled]="!canProceedToNextStep()"
       *ngIf="currentStep < 2">
       Próximo
     </button>

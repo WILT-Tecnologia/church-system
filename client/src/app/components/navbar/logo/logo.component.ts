@@ -15,6 +15,6 @@ export class LogoComponent implements OnInit {
   ngOnInit() {}
 
   goTo() {
-    this.core.handleBack();
+    this.core.handleHome();
   }
 }
