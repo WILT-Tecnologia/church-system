@@ -13,6 +13,8 @@ class CivilStatus extends Model
 
     protected $table = 'aux_civil_status';
 
+    protected $primaryKey = 'id';
+
     protected $fillable = [
         'id',
         'codigo',

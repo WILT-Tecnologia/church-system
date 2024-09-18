@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('aux_member_situation', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('codigo')->primary();
+            $table->string('codigo')->unique();
             $table->string('name');
         });
     }
