@@ -211,6 +211,13 @@ mat-form-field {
   align-items: center;
   margin: 0 auto;
   padding: 2rem;
+  width: 50dvw;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    max-width: 100%;
+    padding: 1rem;
+  }
 }
 
 .mat-dialog-container {

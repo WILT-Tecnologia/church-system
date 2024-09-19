@@ -1,12 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { Router, RouterOutlet } from '@angular/router';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { TableComponent } from 'app/components/table/table.component';
 import { Ordination } from 'app/model/Ordination';
 import { SnackbarService } from 'app/service/snackbar/snackbar.service';
+import { OrdinationFormComponent } from './ordination-form/ordination-form.component';
 import { OrdinationsService } from './ordinations.service';
 
 @Component({
@@ -19,6 +21,7 @@ import { OrdinationsService } from './ordinations.service';
     TableComponent,
     NotFoundRegisterComponent,
     CommonModule,
+    RouterOutlet,
   ],
 })
 export class OrdinationsComponent implements OnInit {
@@ -45,7 +48,8 @@ export class OrdinationsComponent implements OnInit {
     private router: Router,
     private snackbarService: SnackbarService,
     private loading: LoadingService,
-    private ordinationService: OrdinationsService
+    private ordinationService: OrdinationsService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit() {
@@ -61,11 +65,31 @@ export class OrdinationsComponent implements OnInit {
   };
 
   addNewOrdination = (): void => {
-    this.router.navigate(['church/ordinations/ordination/new']);
+    this.loading.show();
+    this.dialog.open(OrdinationFormComponent, {
+      maxWidth: '100%',
+      height: 'auto',
+      maxHeight: '50dvh',
+      role: 'dialog',
+      panelClass: 'dialog',
+      disableClose: true,
+    });
+
+    this.loading.hide();
   };
 
-  editOrdination = (ordination: Ordination): void => {
-    this.router.navigate(['church/ordinations/ordination/edit', ordination.id]);
+  editOrdination = (): void => {
+    this.loading.show();
+    this.dialog.open(OrdinationFormComponent, {
+      maxWidth: '100%',
+      height: 'auto',
+      maxHeight: '50dvh',
+      role: 'dialog',
+      panelClass: 'dialog',
+      disableClose: true,
+    });
+
+    this.loading.hide();
   };
 
   deleteOrdination = (ordination: Ordination): void => {

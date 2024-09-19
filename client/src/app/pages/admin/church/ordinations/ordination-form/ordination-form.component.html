@@ -1,0 +1,93 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>{{ isEditMode ? 'Editar Ordenação' : 'Nova Ordenação' }}</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form [formGroup]="ordinationForm" (ngSubmit)="onSubmit()" class="form-field-group wrapper">
+      <app-column>
+        <mat-form-field appearance="fill">
+          <mat-label>Membro</mat-label>
+          <mat-select formControlName="member_id" (openedChange)="onSelectOpenedChangeMember($event)">
+            <mat-select-trigger>
+              {{ getMemberName() }}
+            </mat-select-trigger>
+            <ng-container *ngIf="filterMembers | async as members">
+              <mat-form-field appearance="fill" class="search-field">
+                <mat-label>Pesquisar</mat-label>
+                <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
+              </mat-form-field>
+              <mat-option *ngFor="let member of members" [value]="member.id">
+                {{ member.person_id.name }}
+              </mat-option>
+            </ng-container>
+            <mat-option class="add-option" (click)="openAddMemberForm()">
+              Adicionar novo membro
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="ordinationForm.get('member_id')?.invalid && ordinationForm.get('member_id')?.touched">
+            {{ getErrorMessage('member_id') }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Ocupação</mat-label>
+          <mat-select formControlName="occupation_id" (openedChange)="onSelectOpenedChangeOccupation($event)">
+            <mat-select-trigger>
+              {{ getOccupationName() }}
+            </mat-select-trigger>
+            <ng-container *ngIf="filterOccupations | async as occupations">
+              <mat-form-field appearance="fill" class="search-field">
+                <mat-label>Pesquisar</mat-label>
+                <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
+              </mat-form-field>
+              <mat-option *ngFor="let occupation of occupations" [value]="occupation.id">
+                {{ occupation.name }}
+              </mat-option>
+            </ng-container>
+            <mat-option class="add-option" (click)="openAddOccupationForm()">
+              Adicionar nova ocupação
+            </mat-option>
+          </mat-select>
+          <mat-error
+            *ngIf="ordinationForm.get('occupation_id')?.invalid && ordinationForm.get('occupation_id')?.touched">
+            {{ getErrorMessage('occupation_id') }}
+          </mat-error>
+        </mat-form-field>
+      </app-column>
+
+      <app-column>
+        <mat-form-field appearance="fill">
+          <mat-label>Status</mat-label>
+          <input matInput formControlName="status" placeholder="Status" />
+          <mat-error *ngIf="ordinationForm.get('status')?.invalid && ordinationForm.get('status')?.touched">
+            {{ getErrorMessage('status') }}
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Data Inicial</mat-label>
+          <input matInput [matDatepicker]="initial_date" formControlName="initial_date" />
+          <mat-datepicker-toggle matSuffix [for]="initial_date"></mat-datepicker-toggle>
+          <mat-datepicker #initial_date></mat-datepicker>
+          <mat-error *ngIf="ordinationForm.get('initial_date')?.invalid && ordinationForm.get('initial_date')?.touched">
+            {{ getErrorMessage('initial_date') }}
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Data Final</mat-label>
+          <input matInput [matDatepicker]="end_date" formControlName="end_date" />
+          <mat-datepicker-toggle matSuffix [for]="end_date"></mat-datepicker-toggle>
+          <mat-datepicker #end_date></mat-datepicker>
+          <mat-error *ngIf="ordinationForm.get('end_date')?.invalid && ordinationForm.get('end_date')?.touched">
+            {{ getErrorMessage('end_date') }}
+          </mat-error>
+        </mat-form-field>
+      </app-column>
+      <mat-divider></mat-divider>
+      <mat-card-footer class="cta">
+        <button type="button" mat-stroked-button color="primary" (click)="onCancel()">Cancelar</button>
+        <button type="submit" mat-raised-button color="primary">Cadastrar</button>
+      </mat-card-footer>
+    </form>
+  </mat-card-content>
+</mat-card>

@@ -14,6 +14,8 @@ import { ProfilesComponent } from './pages/admin/administrative/profiles/profile
 import { ChurchComponent } from './pages/admin/church/church.component';
 import { MemberComponent } from './pages/admin/church/members/member/member.component';
 import { MembersComponent } from './pages/admin/church/members/members.component';
+import { OrdinationFormComponent } from './pages/admin/church/ordinations/ordination-form/ordination-form.component';
+import { OrdinationsComponent } from './pages/admin/church/ordinations/ordinations.component';
 import { LoginComponent } from './pages/login/login.component';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
 
@@ -122,6 +124,16 @@ export const routes: Routes = [
   {
     path: 'church',
     component: ChurchComponent,
+    children: [
+      {
+        path: 'ordinations',
+        component: OrdinationsComponent,
+        children: [
+          { path: 'ordination/new', component: OrdinationFormComponent },
+          { path: 'ordination/edit/:id', component: OrdinationFormComponent },
+        ],
+      },
+    ],
   },
   { path: 'church/members', component: MembersComponent },
   { path: 'church/members/member/new', component: MemberComponent },
