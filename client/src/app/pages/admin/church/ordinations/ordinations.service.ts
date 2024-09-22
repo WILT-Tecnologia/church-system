@@ -37,12 +37,12 @@ export class OrdinationsService {
   }
 
   updateOrdination(
-    ordination: Ordination,
-    ordinationData: Partial<Ordination>
+    ordinationId: string,
+    ordinationData: Partial<Ordination>,
   ): Observable<Ordination> {
     return this.http.put<Ordination>(
-      `${this.api}/${ordination.id}`,
-      ordinationData
+      `${this.api}/${ordinationId}`,
+      ordinationData,
     );
   }
 

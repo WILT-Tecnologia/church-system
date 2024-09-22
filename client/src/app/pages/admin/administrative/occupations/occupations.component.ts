@@ -2,11 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { NotFoundRegisterComponent } from '../../../../components/not-found-register/not-found-register.component';
 import { TableComponent } from '../../../../components/table/table.component';
 import { Occupation } from '../../../../model/Occupation';
 import { SnackbarService } from '../../../../service/snackbar/snackbar.service';
+import { OccupationComponent } from './occupation/occupation.component';
 import { OccupationsService } from './occupations.service';
 
 @Component({
@@ -33,9 +34,9 @@ export class OccupationsComponent implements OnInit {
   };
 
   constructor(
-    private router: Router,
     private occupationsService: OccupationsService,
-    private snackbarService: SnackbarService
+    private snackbarService: SnackbarService,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit() {
@@ -49,14 +50,38 @@ export class OccupationsComponent implements OnInit {
   };
 
   addNewOccupation = (): void => {
-    this.router.navigate(['administrative/occupations/occupation/new']);
+    const dialogRef = this.dialog.open(OccupationComponent, {
+      maxWidth: '100%',
+      height: 'auto',
+      maxHeight: '100dvh',
+      role: 'dialog',
+      panelClass: 'dialog',
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe((newOccupation) => {
+      if (newOccupation) {
+        this.loadOccupations();
+      }
+    });
   };
 
   editOccupation = (occupation: Occupation): void => {
-    this.router.navigate([
-      'administrative/occupations/occupation/edit',
-      occupation.id,
-    ]);
+    const dialogRef = this.dialog.open(OccupationComponent, {
+      maxWidth: '100%',
+      height: 'auto',
+      maxHeight: '100dvh',
+      role: 'dialog',
+      panelClass: 'dialog',
+      disableClose: true,
+      data: { occupation },
+    });
+
+    dialogRef.afterClosed().subscribe((updatedOccupation) => {
+      if (updatedOccupation) {
+        this.loadOccupations();
+      }
+    });
   };
 
   deleteOccupation = (occupation: Occupation): void => {

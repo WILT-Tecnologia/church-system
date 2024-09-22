@@ -78,7 +78,7 @@ export class OrdinationsComponent implements OnInit {
     this.loading.hide();
   };
 
-  editOrdination = (): void => {
+  editOrdination = (ordination: Ordination): void => {
     this.loading.show();
     this.dialog.open(OrdinationFormComponent, {
       maxWidth: '100%',
@@ -87,6 +87,7 @@ export class OrdinationsComponent implements OnInit {
       role: 'dialog',
       panelClass: 'dialog',
       disableClose: true,
+      data: ordination.id
     });
 
     this.loading.hide();

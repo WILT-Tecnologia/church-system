@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -17,11 +17,17 @@ import {
   provideNativeDateAdapter,
 } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatDialog } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ActivatedRoute } from '@angular/router';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { Members } from 'app/model/Members';
@@ -56,6 +62,8 @@ import { OrdinationsService } from '../ordinations.service';
     MatOptionModule,
     MatButtonModule,
     MatDividerModule,
+    MatIconModule,
+    MatSlideToggleModule,
     ReactiveFormsModule,
     CommonModule,
     ColumnComponent,
@@ -63,8 +71,8 @@ import { OrdinationsService } from '../ordinations.service';
 })
 export class OrdinationFormComponent implements OnInit {
   ordinationForm: FormGroup;
-  isEditMode: boolean = false;
   ordinationId: string | null = null;
+  isEditMode: boolean = false;
   member: Members[] = [];
   occupation: Occupation[] = [];
   searchControl = new FormControl();
@@ -78,66 +86,26 @@ export class OrdinationFormComponent implements OnInit {
     private snackbarService: SnackbarService,
     private loadingService: LoadingService,
     private validationService: ValidationService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private dialogRef: MatDialogRef<OrdinationFormComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { ordination: Ordination },
   ) {
     this.ordinationForm = this.createOrdinationForm();
-
     this.filterMembers = this.setupSearchObservable('Members');
-
     this.filterOccupations = this.setupSearchObservable('Occupation');
   }
 
   ngOnInit() {
-    this.loadingService.show();
-    this.ordinationId = this.route.snapshot.paramMap.get('id');
-    if (this.ordinationId) {
+    if (this.data && this.data.ordination) {
       this.isEditMode = true;
+      this.ordinationId = this.data.ordination.id;
+      this.ordinationForm.patchValue(this.data.ordination);
       this.handleEditMode();
     }
-    this.loadInitialData();
-
-    this.loadingService.hide();
   }
 
-  createOrdinationForm() {
-    return this.fb.group({
-      member_id: ['', Validators.required],
-      occupation_id: ['', Validators.required],
-      status: ['', Validators.required],
-      initial_date: ['', Validators.required],
-      end_date: ['', Validators.required],
-    });
-  }
-
-  handleEditMode = () => {
-    this.ordinationsService
-      .getOrdinationById(this.ordinationId!)
-      .subscribe((ordination: Ordination) => {
-        this.ordinationForm.patchValue({
-          ...ordination,
-          updated_at: dayjs(ordination.updated_at).format(
-            'DD/MM/YYYY [às] HH:mm:ss'
-          ),
-        });
-      });
-  };
-
-  onSubmit() {
-    this.loadingService.show();
-    if (this.ordinationForm.valid) {
-      console.log(this.ordinationForm.value);
-      this.dialog.closeAll();
-    }
-
-    this.loadingService.hide();
-  }
-
-  onCancel() {
-    this.dialog.closeAll();
-  }
-
-  clearDate(fieldName: string): void {
-    this.ordinationForm.get(fieldName)?.setValue(null);
+  get pageTitle() {
+    return this.isEditMode ? 'Editar ordenação' : 'Criar ordenação';
   }
 
   getErrorMessage(controlName: string) {
@@ -151,6 +119,86 @@ export class OrdinationFormComponent implements OnInit {
     return dayjs(birthDate).isBefore(dayjs()) ? null : { invalidDate: true };
   }
 
+  createOrdinationForm() {
+    return this.fb.group({
+      id: [this.data?.ordination?.id || ''],
+      member_id: [this.data?.ordination?.member_id || '', Validators.required],
+      occupation_id: [
+        this.data?.ordination?.occupation_id || '',
+        Validators.required,
+      ],
+      status: [this.data?.ordination?.status || true, Validators.required],
+      initial_date: [
+        this.data?.ordination?.initial_date || '',
+        Validators.required,
+      ],
+      end_date: [this.data?.ordination?.end_date || '', Validators.required],
+    });
+  }
+
+  updateOrdination(ordinationId: string) {
+    this.loadingService.show();
+    this.ordinationsService
+      .updateOrdination(ordinationId, this.ordinationForm.value)
+      .subscribe({
+        next: () => {
+          this.snackbarService.openSuccess('Ordenação atualizada!');
+          this.dialogRef.close(this.ordinationForm.value);
+        },
+        error: () => {
+          this.snackbarService.openError(
+            'Erro ao atualizar a ordenação. Tente novamente!',
+          );
+          this.loadingService.hide();
+        },
+        complete: () => {
+          this.loadingService.hide();
+        },
+      });
+  }
+
+  handleEditMode = () => {
+    this.ordinationsService
+      .getOrdinationById(this.ordinationId!)
+      .subscribe((ordination: Ordination) => {
+        this.ordinationForm.patchValue({
+          ...ordination,
+          updated_at: dayjs(ordination.updated_at).format(
+            'DD/MM/YYYY [às] HH:mm:ss',
+          ),
+        });
+      });
+  };
+
+  onSubmit() {
+    this.loadingService.show();
+    this.ordinationsService
+      .createOrdination(this.ordinationForm.value)
+      .subscribe({
+        next: () => {
+          this.snackbarService.openSuccess('Ordenação criada com sucesso!');
+          this.dialogRef.close(this.ordinationForm.value);
+        },
+        error: () => {
+          this.snackbarService.openError(
+            'Erro ao criar a ordenação. Tente novamente!',
+          );
+          this.loadingService.hide();
+        },
+        complete: () => {
+          this.loadingService.hide();
+        },
+      });
+  }
+
+  onCancel() {
+    this.dialogRef.close();
+  }
+
+  clearDate(fieldName: string): void {
+    this.ordinationForm.get(fieldName)?.setValue(null);
+  }
+
   setupSearchObservable(type: string): Observable<any[]> {
     return this.searchControl.valueChanges.pipe(
       debounceTime(300),
@@ -158,8 +206,8 @@ export class OrdinationFormComponent implements OnInit {
       map((searchTerm) =>
         (this as any)
           [`filter${type}`](searchTerm ?? '')
-          .sort((a: any, b: any) => a.name.localeCompare(b.name))
-      )
+          .sort((a: any, b: any) => a.name.localeCompare(b.name)),
+      ),
     );
   }
 
@@ -179,13 +227,13 @@ export class OrdinationFormComponent implements OnInit {
 
   filterMember(value: string): Members[] {
     return this.member.filter((member) =>
-      member.person_id.name.toLowerCase().includes(value.toLowerCase())
+      member.person_id.name.toLowerCase().includes(value.toLowerCase()),
     );
   }
 
   filterOccupation(value: string): Occupation[] {
     return this.occupation.filter((occupation) =>
-      occupation.name.toLowerCase().includes(value.toLowerCase())
+      occupation.name.toLowerCase().includes(value.toLowerCase()),
     );
   }
 
@@ -216,9 +264,9 @@ export class OrdinationFormComponent implements OnInit {
           startWith(''),
           map((searchTerm) =>
             this.filterMember(searchTerm ?? '').sort((a, b) =>
-              a.person_id.name.localeCompare(b.person_id.name)
-            )
-          )
+              a.person_id.name.localeCompare(b.person_id.name),
+            ),
+          ),
         );
       });
     }
@@ -233,9 +281,9 @@ export class OrdinationFormComponent implements OnInit {
           startWith(''),
           map((searchTerm) =>
             this.filterOccupation(searchTerm ?? '').sort((a, b) =>
-              a.name.localeCompare(b.name)
-            )
-          )
+              a.name.localeCompare(b.name),
+            ),
+          ),
         );
       });
     }
@@ -248,7 +296,7 @@ export class OrdinationFormComponent implements OnInit {
       height: 'auto',
       maxHeight: '90vh',
       role: 'dialog',
-      panelClass: 'dialog',
+      panelClass: ['dialog'],
       disableClose: true,
     });
   }
