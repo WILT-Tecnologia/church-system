@@ -37,8 +37,8 @@
       <mat-divider></mat-divider>
       <div class="cta">
         <button type="button" mat-stroked-button color="warn" (click)="handleBack()">Cancelar</button>
-        <button type="submit" mat-raised-button color="primary" [disabled]="!occupationForm.valid">
-          {{this.isEditMode ? 'Atualizar' : 'Cadastrar'}}
+        <button type="submit" mat-raised-button color="primary" [disabled]="occupationForm.invalid">
+          {{isEditMode ? 'Atualizar' : 'Cadastrar'}}
         </button>
       </div>
     </form>

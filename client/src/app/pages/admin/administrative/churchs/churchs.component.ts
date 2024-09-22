@@ -2,12 +2,13 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { ActivatedRoute, Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { NotFoundRegisterComponent } from '../../../../components/not-found-register/not-found-register.component';
 import { TableComponent } from '../../../../components/table/table.component';
 import { Church } from '../../../../model/Church';
 import { SnackbarService } from '../../../../service/snackbar/snackbar.service';
+import { ChurchComponent } from './church/church.component';
 import { ChurchsService } from './churchs.service';
 
 @Component({
@@ -18,24 +19,12 @@ import { ChurchsService } from './churchs.service';
   imports: [
     MatCardModule,
     MatButtonModule,
-    CommonModule,
-    NotFoundRegisterComponent,
     TableComponent,
+    NotFoundRegisterComponent,
+    CommonModule,
   ],
 })
 export class ChurchsComponent implements OnInit {
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private snackbarService: SnackbarService,
-    private churchsService: ChurchsService,
-    private loading: LoadingService
-  ) {}
-
-  ngOnInit() {
-    this.loadChurch();
-  }
-
   churchs: Church[] = [];
   displayedColumns: string[] = [
     'responsible',
@@ -53,6 +42,17 @@ export class ChurchsComponent implements OnInit {
     actions: 'Ações',
   };
 
+  constructor(
+    private churchsService: ChurchsService,
+    private snackbarService: SnackbarService,
+    private loading: LoadingService,
+    private dialog: MatDialog,
+  ) {}
+
+  ngOnInit() {
+    this.loadChurch();
+  }
+
   loadChurch = () => {
     this.churchsService.getChurch().subscribe((churchs) => {
       this.churchs = churchs;
@@ -60,11 +60,41 @@ export class ChurchsComponent implements OnInit {
   };
 
   addNewChurch = (): void => {
-    this.router.navigateByUrl('administrative/churchs/church/new');
+    const dialogRef = this.dialog.open(ChurchComponent, {
+      width: 'auto',
+      maxWidth: '100%',
+      height: 'auto',
+      maxHeight: '100dvh',
+      role: 'dialog',
+      panelClass: 'dialog',
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe((newChurch) => {
+      if (newChurch) {
+        this.loadChurch();
+      }
+    });
   };
 
   editChurch = (church: Church): void => {
-    this.router.navigate(['administrative/churchs/church/edit', church.id]);
+    const dialogRef = this.dialog.open(ChurchComponent, {
+      id: church.id,
+      width: 'auto',
+      maxWidth: '100%',
+      height: 'auto',
+      maxHeight: '100dvh',
+      role: 'dialog',
+      panelClass: 'dialog',
+      disableClose: true,
+      data: { church },
+    });
+
+    dialogRef.afterClosed().subscribe((updatedChurch) => {
+      if (updatedChurch) {
+        this.loadChurch();
+      }
+    });
   };
 
   deleteChurch = (church: Church): void => {
@@ -77,7 +107,7 @@ export class ChurchsComponent implements OnInit {
       error: () => {
         this.loading.hide();
         this.snackbarService.openError(
-          'Erro ao excluir a igreja. Tente novamente mais tarde.'
+          'Erro ao excluir a igreja. Tente novamente mais tarde.',
         );
       },
       complete: () => this.loading.hide(),

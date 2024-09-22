@@ -137,17 +137,17 @@ export class OccupationComponent implements OnInit {
   updateOccupation(occupationId: string) {
     this.loadingService.show();
     this.occupationsService
-      .updateOccupation(occupationId, this.occupationForm.value)
+      .updateOccupation(occupationId!, this.occupationForm.value)
       .subscribe({
         next: () => {
           this.snackbarService.openSuccess('Ocupação atualizada com sucesso!');
           this.dialogRef.close(this.occupationForm.value);
         },
         error: () => {
+          this.loadingService.hide();
           this.snackbarService.openError(
             'Erro ao atualizar a ocupação. Tente novamente!',
           );
-          this.loadingService.hide();
         },
         complete: () => {
           this.loadingService.hide();
