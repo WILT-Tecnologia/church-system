@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
+import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { NotFoundRegisterComponent } from '../../../../components/not-found-register/not-found-register.component';
 import { TableComponent } from '../../../../components/table/table.component';
@@ -47,6 +48,7 @@ export class ChurchsComponent implements OnInit {
     private snackbarService: SnackbarService,
     private loading: LoadingService,
     private dialog: MatDialog,
+    private confirmService: ConfirmService,
   ) {}
 
   ngOnInit() {
@@ -87,6 +89,7 @@ export class ChurchsComponent implements OnInit {
       role: 'dialog',
       panelClass: 'dialog',
       disableClose: true,
+
       data: { church },
     });
 
@@ -98,19 +101,30 @@ export class ChurchsComponent implements OnInit {
   };
 
   deleteChurch = (church: Church): void => {
-    this.loading.show();
-    this.churchsService.deleteChurch(church.id).subscribe({
-      next: () => {
-        this.snackbarService.openSuccess('Igreja excluída com sucesso!');
-        this.loadChurch();
-      },
-      error: () => {
-        this.loading.hide();
-        this.snackbarService.openError(
-          'Erro ao excluir a igreja. Tente novamente mais tarde.',
-        );
-      },
-      complete: () => this.loading.hide(),
-    });
+    this.confirmService
+      .openConfirm(
+        'Atenção',
+        'Você tem certeza que deseja excluir o registro?',
+        'Confirmar',
+        'Cancelar',
+      )
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) {
+          this.churchsService.deleteChurch(church.id).subscribe({
+            next: () => {
+              this.snackbarService.openSuccess('Igreja excluída com sucesso!');
+              this.loadChurch();
+            },
+            error: () => {
+              this.loading.hide();
+              this.snackbarService.openError(
+                'Erro ao excluir a igreja. Tente novamente mais tarde.',
+              );
+            },
+            complete: () => this.loading.hide(),
+          });
+        }
+      });
   };
 }

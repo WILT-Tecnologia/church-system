@@ -24,13 +24,16 @@ export class ConfirmService {
     btnCancelText: string = 'Cancelar',
     reverseBtn: boolean = false,
     disableClose: boolean = true,
-    customClassContainer: string = ''
+    customClassContainer: string = '',
   ) {
     return this.dialog.open(ConfirmComponent, {
-      maxWidth: '80vw',
-      width: '330px',
-      minHeight: '187px',
+      maxWidth: '100%',
+      width: 'auto',
+      height: 'auto',
+      minHeight: 'auto',
+      maxHeight: '100dvh',
       autoFocus: false,
+      panelClass: 'dialog',
       data: {
         title,
         message,
@@ -52,13 +55,16 @@ export class ConfirmService {
   public openSettingsPending(
     title: string,
     message: string,
-    btnOkText: string = 'OK'
+    btnOkText: string = 'OK',
   ) {
     return this.dialog.open(ConfirmComponent, {
-      maxWidth: '60vw',
-      width: '325px',
-      minHeight: '250px',
+      maxWidth: '100%',
+      width: 'auto',
+      height: 'auto',
+      minHeight: 'auto',
+      maxHeight: '100dvh',
       autoFocus: false,
+      panelClass: 'dialog',
       data: {
         title,
         message,

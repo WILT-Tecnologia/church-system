@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { NotFoundRegisterComponent } from '../../../../components/not-found-register/not-found-register.component';
 import { TableComponent } from '../../../../components/table/table.component';
@@ -47,6 +48,7 @@ export class PersonsComponent implements OnInit {
     private personsService: PersonsService,
     private snackbarService: SnackbarService,
     private loading: LoadingService,
+    private confirmService: ConfirmService,
     private dialog: MatDialog,
   ) {}
 
@@ -95,21 +97,33 @@ export class PersonsComponent implements OnInit {
   };
 
   deletePerson = (person: Person): void => {
-    this.loading.show();
-    this.personsService.deletePerson(person.id).subscribe({
-      next: () => {
-        this.snackbarService.openSuccess('Pessoa excluída com sucesso!');
-        this.loadPersons();
-      },
-      error: () => {
-        this.loading.hide();
-        this.snackbarService.openError(
-          'Erro ao excluir a pessoa. Tente novamente.',
-        );
-      },
-      complete: () => {
-        this.loading.hide();
-      },
-    });
+    this.confirmService
+      .openConfirm(
+        'Atenção',
+        'Você tem certeza que deseja excluir o registro?',
+        'Confirmar',
+        'Cancelar',
+      )
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) {
+          this.loading.show();
+          this.personsService.deletePerson(person.id).subscribe({
+            next: () => {
+              this.snackbarService.openSuccess('Pessoa excluída com sucesso!');
+              this.loadPersons();
+            },
+            error: () => {
+              this.loading.hide();
+              this.snackbarService.openError(
+                'Erro ao excluir a pessoa. Tente novamente.',
+              );
+            },
+            complete: () => {
+              this.loading.hide();
+            },
+          });
+        }
+      });
   };
 }

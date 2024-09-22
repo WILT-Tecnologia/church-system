@@ -1,26 +1,12 @@
-@import '../../../styles/theme.scss';
+/* @import '../../../styles/theme.scss';
 
 .ps-dialog-container-confirm {
-  height: 65px;
+  height: 1rem;
 
-  span {
-    color: $darkGreyRubeus !important;
+  .title {
+    color: $greenMain !important;
     padding: 0 20px;
     line-height: 21px;
-  }
-
-  .ps-dialog-close {
-    cursor: pointer;
-    padding-right: 16px;
-    color: $darkGreyRubeus;
-  }
-
-  .max-width-60 {
-    max-width: 60% !important;
-  }
-
-  .max-width-33 {
-    max-width: 33% !important;
   }
 }
 
@@ -109,14 +95,15 @@
 
 .badTheme {
   .btnOK {
-    color: #F7685B;
-    background-color: #FFFFFF;
+    color: $danger;
+    background-color: $white;
     box-shadow: none;
     border: 1px solid rgba(0, 0, 0, 0.12);
     border-radius: 4px;
   }
 
   .ps-title-medium {
-    color: #F7685B !important;
+    color: $danger !important;
   }
 }
+ */

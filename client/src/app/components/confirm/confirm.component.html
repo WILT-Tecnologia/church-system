@@ -1,28 +1,21 @@
-<div class="ps-dialog-container-confirm" [ngClass]="data.customClassContainer" fxLayout="row">
-  <div [ngClass]="{badTheme: data.badTheme}" fxFlex fxLayoutAlign="start center">
-    <span class="ps-title-medium ps-confirm-title-mobile">{{ data.title }}</span>
+<mat-card appearance="outlined">
+  <div class="flex justify-between items-center mx-2 my-3">
+    <mat-card-header class="mb-3">
+      <mat-card-title class="text-xl font-semibold">{{ data.title }}</mat-card-title>
+    </mat-card-header>
   </div>
-</div>
-<div [ngClass]="{badTheme: data.badTheme}" class="ps-dialog-content">
-  <div class="ps-dialog-info-confirm" fxLayout="row" fxLayoutAlign="center center">
-    <p>{{ data.message }}</p>
-  </div>
-  <div fxLayout="row" class="ps-container-dialog-confirm" fxLayoutAlign="end end" *ngIf="!data.reverseBtn">
-    <div fxFlex="60" class="ps-confirm-margin-mobile max-width-60" fxLayoutAlign="end end">
-      <button mat-button [mat-dialog-close]="false" class="btnCancel">{{ data.btnCancelText }}</button>
-    </div>
-    <div fxFlex="33" class="ps-confirm-margin-mobile max-width-33" fxLayoutAlign="end end">
-      <button mat-raised-button color="primary" class="btnOK" [mat-dialog-close]="true">{{ data.btnOkText }}</button>
-    </div>
-  </div>
-
-  <div fxLayout="row" class="ps-container-dialog-confirm" fxLayoutAlign="end end" *ngIf="data.reverseBtn">
-    <div fxFlex="60" class="ps-confirm-margin-mobile max-width-60" fxLayoutAlign="end end">
-      <button mat-raised-button color="primary" class="btnOK" [mat-dialog-close]="true">{{ data.btnOkText }}</button>
-    </div>
-    <div fxFlex="33" class="ps-confirm-margin-mobile max-width-33" fxLayoutAlign="end end">
-      <button mat-button [mat-dialog-close]="false" class="btnCancel">{{ data.btnCancelText }}</button>
-    </div>
-  </div>
-
-</div>
+  <mat-divider></mat-divider>
+  <mat-card-content class="my-10">
+    <p class="text-base text-gray-700">{{ data.message }}</p>
+  </mat-card-content>
+  <mat-card-footer class="flex flex-col md:w-full gap-4 my-5 justify-between">
+    <mat-card-actions class="flex flex-row md:w-full gap-4 justify-between">
+      <button mat-stroked-button class="w-full md:w-full order-2 md:order-none" color="warn" [mat-dialog-close]="false">
+        {{ data.btnCancelText }}
+      </button>
+      <button mat-raised-button class="w-full md:w-full order-1" color="primary" [mat-dialog-close]="true">
+        {{ data.btnOkText }}
+      </button>
+    </mat-card-actions>
+  </mat-card-footer>
+</mat-card>
