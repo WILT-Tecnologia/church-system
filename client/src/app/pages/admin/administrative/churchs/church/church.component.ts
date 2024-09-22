@@ -76,6 +76,7 @@ export class ChurchComponent implements OnInit {
     this.churchForm = this.createForm();
 
     this.filteredResponsables$ = this.searchControl.valueChanges.pipe(
+      debounceTime(300),
       startWith(''),
       map((searchTerm) => this.filterResponsables(searchTerm ?? '')),
     );
@@ -100,13 +101,11 @@ export class ChurchComponent implements OnInit {
         responsable?.name || 'Selecione o responsável';
     });
 
-    if (!this.isEditMode) {
-      this.churchForm.get('cep')?.valueChanges.subscribe((cep: string) => {
-        if (cep.length === 8) {
-          this.searchCep(cep);
-        }
-      });
-    }
+    this.churchForm.get('cep')?.valueChanges.subscribe((cep: string) => {
+      if (cep.length === 8) {
+        this.searchCep(cep);
+      }
+    });
   }
 
   get pageTitle(): string {
@@ -230,8 +229,8 @@ export class ChurchComponent implements OnInit {
       .subscribe((church: Church) => {
         this.churchForm.patchValue({
           ...church,
-          responsible_id: church.responsible_id || null,
           updated_at: dayjs(church.updated_at).format('DD/MM/YYYY [às] HH:mm'),
+          responsible_id: church.responsible_id || null,
         });
       });
   };

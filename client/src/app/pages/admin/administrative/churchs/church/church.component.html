@@ -37,6 +37,8 @@
           <mat-error
             *ngIf="churchForm.get('name')?.invalid && churchForm.get('name')?.touched">{{getErrorMessage('name')}}</mat-error>
         </mat-form-field>
+      </app-column>
+      <app-column>
         <mat-form-field appearance="fill">
           <mat-label>E-mail</mat-label>
           <input matInput formControlName="email" maxlength="255" required>
