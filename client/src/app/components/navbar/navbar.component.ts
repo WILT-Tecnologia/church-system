@@ -9,9 +9,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { MatTabsModule } from '@angular/material/tabs';
+import { ChurchComponent } from 'app/pages/admin/church/church.component';
 import { AuthService } from '../../service/auth/auth.service';
 import { LogoComponent } from '../navbar/logo/logo.component';
 
@@ -21,19 +23,22 @@ import { LogoComponent } from '../navbar/logo/logo.component';
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
   imports: [
+    MatTabsModule,
     MatToolbarModule,
     MatButtonModule,
     MatMenuModule,
     MatIconModule,
     CommonModule,
     LogoComponent,
+    ChurchComponent,
+    RouterModule,
   ],
 })
 export class NavbarComponent implements OnInit {
   constructor(
     private router: Router,
     private authService: AuthService,
-    @Inject(PLATFORM_ID) private platformId: any
+    @Inject(PLATFORM_ID) private platformId: any,
   ) {}
   userMenu: any;
   userName: string | null = null;

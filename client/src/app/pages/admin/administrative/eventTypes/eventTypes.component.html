@@ -1,7 +1,7 @@
 <ng-container *ngIf="eventTypes && eventTypes.length > 0; else noDataTemplate">
   <app-table [dataSource]="eventTypes" [displayedColumns]="displayedColumns" [columnDefinitions]="columnDefinitions"
-    [editFn]="editEventTypes" [deleteFn]="deleteEventTypes" [ctaFn]="addNewEventTypes"
-    [ctaLabel]="'Adicionar Novo Tipo de Evento'" [sortColumn]="'name'" [sortDirection]="'asc'">
+    [editFn]="editEventTypes" [deleteFn]="deleteEventTypes" [ctaFn]="addNewEventTypes" [ctaLabel]="'Adicionar'"
+    [sortColumn]="'name'" [sortDirection]="'asc'">
   </app-table>
 </ng-container>
 
