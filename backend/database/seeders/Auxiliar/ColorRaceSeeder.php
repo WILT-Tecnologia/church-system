@@ -23,8 +23,8 @@ class ColorRaceSeeder extends Seeder
 
     protected function insert($id, $codigo, $name): void
     {
-        if (DB::table('aux_civil_status')->where('name', $name)->get()->isEmpty()) {
-            DB::table('aux_civil_status')->insert([
+        if (DB::table('aux_color_race')->where('name', $name)->get()->isEmpty()) {
+            DB::table('aux_color_race')->insert([
                 'id' => $id,
                 'codigo' => $codigo,
                 'name'      => $name,
