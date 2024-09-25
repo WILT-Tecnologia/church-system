@@ -26,5 +26,6 @@ Route::prefix('church')->group(function () {
 Route::prefix('aux')->group(function () {
     Route::get('civil-status', [\App\Http\Controllers\Api\Auxiliares\CivilStatusController::class, 'index']);
     Route::get('color-race', [\App\Http\Controllers\Api\Auxiliares\ColorRaceController::class, 'index']);
-    Route::get('formation', [\App\Http\Controllers\Api\Auxiliares\FormationController::class, 'index']);
+    Route::get('formations', [\App\Http\Controllers\Api\Auxiliares\FormationController::class, 'index']);
+    Route::get('kinships', [\App\Http\Controllers\Api\Auxiliares\KinshipController::class, 'index']);
 });
