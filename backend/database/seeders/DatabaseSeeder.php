@@ -6,6 +6,7 @@ use App\Models\User;
 use Database\Seeders\Auxiliar\CivilStatusSeeder;
 use Database\Seeders\Auxiliar\ColorRaceSeeder;
 use Database\Seeders\Auxiliar\FormationSeeder;
+use Database\Seeders\Auxiliar\KinshipSeeder;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -21,7 +22,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CivilStatusSeeder::class,
             ColorRaceSeeder::class,
-            FormationSeeder::class
+            FormationSeeder::class,
+            KinshipSeeder::class,
         ]);
 
 
