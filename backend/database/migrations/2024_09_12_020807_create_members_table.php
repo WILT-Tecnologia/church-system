@@ -17,14 +17,11 @@ return new class extends Migration
             $table->uuid('church_id');
             $table->string('rg')->nullable();
             $table->string('issuing_body')->nullable();
-            $table->enum('civil_status', ['Solteiro(a)', 'Casado(a)', 'Separado(a)', 'Divorciado(a)', 'Viúvo(a)']);
+            $table->string('civil_status');
             $table->string('nationality')->default('Brasileira');
             $table->string('naturalness');
-            $table->enum('color_race', ['Branca', 'Preta', 'Parda', 'Amarela', 'indÍgena']);
-            $table->enum('formation', ['Analfabeto', 'Lê e Escreve', 'Ensino Fundamental Incompleto',
-                    'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 'Ensino Médio Completo',
-                    'Superior Incompleto', 'Superior Completo', 'Pós-Graduado', 'Mestrado', 'Doutorado',
-                    'Pós-Doutorado']);
+            $table->string('color_race');
+            $table->string('formation');
             $table->string('formation_course')->nullable();
             $table->string('profission')->nullable();
             $table->boolean('def_physical')->default(false);
@@ -47,6 +44,9 @@ return new class extends Migration
 
             $table->foreign('person_id')->references('id')->on('persons');
             $table->foreign('church_id')->references('id')->on('churches');
+            $table->foreign('civil_status')->references('codigo')->on('aux_civil_status');
+            $table->foreign('color_race')->references('codigo')->on('aux_color_race');
+            $table->foreign('formation')->references('codigo')->on('aux_formation');
             $table->foreign('member_origin_id')->references('id')->on('member_origins');
         });
     }

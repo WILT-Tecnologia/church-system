@@ -16,12 +16,13 @@ return new class extends Migration
             $table->uuid('member_id');
             $table->uuid('person_id')->nullable();
             $table->string('name')->nullable();
-            $table->string('kinship')->nullable();
+            $table->string('kinship');
             $table->timestamps();
             $table->softDeletes();
 
             $table->foreign('member_id')->references('id')->on('members');
             $table->foreign('person_id')->references('id')->on('persons');
+            $table->foreign('kinship')->references('codigo')->on('aux_kinship');
         });
     }
 
