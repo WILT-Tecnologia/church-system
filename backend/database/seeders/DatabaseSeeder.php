@@ -7,6 +7,7 @@ use Database\Seeders\Auxiliar\CivilStatusSeeder;
 use Database\Seeders\Auxiliar\ColorRaceSeeder;
 use Database\Seeders\Auxiliar\FormationSeeder;
 use Database\Seeders\Auxiliar\KinshipSeeder;
+use Database\Seeders\Auxiliar\MemberSituationSeeder;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -24,6 +25,7 @@ class DatabaseSeeder extends Seeder
             ColorRaceSeeder::class,
             FormationSeeder::class,
             KinshipSeeder::class,
+            MemberSituationSeeder::class,
         ]);
 
 
