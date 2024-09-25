@@ -22,3 +22,11 @@ Route::prefix('church')->group(function () {
     Route::apiResource('families', \App\Http\Controllers\Api\FamilyController::class);
     Route::apiResource('ordinations', \App\Http\Controllers\Api\OrdinationController::class);
 });
+
+Route::prefix('aux')->group(function () {
+    Route::get('civil-status', [\App\Http\Controllers\Api\Auxiliares\CivilStatusController::class, 'index']);
+    Route::get('color-race', [\App\Http\Controllers\Api\Auxiliares\ColorRaceController::class, 'index']);
+    Route::get('formations', [\App\Http\Controllers\Api\Auxiliares\FormationController::class, 'index']);
+    Route::get('kinships', [\App\Http\Controllers\Api\Auxiliares\KinshipController::class, 'index']);
+    Route::get('member-situation', [\App\Http\Controllers\Api\Auxiliares\MemberSituationController::class, 'index']);
+});
