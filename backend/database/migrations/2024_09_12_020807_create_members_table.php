@@ -17,11 +17,11 @@ return new class extends Migration
             $table->uuid('church_id');
             $table->string('rg')->nullable();
             $table->string('issuing_body')->nullable();
-            $table->string('civil_status');
+            $table->uuid('civil_status_id');
             $table->string('nationality')->default('Brasileira');
             $table->string('naturalness');
-            $table->string('color_race');
-            $table->string('formation');
+            $table->uuid('color_race_id');
+            $table->uuid('formation_id');
             $table->string('formation_course')->nullable();
             $table->string('profission')->nullable();
             $table->boolean('def_physical')->default(false);
@@ -44,9 +44,9 @@ return new class extends Migration
 
             $table->foreign('person_id')->references('id')->on('persons');
             $table->foreign('church_id')->references('id')->on('churches');
-            $table->foreign('civil_status')->references('codigo')->on('aux_civil_status');
-            $table->foreign('color_race')->references('codigo')->on('aux_color_race');
-            $table->foreign('formation')->references('codigo')->on('aux_formation');
+            $table->foreign('civil_status_id')->references('id')->on('aux_civil_status');
+            $table->foreign('color_race_id')->references('id')->on('aux_color_race');
+            $table->foreign('formation_id')->references('id')->on('aux_formation');
             $table->foreign('member_origin_id')->references('id')->on('member_origins');
         });
     }
