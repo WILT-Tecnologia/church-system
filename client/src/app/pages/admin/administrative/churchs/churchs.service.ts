@@ -25,7 +25,7 @@ export class ChurchsService {
           church.cnpj = this.formatCnpjPipe.transform(church.cnpj);
           return church;
         });
-      })
+      }),
     );
   }
 
@@ -33,13 +33,13 @@ export class ChurchsService {
     return this.http.get<Church>(`${this.api}/${id}`);
   }
 
-  createChurch(church: Church): Observable<any> {
-    return this.http.post(this.api, church);
+  createChurch(church: Church): Observable<Church> {
+    return this.http.post<Church>(this.api, church);
   }
 
   updateChurch(
     churchId: string,
-    churchData: Partial<Church>
+    churchData: Partial<Church>,
   ): Observable<Church> {
     return this.http.put<Church>(`${this.api}/${churchId}`, churchData);
   }

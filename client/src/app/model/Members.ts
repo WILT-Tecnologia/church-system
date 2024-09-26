@@ -1,5 +1,6 @@
 import { CivilStatus, ColorRace, Formations } from './Auxiliaries';
 import { Church } from './Church';
+import { MemberOrigin } from './MemberOrigins';
 import { Person } from './Person';
 
 export type Members = {
@@ -8,11 +9,11 @@ export type Members = {
   church_id: Church;
   rg: string;
   issuing_body: string;
-  civil_status: CivilStatus;
+  civil_status_id: CivilStatus;
   nationality: string;
   naturalness: string;
-  color_race: ColorRace;
-  formation: Formations;
+  color_race_id: ColorRace;
+  formation_id: Formations;
   formation_course: string;
   profission: string;
   def_physical: boolean;
@@ -28,7 +29,7 @@ export type Members = {
   baptism_official: string;
   baptism_holy_spirit: boolean;
   baptism_holy_spirit_date: string;
-  member_origin_id: string;
+  member_origin_id: MemberOrigin;
   receipt_date: string;
   created_at: string;
   updated_at: string;

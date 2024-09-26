@@ -4,7 +4,6 @@
       {{ ctaLabel }}
     </button>
   </div>
-
   <div class="filter-container">
     <mat-form-field class="search">
       <mat-label>Pesquisar</mat-label>
@@ -12,7 +11,6 @@
     </mat-form-field>
     <mat-paginator [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" showFirstLastButtons></mat-paginator>
   </div>
-
   <div class="mat-table-responsive">
     <table mat-table [dataSource]="dataSourceMat" matSort class="mat-elevation-z1">
       <ng-container *ngFor="let column of displayedColumns">

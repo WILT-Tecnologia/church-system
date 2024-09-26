@@ -43,8 +43,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatButtonModule,
     MatCheckboxModule,
     MatChipsModule,
-    CommonModule,
     MatTooltipModule,
+    CommonModule,
   ],
 })
 export class TableComponent<T> implements OnInit, AfterViewInit, OnChanges {
@@ -54,10 +54,10 @@ export class TableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   @Input() ctaLabel?: string;
   @Input() sortColumn: string = '';
   @Input() sortDirection: SortDirection = 'asc';
+  @Input() isTooltip?: boolean = false;
   @Input() editFn!: (element: T) => void;
   @Input() deleteFn!: (element: T) => void;
   @Input() ctaFn?: () => void;
-  @Input() isTooltip?: boolean = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;

@@ -79,7 +79,8 @@
               <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>Estado Civil</mat-label>
-                  <mat-select formControlName="civil_status" (openedChange)="onSelectOpenedChangeCivilStatus($event)">
+                  <mat-select formControlName="civil_status_id"
+                    (openedChange)="onSelectOpenedChangeCivilStatus($event)">
                     <mat-select-trigger>
                       {{ getCivilStatusName() }}
                     </mat-select-trigger>
@@ -94,13 +95,13 @@
                     </ng-container>
                   </mat-select>
                   <mat-error
-                    *ngIf="memberForm.get('stepOne.civil_status')?.invalid && memberForm.get('stepOne.civil_status')?.touched">
-                    {{ getErrorMessage('stepOne.civil_status') }}
+                    *ngIf="memberForm.get('stepOne.civil_status_id')?.invalid && memberForm.get('stepOne.civil_status_id')?.touched">
+                    {{ getErrorMessage('stepOne.civil_status_id') }}
                   </mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="fill">
                   <mat-label>Cor/Raça</mat-label>
-                  <mat-select formControlName="color_race" (openedChange)="onSelectOpenedChangeColorRace($event)">
+                  <mat-select formControlName="color_race_id" (openedChange)="onSelectOpenedChangeColorRace($event)">
                     <mat-select-trigger>
                       {{ getColorRaceName() }}
                     </mat-select-trigger>
@@ -115,8 +116,8 @@
                     </ng-container>
                   </mat-select>
                   <mat-error
-                    *ngIf="memberForm.get('stepOne.color_race')?.invalid && memberForm.get('stepOne.color_race')?.touched">
-                    {{ getErrorMessage('stepOne.color_race') }}
+                    *ngIf="memberForm.get('stepOne.color_race_id')?.invalid && memberForm.get('stepOne.color_race_id')?.touched">
+                    {{ getErrorMessage('stepOne.color_race_id') }}
                   </mat-error>
                 </mat-form-field>
               </app-column>
@@ -159,7 +160,7 @@
               <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>Formação</mat-label>
-                  <mat-select formControlName="formation" (openedChange)="onSelectOpenedChangeFormation($event)">
+                  <mat-select formControlName="formation_id" (openedChange)="onSelectOpenedChangeFormation($event)">
                     <mat-select-trigger>
                       {{ getFormationsName() }}
                     </mat-select-trigger>
@@ -168,14 +169,14 @@
                         <mat-label>Pesquisar</mat-label>
                         <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
                       </mat-form-field>
-                      <mat-option *ngFor="let formation of formationList" [value]="formation.id">
-                        {{ formation.name }}
+                      <mat-option *ngFor="let formations of formationList" [value]="formations.id">
+                        {{ formations.name }}
                       </mat-option>
                     </ng-container>
                   </mat-select>
                   <mat-error
-                    *ngIf="memberForm.get('stepOne.formation')?.invalid && memberForm.get('stepOne.formation')?.touched">
-                    {{ getErrorMessage('stepOne.formation') }}
+                    *ngIf="memberForm.get('stepOne.formation_id')?.invalid && memberForm.get('stepOne.formation_id')?.touched">
+                    {{ getErrorMessage('stepOne.formation_id') }}
                   </mat-error>
                 </mat-form-field>
                 <mat-form-field>

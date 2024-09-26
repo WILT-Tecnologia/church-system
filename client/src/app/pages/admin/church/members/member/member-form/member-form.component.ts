@@ -142,14 +142,14 @@ export class MemberFormComponent implements OnInit {
         church_id: ['', [Validators.required]],
         rg: ['', [Validators.required, Validators.maxLength(15)]],
         issuing_body: ['', [Validators.required, Validators.maxLength(255)]],
-        civil_status: ['', [Validators.required]],
-        color_race: ['', [Validators.required]],
+        civil_status_id: ['', [Validators.required]],
+        color_race_id: ['', [Validators.required]],
         nationality: ['', [Validators.required]],
         naturalness: ['', [Validators.required]],
         updated_at: [''],
       }),
       stepTwo: this.fb.group({
-        formation: ['', [Validators.required]],
+        formation_id: ['', [Validators.required]],
         formation_course: [
           '',
           [Validators.required, Validators.maxLength(255)],
@@ -185,12 +185,12 @@ export class MemberFormComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.loadInitialData();
     this.memberId = this.route.snapshot.paramMap.get('id');
     if (this.memberId) {
       this.isEditMode = true;
       this.handleEditMode();
     }
-    this.loadInitialData();
   }
 
   createFilteredObservable(
@@ -473,7 +473,7 @@ export class MemberFormComponent implements OnInit {
   }
 
   getCivilStatusName(): string {
-    const civilStatusId = this.memberForm.get('stepOne.civil_status')?.value;
+    const civilStatusId = this.memberForm.get('stepOne.civil_status_id')?.value;
     if (civilStatusId) {
       const civilStatus = this.civilStatus.find((r) => r.id === civilStatusId);
       return civilStatus?.name ?? '';
@@ -484,7 +484,7 @@ export class MemberFormComponent implements OnInit {
   }
 
   getColorRaceName(): string {
-    const colorRaceId = this.memberForm.get('stepOne.color_race')?.value;
+    const colorRaceId = this.memberForm.get('stepOne.color_race_id')?.value;
     if (colorRaceId) {
       const colorRace = this.colorRace.find((r) => r.id === colorRaceId);
       return colorRace?.name ?? '';
@@ -493,7 +493,7 @@ export class MemberFormComponent implements OnInit {
   }
 
   getFormationsName(): string {
-    const formationId = this.memberForm.get('stepTwo.formation')?.value;
+    const formationId = this.memberForm.get('stepTwo.formation_id')?.value;
     if (formationId) {
       const formation = this.formations.find((r) => r.id === formationId);
       return formation?.name ?? '';

@@ -1,11 +1,67 @@
-<ng-container *ngIf="members && members.length > 0; else noDataTemplate">
+<mat-card>
+  <div class="add-button">
+    <button mat-raised-button color="primary" (click)="addNewMembers()">
+      Adicionar
+    </button>
+  </div>
+  <div class="filter-container">
+    <mat-form-field class="search">
+      <mat-label>Pesquisar</mat-label>
+      <input matInput (keyup)="applyFilter($event)" (input)="applyFilter($event)" placeholder="Digite para filtrar" />
+    </mat-form-field>
+    <mat-paginator [pageSizeOptions]="[25, 50, 100, 200]" showFirstLastButtons [pageSize]="25"></mat-paginator>
+  </div>
+
+  <div class="mat-table-responsive">
+    <table mat-table [dataSource]="dataSourceMat" matSort class="mat-elevation-z1">
+
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Nome </th>
+        <td mat-cell *matCellDef="let member"> {{ member.person.name }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Email </th>
+        <td mat-cell *matCellDef="let member"> {{ member.person.email }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="rg">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> RG </th>
+        <td mat-cell *matCellDef="let member"> {{ member.rg }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions" class="actions-cell">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let member">
+          <div class="actions-container">
+            <button mat-icon-button color="primary" matTooltip="Editar" (click)="editMembers(member)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" matTooltip="Excluir" (click)="deleteMembers(member)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row class="rows" *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
+</mat-card>
+
+<!-- <ng-container *ngIf="members && members.length > 0; else noDataTemplate">
   <app-table [dataSource]="members" [displayedColumns]="displayedColumns" [columnDefinitions]="columnDefinitions"
     [editFn]="editMembers" [deleteFn]="deleteMembers" [ctaFn]="addNewMembers" [ctaLabel]="'Adicionar Novo Membro'"
     [sortColumn]="'rg'" [sortDirection]="'asc'">
   </app-table>
-</ng-container>
-
-<ng-template #noDataTemplate>
+</ng-container> -->
+<!-- [columnTypes]="columnTypes" -->
+<ng-template *ngIf="members.length === 0">
   <app-not-found-register [template]="'membro'" [ctaLabel]="'Adicionar Novo Membro'"
     [addRegisterFn]="addNewMembers"></app-not-found-register>
 </ng-template>
+<!-- <ng-template #noDataTemplate>
+  <app-not-found-register [template]="'membro'" [ctaLabel]="'Adicionar Novo Membro'"
+    [addRegisterFn]="addNewMembers"></app-not-found-register>
+</ng-template> -->
