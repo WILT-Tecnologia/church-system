@@ -28,11 +28,11 @@ class Member extends Model
         'church_id',
         'rg',
         'issuing_body',
-        'civil_status',
+        'civil_status_id',
         'nationality',
         'naturalness',
-        'color_race',
-        'formation',
+        'color_race_id',
+        'formation_id',
         'formation_course',
         'profission',
         'def_physical',
@@ -52,12 +52,6 @@ class Member extends Model
         'receipt_date'
     ];
 
-    protected $casts = [
-        'civil_status' => CivilStatusEnum::class,
-        'color_race' => ColorRaceEnum::class,
-        'formation' => FormationEnum::class,
-    ];
-
     public function person(): BelongsTo
     {
         return $this->belongsTo(Person::class);
@@ -71,6 +65,21 @@ class Member extends Model
     public function memberOrigin(): BelongsTo
     {
         return $this->belongsTo(MemberOrigin::class);
+    }
+
+    public function civilStatus(): BelongsTo
+    {
+        return $this->belongsTo(CivilStatus::class);
+    }
+
+    public function colorRace(): BelongsTo
+    {
+        return $this->belongsTo(ColorRace::class);
+    }
+
+    public function formation(): BelongsTo
+    {
+        return $this->belongsTo(Formation::class);
     }
 
     public function families(): HasMany
