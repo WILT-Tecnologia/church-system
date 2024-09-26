@@ -9,7 +9,7 @@
           </mat-card-header>
           <mat-card-content>
             <div formGroupName="stepOne">
-              <div class="inputs">
+              <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>Pessoa</mat-label>
                   <mat-select formControlName="person_id" (openedChange)="onSelectOpenedChangePerson($event)">
@@ -58,8 +58,8 @@
                     {{ getErrorMessage('stepOne.church_id') }}
                   </mat-error>
                 </mat-form-field>
-              </div>
-              <div class="inputs">
+              </app-column>
+              <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>RG</mat-label>
                   <input matInput formControlName="rg" />
@@ -75,14 +75,23 @@
                     {{ getErrorMessage('stepOne.issuing_body') }}
                   </mat-error>
                 </mat-form-field>
-              </div>
-              <div class="inputs">
+              </app-column>
+              <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>Estado Civil</mat-label>
-                  <mat-select formControlName="civil_status">
-                    <mat-option *ngFor="let option of civilStatusOptions" [value]="option.value">
-                      {{ option.viewValue }}
-                    </mat-option>
+                  <mat-select formControlName="civil_status" (openedChange)="onSelectOpenedChangeCivilStatus($event)">
+                    <mat-select-trigger>
+                      {{ getCivilStatusName() }}
+                    </mat-select-trigger>
+                    <ng-container *ngIf="filteredCivilStatus | async as civilStatusList">
+                      <mat-form-field appearance="fill" class="search-field">
+                        <mat-label>Pesquisar</mat-label>
+                        <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
+                      </mat-form-field>
+                      <mat-option *ngFor="let civilStatus of civilStatusList" [value]="civilStatus.id">
+                        {{ civilStatus.name }}
+                      </mat-option>
+                    </ng-container>
                   </mat-select>
                   <mat-error
                     *ngIf="memberForm.get('stepOne.civil_status')?.invalid && memberForm.get('stepOne.civil_status')?.touched">
@@ -91,18 +100,27 @@
                 </mat-form-field>
                 <mat-form-field appearance="fill">
                   <mat-label>Cor/Raça</mat-label>
-                  <mat-select formControlName="color_race">
-                    <mat-option *ngFor="let option of colorRaceOptions" [value]="option.value">
-                      {{ option.viewValue }}
-                    </mat-option>
+                  <mat-select formControlName="color_race" (openedChange)="onSelectOpenedChangeColorRace($event)">
+                    <mat-select-trigger>
+                      {{ getColorRaceName() }}
+                    </mat-select-trigger>
+                    <ng-container *ngIf="filteredColorRace | async as colorRaceList">
+                      <mat-form-field appearance="fill" class="search-field">
+                        <mat-label>Pesquisar</mat-label>
+                        <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
+                      </mat-form-field>
+                      <mat-option *ngFor="let colorRace of colorRaceList" [value]="colorRace.id">
+                        {{ colorRace.name }}
+                      </mat-option>
+                    </ng-container>
                   </mat-select>
                   <mat-error
                     *ngIf="memberForm.get('stepOne.color_race')?.invalid && memberForm.get('stepOne.color_race')?.touched">
                     {{ getErrorMessage('stepOne.color_race') }}
                   </mat-error>
                 </mat-form-field>
-              </div>
-              <div class="inputs">
+              </app-column>
+              <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>Nacionalidade</mat-label>
                   <input matInput formControlName="nationality" />
@@ -119,7 +137,7 @@
                     {{ getErrorMessage('stepOne.naturalness') }}
                   </mat-error>
                 </mat-form-field>
-              </div>
+              </app-column>
               <span *ngIf="isEditMode && memberForm.get('stepOne.updated_at')?.value" class="info">
                 Atualizado em {{ memberForm.get('stepOne.updated_at')?.value }}
               </span>
@@ -138,17 +156,26 @@
           </mat-card-header>
           <mat-card-content>
             <div formGroupName="stepTwo">
-              <div class="inputs">
+              <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>Formação</mat-label>
-                  <mat-select formControlName="formation">
-                    <mat-option *ngFor="let option of formationOptions" [value]="option.value">
-                      {{ option.viewValue }}
-                    </mat-option>
+                  <mat-select formControlName="formation" (openedChange)="onSelectOpenedChangeFormation($event)">
+                    <mat-select-trigger>
+                      {{ getFormationsName() }}
+                    </mat-select-trigger>
+                    <ng-container *ngIf="filteredFormations | async as formationList">
+                      <mat-form-field appearance="fill" class="search-field">
+                        <mat-label>Pesquisar</mat-label>
+                        <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
+                      </mat-form-field>
+                      <mat-option *ngFor="let formation of formationList" [value]="formation.id">
+                        {{ formation.name }}
+                      </mat-option>
+                    </ng-container>
                   </mat-select>
                   <mat-error
-                    *ngIf="memberForm.get('stepTwo.formation')?.invalid && memberForm.get('stepTwo.formation')?.touched">
-                    {{ getErrorMessage('stepTwo.formation') }}
+                    *ngIf="memberForm.get('stepOne.formation')?.invalid && memberForm.get('stepOne.formation')?.touched">
+                    {{ getErrorMessage('stepOne.formation') }}
                   </mat-error>
                 </mat-form-field>
                 <mat-form-field>
@@ -159,8 +186,8 @@
                     {{ getErrorMessage('stepTwo.formation_course') }}
                   </mat-error>
                 </mat-form-field>
-              </div>
-              <div class="inputs">
+              </app-column>
+              <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>Profissão</mat-label>
                   <input matInput formControlName="profission" />
@@ -169,7 +196,7 @@
                     {{ getErrorMessage('stepTwo.profission') }}
                   </mat-error>
                 </mat-form-field>
-              </div>
+              </app-column>
               <div class="inputs checkbox-column" style="max-width: 30rem;">
                 <mat-label>Deficiências</mat-label>
                 <div class="checkbox-group">
@@ -212,7 +239,7 @@
           </mat-card-header>
           <mat-card-content>
             <div formGroupName="stepThree">
-              <div class="inputs">
+              <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>Data do batismo</mat-label>
                   <input matInput [matDatepicker]="baptismDate" formControlName="baptism_date">
@@ -240,7 +267,7 @@
                   <mat-error
                     *ngIf="memberForm.get('stepThree.baptism_official')?.invalid && memberForm.get('stepThree.baptism_official')?.touched">{{ getErrorMessage('stepThree.baptism_official') }}</mat-error>
                 </mat-form-field>
-              </div>
+              </app-column>
               <div class="chekcbox-spacing-holy">
                 <mat-checkbox color="primary" formControlName="baptism_holy_spirit"
                   (change)="onCheckboxChange('baptism_holy_spirit_date', 'baptism_holy_spirit')">Batizado pelo Espírito
@@ -261,7 +288,7 @@
                   </mat-error>
                 </mat-form-field>
               </div>
-              <div class="inputs">
+              <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>Data da recepção</mat-label>
                   <input matInput [matDatepicker]="receiptDate" formControlName="receipt_date">
@@ -296,7 +323,7 @@
                   <mat-error
                     *ngIf="memberForm.get('stepThree.member_origin_id')?.invalid && memberForm.get('stepThree.member_origin_id')?.touched">{{ getErrorMessage('stepThree.member_origin_id') }}</mat-error>
                 </mat-form-field>
-              </div>
+              </app-column>
             </div>
           </mat-card-content>
         </mat-card>

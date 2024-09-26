@@ -1,5 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import {
+  CivilStatus,
+  ColorRace,
+  Formations,
+  Kinships,
+  MemberSituations,
+} from 'app/model/Auxiliaries';
 import { MemberOrigin } from 'app/model/MemberOrigins';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
@@ -15,6 +22,30 @@ export class MembersService {
 
   private api = `${environment.apiUrl}/church/members`;
 
+  getCivilStatus(): Observable<CivilStatus[]> {
+    return this.http.get<CivilStatus[]>(
+      `${environment.apiUrl}/aux/civil-status`,
+    );
+  }
+
+  getColorRace(): Observable<ColorRace[]> {
+    return this.http.get<ColorRace[]>(`${environment.apiUrl}/aux/color-race`);
+  }
+
+  getFormations(): Observable<Formations[]> {
+    return this.http.get<Formations[]>(`${environment.apiUrl}/aux/formations`);
+  }
+
+  getKinships(): Observable<Kinships[]> {
+    return this.http.get<Kinships[]>(`${environment.apiUrl}/aux/kinships`);
+  }
+
+  getMemberSituations(): Observable<MemberSituations[]> {
+    return this.http.get<MemberSituations[]>(
+      `${environment.apiUrl}/aux/member-situations`,
+    );
+  }
+
   getPersons(): Observable<Person[]> {
     return this.http.get<Person[]>(`${environment.apiUrl}/admin/persons`);
   }
@@ -25,7 +56,7 @@ export class MembersService {
 
   getMemberOrigins(): Observable<MemberOrigin[]> {
     return this.http.get<MemberOrigin[]>(
-      `${environment.apiUrl}/admin/member-origins`
+      `${environment.apiUrl}/admin/member-origins`,
     );
   }
 
@@ -44,20 +75,20 @@ export class MembersService {
   createPerson(person: Person): Observable<Person> {
     return this.http.post<Person>(
       `${environment.apiUrl}/admin/persons`,
-      person
+      person,
     );
   }
 
   createChurch(church: Church): Observable<Church> {
     return this.http.post<Church>(
       `${environment.apiUrl}/admin/churches`,
-      church
+      church,
     );
   }
 
   updateMember(
     memberId: string,
-    memberData: Partial<Members>
+    memberData: Partial<Members>,
   ): Observable<Members> {
     return this.http.put<Members>(`${this.api}/${memberId}`, memberData);
   }

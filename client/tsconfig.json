@@ -22,7 +22,7 @@
     "newLine": "lf",
     "baseUrl": "src",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "angularCompilerOptions": {
