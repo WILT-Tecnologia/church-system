@@ -25,7 +25,7 @@ class UpdateFamilyRequest extends FormRequest
             'member_id' => ['sometimes', 'required', 'exists:members,id'],
             'person_id' => ['sometimes', 'nullable', 'exists:persons,id'],
             'name' => ['sometimes', 'nullable'],
-            'kinship' => ['sometimes', 'required']
+            'kinship_id' => ['sometimes', 'required', 'exists:auxkinship,id'],
         ];
     }
 }

@@ -23,7 +23,7 @@ class Family extends Model
         'member_id',
         'person_id',
         'name',
-        'kinship'
+        'kinship_id'
     ];
 
     public function member(): BelongsTo
@@ -34,5 +34,10 @@ class Family extends Model
     public function person(): BelongsTo
     {
         return $this->belongsTo(Person::class);
+    }
+
+    public function kinship(): BelongsTo
+    {
+        return $this->belongsTo(Kinship::class);
     }
 }
