@@ -2,9 +2,9 @@ import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import {
-  HTTP_INTERCEPTORS,
   provideHttpClient,
   withFetch,
+  withInterceptors,
 } from '@angular/common/http';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { provideClientHydration } from '@angular/platform-browser';
@@ -16,7 +16,7 @@ import {
 } from '@auth0/angular-jwt';
 import { routes } from './app.routes';
 
-import { LoadingInterceptor } from './components/loading/loading.interceptor';
+import { loadingInterceptor } from './components/loading/loading.interceptor';
 import { getPtBrPaginatorIntl } from './utils/paginator-pt-br';
 
 export function tokenGetter() {
@@ -26,7 +26,7 @@ export function tokenGetter() {
 const jwtModuleOptions: JwtModuleOptions = {
   config: {
     tokenGetter: tokenGetter,
-    allowedDomains: ['localhost:3333'],
+    allowedDomains: ['*'],
     disallowedRoutes: [],
   },
 };
@@ -36,10 +36,9 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideClientHydration(),
     provideAnimationsAsync(),
-    provideHttpClient(withFetch()),
+    provideHttpClient(withInterceptors([loadingInterceptor]), withFetch()),
     JwtHelperService,
     { provide: JWT_OPTIONS, useValue: jwtModuleOptions },
-    { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true },
     { provide: MatPaginatorIntl, useValue: getPtBrPaginatorIntl() },
   ],
 };

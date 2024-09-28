@@ -28,13 +28,14 @@ export class MemberOriginComponent implements OnInit {
     private router: Router,
     private snackbarService: SnackbarService,
     private loading: LoadingService,
-    private MemberOriginService: MemberOriginService
+    private MemberOriginService: MemberOriginService,
   ) {}
 
   memberOrigins: MemberOrigin[] = [];
-  displayedColumns: string[] = ['name', 'updated_at', 'actions'];
+  displayedColumns: string[] = ['name', 'status', 'updated_at', 'actions'];
   columnDefinitions = {
     name: 'Nome',
+    status: 'Situação',
     updated_at: 'Última Atualização',
     actions: 'Ações',
   };
@@ -69,7 +70,7 @@ export class MemberOriginComponent implements OnInit {
     this.MemberOriginService.deleteMemberOrigin(memberOrigin.id).subscribe({
       next: () => {
         this.snackbarService.openSuccess(
-          'Origem de Membro excluído com sucesso!'
+          'Origem de Membro excluído com sucesso!',
         );
         this.loadMemberOrigins();
       },

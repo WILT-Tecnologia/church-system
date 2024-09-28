@@ -6,17 +6,11 @@
   "parser": "@typescript-eslint/parser",
   "root": true,
   "extends": [
-    "next",
-    "next/core-web-vitals",
-    "plugin:storybook/recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:prettier/recommended"
+    "plugin:prettier/recommended",
+    "plugin:angular/johnpapa"
   ],
-  "settings": {
-    "babel": {
-      "rootMode": "upward"
-    }
-  },
+  "plugins": ["@typescript-eslint", "prettier", "angular"],
   "rules": {
     "@typescript-eslint/interface-name-prefix": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
@@ -48,7 +42,7 @@
         ],
         "pathGroups": [
           {
-            "pattern": "react",
+            "pattern": "angular",
             "group": "external",
             "position": "before"
           }

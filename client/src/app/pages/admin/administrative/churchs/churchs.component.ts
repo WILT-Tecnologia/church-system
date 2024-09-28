@@ -56,9 +56,11 @@ export class ChurchsComponent implements OnInit {
   }
 
   loadChurch = () => {
+    this.loading.show();
     this.churchsService.getChurch().subscribe((churchs) => {
       this.churchs = churchs;
     });
+    this.loading.hide();
   };
 
   addNewChurch = (): void => {
@@ -74,7 +76,9 @@ export class ChurchsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((newChurch) => {
       if (newChurch) {
+        this.loading.show();
         this.loadChurch();
+        this.loading.hide();
       }
     });
   };
@@ -95,7 +99,9 @@ export class ChurchsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((updatedChurch) => {
       if (updatedChurch) {
+        this.loading.show();
         this.loadChurch();
+        this.loading.hide();
       }
     });
   };
