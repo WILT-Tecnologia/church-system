@@ -1,6 +1,6 @@
 <mat-card appearance="outlined">
-  <div class="flex justify-between items-center mx-2">
-    <mat-card-header class="mb-3">
+  <div class="flex justify-between items-center m-2">
+    <mat-card-header>
       <mat-card-title>{{pageTitle}}</mat-card-title>
     </mat-card-header>
     <button mat-icon-button color="warn" (click)="handleBack()">
@@ -15,6 +15,7 @@
         <mat-slide-toggle formControlName="status"
           color="primary">{{occupationForm.get('status')?.value ? 'Ativado' : 'Desativado'}}</mat-slide-toggle>
       </app-column>
+
       <app-column>
         <mat-form-field appearance="fill">
           <mat-label>Nome</mat-label>
@@ -23,6 +24,7 @@
             *ngIf="occupationForm.get('name')?.invalid && occupationForm.get('name')?.touched">{{getErrorMessage('name')}}</mat-error>
         </mat-form-field>
       </app-column>
+
       <app-column>
         <mat-form-field appearance="fill">
           <mat-label>Descrição</mat-label>
@@ -31,16 +33,19 @@
             *ngIf="occupationForm.get('description')?.invalid && occupationForm.get('description')?.touched">{{getErrorMessage('description')}}</mat-error>
         </mat-form-field>
       </app-column>
-      @if (this.isEditMode && occupationForm.get('updated_at')?.value) {
-      <span class="info">Atualizado em {{ occupationForm.get('updated_at')?.value }}</span>
-      }
-      <mat-divider></mat-divider>
-      <div class="cta">
-        <button type="button" mat-stroked-button color="warn" (click)="handleBack()">Cancelar</button>
-        <button type="submit" mat-raised-button color="primary" [disabled]="occupationForm.invalid">
-          {{isEditMode ? 'Atualizar' : 'Cadastrar'}}
-        </button>
-      </div>
+
+      <mat-card-footer>
+        <ng-container *ngIf="isEditMode && occupationForm.get('updated_at')?.value">
+          <span class="info">Atualizado em {{ occupationForm.get('updated_at')?.value }}</span>
+        </ng-container>
+        <mat-divider></mat-divider>
+        <div class="cta">
+          <button type="button" mat-stroked-button color="warn" (click)="handleBack()">Cancelar</button>
+          <button type="submit" mat-raised-button color="primary" [disabled]="occupationForm.invalid">
+            {{isEditMode ? 'Atualizar' : 'Cadastrar'}}
+          </button>
+        </div>
+      </mat-card-footer>
     </form>
   </mat-card-content>
 </mat-card>

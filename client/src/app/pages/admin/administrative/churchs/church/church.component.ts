@@ -101,20 +101,13 @@ export class ChurchComponent implements OnInit {
         responsable?.name || 'Selecione o responsável';
     });
 
-    this.churchForm.get('cep')?.valueChanges.subscribe((cep: string) => {
-      if (cep.length === 8) {
-        this.searchCep(cep);
-      }
-    });
-  }
-
-  get pageTitle(): string {
-    return this.isEditMode ? 'Editando igreja' : 'Criando a Igreja';
-  }
-
-  getErrorMessage(controlName: string) {
-    const control = this.churchForm.get(controlName);
-    return control ? this.validationService.getErrorMessage(control) : null;
+    if (this.isEditMode) {
+      this.churchForm.get('cep')?.valueChanges.subscribe((cep: string) => {
+        if (cep.length === 8) {
+          this.searchCep(cep);
+        }
+      });
+    }
   }
 
   createForm = () => {
@@ -170,6 +163,15 @@ export class ChurchComponent implements OnInit {
     });
   };
 
+  get pageTitle(): string {
+    return this.isEditMode ? 'Editando igreja' : 'Criando a Igreja';
+  }
+
+  getErrorMessage(controlName: string) {
+    const control = this.churchForm.get(controlName);
+    return control ? this.validationService.getErrorMessage(control) : null;
+  }
+
   handleSubmit = () => {
     if (this.churchForm.invalid) {
       return;
@@ -185,6 +187,20 @@ export class ChurchComponent implements OnInit {
 
   handleBack = () => {
     this.dialogRef.close();
+  };
+
+  handleEditMode = () => {
+    this.churchsService
+      .getChurchById(this.churchId!)
+      .subscribe((church: Church) => {
+        this.churchForm.patchValue({
+          ...church,
+          updated_at: dayjs(church.updated_at).format(
+            'DD/MM/YYYY [às] HH:mm:ss',
+          ),
+          responsible_id: church.responsible_id || null,
+        });
+      });
   };
 
   handleCreate = () => {
@@ -220,18 +236,6 @@ export class ChurchComponent implements OnInit {
         complete: () => {
           this.loadingService.hide();
         },
-      });
-  };
-
-  handleEditMode = () => {
-    this.churchsService
-      .getChurchById(this.churchId!)
-      .subscribe((church: Church) => {
-        this.churchForm.patchValue({
-          ...church,
-          updated_at: dayjs(church.updated_at).format('DD/MM/YYYY [às] HH:mm'),
-          responsible_id: church.responsible_id || null,
-        });
       });
   };
 

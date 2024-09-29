@@ -1,13 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { Router } from '@angular/router';
+import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { TableComponent } from 'app/components/table/table.component';
 import { MemberOrigin } from 'app/model/MemberOrigins';
 import { SnackbarService } from 'app/service/snackbar/snackbar.service';
+import { MemberOriginFormComponent } from './member-origin-form/member-origin-form.component';
 import { MemberOriginService } from './member-origin.service';
 
 @Component({
@@ -24,13 +26,6 @@ import { MemberOriginService } from './member-origin.service';
   ],
 })
 export class MemberOriginComponent implements OnInit {
-  constructor(
-    private router: Router,
-    private snackbarService: SnackbarService,
-    private loading: LoadingService,
-    private MemberOriginService: MemberOriginService,
-  ) {}
-
   memberOrigins: MemberOrigin[] = [];
   displayedColumns: string[] = ['name', 'status', 'updated_at', 'actions'];
   columnDefinitions = {
@@ -40,46 +35,95 @@ export class MemberOriginComponent implements OnInit {
     actions: 'Ações',
   };
 
+  constructor(
+    private MemberOriginService: MemberOriginService,
+    private snackbarService: SnackbarService,
+    private loading: LoadingService,
+    private dialog: MatDialog,
+    private confirmService: ConfirmService,
+  ) {}
+
   ngOnInit() {
     this.loadMemberOrigins();
   }
 
   loadMemberOrigins = () => {
-    this.loading.show();
     this.MemberOriginService.getMemberOrigins().subscribe((memberOrigin) => {
       this.memberOrigins = memberOrigin;
     });
-    this.loading.hide();
   };
 
   addNewMemberOrigin = (): void => {
-    this.router.navigate([
-      'administrative/member-origin/member-origin-form/new',
-    ]);
+    const dialogRef = this.dialog.open(MemberOriginFormComponent, {
+      maxWidth: '100%',
+      height: 'auto',
+      maxHeight: '100dvh',
+      role: 'dialog',
+      panelClass: 'dialog',
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loading.show();
+        this.loadMemberOrigins();
+        this.loading.hide();
+      }
+    });
   };
 
   editMemberOrigin = (memberOrigin: MemberOrigin): void => {
-    this.router.navigate([
-      'administrative/member-origin/member-origin-form/edit',
-      memberOrigin.id,
-    ]);
+    const dialogRef = this.dialog.open(MemberOriginFormComponent, {
+      id: memberOrigin.id,
+      maxWidth: '100%',
+      height: 'auto',
+      maxHeight: '100dvh',
+      role: 'dialog',
+      panelClass: 'dialog',
+      disableClose: true,
+      data: { memberOrigin },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loading.show();
+        this.loadMemberOrigins();
+        this.loading.hide();
+      }
+    });
   };
 
   deleteMemberOrigin = (memberOrigin: MemberOrigin): void => {
-    this.loading.show();
-    this.MemberOriginService.deleteMemberOrigin(memberOrigin.id).subscribe({
-      next: () => {
-        this.snackbarService.openSuccess(
-          'Origem de Membro excluído com sucesso!',
-        );
-        this.loadMemberOrigins();
-      },
-
-      error: () => {
-        this.loading.hide();
-        this.snackbarService.openError('Erro ao excluir Origem de Membros!');
-      },
-    });
-    this.loading.hide();
+    this.confirmService
+      .openConfirm(
+        'Atenção',
+        `Tem certeza que deseja excluir a Origem de Membros ${memberOrigin.name}?`,
+        'Sim, excluir',
+        'Cancelar',
+      )
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) {
+          this.MemberOriginService.deleteMemberOrigin(
+            memberOrigin.id,
+          ).subscribe({
+            next: () => {
+              this.snackbarService.openSuccess(
+                'Origem de Membro excluído com sucesso!',
+              );
+              this.loadMemberOrigins();
+            },
+            error: () => {
+              this.loading.hide();
+              this.snackbarService.openError(
+                'Erro ao excluir Origem de Membros!',
+              );
+            },
+            complete: () => {
+              this.loading.hide();
+            },
+          });
+        }
+      });
   };
 }

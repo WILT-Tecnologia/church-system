@@ -1,6 +1,6 @@
 <mat-card appearance="outlined">
-  <div class="flex justify-between items-center mx-2">
-    <mat-card-header class="mb-3">
+  <div class="flex justify-between items-center m-2">
+    <mat-card-header>
       <mat-card-title>{{pageTitle}}</mat-card-title>
     </mat-card-header>
     <button mat-icon-button color="warn" (click)="handleBack()">
@@ -52,6 +52,7 @@
             *ngIf="churchForm.get('cnpj')?.invalid && churchForm.get('cnpj')?.touched">{{getErrorMessage('cnpj')}}</mat-error>
         </mat-form-field>
       </app-column>
+      <mat-divider></mat-divider>
       <mat-card-subtitle>Endereço</mat-card-subtitle>
       <app-column>
         <mat-form-field class="reduction" appearance="fill">

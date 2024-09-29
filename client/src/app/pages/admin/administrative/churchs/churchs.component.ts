@@ -93,7 +93,6 @@ export class ChurchsComponent implements OnInit {
       role: 'dialog',
       panelClass: 'dialog',
       disableClose: true,
-
       data: { church },
     });
 

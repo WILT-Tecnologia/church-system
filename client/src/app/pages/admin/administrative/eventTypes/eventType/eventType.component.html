@@ -1,40 +1,47 @@
-<mat-card class="wrapper">
-  <mat-card-header class="mb-1">
-    <mat-card-title>
-      {{pageTitle}}
-    </mat-card-title>
-  </mat-card-header>
+<mat-card appearance="outlined">
+  <div class="flex justify-between items-center m-2">
+    <mat-card-header>
+      <mat-card-title>{{pageTitle}}</mat-card-title>
+    </mat-card-header>
+    <button mat-icon-button color="warn" (click)="handleBack()">
+      <mat-icon color="warn">close</mat-icon>
+    </button>
+  </div>
+  <mat-divider></mat-divider>
+
   <mat-card-content>
-    <form [formGroup]="eventTypeForm" (ngSubmit)="handleSubmit()" class="form-field-group">
-      <div class="inputs">
+    <form [formGroup]="eventTypeForm" (ngSubmit)="handleSubmit()" class="form-field-group wrapper">
+      <app-column>
         <mat-slide-toggle formControlName="status" color="primary">Ativo</mat-slide-toggle>
-      </div>
-      <div class="inputs">
+      </app-column>
+      <app-column>
         <mat-form-field appearance="fill">
           <mat-label>Nome</mat-label>
           <input matInput formControlName="name" maxlength="255" required>
-          <mat-error *ngIf="eventTypeForm.get('name')?.hasError('required')">Campo obrigatório.</mat-error>
-          <mat-error *ngIf="eventTypeForm.get('name')?.hasError('maxlength')">Máximo de 255 caracteres.</mat-error>
+          <mat-error
+            *ngIf="eventTypeForm.get('name')?.invalid && eventTypeForm.get('name')?.touched">{{getErrorMessage('name')}}</mat-error>
         </mat-form-field>
-      </div>
-      <div class="inputs">
+      </app-column>
+      <app-column>
         <mat-form-field appearance="fill">
           <mat-label>Descrição</mat-label>
-          <textarea matInput rows="5" formControlName="description" maxlength="255"></textarea>
-          <mat-error *ngIf="eventTypeForm.get('description')?.hasError('maxlength')">Máximo de 255
-            caracteres.</mat-error>
+          <textarea matInput rows="3" formControlName="description" maxlength="255"></textarea>
+          <mat-error
+            *ngIf="eventTypeForm.get('description')?.invalid && eventTypeForm.get('description')?.touched">{{getErrorMessage('description')}}</mat-error>
         </mat-form-field>
-      </div>
-      @if (this.isEditMode && eventTypeForm.get('updated_at')?.value) {
-      <span class="info">Atualizado em {{ eventTypeForm.get('updated_at')?.value }}</span>
-      }
-      <mat-divider></mat-divider>
-      <div class="cta">
-        <button type="button" mat-stroked-button color="primary" (click)="handleBack()">Cancelar</button>
-        <button type="submit" mat-raised-button color="primary" [disabled]="!eventTypeForm.valid">
-          {{isEditMode ? 'Atualizar' : 'Cadastrar'}}
-        </button>
-      </div>
+      </app-column>
+      <mat-card-footer>
+        <ng-container *ngIf="isEditMode && eventTypeForm.get('updated_at')?.value">
+          <span class="info">Atualizado em {{ eventTypeForm.get('updated_at')?.value }}</span>
+        </ng-container>
+        <mat-divider></mat-divider>
+        <div class="cta">
+          <button type="button" mat-stroked-button color="warn" (click)="handleBack()">Cancelar</button>
+          <button type="submit" mat-raised-button color="primary" [disabled]="eventTypeForm.invalid">
+            {{isEditMode ? 'Atualizar' : 'Cadastrar'}}
+          </button>
+        </div>
+      </mat-card-footer>
     </form>
   </mat-card-content>
 </mat-card>

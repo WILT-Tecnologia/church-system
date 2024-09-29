@@ -1,6 +1,6 @@
 <mat-card appearance="outlined">
-  <div class="flex justify-between items-center mx-2">
-    <mat-card-header class="mb-3">
+  <div class="flex justify-between items-center m-2">
+    <mat-card-header>
       <mat-card-title>{{pageTitle}}</mat-card-title>
     </mat-card-header>
     <button mat-icon-button color="warn" (click)="handleBack()">
@@ -28,15 +28,15 @@
           <mat-error
             *ngIf="personForm.get('cpf')?.invalid && personForm.get('cpf')?.touched">{{getErrorMessage('cpf')}}</mat-error>
         </mat-form-field>
+      </app-column>
+
+      <app-column>
         <mat-form-field appearance="fill">
           <mat-label>E-mail</mat-label>
           <input matInput formControlName="email" maxlength="255" required>
           <mat-error
             *ngIf="personForm.get('email')?.invalid && personForm.get('email')?.touched">{{getErrorMessage('email')}}</mat-error>
         </mat-form-field>
-      </app-column>
-
-      <app-column>
         <mat-form-field class="birth_date">
           <mat-label>Data de nascimento</mat-label>
           <input matInput [matDatepicker]="picker" name="birth_date" formControlName="birth_date" readonly required>
@@ -61,6 +61,9 @@
           <mat-error
             *ngIf="personForm.get('sex')?.invalid && personForm.get('sex')?.touched">{{getErrorMessage('sex')}}</mat-error>
         </mat-form-field>
+      </app-column>
+
+      <app-column>
         <mat-form-field appearance="fill">
           <mat-label>Celular</mat-label>
           <input matInput formControlName="phone_one" mask="(00) 00000-0000" required>
@@ -130,14 +133,16 @@
             *ngIf="personForm.get('country')?.invalid && personForm.get('country')?.touched">{{getErrorMessage('country')}}</mat-error>
         </mat-form-field>
       </app-column>
-      <div *ngIf="isEditMode && personForm.get('updated_at')?.value">
-        <span>Atualizado em: {{ personForm.get('updated_at')?.value }}</span>
-      </div>
-      <mat-divider></mat-divider>
-      <mat-card-footer class="cta">
-        <button mat-stroked-button type="button" color="warn" (click)="handleBack()">Cancelar</button>
-        <button mat-raised-button type="submit" color="primary"
-          [disabled]="personForm.invalid">{{isEditMode ? ' Atualizar' : 'Cadastrar'}}</button>
+      <mat-card-footer>
+        <ng-container *ngIf="isEditMode && personForm.get('updated_at')?.value">
+          <span>Atualizado em: {{ personForm.get('updated_at')?.value }}</span>
+        </ng-container>
+        <mat-divider></mat-divider>
+        <div class="cta">
+          <button mat-stroked-button type="button" color="warn" (click)="handleBack()">Cancelar</button>
+          <button mat-raised-button type="submit" color="primary"
+            [disabled]="personForm.invalid">{{isEditMode ? ' Atualizar' : 'Cadastrar'}}</button>
+        </div>
       </mat-card-footer>
     </form>
   </mat-card-content>
