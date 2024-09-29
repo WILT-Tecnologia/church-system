@@ -164,7 +164,7 @@ export class ChurchComponent implements OnInit {
   };
 
   get pageTitle(): string {
-    return this.isEditMode ? 'Editando igreja' : 'Criando a Igreja';
+    return this.isEditMode ? 'Editando a igreja' : 'Criando a Igreja';
   }
 
   getErrorMessage(controlName: string) {

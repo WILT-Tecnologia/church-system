@@ -2,9 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { Router } from '@angular/router';
 import { NotFoundRegisterComponent } from '../../../../components/not-found-register/not-found-register.component';
 
+import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,9 +13,11 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { Members } from '../../../../model/Members';
 import { SnackbarService } from '../../../../service/snackbar/snackbar.service';
+import { MemberFormComponent } from './member/member-form/member-form.component';
 import { MembersService } from './members.service';
 
 @Component({
@@ -46,10 +48,11 @@ export class MembersComponent implements OnInit {
   displayedColumns: string[] = ['name', 'email', 'rg', 'actions'];
 
   constructor(
-    private router: Router,
+    private confirmeService: ConfirmService,
     private memberService: MembersService,
     private snackbarService: SnackbarService,
     private loading: LoadingService,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit() {
@@ -57,13 +60,11 @@ export class MembersComponent implements OnInit {
   }
 
   loadMembers = () => {
-    this.loading.show();
     this.memberService.getMembers().subscribe((members) => {
       this.members = members;
       this.dataSourceMat.data = members;
       this.dataSourceMat.paginator = this.paginator;
       this.dataSourceMat.sort = this.sort;
-      this.loading.hide();
     });
   };
 
@@ -78,25 +79,66 @@ export class MembersComponent implements OnInit {
   }
 
   addNewMembers = (): void => {
-    this.router.navigate(['church/members/member/new']);
+    const dialogRef = this.dialog.open(MemberFormComponent, {
+      width: '80dvw',
+      maxWidth: '100%',
+      height: 'auto',
+      maxHeight: '100dvh',
+      role: 'dialog',
+      panelClass: 'dialog',
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loadMembers();
+      }
+    });
   };
 
   editMembers = (members: Members): void => {
-    this.router.navigate(['church/members/member/edit', members.id]);
+    const dialogRef = this.dialog.open(MemberFormComponent, {
+      width: '80dvw',
+      maxWidth: '100%',
+      height: 'auto',
+      maxHeight: '100dvh',
+      role: 'dialog',
+      panelClass: 'dialog',
+      disableClose: true,
+      data: members,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loadMembers();
+      }
+    });
   };
 
   deleteMembers = (members: Members): void => {
-    this.loading.show();
-    this.memberService.deleteMember(members.id).subscribe({
-      next: () => {
-        this.snackbarService.openSuccess('Membro excluído com sucesso!');
-        this.loadMembers();
-      },
-      error: () => {
-        this.loading.hide();
-        this.snackbarService.openError('Erro ao excluir membros');
-      },
-    });
-    this.loading.hide();
+    this.confirmeService
+      .openConfirm(
+        'Excluir membros',
+        'Tem certeza que deseja excluir os membros?',
+        'Confirmar',
+        'Cancelar',
+      )
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) {
+          this.loading.show();
+          this.memberService.deleteMember(members.id).subscribe({
+            next: () => {
+              this.snackbarService.openSuccess('Membro excluído com sucesso!');
+              this.loadMembers();
+            },
+            error: () => {
+              this.loading.hide();
+              this.snackbarService.openError('Erro ao excluir membros');
+            },
+            complete: () => this.loading.hide(),
+          });
+        }
+      });
   };
 }

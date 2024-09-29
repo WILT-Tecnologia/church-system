@@ -1,9 +1,14 @@
-<mat-card>
-  <mat-card-header class="mb-1">
-    <mat-card-title>
-      {{ pageTitle }}
-    </mat-card-title>
-  </mat-card-header>
+<mat-card appearance="outlined">
+  <div class="flex justify-between items-center m-2">
+    <mat-card-header>
+      <mat-card-title>{{pageTitle}}</mat-card-title>
+    </mat-card-header>
+    <button mat-icon-button color="warn" (click)="handleBack()">
+      <mat-icon color="warn">close</mat-icon>
+    </button>
+  </div>
+  <mat-divider></mat-divider>
+
   <mat-card-content>
     <app-member-form></app-member-form>
   </mat-card-content>

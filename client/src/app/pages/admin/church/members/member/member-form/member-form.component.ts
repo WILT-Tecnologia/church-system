@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -21,7 +21,11 @@ import {
   MatDatepicker,
   MatDatepickerModule,
 } from '@angular/material/datepicker';
-import { MatDialog } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -79,7 +83,6 @@ import { AddPersonDialogComponent } from './components/modal/add-person-dialog/a
     MatDividerModule,
     MatIconModule,
     MatDatepickerModule,
-    MemberFormComponent,
     ColumnComponent,
   ],
 })
@@ -115,9 +118,11 @@ export class MemberFormComponent implements OnInit {
     private snackbarService: SnackbarService,
     private membersService: MembersService,
     private loadingService: LoadingService,
-    private dialog: MatDialog,
     private validationService: ValidationService,
     public navigationService: NavigationService,
+    private dialog: MatDialog,
+    private dialogRef: MatDialogRef<MemberFormComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { members: Members },
   ) {
     this.memberForm = this.createMemberForm();
     this.filteredPerson$ = this.setupSearchObservable('Person');
@@ -138,65 +143,104 @@ export class MemberFormComponent implements OnInit {
   createMemberForm(): FormGroup {
     return this.fb.group({
       stepOne: this.fb.group({
-        person_id: ['', [Validators.required]],
-        church_id: ['', [Validators.required]],
-        rg: ['', [Validators.required, Validators.maxLength(15)]],
-        issuing_body: ['', [Validators.required, Validators.maxLength(255)]],
-        civil_status_id: ['', [Validators.required]],
-        color_race_id: ['', [Validators.required]],
-        nationality: ['', [Validators.required]],
-        naturalness: ['', [Validators.required]],
-        updated_at: [''],
-      }),
-      stepTwo: this.fb.group({
-        formation_id: ['', [Validators.required]],
-        formation_course: [
-          '',
+        id: [this.data?.members?.id || ''],
+        person_id: [this.data?.members?.person_id || '', [Validators.required]],
+        church_id: [this.data?.members?.church_id || '', [Validators.required]],
+        rg: [
+          this.data?.members?.rg || '',
+          [Validators.required, Validators.maxLength(15)],
+        ],
+        issuing_body: [
+          this.data?.members?.issuing_body || '',
           [Validators.required, Validators.maxLength(255)],
         ],
-        profission: ['', [Validators.required, Validators.maxLength(255)]],
-        def_physical: [false],
-        def_visual: [false],
-        def_hearing: [false],
-        def_intellectual: [false],
-        def_mental: [false],
-        def_multiple: [false],
-        def_other: [false],
-        def_other_description: ['', [Validators.maxLength(255)]],
-        updated_at: [''],
+        civil_status_id: [
+          this.data?.members?.civil_status_id || '',
+          [Validators.required],
+        ],
+        color_race_id: [
+          this.data?.members?.color_race_id || '',
+          [Validators.required],
+        ],
+        nationality: [
+          this.data?.members?.nationality || '',
+          [Validators.required],
+        ],
+        naturalness: [
+          this.data?.members?.naturalness || '',
+          [Validators.required],
+        ],
+        updated_at: [this.data?.members?.updated_at || ''],
+      }),
+      stepTwo: this.fb.group({
+        formation_id: [
+          this.data?.members?.formation_id || '',
+          [Validators.required],
+        ],
+        formation_course: [
+          this.data?.members?.formation_course || '',
+          [Validators.required, Validators.maxLength(255)],
+        ],
+        profission: [
+          this.data?.members?.profission || '',
+          [Validators.required, Validators.maxLength(255)],
+        ],
+        def_physical: [this.data?.members?.def_physical || false],
+        def_visual: [this.data?.members?.def_visual || false],
+        def_hearing: [this.data?.members?.def_hearing || false],
+        def_intellectual: [this.data?.members?.def_intellectual || false],
+        def_mental: [this.data?.members?.def_mental || false],
+        def_multiple: [this.data?.members?.def_multiple || false],
+        def_other: [this.data?.members?.def_other || false],
+        def_other_description: [
+          this.data?.members?.def_other_description || '',
+          [Validators.maxLength(255)],
+        ],
+        updated_at: [this.data?.members?.updated_at || ''],
       }),
       stepThree: this.fb.group({
         baptism_date: [
-          '',
+          this.data?.members?.baptism_date || '',
           [this.validateBirthDate.bind(this), Validators.required],
         ],
-        baptism_locale: ['', [Validators.maxLength(255), Validators.required]],
-        baptism_official: [
-          '',
+        baptism_locale: [
+          this.data?.members?.baptism_locale || '',
           [Validators.maxLength(255), Validators.required],
         ],
-        baptism_holy_spirit: [false],
-        baptism_holy_spirit_date: [''],
-        member_origin_id: ['', [Validators.required]],
-        receipt_date: ['', [Validators.required]],
-        updated_at: [''],
+        baptism_official: [
+          this.data?.members?.baptism_official || '',
+          [Validators.maxLength(255), Validators.required],
+        ],
+        baptism_holy_spirit: [this.data?.members.baptism_holy_spirit || false],
+        baptism_holy_spirit_date: [
+          this.data?.members.baptism_holy_spirit_date || '',
+        ],
+        member_origin_id: [
+          this.data?.members.member_origin_id || '',
+          [Validators.required],
+        ],
+        receipt_date: [
+          this.data?.members.receipt_date || '',
+          [Validators.required],
+        ],
+        updated_at: [this.data?.members.updated_at || ''],
       }),
     });
   }
 
   ngOnInit() {
     this.loadInitialData();
-    this.memberId = this.route.snapshot.paramMap.get('id');
-    if (this.memberId) {
+    if (this.data && this.data?.members) {
       this.isEditMode = true;
-      this.handleEditMode();
+      this.memberId = this.data?.members?.id;
+      this.memberForm.patchValue(this.data.members);
+      this.handleEdit();
     }
   }
 
   createFilteredObservable(
     filterFunction: (searchTerm: string) => any[],
-    sourceArray: any[],
-  ): Observable<any[]> {
+  ): Observable<Members[]> {
     return this.searchControl.valueChanges.pipe(
       debounceTime(300),
       startWith(''),
@@ -260,7 +304,7 @@ export class MemberFormComponent implements OnInit {
   }
 
   handleBack = () => {
-    this.core.handleBack();
+    this.dialogRef.close();
   };
 
   onNext() {
@@ -313,7 +357,9 @@ export class MemberFormComponent implements OnInit {
 
   handleSubmit() {
     if (this.memberForm.invalid) return;
-    this.isEditMode ? this.updateMember() : this.createMember();
+
+    const memberData = this.combineStepData();
+    this.isEditMode ? this.updateMember(memberData.id) : this.handleCreate();
   }
 
   validateBirthDate(control: AbstractControl): ValidationErrors | null {
@@ -322,17 +368,18 @@ export class MemberFormComponent implements OnInit {
     return dayjs(birthDate).isBefore(dayjs()) ? null : { invalidDate: true };
   }
 
-  createMember() {
+  handleCreate() {
     this.loadingService.show();
-    const memberData = this.combineStepData();
 
+    const memberData = this.combineStepData();
     this.membersService.createMember(memberData).subscribe({
       next: () => this.onSuccess('Membro criado com sucesso.'),
       error: () => this.onError('Erro ao criar o membro.'),
+      complete: () => this.loadingService.hide(),
     });
   }
 
-  handleEditMode = () => {
+  handleEdit = () => {
     this.membersService
       .getMemberById(this.memberId!)
       .subscribe((member: Members) => {
@@ -345,20 +392,21 @@ export class MemberFormComponent implements OnInit {
       });
   };
 
-  updateMember() {
+  updateMember(memberId: string) {
     this.loadingService.show();
     this.membersService
-      .updateMember(this.memberId!, this.memberForm.value)
+      .updateMember(memberId!, this.memberForm.value)
       .subscribe({
-        next: () => this.onSuccess('Membro atualizado com sucesso.'),
-        error: () => this.onError('Erro ao atualizar o membro.'),
+        next: () => this.onSuccess('Membro criado com sucesso.'),
+        error: () => this.onError('Erro ao criar o membro.'),
+        complete: () => this.loadingService.hide(),
       });
   }
 
   onSuccess(message: string) {
     this.loadingService.hide();
     this.snackbarService.openSuccess(message);
-    this.handleBack();
+    this.dialogRef.close(this.memberForm.value);
   }
 
   onError(message: string) {

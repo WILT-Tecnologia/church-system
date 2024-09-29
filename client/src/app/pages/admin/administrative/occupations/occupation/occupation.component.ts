@@ -67,7 +67,7 @@ export class OccupationComponent implements OnInit {
   }
 
   get pageTitle() {
-    return this.isEditMode ? 'Editar ocupação' : 'Criar ocupação';
+    return this.isEditMode ? 'Editando ocupação' : 'Criando ocupação';
   }
 
   getErrorMessage(controlName: string) {

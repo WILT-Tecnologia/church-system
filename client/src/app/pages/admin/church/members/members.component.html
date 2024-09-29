@@ -1,4 +1,4 @@
-<mat-card>
+<mat-card *ngIf="members && members.length > 0; else noDataTemplate">
   <div class="add-button">
     <button mat-raised-button color="primary" (click)="addNewMembers()">
       Adicionar
@@ -56,12 +56,8 @@
     [sortColumn]="'rg'" [sortDirection]="'asc'">
   </app-table>
 </ng-container> -->
-<!-- [columnTypes]="columnTypes" -->
-<ng-template *ngIf="members.length === 0">
-  <app-not-found-register [template]="'membro'" [ctaLabel]="'Adicionar Novo Membro'"
+
+<ng-template #noDataTemplate>
+  <app-not-found-register [template]="'membro'" [ctaLabel]="'Adicionar'"
     [addRegisterFn]="addNewMembers"></app-not-found-register>
 </ng-template>
-<!-- <ng-template #noDataTemplate>
-  <app-not-found-register [template]="'membro'" [ctaLabel]="'Adicionar Novo Membro'"
-    [addRegisterFn]="addNewMembers"></app-not-found-register>
-</ng-template> -->

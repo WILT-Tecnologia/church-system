@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
+import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { NotFoundRegisterComponent } from '../../../../components/not-found-register/not-found-register.component';
 import { TableComponent } from '../../../../components/table/table.component';
@@ -38,6 +39,7 @@ export class OccupationsComponent implements OnInit {
     private occupationsService: OccupationsService,
     private snackbarService: SnackbarService,
     private loading: LoadingService,
+    private confirmeService: ConfirmService,
     private dialog: MatDialog,
   ) {}
 
@@ -87,19 +89,33 @@ export class OccupationsComponent implements OnInit {
   };
 
   deleteOccupation = (occupation: Occupation): void => {
-    this.loading.show();
-    this.occupationsService.deleteOccupation(occupation.id).subscribe({
-      next: () => {
-        this.snackbarService.openSuccess('Ocupação excluída com sucesso!');
-        this.loadOccupations();
-      },
-      error: () => {
-        this.loading.hide();
-        this.snackbarService.openError('Erro ao excluir a ocupação!');
-      },
-      complete: () => {
-        this.loading.hide();
-      },
-    });
+    this.confirmeService
+      .openConfirm(
+        'Atenção',
+        `Tem certeza que deseja excluir esta ocupação: ${occupation.name}?`,
+        'Sim',
+        'Cancelar',
+      )
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) {
+          this.loading.show();
+          this.occupationsService.deleteOccupation(occupation.id).subscribe({
+            next: () => {
+              this.snackbarService.openSuccess(
+                'Ocupação excluída com sucesso!',
+              );
+              this.loadOccupations();
+            },
+            error: () => {
+              this.loading.hide();
+              this.snackbarService.openError('Erro ao excluir a ocupação!');
+            },
+            complete: () => {
+              this.loading.hide();
+            },
+          });
+        }
+      });
   };
 }
