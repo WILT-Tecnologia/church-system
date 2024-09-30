@@ -91,4 +91,9 @@ class Member extends Model
     {
         return $this->belongsTo(Ordination::class);
     }
+
+    public function statusMember(): BelongsTo
+    {
+        return $this->belongsTo(StatusMember::class);
+    }
 }
