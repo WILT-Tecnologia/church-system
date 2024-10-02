@@ -21,6 +21,7 @@ Route::prefix('church')->group(function () {
     Route::apiResource('members', \App\Http\Controllers\Api\MemberController::class);
     Route::apiResource('families', \App\Http\Controllers\Api\FamilyController::class);
     Route::apiResource('ordinations', \App\Http\Controllers\Api\OrdinationController::class);
+    Route::apiResource('status-members', \App\Http\Controllers\Api\StatusMemberController::class);
 });
 
 Route::prefix('aux')->group(function () {
