@@ -33,7 +33,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
-import { ActivatedRoute } from '@angular/router';
 import { LoadingService } from 'app/components/loading/loading.service';
 import {
   CivilStatus,
@@ -46,7 +45,6 @@ import { Church } from 'app/model/Church';
 import { MemberOrigin } from 'app/model/MemberOrigins';
 import { Members } from 'app/model/Members';
 import { Person } from 'app/model/Person';
-import { CoreService } from 'app/service/core/core.service';
 import { NavigationService } from 'app/service/navigation/navigation.service';
 import { SnackbarService } from 'app/service/snackbar/snackbar.service';
 import { ValidationService } from 'app/service/validation/validation.service';
@@ -91,7 +89,9 @@ export class MemberFormComponent implements OnInit {
   memberId: string | null = null;
   isEditMode: boolean = false;
   memberForm: FormGroup;
-  searchControl = new FormControl();
+  searchControl = new FormControl('');
+  civilStatusSearchControl = new FormControl('');
+  colorRaceSearchControl = new FormControl('');
   filteredPerson$: Observable<Person[]>;
   filteredChurch$: Observable<Church[]>;
   filterMemberOrigins: Observable<MemberOrigin[]>;
@@ -113,8 +113,6 @@ export class MemberFormComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private core: CoreService,
-    private route: ActivatedRoute,
     private snackbarService: SnackbarService,
     private membersService: MembersService,
     private loadingService: LoadingService,
@@ -127,10 +125,10 @@ export class MemberFormComponent implements OnInit {
     this.memberForm = this.createMemberForm();
     this.filteredPerson$ = this.setupSearchObservable('Person');
     this.filteredChurch$ = this.setupSearchObservable('Church');
-    this.filterMemberOrigins = this.setupSearchObservable('MemberOrigin');
-    this.filteredCivilStatus = this.setupSearchObservable('CivilStatus');
     this.filteredColorRace = this.setupSearchObservable('ColorRace');
+    this.filteredCivilStatus = this.setupSearchObservable('CivilStatus');
     this.filteredFormations = this.setupSearchObservable('Formations');
+    this.filterMemberOrigins = this.setupSearchObservable('MemberOrigin');
     this.filteredKinships = this.setupSearchObservable('Kinships');
     this.filteredMemberSituations =
       this.setupSearchObservable('MemberSituations');
@@ -155,11 +153,11 @@ export class MemberFormComponent implements OnInit {
           [Validators.required, Validators.maxLength(255)],
         ],
         civil_status_id: [
-          this.data?.members?.civil_status_id || '',
+          this.data?.members?.civil_status_id || [],
           [Validators.required],
         ],
         color_race_id: [
-          this.data?.members?.color_race_id || '',
+          this.data?.members?.color_race_id || [],
           [Validators.required],
         ],
         nationality: [
@@ -252,15 +250,18 @@ export class MemberFormComponent implements OnInit {
     );
   }
 
-  setupSearchObservable(type: string): Observable<any[]> {
+  setupSearchObservable(target: string): Observable<any[]> {
     return this.searchControl.valueChanges.pipe(
       debounceTime(300),
       startWith(''),
-      map((searchTerm) =>
-        (this as any)
-          [`filter${type}`](searchTerm ?? '')
-          .sort((a: any, b: any) => a.name.localeCompare(b.name)),
-      ),
+      map((searchTerm) => {
+        const items = (this as any)[target] || [];
+        return items
+          .filter((item: any) =>
+            item.name.toLowerCase().includes(searchTerm?.toLowerCase()),
+          )
+          .sort((a: any, b: any) => a.name.localeCompare(b.name));
+      }),
     );
   }
 
@@ -278,14 +279,20 @@ export class MemberFormComponent implements OnInit {
     ); */
   }
 
-  fetchData(fetchObservable: Observable<any[]>, target: string) {
+  fetchData(serviceMethod: Observable<any>, target: string) {
+    serviceMethod.subscribe((data) => {
+      (this as any)[target] = data;
+    });
+  }
+
+  /* fetchData(fetchObservable: Observable<any[]>, target: string) {
     fetchObservable.subscribe((data) => {
       (this as any)[target] = data;
       (this as any)[
         `filtered${target.charAt(0).toUpperCase() + target.slice(1)}$`
       ] = this.setupSearchObservable(target.slice(0, -1));
     });
-  }
+  } */
 
   onCheckboxChange(fieldName: string, checkboxControlName: string): void {
     const isChecked = this.memberForm.get(checkboxControlName)?.value;
@@ -628,34 +635,47 @@ export class MemberFormComponent implements OnInit {
 
   onSelectOpenedChangeCivilStatus(isOpen: boolean) {
     if (isOpen) {
-      this.membersService.getCivilStatus().subscribe((civilStatus) => {
-        this.civilStatus = civilStatus;
-        this.filteredCivilStatus = this.searchControl.valueChanges.pipe(
-          debounceTime(300),
-          startWith(''),
-          map((searchTerm) =>
-            this.filterCivilStatus(searchTerm ?? '').sort((a, b) =>
-              a.name.localeCompare(b.name),
-            ),
-          ),
-        );
+      this.membersService.getCivilStatus().subscribe({
+        next: (civilStatus) => {
+          this.civilStatus = civilStatus || [];
+          this.filteredCivilStatus =
+            this.civilStatusSearchControl.valueChanges.pipe(
+              debounceTime(300),
+              startWith(''),
+              map((searchTerm) => {
+                if (!this.civilStatus) return [];
+                return this.filterCivilStatus(searchTerm ?? '').sort((a, b) =>
+                  a.name.localeCompare(b.name),
+                );
+              }),
+            );
+        },
+        error: (err) => {
+          console.error('Erro ao buscar estado civil:', err);
+        },
       });
     }
   }
 
   onSelectOpenedChangeColorRace(isOpen: boolean) {
     if (isOpen) {
-      this.membersService.getColorRace().subscribe((colorRace) => {
-        this.colorRace = colorRace;
-        this.filteredColorRace = this.searchControl.valueChanges.pipe(
-          debounceTime(300),
-          startWith(''),
-          map((searchTerm) =>
-            this.filterColorRace(searchTerm ?? '').sort((a, b) =>
-              a.name.localeCompare(b.name),
-            ),
-          ),
-        );
+      this.membersService.getColorRace().subscribe({
+        next: (colorRace) => {
+          this.colorRace = colorRace;
+          this.filteredColorRace =
+            this.colorRaceSearchControl.valueChanges.pipe(
+              debounceTime(300),
+              startWith(''),
+              map((searchTerm) =>
+                this.filterColorRace(searchTerm ?? '').sort((a, b) =>
+                  a.name.localeCompare(b.name),
+                ),
+              ),
+            );
+        },
+        error: (err) => {
+          console.error('Erro ao buscar cor/raça:', err);
+        },
       });
     }
   }

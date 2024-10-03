@@ -1,9 +1,9 @@
-<form [formGroup]="memberForm" (ngSubmit)="handleSubmit()" class="form-field-group">
+<form [formGroup]="memberForm" (ngSubmit)="handleSubmit()" class="form-field-group wrapper">
   <mat-tab-group preserveContent dynamicHeight [(selectedIndex)]="currentStep">
     <mat-tab label="Dados pessoais" [disabled]="currentStep !== 0">
       <mat-divider></mat-divider>
       <section class="py-4">
-        <mat-card appearance="outlined" class="wrapper">
+        <mat-card appearance="outlined">
           <mat-card-header>
             <mat-card-title class="pb-6">Dados pessoais</mat-card-title>
           </mat-card-header>
@@ -87,7 +87,7 @@
                     <ng-container *ngIf="filteredCivilStatus | async as civilStatusList">
                       <mat-form-field appearance="fill" class="search-field">
                         <mat-label>Pesquisar</mat-label>
-                        <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
+                        <input matInput placeholder="Digite para buscar" [formControl]="civilStatusSearchControl" />
                       </mat-form-field>
                       <mat-option *ngFor="let civilStatus of civilStatusList" [value]="civilStatus.id">
                         {{ civilStatus.name }}
@@ -99,6 +99,7 @@
                     {{ getErrorMessage('stepOne.civil_status_id') }}
                   </mat-error>
                 </mat-form-field>
+
                 <mat-form-field appearance="fill">
                   <mat-label>Cor/Raça</mat-label>
                   <mat-select formControlName="color_race_id" (openedChange)="onSelectOpenedChangeColorRace($event)">
@@ -108,7 +109,7 @@
                     <ng-container *ngIf="filteredColorRace | async as colorRaceList">
                       <mat-form-field appearance="fill" class="search-field">
                         <mat-label>Pesquisar</mat-label>
-                        <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
+                        <input matInput placeholder="Digite para buscar" [formControl]="colorRaceSearchControl" />
                       </mat-form-field>
                       <mat-option *ngFor="let colorRace of colorRaceList" [value]="colorRace.id">
                         {{ colorRace.name }}
@@ -151,7 +152,7 @@
     <mat-tab label="Dados complementares" [disabled]="currentStep !== 1">
       <mat-divider></mat-divider>
       <section class="py-4">
-        <mat-card appearance="outlined" class="wrapper">
+        <mat-card appearance="outlined">
           <mat-card-header>
             <mat-card-title class="pb-6">Dados complementares</mat-card-title>
           </mat-card-header>
@@ -234,7 +235,7 @@
     <mat-tab label="Dados espirituais" [disabled]="currentStep !== 2">
       <mat-divider></mat-divider>
       <section class="py-4">
-        <mat-card appearance="outlined" class="wrapper">
+        <mat-card appearance="outlined">
           <mat-card-header>
             <mat-card-title class="pb-6">Dados espirituais</mat-card-title>
           </mat-card-header>
