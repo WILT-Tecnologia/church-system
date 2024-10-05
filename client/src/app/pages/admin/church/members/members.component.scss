@@ -69,8 +69,8 @@
 }
 
 .actions-cell {
-  position: fixed;
-  width: 1rem;
+  position: relative;
+  width: 10rem;
   overflow: hidden;
   transition: width 0.3s ease-in-out;
 }
@@ -78,17 +78,19 @@
 .actions-container {
   display: none;
   justify-content: flex-end;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .rows:hover .actions-cell {
-  position: fixed;
-  width: 1rem;
+  width: 10rem;
   overflow: visible;
   transition: width 0.3s ease-in-out;
 }
 
 .rows:hover .actions-container {
   display: flex;
+  opacity: 1;
 }
 
 /* Estilo dos ícones de ação */

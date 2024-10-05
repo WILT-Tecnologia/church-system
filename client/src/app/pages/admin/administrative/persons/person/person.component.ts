@@ -102,14 +102,16 @@ export class PersonComponent implements OnInit {
       this.isEditMode = true;
       this.personId = this.data.person.id;
       this.personForm.patchValue(this.data.person);
+      this.handleEditMode();
     }
-    this.handleEditMode();
 
-    this.personForm.get('cep')?.valueChanges.subscribe((cep: string) => {
-      if (cep.length === 8) {
-        this.searchCep(cep);
-      }
-    });
+    if (this.isEditMode) {
+      this.personForm.get('cep')?.valueChanges.subscribe((cep: string) => {
+        if (cep.length === 8) {
+          this.searchCep(cep);
+        }
+      });
+    }
   }
 
   createForm() {

@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+  ViewChild,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { NotFoundRegisterComponent } from '../../../../components/not-found-register/not-found-register.component';
@@ -40,12 +47,28 @@ import { MembersService } from './members.service';
     CommonModule,
   ],
 })
-export class MembersComponent implements OnInit {
-  members: Members[] = [];
-  dataSourceMat = new MatTableDataSource<Members>(this.members);
+export class MembersComponent<T> implements OnInit, AfterViewInit, OnChanges {
+  member: Members[] = [];
+  pageSizeOptions: number[] = [25, 50, 100, 200];
+  pageSize: number = 25;
+  dataSourceMat = new MatTableDataSource<Members>(this.member);
+  columnDefinitions = [
+    { key: 'person.name', header: 'Nome' },
+    { key: 'person.cpf', header: 'CPF' },
+    { key: 'person.email', header: 'Email' },
+    { key: 'person.birth_date', header: 'Data de Nascimento' },
+    { key: 'person.sex', header: 'Sexo' },
+    { key: 'person.phone_one', header: 'Celular' },
+    { key: 'church.name', header: 'Igreja' },
+    { key: 'church.responsible.name', header: 'Pastor presidente' },
+    { key: 'baptism_date', header: 'Data do batismo' },
+  ];
+  displayedColumns = this.columnDefinitions
+    .map((col) => col.key)
+    .concat('actions');
+
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-  displayedColumns: string[] = ['name', 'email', 'rg', 'actions'];
 
   constructor(
     private confirmeService: ConfirmService,
@@ -60,13 +83,26 @@ export class MembersComponent implements OnInit {
   }
 
   loadMembers = () => {
-    this.memberService.getMembers().subscribe((members) => {
-      this.members = members;
-      this.dataSourceMat.data = members;
-      this.dataSourceMat.paginator = this.paginator;
-      this.dataSourceMat.sort = this.sort;
+    this.memberService.getMembers().subscribe({
+      next: (members) => {
+        console.log(members);
+        this.member = members;
+        this.dataSourceMat = new MatTableDataSource<Members>(this.member);
+        this.dataSourceMat.data = this.member;
+        this.dataSourceMat.paginator = this.paginator;
+        this.dataSourceMat.sort = this.sort;
+      },
+      error: (error) => {
+        this.snackbarService.openError(error.message);
+      },
     });
   };
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['dataSource'] && changes['dataSource'].currentValue) {
+      this.dataSourceMat.data = this.dataSourceMat.data;
+    }
+  }
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value
@@ -78,9 +114,29 @@ export class MembersComponent implements OnInit {
     }
   }
 
+  ngAfterViewInit() {
+    setTimeout(() => {
+      if (this.paginator && this.sort) {
+        this.dataSourceMat.paginator = this.paginator;
+        this.dataSourceMat.sort = this.sort;
+        this.sort.sortChange.emit();
+      }
+    });
+  }
+
+  /* initializeTableDataSource() {
+    this.dataSourceMat.data = this.dataSourceMat.data;
+    this.dataSourceMat.paginator = this.paginator;
+    this.dataSourceMat.sort = this.sort;
+  } */
+
+  getNestedValue(member: any, key: string): any {
+    return key.split('.').reduce((o, k) => (o || {})[k], member);
+  }
+
   addNewMembers = (): void => {
     const dialogRef = this.dialog.open(MemberFormComponent, {
-      width: '80dvw',
+      width: '70dvw',
       maxWidth: '100%',
       height: 'auto',
       maxHeight: '100dvh',
@@ -98,14 +154,15 @@ export class MembersComponent implements OnInit {
 
   editMembers = (members: Members): void => {
     const dialogRef = this.dialog.open(MemberFormComponent, {
-      width: '80dvw',
+      width: '70dvw',
       maxWidth: '100%',
       height: 'auto',
       maxHeight: '100dvh',
       role: 'dialog',
       panelClass: 'dialog',
       disableClose: true,
-      data: members,
+      id: members.id,
+      data: { members },
     });
 
     dialogRef.afterClosed().subscribe((result) => {

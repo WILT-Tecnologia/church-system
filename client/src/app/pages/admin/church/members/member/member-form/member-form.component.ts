@@ -45,6 +45,8 @@ import { Church } from 'app/model/Church';
 import { MemberOrigin } from 'app/model/MemberOrigins';
 import { Members } from 'app/model/Members';
 import { Person } from 'app/model/Person';
+import { ChurchComponent } from 'app/pages/admin/administrative/churchs/church/church.component';
+import { PersonComponent } from 'app/pages/admin/administrative/persons/person/person.component';
 import { NavigationService } from 'app/service/navigation/navigation.service';
 import { SnackbarService } from 'app/service/snackbar/snackbar.service';
 import { ValidationService } from 'app/service/validation/validation.service';
@@ -53,8 +55,6 @@ import { provideNgxMask } from 'ngx-mask';
 import { debounceTime, map, Observable, startWith } from 'rxjs';
 import { ColumnComponent } from '../../../../../../components/column/column.component';
 import { MembersService } from '../../members.service';
-import { AddChurchDialogComponent } from './components/modal/add-church-dialog/add-church-dialog.component';
-import { AddPersonDialogComponent } from './components/modal/add-person-dialog/add-person-dialog.component';
 
 @Component({
   selector: 'app-member-form',
@@ -89,9 +89,14 @@ export class MemberFormComponent implements OnInit {
   memberId: string | null = null;
   isEditMode: boolean = false;
   memberForm: FormGroup;
+
   searchControl = new FormControl('');
-  civilStatusSearchControl = new FormControl('');
-  colorRaceSearchControl = new FormControl('');
+  searchCivilStatusControl = new FormControl('');
+  searchColorRaceControl = new FormControl('');
+  searchFormationsControl = new FormControl('');
+  searchKinshipsControl = new FormControl('');
+  searchMemberSituationsControl = new FormControl('');
+
   filteredPerson$: Observable<Person[]>;
   filteredChurch$: Observable<Church[]>;
   filterMemberOrigins: Observable<MemberOrigin[]>;
@@ -100,7 +105,7 @@ export class MemberFormComponent implements OnInit {
   filteredFormations: Observable<Formations[]>;
   filteredKinships: Observable<Kinships[]>;
   filteredMemberSituations: Observable<MemberSituations[]>;
-  isSelectOpen: boolean = true;
+
   persons: Person[] = [];
   churchs: Church[] = [];
   civilStatus: CivilStatus[] = [];
@@ -125,7 +130,7 @@ export class MemberFormComponent implements OnInit {
     this.memberForm = this.createMemberForm();
     this.filteredPerson$ = this.setupSearchObservable('Person');
     this.filteredChurch$ = this.setupSearchObservable('Church');
-    this.filteredColorRace = this.setupSearchObservable('ColorRace');
+    this.filteredColorRace = this.setupSearchObservable('color_race_id');
     this.filteredCivilStatus = this.setupSearchObservable('CivilStatus');
     this.filteredFormations = this.setupSearchObservable('Formations');
     this.filterMemberOrigins = this.setupSearchObservable('MemberOrigin');
@@ -153,11 +158,11 @@ export class MemberFormComponent implements OnInit {
           [Validators.required, Validators.maxLength(255)],
         ],
         civil_status_id: [
-          this.data?.members?.civil_status_id || [],
+          this.data?.members?.civil_status_id || '',
           [Validators.required],
         ],
         color_race_id: [
-          this.data?.members?.color_race_id || [],
+          this.data?.members?.color_race_id || '',
           [Validators.required],
         ],
         nationality: [
@@ -236,20 +241,6 @@ export class MemberFormComponent implements OnInit {
     }
   }
 
-  createFilteredObservable(
-    filterFunction: (searchTerm: string) => any[],
-  ): Observable<Members[]> {
-    return this.searchControl.valueChanges.pipe(
-      debounceTime(300),
-      startWith(''),
-      map((searchTerm) =>
-        filterFunction(searchTerm ?? '').sort((a, b) =>
-          a.name.localeCompare(b.name),
-        ),
-      ),
-    );
-  }
-
   setupSearchObservable(target: string): Observable<any[]> {
     return this.searchControl.valueChanges.pipe(
       debounceTime(300),
@@ -266,13 +257,84 @@ export class MemberFormComponent implements OnInit {
   }
 
   loadInitialData() {
-    this.fetchData(this.membersService.getPersons(), 'persons');
-    this.fetchData(this.membersService.getChurch(), 'churchs');
-    this.fetchData(this.membersService.getMemberOrigins(), 'memberOrigins');
-    this.fetchData(this.membersService.getCivilStatus(), 'civilStatus');
-    this.fetchData(this.membersService.getColorRace(), 'colorRace');
-    this.fetchData(this.membersService.getFormations(), 'formations');
-    this.fetchData(this.membersService.getKinships(), 'kinships');
+    this.membersService.getPersons().subscribe((persons) => {
+      this.persons = persons;
+      this.filteredPerson$ = this.searchControl.valueChanges.pipe(
+        debounceTime(300),
+        startWith(''),
+        map((searchTerm) =>
+          this.filterPerson(searchTerm ?? '').sort((a, b) =>
+            a.name.localeCompare(b.name),
+          ),
+        ),
+      );
+    });
+
+    this.membersService.getChurch().subscribe((churchs) => {
+      this.churchs = churchs;
+      this.filteredChurch$ = this.searchControl.valueChanges.pipe(
+        debounceTime(300),
+        startWith(''),
+        map((searchTerm) =>
+          this.filterChurch(searchTerm ?? '').sort((a, b) =>
+            a.name.localeCompare(b.name),
+          ),
+        ),
+      );
+    });
+
+    this.membersService.getCivilStatus().subscribe((civilStatus) => {
+      this.civilStatus = civilStatus;
+      this.filteredCivilStatus = this.searchControl.valueChanges.pipe(
+        debounceTime(300),
+        startWith(''),
+        map((searchTerm) =>
+          this.filterCivilStatus(searchTerm ?? '').sort((a, b) =>
+            a.name.localeCompare(b.name),
+          ),
+        ),
+      );
+    });
+
+    this.membersService.getColorRace().subscribe((colorRace) => {
+      this.colorRace = colorRace;
+      this.filteredColorRace = this.searchControl.valueChanges.pipe(
+        debounceTime(300),
+        startWith(''),
+        map((searchTerm) =>
+          this.filterColorRace(searchTerm ?? '').sort((a, b) =>
+            a.name.localeCompare(b.name),
+          ),
+        ),
+      );
+    });
+
+    this.membersService.getFormations().subscribe((formations) => {
+      this.formations = formations;
+      this.filteredFormations = this.searchControl.valueChanges.pipe(
+        debounceTime(300),
+        startWith(''),
+        map((searchTerm) =>
+          this.filterFormations(searchTerm ?? '').sort((a, b) =>
+            a.name.localeCompare(b.name),
+          ),
+        ),
+      );
+    });
+
+    this.membersService.getMemberOrigins().subscribe((memberOrigin) => {
+      this.memberOrigins = memberOrigin;
+      this.filterMemberOrigins = this.searchControl.valueChanges.pipe(
+        debounceTime(300),
+        startWith(''),
+        map((searchTerm) =>
+          this.filterMemberOrigin(searchTerm ?? '').sort((a, b) =>
+            a.name.localeCompare(b.name),
+          ),
+        ),
+      );
+    });
+    //this.fetchData(this.membersService.getKinships(), 'kinships');
     /* this.fetchData(
       this.membersService.getMemberSituations(),
       'memberSitations',
@@ -280,19 +342,10 @@ export class MemberFormComponent implements OnInit {
   }
 
   fetchData(serviceMethod: Observable<any>, target: string) {
-    serviceMethod.subscribe((data) => {
+    return serviceMethod.subscribe((data) => {
       (this as any)[target] = data;
     });
   }
-
-  /* fetchData(fetchObservable: Observable<any[]>, target: string) {
-    fetchObservable.subscribe((data) => {
-      (this as any)[target] = data;
-      (this as any)[
-        `filtered${target.charAt(0).toUpperCase() + target.slice(1)}$`
-      ] = this.setupSearchObservable(target.slice(0, -1));
-    });
-  } */
 
   onCheckboxChange(fieldName: string, checkboxControlName: string): void {
     const isChecked = this.memberForm.get(checkboxControlName)?.value;
@@ -339,7 +392,7 @@ export class MemberFormComponent implements OnInit {
       case 2:
         return this.memberForm.get('stepThree') as FormGroup;
       default:
-        return this.memberForm;
+        return this.memberForm.get('stepOne') as FormGroup;
     }
   }
 
@@ -370,9 +423,12 @@ export class MemberFormComponent implements OnInit {
   }
 
   validateBirthDate(control: AbstractControl): ValidationErrors | null {
-    const birthDate = control.value;
-    if (!birthDate) return null;
-    return dayjs(birthDate).isBefore(dayjs()) ? null : { invalidDate: true };
+    const selectedDate = control.value;
+    const currentDate = dayjs();
+    if (selectedDate && dayjs(selectedDate).isAfter(currentDate)) {
+      return { futureDate: true };
+    }
+    return null;
   }
 
   handleCreate() {
@@ -440,8 +496,9 @@ export class MemberFormComponent implements OnInit {
   }
 
   filterCivilStatus(value: string): CivilStatus[] {
-    return this.civilStatus.filter((status) =>
-      status.name.toLowerCase().includes(value.toLowerCase()),
+    const filterValue = value.toLowerCase();
+    return this.civilStatus.filter((option) =>
+      option.name.toLowerCase().includes(filterValue),
     );
   }
 
@@ -457,24 +514,12 @@ export class MemberFormComponent implements OnInit {
     );
   }
 
-  /*   filterKinships(value: string): Kinships[] {
-    return this.kinships.filter((kinship) =>
-      kinship.name.toLowerCase().includes(value.toLowerCase()),
-    );
-  }
-
-  filterMemberSituation(value: string): MemberSituations[] {
-    return this.memberSituations.filter((situation) =>
-      situation.name.toLowerCase().includes(value.toLowerCase()),
-    );
-  } */
-
   openAddPersonDialog(): void {
-    this.dialog.open(AddPersonDialogComponent, {
-      width: '100%',
+    this.dialog.open(PersonComponent, {
+      width: '70dvw',
       maxWidth: '100%',
       height: 'auto',
-      maxHeight: '90vh',
+      maxHeight: '100dvh',
       role: 'dialog',
       panelClass: 'dialog',
       disableClose: true,
@@ -482,11 +527,11 @@ export class MemberFormComponent implements OnInit {
   }
 
   openAddChurchDialog(): void {
-    this.dialog.open(AddChurchDialogComponent, {
-      width: '100%',
+    this.dialog.open(ChurchComponent, {
+      width: '70dvw',
       maxWidth: '100%',
       height: 'auto',
-      maxHeight: '90vh',
+      maxHeight: '100dvh',
       role: 'dialog',
       panelClass: 'dialog',
       disableClose: true,
@@ -497,19 +542,37 @@ export class MemberFormComponent implements OnInit {
     const personId = this.memberForm.get('stepOne.person_id')?.value;
     if (personId) {
       const person = this.persons.find((r) => r.id === personId);
-      return person?.name ?? '';
+      return person?.name ?? 'Selecione a pessoa';
     }
-    return personId ? 'Selecione a pessoa' : 'Selecione a pessoa';
+    return 'Selecione a pessoa';
   }
 
   getChurchName(): string {
     const churchId = this.memberForm.get('stepOne.church_id')?.value;
     if (churchId) {
       const church = this.churchs.find((r) => r.id === churchId);
-      return church?.name ?? '';
+      return church?.name ?? 'Selecione a igreja';
     }
 
-    return churchId ? 'Selecione a igreja' : 'Selecione a igreja';
+    return 'Selecione a igreja';
+  }
+
+  getCivilStatusName(): string {
+    const civilStatusId = this.memberForm.get('stepOne.civil_status_id')?.value;
+    if (civilStatusId) {
+      const civilStatus = this.civilStatus.find((r) => r.id === civilStatusId);
+      return civilStatus?.name ?? 'Selecione o estado civil';
+    }
+    return 'Selecione o estado civil';
+  }
+
+  getColorRaceName(): string {
+    const colorRaceId = this.memberForm.get('stepOne.color_race_id')?.value;
+    if (colorRaceId) {
+      const colorRace = this.colorRace.find((r) => r.id === colorRaceId);
+      return colorRace?.name ?? 'Selecione a cor/raça';
+    }
+    return 'Selecione a cor/raça';
   }
 
   getMemberOriginName(): string {
@@ -520,214 +583,17 @@ export class MemberFormComponent implements OnInit {
       const memberOrigin = this.memberOrigins.find(
         (r) => r.id === memberOriginId,
       );
-      return memberOrigin?.name ?? '';
+      return memberOrigin?.name ?? 'Selecione a origem do membro';
     }
-    return memberOriginId
-      ? 'Selecione a origem do membro'
-      : 'Selecione a origem do membro';
-  }
-
-  getCivilStatusName(): string {
-    const civilStatusId = this.memberForm.get('stepOne.civil_status_id')?.value;
-    if (civilStatusId) {
-      const civilStatus = this.civilStatus.find((r) => r.id === civilStatusId);
-      return civilStatus?.name ?? '';
-    }
-    return civilStatusId
-      ? 'Selecione o estado civil'
-      : 'Selecione o estado civil';
-  }
-
-  getColorRaceName(): string {
-    const colorRaceId = this.memberForm.get('stepOne.color_race_id')?.value;
-    if (colorRaceId) {
-      const colorRace = this.colorRace.find((r) => r.id === colorRaceId);
-      return colorRace?.name ?? '';
-    }
-    return colorRaceId ? 'Selecione a cor' : 'Selecione a cor';
+    return 'Selecione a origem do membro';
   }
 
   getFormationsName(): string {
     const formationId = this.memberForm.get('stepTwo.formation_id')?.value;
     if (formationId) {
       const formation = this.formations.find((r) => r.id === formationId);
-      return formation?.name ?? '';
+      return formation?.name ?? 'Selecione a formação';
     }
-    return formationId ? 'Selecione a formação' : 'Selecione a formação';
+    return 'Selecione a formação';
   }
-
-  /* getKinshipsName(): string {
-    const kinshipId = this.memberForm.get('stepOne.kinship_id')?.value;
-    if (kinshipId) {
-      const kinship = this.kinships.find((r) => r.id === kinshipId);
-      return kinship?.name ?? '';
-    }
-    return kinshipId ? 'Selecione o parentesco' : 'Selecione o parentesco';
-  }
-
-  getMemberSituationName(): string {
-    const memberSituationId = this.memberForm.get(
-      'stepOne.member_situation_id',
-    )?.value;
-    if (memberSituationId) {
-      const memberSituation = this.memberSituations.find(
-        (r) => r.id === memberSituationId,
-      );
-      return memberSituation?.name ?? '';
-    }
-    return memberSituationId
-      ? 'Selecione o status do membro'
-      : 'Selecione o status do membro';
-  } */
-
-  onSelectOpenedChangePerson(isOpen: boolean) {
-    if (isOpen) {
-      this.membersService.getPersons().subscribe((persons) => {
-        this.persons = persons;
-        this.filteredPerson$ = this.searchControl.valueChanges.pipe(
-          debounceTime(300),
-          startWith(''),
-          map((searchTerm) =>
-            this.filterPerson(searchTerm ?? '').sort((a, b) =>
-              a.name.localeCompare(b.name),
-            ),
-          ),
-        );
-      });
-    }
-  }
-
-  onSelectOpenedChangeChurch(isOpen: boolean) {
-    if (isOpen) {
-      this.membersService.getChurch().subscribe((churchs) => {
-        this.churchs = churchs;
-        this.filteredChurch$ = this.searchControl.valueChanges.pipe(
-          debounceTime(300),
-          startWith(''),
-          map((searchTerm) =>
-            this.filterChurch(searchTerm ?? '').sort((a, b) =>
-              a.name.localeCompare(b.name),
-            ),
-          ),
-        );
-      });
-    }
-  }
-
-  onSelectOpenedChangeMemberOrigin = (isOpen: boolean) => {
-    if (isOpen) {
-      this.membersService.getMemberOrigins().subscribe((memberOrigin) => {
-        this.memberOrigins = memberOrigin.sort((a, b) =>
-          a.name.localeCompare(b.name),
-        );
-        this.filterMemberOrigins = this.searchControl.valueChanges.pipe(
-          debounceTime(300),
-          startWith(''),
-          map((searchTerm) =>
-            this.filterMemberOrigin(searchTerm ?? '').sort((a, b) =>
-              a.name.localeCompare(b.name),
-            ),
-          ),
-        );
-      });
-    }
-  };
-
-  onSelectOpenedChangeCivilStatus(isOpen: boolean) {
-    if (isOpen) {
-      this.membersService.getCivilStatus().subscribe({
-        next: (civilStatus) => {
-          this.civilStatus = civilStatus || [];
-          this.filteredCivilStatus =
-            this.civilStatusSearchControl.valueChanges.pipe(
-              debounceTime(300),
-              startWith(''),
-              map((searchTerm) => {
-                if (!this.civilStatus) return [];
-                return this.filterCivilStatus(searchTerm ?? '').sort((a, b) =>
-                  a.name.localeCompare(b.name),
-                );
-              }),
-            );
-        },
-        error: (err) => {
-          console.error('Erro ao buscar estado civil:', err);
-        },
-      });
-    }
-  }
-
-  onSelectOpenedChangeColorRace(isOpen: boolean) {
-    if (isOpen) {
-      this.membersService.getColorRace().subscribe({
-        next: (colorRace) => {
-          this.colorRace = colorRace;
-          this.filteredColorRace =
-            this.colorRaceSearchControl.valueChanges.pipe(
-              debounceTime(300),
-              startWith(''),
-              map((searchTerm) =>
-                this.filterColorRace(searchTerm ?? '').sort((a, b) =>
-                  a.name.localeCompare(b.name),
-                ),
-              ),
-            );
-        },
-        error: (err) => {
-          console.error('Erro ao buscar cor/raça:', err);
-        },
-      });
-    }
-  }
-
-  onSelectOpenedChangeFormation(isOpen: boolean) {
-    if (isOpen) {
-      this.membersService.getFormations().subscribe((formations) => {
-        this.formations = formations;
-        this.filteredFormations = this.searchControl.valueChanges.pipe(
-          debounceTime(300),
-          startWith(''),
-          map((searchTerm) =>
-            this.filterFormations(searchTerm ?? '').sort((a, b) =>
-              a.name.localeCompare(b.name),
-            ),
-          ),
-        );
-      });
-    }
-  }
-
-  /* onSelectOpenedChangeKinship(isOpen: boolean) {
-    if (isOpen) {
-      this.membersService.getKinships().subscribe((kinships) => {
-        this.kinships = kinships;
-        this.filteredKinships = this.searchControl.valueChanges.pipe(
-          startWith(''),
-          map((searchTerm) =>
-            this.filterKinships(searchTerm ?? '').sort((a, b) =>
-              a.name.localeCompare(b.name),
-            ),
-          ),
-        );
-      });
-    }
-  }
-
-  onSelectOpenedChangeMemberSituation(isOpen: boolean) {
-    if (isOpen) {
-      this.membersService
-        .getMemberSituations()
-        .subscribe((memberSituations) => {
-          this.memberSituations = memberSituations;
-          this.filteredMemberSituations = this.searchControl.valueChanges.pipe(
-            startWith(''),
-            map((searchTerm) =>
-              this.filterMemberSituation(searchTerm ?? '').sort((a, b) =>
-                a.name.localeCompare(b.name),
-              ),
-            ),
-          );
-        });
-    }
-  } */
 }

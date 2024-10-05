@@ -12,7 +12,7 @@
               <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>Pessoa</mat-label>
-                  <mat-select formControlName="person_id" (openedChange)="onSelectOpenedChangePerson($event)">
+                  <mat-select formControlName="person_id">
                     <mat-select-trigger>
                       {{ getPersonName() }}
                     </mat-select-trigger>
@@ -36,7 +36,7 @@
                 </mat-form-field>
                 <mat-form-field appearance="fill">
                   <mat-label>Igreja</mat-label>
-                  <mat-select formControlName="church_id" (openedChange)="onSelectOpenedChangeChurch($event)">
+                  <mat-select formControlName="church_id">
                     <mat-select-trigger>
                       {{ getChurchName() }}
                     </mat-select-trigger>
@@ -79,15 +79,14 @@
               <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>Estado Civil</mat-label>
-                  <mat-select formControlName="civil_status_id"
-                    (openedChange)="onSelectOpenedChangeCivilStatus($event)">
+                  <mat-select formControlName="civil_status_id">
                     <mat-select-trigger>
                       {{ getCivilStatusName() }}
                     </mat-select-trigger>
                     <ng-container *ngIf="filteredCivilStatus | async as civilStatusList">
                       <mat-form-field appearance="fill" class="search-field">
                         <mat-label>Pesquisar</mat-label>
-                        <input matInput placeholder="Digite para buscar" [formControl]="civilStatusSearchControl" />
+                        <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
                       </mat-form-field>
                       <mat-option *ngFor="let civilStatus of civilStatusList" [value]="civilStatus.id">
                         {{ civilStatus.name }}
@@ -99,19 +98,18 @@
                     {{ getErrorMessage('stepOne.civil_status_id') }}
                   </mat-error>
                 </mat-form-field>
-
                 <mat-form-field appearance="fill">
                   <mat-label>Cor/Raça</mat-label>
-                  <mat-select formControlName="color_race_id" (openedChange)="onSelectOpenedChangeColorRace($event)">
+                  <mat-select formControlName="color_race_id">
                     <mat-select-trigger>
                       {{ getColorRaceName() }}
                     </mat-select-trigger>
-                    <ng-container *ngIf="filteredColorRace | async as colorRaceList">
+                    <ng-container *ngIf="filteredColorRace | async as colorRaces">
                       <mat-form-field appearance="fill" class="search-field">
                         <mat-label>Pesquisar</mat-label>
-                        <input matInput placeholder="Digite para buscar" [formControl]="colorRaceSearchControl" />
+                        <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
                       </mat-form-field>
-                      <mat-option *ngFor="let colorRace of colorRaceList" [value]="colorRace.id">
+                      <mat-option *ngFor="let colorRace of colorRaces" [value]="colorRace.id">
                         {{ colorRace.name }}
                       </mat-option>
                     </ng-container>
@@ -161,7 +159,7 @@
               <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>Formação</mat-label>
-                  <mat-select formControlName="formation_id" (openedChange)="onSelectOpenedChangeFormation($event)">
+                  <mat-select formControlName="formation_id">
                     <mat-select-trigger>
                       {{ getFormationsName() }}
                     </mat-select-trigger>
@@ -308,8 +306,7 @@
                 </mat-form-field>
                 <mat-form-field>
                   <mat-label>Origem do membro</mat-label>
-                  <mat-select formControlName="member_origin_id"
-                    (openedChange)="onSelectOpenedChangeMemberOrigin($event)">
+                  <mat-select formControlName="member_origin_id">
                     <mat-select-trigger>
                       {{getMemberOriginName()}}
                     </mat-select-trigger>
