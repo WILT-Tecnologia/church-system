@@ -5,15 +5,20 @@ import { Person } from './Person';
 
 export type Members = {
   id: string;
-  person_id: Person;
-  church_id: Church;
+  person_id: string;
+  person: Person;
+  church: Church;
+  church_id: string;
   rg: string;
   issuing_body: string;
-  civil_status_id: CivilStatus;
+  civil_status: CivilStatus;
+  civil_status_id: string;
   nationality: string;
   naturalness: string;
-  color_race_id: ColorRace;
-  formation_id: Formations;
+  color_race: ColorRace;
+  color_race_id: string;
+  formation: Formations;
+  formation_id: string;
   formation_course: string;
   profission: string;
   def_physical: boolean;
@@ -29,7 +34,8 @@ export type Members = {
   baptism_official: string;
   baptism_holy_spirit: boolean;
   baptism_holy_spirit_date: string;
-  member_origin_id: MemberOrigin;
+  member_origin: MemberOrigin;
+  member_origin_id: string;
   receipt_date: string;
   created_at: string;
   updated_at: string;

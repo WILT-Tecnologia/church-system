@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { Router, RouterOutlet } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { TableComponent } from 'app/components/table/table.component';
@@ -45,11 +45,10 @@ export class OrdinationsComponent implements OnInit {
   };
 
   constructor(
-    private router: Router,
     private snackbarService: SnackbarService,
     private loading: LoadingService,
     private ordinationService: OrdinationsService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit() {
@@ -87,7 +86,7 @@ export class OrdinationsComponent implements OnInit {
       role: 'dialog',
       panelClass: 'dialog',
       disableClose: true,
-      data: ordination.id
+      data: ordination.id,
     });
 
     this.loading.hide();

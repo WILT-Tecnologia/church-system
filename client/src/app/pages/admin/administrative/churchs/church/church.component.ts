@@ -87,7 +87,7 @@ export class ChurchComponent implements OnInit {
 
     if (this.data && this.data?.church) {
       this.isEditMode = true;
-      this.churchId = this.data.church.id;
+      this.churchId = this.data?.church?.id;
       this.churchForm.patchValue({
         ...this.data.church,
         responsible_id: this.data.church.responsible_id?.id || null,

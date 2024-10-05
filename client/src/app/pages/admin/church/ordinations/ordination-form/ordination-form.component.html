@@ -28,7 +28,7 @@
                 <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
               </mat-form-field>
               <mat-option *ngFor="let member of members" [value]="member.id">
-                {{ member.person_id.name }}
+                {{ member.person.name }}
               </mat-option>
             </ng-container>
             <mat-option class="add-option" (click)="openAddMemberForm()">

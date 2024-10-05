@@ -8,11 +8,16 @@ import {
   MemberSituations,
 } from 'app/model/Auxiliaries';
 import { MemberOrigin } from 'app/model/MemberOrigins';
-import { Observable } from 'rxjs';
+import { CpfFormatPipe } from 'app/utils/pipe/CpfFormatPipe';
+import { map, Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { Church } from '../../../../model/Church';
 import { Members } from '../../../../model/Members';
 import { Person } from '../../../../model/Person';
+
+import { DateFormatPipe } from 'app/utils/pipe/BirthDateFormatPipe';
+import { SexFormatPipe } from 'app/utils/pipe/SexFormatPipe';
+import { PhoneFormatPipe } from 'app/utils/pipe/phone-format.pipe';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +26,11 @@ export class MembersService {
   constructor(private http: HttpClient) {}
 
   private api = `${environment.apiUrl}/church/members`;
+
+  private formatCpfPipe = new CpfFormatPipe();
+  private formatDatePipe = new DateFormatPipe();
+  private formatSexPipe = new SexFormatPipe();
+  private formatPhonePipe = new PhoneFormatPipe();
 
   getCivilStatus(): Observable<CivilStatus[]> {
     return this.http.get<CivilStatus[]>(
@@ -61,7 +71,23 @@ export class MembersService {
   }
 
   getMembers(): Observable<Members[]> {
-    return this.http.get<Members[]>(this.api);
+    return this.http.get<Members[]>(this.api).pipe(
+      map((members: Members[]) => {
+        return members.map((member: Members) => {
+          if (member.person) {
+            member.person.cpf = this.formatCpfPipe.transform(member.person.cpf);
+            member.person.birth_date = this.formatDatePipe.transform(
+              member.person.birth_date,
+            );
+            member.person.sex = this.formatSexPipe.transform(member.person.sex);
+            member.person.phone_one = this.formatPhonePipe.transform(
+              member.person.phone_one,
+            );
+          }
+          return member;
+        });
+      }),
+    );
   }
 
   getMemberById(id: string): Observable<Members> {

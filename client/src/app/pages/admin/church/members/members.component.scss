@@ -78,7 +78,6 @@
 .actions-container {
   display: none;
   justify-content: flex-end;
-  opacity: 0;
   transition: opacity 0.3s ease;
 }
 
@@ -90,7 +89,6 @@
 
 .rows:hover .actions-container {
   display: flex;
-  opacity: 1;
 }
 
 /* Estilo dos ícones de ação */

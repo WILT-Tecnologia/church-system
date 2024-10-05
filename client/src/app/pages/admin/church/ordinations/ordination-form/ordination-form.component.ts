@@ -40,7 +40,8 @@ import dayjs from 'dayjs';
 import { provideNgxMask } from 'ngx-mask';
 import { debounceTime, map, Observable, startWith } from 'rxjs';
 import { ColumnComponent } from '../../../../../components/column/column.component';
-import { MemberFormComponent } from '../../members/member/member-form/member-form.component';
+
+import { MemberComponent } from '../../members/member/member.component';
 import { OrdinationsService } from '../ordinations.service';
 
 @Component({
@@ -227,7 +228,7 @@ export class OrdinationFormComponent implements OnInit {
 
   filterMember(value: string): Members[] {
     return this.member.filter((member) =>
-      member.person_id.name.toLowerCase().includes(value.toLowerCase()),
+      member.person.name.toLowerCase().includes(value.toLowerCase()),
     );
   }
 
@@ -241,7 +242,7 @@ export class OrdinationFormComponent implements OnInit {
     const memberId = this.ordinationForm.get('member_id')?.value;
     if (memberId) {
       const member = this.member.find((r) => r.id === memberId);
-      return member?.person_id.name ?? '';
+      return member?.person.name ?? '';
     }
     return memberId ? 'Selecione o membro' : 'Selecione o membro';
   }
@@ -264,7 +265,7 @@ export class OrdinationFormComponent implements OnInit {
           startWith(''),
           map((searchTerm) =>
             this.filterMember(searchTerm ?? '').sort((a, b) =>
-              a.person_id.name.localeCompare(b.person_id.name),
+              a.person.name.localeCompare(b.person.name),
             ),
           ),
         );
@@ -290,7 +291,7 @@ export class OrdinationFormComponent implements OnInit {
   }
 
   openAddMemberForm() {
-    this.dialog.open(MemberFormComponent, {
+    this.dialog.open(MemberComponent, {
       width: '100%',
       maxWidth: '100%',
       height: 'auto',

@@ -2,9 +2,9 @@ import { Pipe, PipeTransform } from '@angular/core';
 import dayjs from 'dayjs';
 
 @Pipe({
-  name: 'birthDateFormat',
+  name: 'dateFormat',
 })
-export class BirthDateFormatPipe implements PipeTransform {
+export class DateFormatPipe implements PipeTransform {
   transform(value: string): string {
     if (!value) return 'Data não disponível';
 

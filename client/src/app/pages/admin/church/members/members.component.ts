@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -22,9 +22,10 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { DateFormatPipe } from 'app/utils/pipe/BirthDateFormatPipe';
 import { Members } from '../../../../model/Members';
 import { SnackbarService } from '../../../../service/snackbar/snackbar.service';
-import { MemberFormComponent } from './member/member-form/member-form.component';
+import { MemberComponent } from './member/member.component';
 import { MembersService } from './members.service';
 
 @Component({
@@ -46,6 +47,7 @@ import { MembersService } from './members.service';
     NotFoundRegisterComponent,
     CommonModule,
   ],
+  providers: [DatePipe],
 })
 export class MembersComponent<T> implements OnInit, AfterViewInit, OnChanges {
   member: Members[] = [];
@@ -61,7 +63,7 @@ export class MembersComponent<T> implements OnInit, AfterViewInit, OnChanges {
     { key: 'person.phone_one', header: 'Celular' },
     { key: 'church.name', header: 'Igreja' },
     { key: 'church.responsible.name', header: 'Pastor presidente' },
-    { key: 'baptism_date', header: 'Data do batismo' },
+    { key: 'baptism_date', header: 'Data do batismo', type: 'date' },
   ];
   displayedColumns = this.columnDefinitions
     .map((col) => col.key)
@@ -69,6 +71,7 @@ export class MembersComponent<T> implements OnInit, AfterViewInit, OnChanges {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  dateFormatPipe = new DateFormatPipe();
 
   constructor(
     private confirmeService: ConfirmService,
@@ -85,7 +88,6 @@ export class MembersComponent<T> implements OnInit, AfterViewInit, OnChanges {
   loadMembers = () => {
     this.memberService.getMembers().subscribe({
       next: (members) => {
-        console.log(members);
         this.member = members;
         this.dataSourceMat = new MatTableDataSource<Members>(this.member);
         this.dataSourceMat.data = this.member;
@@ -135,7 +137,7 @@ export class MembersComponent<T> implements OnInit, AfterViewInit, OnChanges {
   }
 
   addNewMembers = (): void => {
-    const dialogRef = this.dialog.open(MemberFormComponent, {
+    const dialogRef = this.dialog.open(MemberComponent, {
       width: '70dvw',
       maxWidth: '100%',
       height: 'auto',
@@ -153,7 +155,7 @@ export class MembersComponent<T> implements OnInit, AfterViewInit, OnChanges {
   };
 
   editMembers = (members: Members): void => {
-    const dialogRef = this.dialog.open(MemberFormComponent, {
+    const dialogRef = this.dialog.open(MemberComponent, {
       width: '70dvw',
       maxWidth: '100%',
       height: 'auto',
@@ -176,7 +178,7 @@ export class MembersComponent<T> implements OnInit, AfterViewInit, OnChanges {
     this.confirmeService
       .openConfirm(
         'Excluir membros',
-        'Tem certeza que deseja excluir os membros?',
+        `Tem certeza que deseja excluir o membro ${members.person.name} ?`,
         'Confirmar',
         'Cancelar',
       )
