@@ -88,6 +88,7 @@ export class MembersComponent<T> implements OnInit, AfterViewInit, OnChanges {
   loadMembers = () => {
     this.memberService.getMembers().subscribe({
       next: (members) => {
+        console.log(members);
         this.member = members;
         this.dataSourceMat = new MatTableDataSource<Members>(this.member);
         this.dataSourceMat.data = this.member;
@@ -110,10 +111,33 @@ export class MembersComponent<T> implements OnInit, AfterViewInit, OnChanges {
     const filterValue = (event.target as HTMLInputElement).value
       .trim()
       .toLowerCase();
+
+    this.dataSourceMat.filterPredicate = (data: any, filter: string) => {
+      return this.searchInObject(data, filter);
+    };
+
     this.dataSourceMat.filter = filterValue;
     if (this.dataSourceMat.paginator) {
       this.dataSourceMat.paginator.firstPage();
     }
+  }
+
+  searchInObject(obj: any, searchText: string): boolean {
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        const value = obj[key];
+        if (typeof value === 'object' && value !== null) {
+          if (this.searchInObject(value, searchText)) {
+            return true;
+          }
+        } else {
+          if (String(value).toLowerCase().includes(searchText)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   ngAfterViewInit() {

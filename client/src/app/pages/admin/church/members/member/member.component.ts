@@ -79,7 +79,6 @@ import { MembersService } from '../members.service';
     MatInputModule,
     MatButtonModule,
     MatFormFieldModule,
-    MatDividerModule,
     MatDatepickerModule,
     ColumnComponent,
     CommonModule,
@@ -91,6 +90,8 @@ export class MemberComponent implements OnInit {
   memberId: string | null = null;
   memberForm: FormGroup;
   isEditMode: boolean = false;
+  isInitialStepCompleted = false;
+  currentStep = 0;
 
   searchControl = new FormControl('');
 
@@ -103,6 +104,7 @@ export class MemberComponent implements OnInit {
   filteredKinships: Observable<Kinships[]>;
   filteredMemberSituations: Observable<MemberSituations[]>;
 
+  members: Members[] = [];
   persons: Person[] = [];
   churchs: Church[] = [];
   civilStatus: CivilStatus[] = [];
@@ -111,7 +113,6 @@ export class MemberComponent implements OnInit {
   kinships: Kinships[] = [];
   memberSituations: MemberSituations[] = [];
   memberOrigins: MemberOrigin[] = [];
-  currentStep = 0;
 
   constructor(
     private fb: FormBuilder,
@@ -145,12 +146,7 @@ export class MemberComponent implements OnInit {
     if (this.data && this.data?.members) {
       this.isEditMode = true;
       this.memberId = this.data?.members?.id;
-      this.memberForm.patchValue({
-        ...this.data.members,
-        stepThree: {
-          baptism_date: this.data?.members?.baptism_date,
-        },
-      });
+      this.memberForm.patchValue(this.data.members);
       this.handleEdit();
     }
   }
@@ -247,14 +243,6 @@ export class MemberComponent implements OnInit {
     return this.isEditMode ? `Editando o membro` : `Cadastrar o membro`;
   }
 
-  isTabDisabled(tabIndex: number): boolean {
-    if (this.isEditMode) {
-      return false;
-    }
-
-    return this.currentStep !== tabIndex;
-  }
-
   setupSearchObservable(target: string): Observable<any[]> {
     return this.searchControl.valueChanges.pipe(
       debounceTime(300),
@@ -268,6 +256,12 @@ export class MemberComponent implements OnInit {
           .sort((a: any, b: any) => a.name.localeCompare(b.name));
       }),
     );
+  }
+
+  loadMembers() {
+    this.membersService.getMembers().subscribe((members) => {
+      this.members = members;
+    });
   }
 
   loadInitialData() {
@@ -375,12 +369,38 @@ export class MemberComponent implements OnInit {
     return control ? this.validationService.getErrorMessage(control) : null;
   }
 
+  isTabDisabled(tabIndex: number): boolean {
+    if (this.isInitialStepCompleted && tabIndex >= 3) {
+      return false;
+    }
+
+    if (this.isEditMode) {
+      return false;
+    }
+
+    return this.currentStep !== tabIndex;
+  }
+
+  goToStep(step: number) {
+    this.currentStep = step;
+  }
+
   onBack() {
     this.currentStep > 0 ? this.currentStep-- : this.handleBack();
   }
 
   onNext() {
-    const currentStepFormGroup = this.getCurrentStepFormGroup();
+    const currentStepFormGroup = this.getCurrentStepFormGroup(this.currentStep);
+    if (currentStepFormGroup.valid) {
+      this.currentStep++;
+    } else {
+      currentStepFormGroup.markAsTouched();
+      this.snackbarService.openError(
+        'Por favor, preencha todos os campos obrigatórios.',
+      );
+    }
+    //this.currentStep < 5 ? this.currentStep++ : this.handleNext();
+    /* const currentStepFormGroup = this.getCurrentStepFormGroup();
 
     if (currentStepFormGroup.valid) {
       if (this.currentStep < 5 || this.isEditMode) {
@@ -388,7 +408,7 @@ export class MemberComponent implements OnInit {
       }
     } else {
       currentStepFormGroup.markAllAsTouched();
-    }
+    } */
   }
 
   canProceedToNextStep(): boolean {
@@ -396,8 +416,8 @@ export class MemberComponent implements OnInit {
     return currentStepGroup ? currentStepGroup.valid : false;
   }
 
-  getCurrentStepFormGroup(): FormGroup {
-    switch (this.currentStep) {
+  getCurrentStepFormGroup(stepIndex?: number): FormGroup {
+    switch (stepIndex) {
       case 0:
         return this.memberForm.get('stepOne') as FormGroup;
       case 1:
@@ -436,6 +456,7 @@ export class MemberComponent implements OnInit {
   }
 
   handleBack() {
+    this.loadMembers();
     this.dialog.closeAll();
   }
 
@@ -462,8 +483,8 @@ export class MemberComponent implements OnInit {
 
     const memberData = this.combineStepData();
     this.membersService.updateMember(memberId!, memberData).subscribe({
-      next: () => this.onSuccess('Membro criado com sucesso.'),
-      error: () => this.onError('Erro ao criar o membro.'),
+      next: () => this.onSuccess('Membro atualizado com sucesso.'),
+      error: () => this.onError('Erro ao atualizar o membro.'),
       complete: () => this.loadingService.hide(),
     });
   }
@@ -488,7 +509,9 @@ export class MemberComponent implements OnInit {
   onSuccess(message: string) {
     this.loadingService.hide();
     this.snackbarService.openSuccess(message);
-    this.dialogRef.close(this.memberForm.value);
+    this.loadMembers();
+    this.isEditMode = true;
+    this.currentStep = 3;
   }
 
   onError(message: string) {

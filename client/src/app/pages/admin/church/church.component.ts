@@ -4,6 +4,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTabsModule } from '@angular/material/tabs';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { EventsComponent } from './events/events.component';
+import { FamiliesComponent } from './families/families.component';
 import { MembersComponent } from './members/members.component';
 import { OrdinationsComponent } from './ordinations/ordinations.component';
 
@@ -20,6 +21,7 @@ import { OrdinationsComponent } from './ordinations/ordinations.component';
     DashboardComponent,
     EventsComponent,
     OrdinationsComponent,
+    FamiliesComponent,
   ],
 })
 export class ChurchComponent implements OnInit {

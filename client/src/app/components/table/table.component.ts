@@ -99,18 +99,36 @@ export class TableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   }
 
   applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    const normalizedFilterValue = filterValue
+    const filterValue = (event.target as HTMLInputElement).value
       .trim()
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
+      .toLowerCase();
 
-    this.dataSourceMat.filter = normalizedFilterValue;
+    this.dataSourceMat.filterPredicate = (data: any, filter: string) => {
+      return this.searchInObject(data, filter);
+    };
 
+    this.dataSourceMat.filter = filterValue;
     if (this.dataSourceMat.paginator) {
       this.dataSourceMat.paginator.firstPage();
     }
+  }
+
+  searchInObject(obj: any, searchText: string): boolean {
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        const value = obj[key];
+        if (typeof value === 'object' && value !== null) {
+          if (this.searchInObject(value, searchText)) {
+            return true;
+          }
+        } else {
+          if (String(value).toLowerCase().includes(searchText)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   onPageSizeChange(event: any) {

@@ -336,7 +336,9 @@
                         </mat-option>
                       </mat-select>
                       <mat-error
-                        *ngIf="memberForm.get('stepThree.member_origin_id')?.invalid && memberForm.get('stepThree.member_origin_id')?.touched">{{ getErrorMessage('stepThree.member_origin_id') }}</mat-error>
+                        *ngIf="memberForm.get('stepThree.member_origin_id')?.invalid && memberForm.get('stepThree.member_origin_id')?.touched">
+                        {{ getErrorMessage('stepThree.member_origin_id') }}
+                      </mat-error>
                     </mat-form-field>
 
                   </app-column>
@@ -363,24 +365,36 @@
       </mat-tab-group>
 
       <mat-card-footer>
-        <span *ngIf="isEditMode">
+        <!-- <span *ngIf="isEditMode">
           Atualizado em {{ memberForm.get('stepOne.updated_at')?.value }}
-        </span>
+        </span> -->
         <mat-divider></mat-divider>
         <div class="cta">
           <button mat-stroked-button color="warn" type="button" (click)="onBack()">
             {{currentStep === 0 ? 'Cancelar' : 'Voltar'}}
           </button>
 
-          <button mat-raised-button (click)="onNext()" type="button" color="primary"
-            [disabled]="!canProceedToNextStep()" *ngIf="currentStep < 5">
-            Próximo
-          </button>
+          <ng-container *ngIf="isEditMode">
+            <button mat-raised-button (click)="onNext()" type="button" color="primary"
+              [disabled]="!canProceedToNextStep()" *ngIf="currentStep < 5">
+              Avançar
+            </button>
+            <button mat-raised-button color="primary" type="submit" *ngIf="currentStep === 5"
+              [disabled]="memberForm.invalid || !canProceedToNextStep()">
+              {{isEditMode ? 'Atualizar' : 'Cadastrar'}}
+            </button>
+          </ng-container>
 
-          <button mat-raised-button color="primary" type="submit" *ngIf="currentStep === 5"
-            [disabled]="memberForm.invalid || !canProceedToNextStep()">
-            Cadastrar
-          </button>
+          <ng-container *ngIf="!isEditMode">
+            <button mat-raised-button (click)="onNext()" type="button" color="primary"
+              [disabled]="!canProceedToNextStep()" *ngIf="currentStep < 2">
+              Avançar
+            </button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="memberForm.invalid"
+              *ngIf="currentStep === 2">
+              Cadastrar
+            </button>
+          </ng-container>
         </div>
       </mat-card-footer>
     </form>
