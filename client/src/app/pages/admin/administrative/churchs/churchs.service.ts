@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
-import { Church, Responsables } from '../../../../model/Church';
+import { Church, Responsible } from '../../../../model/Church';
 import { CnpjFormatPipe } from '../../../../utils/pipe/CnpjFormatPipe';
 
 @Injectable({
@@ -14,8 +14,8 @@ export class ChurchsService {
   private api = `${environment.apiUrl}/admin/churches`;
   private formatCnpjPipe = new CnpjFormatPipe();
 
-  getResponsables(): Observable<Responsables[]> {
-    return this.http.get<Responsables[]>(`${environment.apiUrl}/admin/persons`);
+  getResponsables(): Observable<Responsible[]> {
+    return this.http.get<Responsible[]>(`${environment.apiUrl}/admin/persons`);
   }
 
   getChurch(): Observable<Church[]> {

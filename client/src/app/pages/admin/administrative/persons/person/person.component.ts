@@ -31,6 +31,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { ColumnComponent } from 'app/components/column/column.component';
+import { Address } from 'app/model/Address';
 import { Person } from 'app/model/Person';
 import { ValidationService } from 'app/service/validation/validation.service';
 import dayjs from 'dayjs';
@@ -74,9 +75,9 @@ type Sex = {
 })
 export class PersonComponent implements OnInit {
   @ViewChild(MatDatepicker) picker!: MatDatepicker<Date>;
+  personId: string | null = null;
   personForm: FormGroup;
   isEditMode: boolean = false;
-  personId: string | null = null;
   tooltipTextStatus: string = '';
   tooltipTextChangePassword: string = '';
   sexs: Sex[] = [
@@ -100,18 +101,16 @@ export class PersonComponent implements OnInit {
   ngOnInit() {
     if (this.data && this.data?.person) {
       this.isEditMode = true;
-      this.personId = this.data.person.id;
+      this.personId = this.data?.person?.id;
       this.personForm.patchValue(this.data.person);
       this.handleEditMode();
     }
 
-    if (this.isEditMode) {
-      this.personForm.get('cep')?.valueChanges.subscribe((cep: string) => {
-        if (cep.length === 8) {
-          this.searchCep(cep);
-        }
-      });
-    }
+    this.personForm.get('cep')?.valueChanges.subscribe((cep: string) => {
+      if (cep.length === 8) {
+        this.searchCep(cep);
+      }
+    });
   }
 
   createForm() {
@@ -186,11 +185,7 @@ export class PersonComponent implements OnInit {
     }
 
     const personData = this.personForm.value;
-    if (this.isEditMode) {
-      this.handleUpdate(personData.id);
-    } else {
-      this.handleCreate();
-    }
+    this.isEditMode ? this.handleUpdate(personData.id) : this.handleCreate();
   };
 
   handleBack = () => {
@@ -208,9 +203,7 @@ export class PersonComponent implements OnInit {
         this.loadingService.hide();
         this.snackbarService.openError('Erro ao criar a pessoa!');
       },
-      complete: () => {
-        this.loadingService.hide();
-      },
+      complete: () => this.loadingService.hide(),
     });
   };
 
@@ -227,9 +220,7 @@ export class PersonComponent implements OnInit {
           this.loadingService.hide();
           this.snackbarService.openError('Erro ao atualizar a pessoa!');
         },
-        complete: () => {
-          this.loadingService.hide();
-        },
+        complete: () => this.loadingService.hide(),
       });
   };
 
@@ -253,17 +244,24 @@ export class PersonComponent implements OnInit {
       return;
     }
 
-    this.loadingService.show();
-    this.cepService.searchCep(cep).subscribe((data: any) => {
-      if (data) {
-        this.personForm.patchValue({
-          street: data.street || '',
-          district: data.neighborhood || '',
-          city: data.city || '',
-          state: data.state || '',
-        });
-      }
-      this.loadingService.hide();
+    this.cepService.searchCep(cep).subscribe({
+      next: (data: Address) => {
+        if (data) {
+          this.loadingService.show();
+          this.personForm.patchValue({
+            street: data.street || '',
+            district: data.neighborhood || '',
+            city: data.city || '',
+            state: data.state || '',
+          });
+          this.loadingService.hide();
+        }
+      },
+      error: () => {
+        this.loadingService.hide();
+        this.snackbarService.openError('CEP não encontrado!');
+      },
+      complete: () => this.loadingService.hide(),
     });
   }
 }

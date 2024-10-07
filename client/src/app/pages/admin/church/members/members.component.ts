@@ -88,7 +88,6 @@ export class MembersComponent<T> implements OnInit, AfterViewInit, OnChanges {
   loadMembers = () => {
     this.memberService.getMembers().subscribe({
       next: (members) => {
-        console.log(members);
         this.member = members;
         this.dataSourceMat = new MatTableDataSource<Members>(this.member);
         this.dataSourceMat.data = this.member;
@@ -149,12 +148,6 @@ export class MembersComponent<T> implements OnInit, AfterViewInit, OnChanges {
       }
     });
   }
-
-  /* initializeTableDataSource() {
-    this.dataSourceMat.data = this.dataSourceMat.data;
-    this.dataSourceMat.paginator = this.paginator;
-    this.dataSourceMat.sort = this.sort;
-  } */
 
   getNestedValue(member: any, key: string): any {
     return key.split('.').reduce((o, k) => (o || {})[k], member);

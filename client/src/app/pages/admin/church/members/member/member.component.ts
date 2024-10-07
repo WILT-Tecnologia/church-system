@@ -71,7 +71,6 @@ import { MembersService } from '../members.service';
     MatCardModule,
     MatIconModule,
     MatDividerModule,
-    MatCardModule,
     MatRadioModule,
     MatSelectModule,
     MatOptionModule,
@@ -128,7 +127,7 @@ export class MemberComponent implements OnInit {
     this.memberForm = this.createMemberForm();
     this.filteredPerson$ = this.setupSearchObservable('Person');
     this.filteredChurch$ = this.setupSearchObservable('Church');
-    this.filteredColorRace = this.setupSearchObservable('color_race_id');
+    this.filteredColorRace = this.setupSearchObservable('ColorRace');
     this.filteredCivilStatus = this.setupSearchObservable('CivilStatus');
     this.filteredFormations = this.setupSearchObservable('Formations');
     this.filterMemberOrigins = this.setupSearchObservable('MemberOrigin');
@@ -493,7 +492,6 @@ export class MemberComponent implements OnInit {
     this.membersService
       .getMemberById(this.memberId!)
       .subscribe((member: Members) => {
-        console.log(member);
         this.memberForm.patchValue({
           ...member,
           stepOne: {

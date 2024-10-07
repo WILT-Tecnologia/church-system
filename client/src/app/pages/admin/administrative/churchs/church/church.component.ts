@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Inject,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -19,13 +26,21 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { Address } from 'app/model/Address';
 import { ValidationService } from 'app/service/validation/validation.service';
 import dayjs from 'dayjs';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
-import { debounceTime, map, Observable, startWith } from 'rxjs';
+import {
+  debounceTime,
+  map,
+  Observable,
+  startWith,
+  Subject,
+  takeUntil,
+} from 'rxjs';
 import { ColumnComponent } from '../../../../../components/column/column.component';
 import { LoadingService } from '../../../../../components/loading/loading.service';
-import { Church, Responsables } from '../../../../../model/Church';
+import { Church, Responsible } from '../../../../../model/Church';
 import { CepService } from '../../../../../service/SearchCEP/CepService.service';
 import { SnackbarService } from '../../../../../service/snackbar/snackbar.service';
 import { ChurchsService } from '../churchs.service';
@@ -34,6 +49,7 @@ import { ChurchsService } from '../churchs.service';
   selector: 'app-church',
   templateUrl: './church.component.html',
   styleUrls: ['./church.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     MatCardModule,
@@ -52,16 +68,16 @@ import { ChurchsService } from '../churchs.service';
   ],
   providers: [provideNgxMask()],
 })
-export class ChurchComponent implements OnInit {
+export class ChurchComponent implements OnInit, OnDestroy {
   @ViewChild(MatDatepicker) picker!: MatDatepicker<Date>;
   churchForm: FormGroup;
   churchId: string | null = null;
   isEditMode: boolean = false;
   searchControl = new FormControl();
-  filteredResponsables$!: Observable<Responsables[]>;
-  isSelectOpen = false;
-  responsables: Responsables[] = [];
-  selectedResponsableName: string | null = null;
+  filteredResponsables$!: Observable<Responsible[]>;
+  responsible: Responsible[] = [];
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
@@ -90,31 +106,36 @@ export class ChurchComponent implements OnInit {
       this.churchId = this.data?.church?.id;
       this.churchForm.patchValue({
         ...this.data.church,
-        responsible_id: this.data.church.responsible_id?.id || null,
+        responsible_id: this.data.church.responsible.id || null,
       });
       this.handleEditMode();
     }
 
     this.churchForm.get('responsible_id')?.valueChanges.subscribe((id) => {
-      const responsable = this.responsables.find((resp) => resp.id === id);
-      this.selectedResponsableName =
-        responsable?.name || 'Selecione o responsável';
+      const responsable = this.responsible.find((resp) => resp.id === id);
+      return responsable?.name || 'Selecione o responsável';
     });
 
-    if (this.isEditMode) {
-      this.churchForm.get('cep')?.valueChanges.subscribe((cep: string) => {
+    this.churchForm
+      .get('cep')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((cep: string) => {
         if (cep.length === 8) {
           this.searchCep(cep);
         }
       });
-    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   createForm = () => {
     return this.fb.group({
       id: [this.data?.church?.id || ''],
       responsible_id: [
-        this.data?.church?.responsible_id || '',
+        this.data?.church?.responsible?.id || '',
         [Validators.required],
       ],
       name: [
@@ -167,7 +188,7 @@ export class ChurchComponent implements OnInit {
     return this.isEditMode ? 'Editando a igreja' : 'Criando a Igreja';
   }
 
-  getErrorMessage(controlName: string) {
+  getErrorMessage(controlName: string): string | null {
     const control = this.churchForm.get(controlName);
     return control ? this.validationService.getErrorMessage(control) : null;
   }
@@ -178,29 +199,11 @@ export class ChurchComponent implements OnInit {
     }
 
     const churchData = this.churchForm.value;
-    if (this.isEditMode) {
-      this.handleUpdate(churchData.id);
-    } else {
-      this.handleCreate();
-    }
+    this.isEditMode ? this.handleUpdate(churchData.id) : this.handleCreate();
   };
 
   handleBack = () => {
     this.dialogRef.close();
-  };
-
-  handleEditMode = () => {
-    this.churchsService
-      .getChurchById(this.churchId!)
-      .subscribe((church: Church) => {
-        this.churchForm.patchValue({
-          ...church,
-          updated_at: dayjs(church.updated_at).format(
-            'DD/MM/YYYY [às] HH:mm:ss',
-          ),
-          responsible_id: church.responsible_id || null,
-        });
-      });
   };
 
   handleCreate = () => {
@@ -214,9 +217,7 @@ export class ChurchComponent implements OnInit {
         this.loadingService.hide();
         this.snackbarService.openError('Erro ao criar a igreja');
       },
-      complete: () => {
-        this.loadingService.hide();
-      },
+      complete: () => this.loadingService.hide(),
     });
   };
 
@@ -233,30 +234,37 @@ export class ChurchComponent implements OnInit {
           this.loadingService.hide();
           this.snackbarService.openError('Erro ao atualizar a igreja.');
         },
-        complete: () => {
-          this.loadingService.hide();
-        },
+        complete: () => this.loadingService.hide(),
+      });
+  };
+
+  handleEditMode = () => {
+    this.churchsService
+      .getChurchById(this.churchId!)
+      .subscribe((church: Church) => {
+        this.churchForm.patchValue({
+          ...church,
+          responsable_id: church.responsible.id,
+          updated_at: dayjs(church.updated_at).format(
+            'DD/MM/YYYY [às] HH:mm:ss',
+          ),
+        });
       });
   };
 
   fetchResponsables() {
     this.churchsService.getResponsables().subscribe({
-      next: (responsables) => {
-        this.responsables = responsables.sort((a, b) =>
-          a.name.localeCompare(b.name),
-        );
+      next: (responsible) => {
+        this.responsible = responsible;
         this.filteredResponsables$ = this.searchControl.valueChanges.pipe(
           debounceTime(300),
           startWith(''),
-          map((searchTerm) => this.filterResponsables(searchTerm ?? '')),
+          map((searchTerm) =>
+            this.filterResponsables(searchTerm ?? '').sort((a, b) =>
+              a.name.localeCompare(b.name),
+            ),
+          ),
         );
-
-        // Patch form after responsables are loaded
-        if (this.isEditMode) {
-          this.churchForm.patchValue({
-            responsible_id: this.data.church.responsible_id?.id || null,
-          });
-        }
       },
       error: (error) => {
         this.snackbarService.openError(error.message);
@@ -264,46 +272,42 @@ export class ChurchComponent implements OnInit {
     });
   }
 
-  filterResponsables(searchTerm: string): Responsables[] {
-    return this.responsables.filter((responsable) =>
+  filterResponsables(searchTerm: string): Responsible[] {
+    return this.responsible.filter((responsable) =>
       responsable.name.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }
 
   getResponsableName(): string {
     const responsibleId = this.churchForm.get('responsible_id')?.value;
-    const responsible = this.responsables.find(
+    const responsible = this.responsible.find(
       (resp) => resp.id === responsibleId,
     );
-    return (
-      responsible?.name ||
-      this.selectedResponsableName ||
-      'Selecione o responsável'
-    );
+    return responsible?.name || 'Selecione o responsável';
   }
 
-  onSelectOpenedChange(isOpen: boolean) {
-    if (isOpen) {
-      this.fetchResponsables();
-    }
-  }
-
-  searchCep(cep: string) {
+  searchCep(cep: string): void {
     if (this.churchForm.get('cep')?.value?.length === '') {
       return;
     }
-
-    this.loadingService.show();
-    this.cepService.searchCep(cep).subscribe((data: any) => {
-      if (data) {
-        this.churchForm.patchValue({
-          street: data.street || '',
-          district: data.neighborhood || '',
-          city: data.city || '',
-          state: data.state || '',
-        });
-      }
-      this.loadingService.hide();
+    this.cepService.searchCep(cep).subscribe({
+      next: (data: Address) => {
+        if (data) {
+          this.loadingService.show();
+          this.churchForm.patchValue({
+            street: data.street || '',
+            district: data.neighborhood || '',
+            city: data.city || '',
+            state: data.state || '',
+          });
+          this.loadingService.hide();
+        }
+      },
+      error: () => {
+        this.loadingService.hide();
+        this.snackbarService.openError('CEP não encontrado!');
+      },
+      complete: () => this.loadingService.hide(),
     });
   }
 }

@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DateFormatPipe } from 'app/utils/pipe/BirthDateFormatPipe';
-import { catchError, map, Observable, throwError } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { Person } from '../../../../model/Person';
 import { CpfFormatPipe } from '../../../../utils/pipe/CpfFormatPipe';
@@ -37,13 +37,8 @@ export class PersonsService {
     return this.http.get<Person>(`${this.api}/${id}`);
   }
 
-  createPerson(person: Person): Observable<any> {
-    return this.http.post(this.api, person).pipe(
-      catchError((error) => {
-        console.error('Erro ao criar a pessoa', error);
-        return throwError(error);
-      }),
-    );
+  createPerson(person: Person): Observable<Person> {
+    return this.http.post<Person>(this.api, person);
   }
 
   updatePerson(
@@ -53,7 +48,7 @@ export class PersonsService {
     return this.http.put<Person>(`${this.api}/${personId}`, personData);
   }
 
-  deletePerson(personId: string): Observable<any> {
-    return this.http.delete(`${this.api}/${personId}`);
+  deletePerson(personId: string): Observable<Person> {
+    return this.http.delete<Person>(`${this.api}/${personId}`);
   }
 }

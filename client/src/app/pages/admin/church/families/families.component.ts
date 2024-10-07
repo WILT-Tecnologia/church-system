@@ -1,6 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, SimpleChanges } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
@@ -14,7 +18,14 @@ import { FamiliesService } from './families.service';
   templateUrl: './families.component.html',
   styleUrls: ['./families.component.scss'],
   standalone: true,
-  imports: [MatCardModule, FamiliesFormComponent],
+  imports: [
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    FamiliesFormComponent,
+    CommonModule,
+  ],
 })
 export class FamiliesComponent implements OnInit {
   families: Families[] = [];
@@ -27,12 +38,13 @@ export class FamiliesComponent implements OnInit {
     private dialog: MatDialog,
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.loadFamilies();
+  }
 
   loadFamilies() {
     this.familiesService.getFamilies().subscribe({
       next: (families) => {
-        console.log(families);
         this.families = families;
         this.dataSourceMat = new MatTableDataSource<Families>(this.families);
         this.dataSourceMat.data = this.families;
@@ -83,7 +95,7 @@ export class FamiliesComponent implements OnInit {
       data: family,
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().subscribe((result: Families) => {
       if (result) {
         this.loadFamilies();
       }

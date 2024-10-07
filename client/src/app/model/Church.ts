@@ -23,7 +23,8 @@ export interface Responsible {
 
 export type Church = {
   id: string;
-  responsible_id: Responsible;
+  responsible: Responsible;
+  responsible_id: string;
   name: string;
   email: string;
   cnpj: string;
@@ -41,9 +42,4 @@ export type Church = {
   color: string;
   created_at: string;
   updated_at: string;
-};
-
-export type Responsables = {
-  id: string;
-  name: string;
 };

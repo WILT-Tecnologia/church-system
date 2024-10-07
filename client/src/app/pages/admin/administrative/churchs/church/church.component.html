@@ -14,18 +14,19 @@
       <app-column>
         <mat-form-field appearance="fill">
           <mat-label>Responsável</mat-label>
-          <mat-select formControlName="responsible_id" (openedChange)="onSelectOpenedChange($event)">
+          <mat-select formControlName="responsible_id">
             <mat-select-trigger>
               {{ getResponsableName() }}
             </mat-select-trigger>
-            <mat-form-field appearance="fill" (click)="$event.stopPropagation()">
-              <mat-label>Pesquisar responsável...</mat-label>
-              <input matInput placeholder="Digite aqui para buscar" [formControl]="searchControl"
-                (click)="$event.stopPropagation()">
-            </mat-form-field>
-            <mat-option *ngFor="let responsable of filteredResponsables$ | async" [value]="responsable.id">
-              {{ responsable.name }}
-            </mat-option>
+            <ng-container *ngIf="filteredResponsables$ | async as responsibles">
+              <mat-form-field appearance="fill" (click)="$event.stopPropagation()">
+                <mat-label>Pesquisar responsável...</mat-label>
+                <input matInput placeholder="Digite para buscar" [formControl]="searchControl">
+              </mat-form-field>
+              <mat-option *ngFor="let responsable of responsibles" [value]="responsable.id">
+                {{ responsable.name }}
+              </mat-option>
+            </ng-container>
           </mat-select>
           <mat-error *ngIf="churchForm.get('responsible_id')?.invalid && churchForm.get('responsible_id')?.touched">
             {{ getErrorMessage('responsible_id') }}
@@ -99,6 +100,8 @@
           <mat-error
             *ngIf="churchForm.get('state')?.invalid && churchForm.get('state')?.touched">{{getErrorMessage('state')}}</mat-error>
         </mat-form-field>
+      </app-column>
+      <app-column class="w-2/4">
         <mat-form-field appearance="fill">
           <mat-label>Pais</mat-label>
           <input matInput formControlName="country" maxlength="255" required>

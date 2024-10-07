@@ -1,31 +1,27 @@
-<form>
+<form [formGroup]="familyForm" (ngSubmit)="handleSubmit()">
   <app-column>
     <mat-form-field appearance="fill">
       <mat-label>Pessoa</mat-label>
       <mat-select formControlName="person_id">
         <mat-select-trigger>
-          nome da pessoa
+          {{getPersonName()}}
         </mat-select-trigger>
-        <!-- <ng-container *ngIf="'persons' | async as persons">
+        <ng-container *ngIf="filterPersons | async as persons">
           <mat-form-field appearance="fill" class="search-field">
             <mat-label>Pesquisar</mat-label>
-            <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
+            <input matInput placeholder="Digite para buscar" [formControl]="searchControlPersons" />
           </mat-form-field>
-          <mat-option *ngFor="let person of persons" [value]="person.id">
-            {{ person.name }}
+          <mat-option *ngFor="let persons of persons" [value]="persons.id">
+            {{ persons.name }}
           </mat-option>
-        </ng-container> -->
-
-        <mat-option class="add-option">
+        </ng-container>
+        <mat-option class="add-option" (click)="openAddPersonDialog()">
           Adicionar nova pessoa
         </mat-option>
-        <!-- <mat-option class="add-option" (click)="openAddPersonDialog()">
-          Adicionar nova pessoa
-        </mat-option> -->
       </mat-select>
-      <!-- <mat-error *ngIf="memberForm.get('stepOne.person_id')?.invalid && memberForm.get('stepOne.person_id')?.touched">
-        {{ getErrorMessage('stepOne.person_id') }}
-      </mat-error> -->
+      <mat-error *ngIf="familyForm.get('person_id')?.invalid && familyForm.get('person_id')?.touched">
+        {{ getErrorMessage('person_id') }}
+      </mat-error>
     </mat-form-field>
   </app-column>
 </form>

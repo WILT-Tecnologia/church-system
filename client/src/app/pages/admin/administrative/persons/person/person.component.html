@@ -22,15 +22,14 @@
           <mat-error
             *ngIf="personForm.get('name')?.invalid && personForm.get('name')?.touched">{{getErrorMessage('name')}}</mat-error>
         </mat-form-field>
+      </app-column>
+      <app-column>
         <mat-form-field appearance="fill">
           <mat-label>CPF</mat-label>
           <input matInput formControlName="cpf" mask="000.000.000-00" required>
           <mat-error
             *ngIf="personForm.get('cpf')?.invalid && personForm.get('cpf')?.touched">{{getErrorMessage('cpf')}}</mat-error>
         </mat-form-field>
-      </app-column>
-
-      <app-column>
         <mat-form-field appearance="fill">
           <mat-label>E-mail</mat-label>
           <input matInput formControlName="email" maxlength="255" required>
@@ -53,6 +52,8 @@
           </ng-container>
           }
         </mat-form-field>
+      </app-column>
+      <app-column>
         <mat-form-field>
           <mat-label>Sexo</mat-label>
           <mat-select formControlName="sex" required>
@@ -61,9 +62,6 @@
           <mat-error
             *ngIf="personForm.get('sex')?.invalid && personForm.get('sex')?.touched">{{getErrorMessage('sex')}}</mat-error>
         </mat-form-field>
-      </app-column>
-
-      <app-column>
         <mat-form-field appearance="fill">
           <mat-label>Celular</mat-label>
           <input matInput formControlName="phone_one" mask="(00) 00000-0000" required>
@@ -78,9 +76,8 @@
         </mat-form-field>
       </app-column>
       <mat-divider></mat-divider>
-
       <mat-card-subtitle>Endereços</mat-card-subtitle>
-      <app-column>
+      <app-column class="w-full">
         <mat-form-field class="reduction" appearance="fill">
           <mat-label>CEP</mat-label>
           <input matInput formControlName="cep" mask="00000-000" required>
@@ -100,7 +97,6 @@
             *ngIf="personForm.get('number')?.invalid && personForm.get('number')?.touched">{{getErrorMessage('number')}}</mat-error>
         </mat-form-field>
       </app-column>
-
       <app-column>
         <mat-form-field appearance="fill">
           <mat-label>Complemento</mat-label>
@@ -126,6 +122,8 @@
           <mat-error
             *ngIf="personForm.get('state')?.invalid && personForm.get('state')?.touched">{{getErrorMessage('state')}}</mat-error>
         </mat-form-field>
+      </app-column>
+      <app-column class="w-2/4">
         <mat-form-field appearance="fill">
           <mat-label>País</mat-label>
           <input matInput formControlName="country" maxlength="255" required>

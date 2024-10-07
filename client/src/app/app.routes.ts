@@ -139,6 +139,6 @@ export const routes: Routes = [
   { path: 'church/members/member/new', component: MemberComponent },
   { path: 'church/members/member/edit/:id', component: MemberComponent },
   { path: 'church/members/member/delete/:id', component: MemberComponent },
-  { path: '', redirectTo: '/administrative', pathMatch: 'full' },
+  { path: '', redirectTo: '/church', pathMatch: 'full' },
   { path: '**', component: PageNotFoundComponent },
 ];
