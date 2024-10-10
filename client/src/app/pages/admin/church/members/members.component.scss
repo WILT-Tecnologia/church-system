@@ -45,11 +45,16 @@
 
 .mat-header-cell,
 .mat-cell,
-.rows {
-  padding: 0.5rem;
+.rows,
+td {
+  max-width: 13dvw;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  @media screen and (max-width: 768px) {
+    max-width: 100%;
+  }
 }
 
 .mat-header-cell {
@@ -60,7 +65,7 @@
 .mat-header-row,
 .mat-row {
   display: table-row;
-  width: 100%;
+  max-width: 100%;
   position: relative;
 }
 
@@ -72,7 +77,6 @@
   position: relative;
   width: 10rem;
   overflow: hidden;
-  transition: width 0.3s ease-in-out;
 }
 
 .actions-container {
@@ -83,8 +87,6 @@
 
 .rows:hover .actions-cell {
   width: 10rem;
-  overflow: visible;
-  transition: width 0.3s ease-in-out;
 }
 
 .rows:hover .actions-container {
@@ -98,7 +100,6 @@
   justify-content: center;
   align-items: center;
 }
-
 
 @media screen and (max-width: 768px) {
   .add-button>button {

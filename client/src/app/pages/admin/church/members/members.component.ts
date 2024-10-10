@@ -20,6 +20,7 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { DateFormatPipe } from 'app/utils/pipe/BirthDateFormatPipe';
@@ -44,6 +45,7 @@ import { MembersService } from './members.service';
     MatInputModule,
     MatSelectModule,
     MatIconModule,
+    MatTooltipModule,
     NotFoundRegisterComponent,
     CommonModule,
   ],
