@@ -52,18 +52,19 @@ import { FamiliesService } from './families.service';
   ],
 })
 export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
+  families: Families[] = [];
   pageSizeOptions: number[] = [25, 50, 100, 200];
   pageSize: number = 25;
-  families: Families[] = [];
   dataSourceMat = new MatTableDataSource<Families>(this.families);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   columnDefinitions = [
-    { key: 'member.person.name', header: 'Nome do membro' },
-    { key: 'kinships.name', header: 'Parentesco' },
+    { key: 'person.name', header: 'Nome do membro' },
+    { key: 'kinship.name', header: 'Parentesco' },
     { key: 'name', header: 'Nome' },
   ];
+
   displayedColumns = this.columnDefinitions
     .map((col) => col.key)
     .concat('actions');
@@ -84,7 +85,6 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
     this.familiesService.getFamilies().subscribe({
       next: (families) => {
         this.families = families;
-        this.dataSourceMat = new MatTableDataSource<Families>(this.families);
         this.dataSourceMat.data = this.families;
         this.dataSourceMat.paginator = this.paginator;
         this.dataSourceMat.sort = this.sort;
@@ -144,8 +144,8 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
     });
   }
 
-  getNestedValue(member: any, key: string): any {
-    return key.split('.').reduce((o, k) => (o || {})[k], member);
+  getNestedValue(obj: any, key: string): any {
+    return key.split('.').reduce((acc, part) => acc && acc[part], obj);
   }
 
   addNewFamily = (): void => {
@@ -189,8 +189,8 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
   deleteFamily(family: Families) {
     this.confirmeService
       .openConfirm(
-        'Exclusão da familia',
-        `Tem certeza que deseja excluir a familia ?`,
+        'Excluir o parentesco',
+        `Tem certeza que deseja excluir o parentesco ?`,
         'Confirmar',
         'Cancelar',
       )
@@ -200,7 +200,9 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
           this.loadingService.show();
           this.familiesService.deleteFamily(family.id).subscribe({
             next: () => {
-              this.snackbarService.openSuccess('Familia excluída com sucesso');
+              this.snackbarService.openSuccess(
+                'Parentesco excluído com sucesso',
+              );
               this.loadFamilies();
             },
             error: (error) => {

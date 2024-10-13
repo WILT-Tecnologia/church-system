@@ -54,12 +54,6 @@ import { FamiliesService } from '../families.service';
     ReactiveFormsModule,
     ColumnComponent,
   ],
-  providers: [
-    {
-      provide: MAT_DIALOG_DATA,
-      useValue: {},
-    },
-  ],
 })
 export class FamiliesFormComponent {
   familyId: string | null = null;
@@ -73,11 +67,12 @@ export class FamiliesFormComponent {
   filterPersons: Observable<Person[]>;
   filterKinships: Observable<Kinships[]>;
 
+  families: Families[] = [];
   members: Members[] = [];
   persons: Person[] = [];
   kinships: Kinships[] = [];
 
-  memberExists = signal(false);
+  isMember = signal(false);
 
   constructor(
     private fb: FormBuilder,
@@ -109,14 +104,13 @@ export class FamiliesFormComponent {
   }
 
   ngOnInit() {
+    this.loadInitialData();
     if (this.data && this.data?.families) {
       this.isEditMode = true;
       this.familyId = this.data?.families?.id;
       this.familyForm.patchValue(this.data.families);
       this.handleEdit();
     }
-    this.loadFamilies();
-    console.log('this.data', this.loadFamilies());
   }
 
   get pageTitle() {
@@ -126,11 +120,19 @@ export class FamiliesFormComponent {
   createForm() {
     return this.fb.group({
       id: [this.data?.families?.id || ''],
-      name: [this.data?.families?.name || '', [Validators.required]],
-      member_id: [this.data?.families?.member_id || '', [Validators.required]],
-      person_id: [this.data?.families?.person_id || '', [Validators.required]],
+      name: [
+        { value: this.data?.families?.name || '', disabled: this.isMember },
+      ],
+      member_id: [
+        {
+          value: this.data?.families?.member.id || '',
+          disabled: !this.isMember,
+        },
+        [Validators.required],
+      ],
+      person_id: [this.data?.families?.person.id || '', [Validators.required]],
       kinship_id: [
-        this.data?.families?.kinship_id || '',
+        this.data?.families?.kinship.id || '',
         [Validators.required],
       ],
       updated_at: [this.data?.families?.updated_at || ''],
@@ -138,6 +140,21 @@ export class FamiliesFormComponent {
   }
 
   loadFamilies() {
+    this.loadingService.show();
+    this.familiesService.getFamilies().subscribe({
+      next: (families) => {
+        this.families = families;
+      },
+      error: (error) => {
+        this.snackbarService.openError(error.message);
+      },
+      complete: () => {
+        this.loadingService.hide();
+      },
+    });
+  }
+
+  loadInitialData() {
     forkJoin({
       members: this.familiesService.getMembers(),
       persons: this.familiesService.getPersons(),
@@ -147,6 +164,22 @@ export class FamiliesFormComponent {
         this.members = members;
         this.persons = persons;
         this.kinships = kinships;
+
+        this.filterMembers = this.setupFilter(
+          this.searchControlMembers,
+          this.members,
+          'person.name',
+        );
+        this.filterPersons = this.setupFilter(
+          this.searchControlPersons,
+          this.persons,
+          'name',
+        );
+        this.filterKinships = this.setupFilter(
+          this.searchControlKinship,
+          this.kinships,
+          'name',
+        );
       },
       error: (error) => {
         this.snackbarService.openError(error.message);
@@ -164,21 +197,71 @@ export class FamiliesFormComponent {
       startWith(''),
       map((searchTerm) => {
         const term = (searchTerm ?? '').toLowerCase();
+
         return items
-          .filter((item) => item[field].toLowerCase().includes(term))
-          .sort((a, b) => a[field].localeCompare(b[field]));
+          .filter((item) => {
+            const fieldValue = this.getFieldValue(item, field);
+            return fieldValue && fieldValue.toLowerCase().includes(term);
+          })
+          .sort((a, b) => {
+            const aValue = this.getFieldValue(a, field) ?? '';
+            const bValue = this.getFieldValue(b, field) ?? '';
+            return aValue.localeCompare(bValue);
+          });
       }),
     );
   }
 
-  onCheckboxChange(event: any) {
-    this.memberExists.set(event.checked);
+  getFieldValue(item: any, field: string): string | undefined {
+    return field.split('.').reduce((acc, part) => acc?.[part], item);
   }
 
-  getName(controlName: string, items: any[], defaultName: string): string {
+  onCheckboxChange(event: any) {
+    const nameControl = this.familyForm.get('name');
+    const memberControl = this.familyForm.get('member_id');
+
+    this.isMember.set(event.checked);
+
+    if (event.checked) {
+      nameControl?.setValidators([Validators.required]);
+      nameControl?.enable();
+      memberControl?.clearValidators();
+      memberControl?.disable();
+      memberControl?.setValue(null);
+    } else {
+      nameControl?.clearValidators();
+      nameControl?.disable();
+      nameControl?.setValue(null);
+      memberControl?.setValidators([Validators.required]);
+      memberControl?.enable();
+    }
+
+    nameControl?.updateValueAndValidity();
+    memberControl?.updateValueAndValidity();
+  }
+
+  memberExists(): boolean {
+    return this.isMember();
+  }
+
+  getName(
+    controlName: string,
+    items: any[],
+    defaultName: string,
+    nestedProperty?: string,
+  ): string {
     const id = this.familyForm.get(controlName)?.value;
     const item = items.find((r) => r.id === id);
-    return item?.name ?? defaultName;
+
+    if (item) {
+      if (nestedProperty) {
+        const nestedKeys = nestedProperty.split('.');
+        return nestedKeys.reduce((o, k) => (o || {})[k], item) ?? defaultName;
+      }
+      return item.name ?? defaultName;
+    }
+
+    return defaultName;
   }
 
   getPersonName(): string {
@@ -186,7 +269,12 @@ export class FamiliesFormComponent {
   }
 
   getMemberName(): string {
-    return this.getName('member_id', this.members, 'Selecione o membro');
+    return this.getName(
+      'member_id',
+      this.members,
+      'Selecione o membro',
+      'person.name',
+    );
   }
 
   getKinshipName(): string {
@@ -196,11 +284,6 @@ export class FamiliesFormComponent {
   getErrorMessage(controlName: string) {
     const control = this.familyForm.get(controlName);
     return control ? this.validationService.getErrorMessage(control) : null;
-  }
-
-  handleError(error: any) {
-    this.snackbarService.openError(error.message);
-    this.loadingService.hide();
   }
 
   handleBack() {
@@ -214,15 +297,25 @@ export class FamiliesFormComponent {
     this.isEditMode ? this.updateMember(familyData.id) : this.handleCreate();
   }
 
+  onSuccess(message: string) {
+    this.loadingService.hide();
+    this.snackbarService.openSuccess(message);
+    this.loadFamilies();
+  }
+
+  onError(message: string) {
+    this.loadingService.hide();
+    this.snackbarService.openError(message);
+  }
+
   handleCreate() {
     this.loadingService.show();
     this.familiesService.createFamily(this.familyForm.value).subscribe({
-      next: () => {
-        this.snackbarService.openSuccess('Familia criada com sucesso!');
-        this.dialogRef.close();
+      next: () => this.onSuccess('Familia criada com sucesso.'),
+      error: () => this.onError('Erro ao criar a familia.'),
+      complete: () => {
+        this.loadingService.hide();
       },
-      error: (error) => this.handleError(error),
-      complete: () => this.loadingService.hide(),
     });
   }
 
@@ -231,11 +324,8 @@ export class FamiliesFormComponent {
     this.familiesService
       .updateFamily(familyId, this.familyForm.value)
       .subscribe({
-        next: () => {
-          this.snackbarService.openSuccess('Familia atualizada com sucesso!');
-          this.dialogRef.close();
-        },
-        error: (error) => this.handleError(error),
+        next: () => this.onSuccess('Familia atualizada com sucesso.'),
+        error: () => this.onError('Erro ao atualizar a familia.'),
         complete: () => this.loadingService.hide(),
       });
   }
@@ -245,7 +335,7 @@ export class FamiliesFormComponent {
       next: (family) => {
         this.familyForm.patchValue(family);
       },
-      error: (error) => this.handleError(error),
+      error: () => this.onError('Erro ao carregar a familia.'),
       complete: () => this.loadingService.hide(),
     });
   }
