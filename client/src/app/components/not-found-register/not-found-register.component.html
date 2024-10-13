@@ -4,7 +4,7 @@
     <p class="p-xsmall">Parece que ainda não foi adicionado nenhum(a) {{template}} à sua lista.</p>
     <p class="p-xsmall">Clique no botão abaixo para adicionar o primeiro(a) {{template}} e começar a gerenciar suas
       informações.</p>
-    <button mat-raised-button color="primary" (click)="addRegisterFn()" class="mt-3">
+    <button mat-raised-button color="primary" (click)="!!addRegisterFn && addRegisterFn()" class="mt-3">
       {{ctaLabel}}
     </button>
   </div>

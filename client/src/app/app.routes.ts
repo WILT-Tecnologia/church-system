@@ -12,7 +12,7 @@ import { PersonComponent } from './pages/admin/administrative/persons/person/per
 import { ProfileComponent } from './pages/admin/administrative/profiles/profile/profile.component';
 import { ProfilesComponent } from './pages/admin/administrative/profiles/profiles.component';
 import { ChurchComponent } from './pages/admin/church/church.component';
-import { MemberComponent } from './pages/admin/church/members/member/member.component';
+import { MemberComponent } from './pages/admin/church/members/member-form/member-form.component';
 import { MembersComponent } from './pages/admin/church/members/members.component';
 import { OrdinationFormComponent } from './pages/admin/church/ordinations/ordination-form/ordination-form.component';
 import { OrdinationsComponent } from './pages/admin/church/ordinations/ordinations.component';

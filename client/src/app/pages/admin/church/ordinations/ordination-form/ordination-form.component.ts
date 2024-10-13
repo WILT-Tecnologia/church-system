@@ -41,7 +41,7 @@ import { provideNgxMask } from 'ngx-mask';
 import { debounceTime, map, Observable, startWith } from 'rxjs';
 import { ColumnComponent } from '../../../../../components/column/column.component';
 
-import { MemberComponent } from '../../members/member/member.component';
+import { MemberComponent } from '../../members/member-form/member-form.component';
 import { OrdinationsService } from '../ordinations.service';
 
 @Component({

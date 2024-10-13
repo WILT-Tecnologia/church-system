@@ -4,8 +4,9 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTabsModule } from '@angular/material/tabs';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { EventsComponent } from './events/events.component';
-import { FamiliesComponent } from './families/families.component';
+
 import { MembersComponent } from './members/members.component';
+import { FamiliesComponent } from './members/shared/families/families.component';
 import { OrdinationsComponent } from './ordinations/ordinations.component';
 
 @Component({

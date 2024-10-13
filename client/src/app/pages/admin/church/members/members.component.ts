@@ -26,7 +26,7 @@ import { LoadingService } from 'app/components/loading/loading.service';
 import { DateFormatPipe } from 'app/utils/pipe/BirthDateFormatPipe';
 import { Members } from '../../../../model/Members';
 import { SnackbarService } from '../../../../service/snackbar/snackbar.service';
-import { MemberComponent } from './member/member.component';
+import { MemberComponent } from './member-form/member-form.component';
 import { MembersService } from './members.service';
 
 @Component({
@@ -51,11 +51,14 @@ import { MembersService } from './members.service';
   ],
   providers: [DatePipe],
 })
-export class MembersComponent<T> implements OnInit, AfterViewInit, OnChanges {
+export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
   member: Members[] = [];
   pageSizeOptions: number[] = [25, 50, 100, 200];
   pageSize: number = 25;
   dataSourceMat = new MatTableDataSource<Members>(this.member);
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
   columnDefinitions = [
     { key: 'person.name', header: 'Nome' },
     { key: 'person.cpf', header: 'CPF' },
@@ -71,15 +74,13 @@ export class MembersComponent<T> implements OnInit, AfterViewInit, OnChanges {
     .map((col) => col.key)
     .concat('actions');
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
   dateFormatPipe = new DateFormatPipe();
 
   constructor(
     private confirmeService: ConfirmService,
-    private memberService: MembersService,
-    private snackbarService: SnackbarService,
     private loading: LoadingService,
+    private snackbarService: SnackbarService,
+    private memberService: MembersService,
     private dialog: MatDialog,
   ) {}
 
@@ -104,7 +105,7 @@ export class MembersComponent<T> implements OnInit, AfterViewInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['dataSource'] && changes['dataSource'].currentValue) {
-      this.dataSourceMat.data = this.dataSourceMat.data;
+      this.dataSourceMat.data;
     }
   }
 
@@ -157,7 +158,7 @@ export class MembersComponent<T> implements OnInit, AfterViewInit, OnChanges {
 
   addNewMembers = (): void => {
     const dialogRef = this.dialog.open(MemberComponent, {
-      width: '70dvw',
+      width: '100%',
       maxWidth: '100%',
       height: 'auto',
       maxHeight: '100dvh',
