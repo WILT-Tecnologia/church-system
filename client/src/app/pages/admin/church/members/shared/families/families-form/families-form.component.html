@@ -16,8 +16,8 @@
         </mat-checkbox>
       </app-column>
 
-      <app-column>
-        <mat-form-field appearance="fill" *ngIf="!memberExists()">
+      <app-column *ngIf="!memberExists()">
+        <mat-form-field appearance="fill">
           <mat-label>Membro</mat-label>
           <mat-select formControlName="member_id">
             <mat-select-trigger>
@@ -28,8 +28,8 @@
                 <mat-label>Pesquisar</mat-label>
                 <input matInput placeholder="Digite para buscar" [formControl]="searchControlMembers" />
               </mat-form-field>
-              <mat-option *ngFor="let members of members" [value]="members.id">
-                {{ members.person.name }}
+              <mat-option *ngFor="let member of members" [value]="member.id">
+                {{ member.person.name }}
               </mat-option>
             </ng-container>
             <mat-option class="add-option" (click)="openAddMemberDialog()">
@@ -40,9 +40,11 @@
             {{ getErrorMessage('member_id') }}
           </mat-error>
         </mat-form-field>
+      </app-column>
 
+      <app-column>
         <mat-form-field appearance="fill">
-          <mat-label>Pessoa</mat-label>
+          <mat-label>Filiação</mat-label>
           <mat-select formControlName="person_id">
             <mat-select-trigger>
               {{getPersonName()}}
@@ -65,6 +67,7 @@
           </mat-error>
         </mat-form-field>
       </app-column>
+
       <app-column>
         <mat-form-field appearance="fill">
           <mat-label>Parentesco</mat-label>
@@ -100,7 +103,7 @@
       <mat-card-footer>
         <mat-divider></mat-divider>
         <div class="cta">
-          <button mat-stroked-button color="warn" (click)="handleBack()">Cancelar</button>
+          <button mat-stroked-button color="warn" type="button" (click)="handleBack()">Cancelar</button>
           <button mat-raised-button color="primary" type="submit" [disabled]="!familyForm.valid">
             {{isEditMode ? 'Atualizar' : 'Cadastrar'}}
           </button>

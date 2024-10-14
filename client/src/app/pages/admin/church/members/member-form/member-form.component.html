@@ -351,7 +351,7 @@
         <ng-container *ngIf="isEditMode">
           <mat-tab label="Dados de filiação">
             <mat-divider></mat-divider>
-            <p>Dados de filiação</p>
+            <app-families></app-families>
           </mat-tab>
           <mat-tab label="Dados de ordenação">
             <mat-divider></mat-divider>
@@ -365,6 +365,8 @@
       </mat-tab-group>
 
       <mat-card-footer>
+        <mat-divider></mat-divider>
+
         <div class="cta">
           <button mat-stroked-button color="warn" type="button" (click)="onBack()">
             {{currentStep === 0 ? 'Cancelar' : 'Voltar'}}

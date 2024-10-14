@@ -32,6 +32,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { Kinships } from 'app/model/Auxiliaries';
+import { MESSAGES } from 'app/service/snackbar/messages';
+import dayjs from 'dayjs';
 import { MemberComponent } from '../../../member-form/member-form.component';
 import { FamiliesService } from '../families.service';
 
@@ -107,8 +109,7 @@ export class FamiliesFormComponent {
     this.loadInitialData();
     if (this.data && this.data?.families) {
       this.isEditMode = true;
-      this.familyId = this.data?.families?.id;
-      this.familyForm.patchValue(this.data.families);
+      this.familyId = this.data?.families.id;
       this.handleEdit();
     }
   }
@@ -300,6 +301,7 @@ export class FamiliesFormComponent {
   onSuccess(message: string) {
     this.loadingService.hide();
     this.snackbarService.openSuccess(message);
+    this.dialogRef.close();
     this.loadFamilies();
   }
 
@@ -311,8 +313,8 @@ export class FamiliesFormComponent {
   handleCreate() {
     this.loadingService.show();
     this.familiesService.createFamily(this.familyForm.value).subscribe({
-      next: () => this.onSuccess('Familia criada com sucesso.'),
-      error: () => this.onError('Erro ao criar a familia.'),
+      next: () => this.onSuccess(MESSAGES.CREATE_SUCCESS),
+      error: () => this.onError(MESSAGES.CREATE_ERROR),
       complete: () => {
         this.loadingService.hide();
       },
@@ -324,20 +326,27 @@ export class FamiliesFormComponent {
     this.familiesService
       .updateFamily(familyId, this.familyForm.value)
       .subscribe({
-        next: () => this.onSuccess('Familia atualizada com sucesso.'),
-        error: () => this.onError('Erro ao atualizar a familia.'),
+        next: () => this.onSuccess(MESSAGES.UPDATE_SUCCESS),
+        error: () => this.onError(MESSAGES.UPDATE_ERROR),
         complete: () => this.loadingService.hide(),
       });
   }
 
   handleEdit() {
-    this.familiesService.getFamily(this.familyId!).subscribe({
-      next: (family) => {
-        this.familyForm.patchValue(family);
-      },
-      error: () => this.onError('Erro ao carregar a familia.'),
-      complete: () => this.loadingService.hide(),
-    });
+    this.familiesService
+      .getFamily(this.familyId!)
+      .subscribe((family: Families) => {
+        this.familyForm.patchValue({
+          id: family.id,
+          name: family.name,
+          member_id: family.member.id,
+          person_id: family.person.id,
+          kinship_id: family.kinship.id,
+          updated_at: dayjs(family.updated_at).format(
+            'DD/MM/YYYY [às] HH:mm:ss',
+          ),
+        });
+      });
   }
 
   openAddMemberDialog() {

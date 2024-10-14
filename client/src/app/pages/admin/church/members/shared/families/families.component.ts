@@ -22,6 +22,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { Families } from 'app/model/Families';
+import { MESSAGES } from 'app/service/snackbar/messages';
 import { SnackbarService } from 'app/service/snackbar/snackbar.service';
 import { NotFoundRegisterComponent } from '../../../../../../components/not-found-register/not-found-register.component';
 import { TableComponent } from '../../../../../../components/table/table.component';
@@ -60,7 +61,8 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
   @ViewChild(MatSort) sort!: MatSort;
 
   columnDefinitions = [
-    { key: 'person.name', header: 'Nome do membro' },
+    { key: 'member.person.name', header: 'Membro' },
+    { key: 'person.name', header: 'Filiação' },
     { key: 'kinship.name', header: 'Parentesco' },
     { key: 'name', header: 'Nome' },
   ];
@@ -150,8 +152,7 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
 
   addNewFamily = (): void => {
     const dialogRef = this.dialog.open(FamiliesFormComponent, {
-      width: '70dvw',
-      maxWidth: '100%',
+      maxWidth: '100dvw',
       height: 'auto',
       maxHeight: '100dvh',
       role: 'dialog',
@@ -168,15 +169,14 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
 
   editFamily = (family: Families): void => {
     const dialogRef = this.dialog.open(FamiliesFormComponent, {
-      width: '70dvw',
-      maxWidth: '100%',
+      maxWidth: '100dvw',
       height: 'auto',
       maxHeight: '100dvh',
       role: 'dialog',
       panelClass: 'dialog',
       disableClose: true,
       id: family.id,
-      data: { family },
+      data: { families: family },
     });
 
     dialogRef.afterClosed().subscribe((result: Families) => {
@@ -200,14 +200,12 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
           this.loadingService.show();
           this.familiesService.deleteFamily(family.id).subscribe({
             next: () => {
-              this.snackbarService.openSuccess(
-                'Parentesco excluído com sucesso',
-              );
+              this.snackbarService.openSuccess(MESSAGES.DELETE_SUCCESS);
               this.loadFamilies();
             },
-            error: (error) => {
+            error: () => {
               this.loadingService.hide();
-              this.snackbarService.openError(error.message);
+              this.snackbarService.openError(MESSAGES.DELETE_ERROR);
             },
             complete: () => {
               this.loadingService.hide();

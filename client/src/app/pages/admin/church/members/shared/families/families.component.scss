@@ -1,22 +1,12 @@
 @import '../../../../../../../styles/theme.scss';
 
-.add-button {
+.align-btn-search {
   display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: flex-start;
   padding: 1rem;
-}
-
-.add-button>button {
-  min-width: 15rem;
-  height: 2.5rem;
-}
-
-.filter-container {
-  display: flex;
-  justify-content: space-between;
-  padding: 1rem;
-  width: 100%;
-  max-width: 100%;
+  gap: 2rem;
 }
 
 .search {
@@ -47,7 +37,7 @@
 .mat-cell,
 .rows,
 td {
-  max-width: 13dvw;
+  max-width: 15rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -75,7 +65,7 @@ td {
 
 .actions-cell {
   position: relative;
-  width: 10rem;
+  width: 15rem;
   overflow: hidden;
 }
 

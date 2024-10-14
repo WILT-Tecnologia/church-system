@@ -23,6 +23,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { MESSAGES } from 'app/service/snackbar/messages';
 import { DateFormatPipe } from 'app/utils/pipe/BirthDateFormatPipe';
 import { Members } from '../../../../model/Members';
 import { SnackbarService } from '../../../../service/snackbar/snackbar.service';
@@ -158,8 +159,9 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
 
   addNewMembers = (): void => {
     const dialogRef = this.dialog.open(MemberComponent, {
-      width: '100%',
-      maxWidth: '100%',
+      width: 'auto',
+      minWidth: '70dvw',
+      maxWidth: '100dvw',
       height: 'auto',
       maxHeight: '100dvh',
       role: 'dialog',
@@ -174,20 +176,21 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
     });
   };
 
-  editMembers = (members: Members): void => {
+  editMembers = (member: Members): void => {
     const dialogRef = this.dialog.open(MemberComponent, {
-      width: '70dvw',
-      maxWidth: '100%',
+      width: 'auto',
+      minWidth: '70dvw',
+      maxWidth: '100dvw',
       height: 'auto',
       maxHeight: '100dvh',
       role: 'dialog',
       panelClass: 'dialog',
       disableClose: true,
-      id: members.id,
-      data: { members },
+      id: member.id,
+      data: { members: member },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().subscribe((result: Members) => {
       if (result) {
         this.loadMembers();
       }
@@ -208,12 +211,12 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
           this.loading.show();
           this.memberService.deleteMember(members.id).subscribe({
             next: () => {
-              this.snackbarService.openSuccess('Membro excluído com sucesso!');
+              this.snackbarService.openSuccess(MESSAGES.DELETE_SUCCESS);
               this.loadMembers();
             },
             error: () => {
               this.loading.hide();
-              this.snackbarService.openError('Erro ao excluir membros');
+              this.snackbarService.openError(MESSAGES.DELETE_ERROR);
             },
             complete: () => this.loading.hide(),
           });

@@ -21,7 +21,11 @@ import {
   MatDatepicker,
   MatDatepickerModule,
 } from '@angular/material/datepicker';
-import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -45,12 +49,14 @@ import { Person } from 'app/model/Person';
 import { ChurchComponent } from 'app/pages/admin/administrative/churchs/church/church.component';
 import { PersonComponent } from 'app/pages/admin/administrative/persons/person/person.component';
 import { NavigationService } from 'app/service/navigation/navigation.service';
+import { MESSAGES } from 'app/service/snackbar/messages';
 import { SnackbarService } from 'app/service/snackbar/snackbar.service';
 import { ValidationService } from 'app/service/validation/validation.service';
 import dayjs from 'dayjs';
 import { provideNgxMask } from 'ngx-mask';
 import { debounceTime, map, Observable, startWith } from 'rxjs';
 import { MembersService } from '../members.service';
+import { FamiliesComponent } from '../shared/families/families.component';
 
 @Component({
   selector: 'app-member',
@@ -61,10 +67,6 @@ import { MembersService } from '../members.service';
     provideNativeDateAdapter(),
     provideNgxMask(),
     { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
-    {
-      provide: MAT_DIALOG_DATA,
-      useValue: {},
-    },
   ],
   imports: [
     MatTabsModule,
@@ -82,6 +84,7 @@ import { MembersService } from '../members.service';
     ColumnComponent,
     CommonModule,
     ReactiveFormsModule,
+    FamiliesComponent,
   ],
 })
 export class MemberComponent implements OnInit {
@@ -121,6 +124,7 @@ export class MemberComponent implements OnInit {
     private validationService: ValidationService,
     public navigationService: NavigationService,
     private dialog: MatDialog,
+    private dialogRef: MatDialogRef<MemberComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { members: Members },
   ) {
     this.memberForm = this.createMemberForm();
@@ -144,8 +148,7 @@ export class MemberComponent implements OnInit {
     this.loadInitialData();
     if (this.data && this.data?.members) {
       this.isEditMode = true;
-      this.memberId = this.data?.members?.id;
-      this.memberForm.patchValue(this.data.members);
+      this.memberId = this.data?.members.id;
       this.handleEdit();
     }
   }
@@ -450,7 +453,7 @@ export class MemberComponent implements OnInit {
 
   handleBack() {
     this.loadMembers();
-    this.dialog.closeAll();
+    this.dialogRef.close();
   }
 
   handleSubmit() {
@@ -465,8 +468,8 @@ export class MemberComponent implements OnInit {
 
     const memberData = this.combineStepData();
     this.membersService.createMember(memberData).subscribe({
-      next: () => this.onSuccess('Membro criado com sucesso.'),
-      error: () => this.onError('Erro ao criar o membro.'),
+      next: () => this.onSuccess(MESSAGES.CREATE_SUCCESS),
+      error: () => this.onError(MESSAGES.CREATE_ERROR),
       complete: () => this.loadingService.hide(),
     });
   }
@@ -476,8 +479,8 @@ export class MemberComponent implements OnInit {
 
     const memberData = this.combineStepData();
     this.membersService.updateMember(memberId!, memberData).subscribe({
-      next: () => this.onSuccess('Membro atualizado com sucesso.'),
-      error: () => this.onError('Erro ao atualizar o membro.'),
+      next: () => this.onSuccess(MESSAGES.UPDATE_SUCCESS),
+      error: () => this.onError(MESSAGES.UPDATE_ERROR),
       complete: () => this.loadingService.hide(),
     });
   }
@@ -550,7 +553,6 @@ export class MemberComponent implements OnInit {
 
   openAddPersonDialog(): void {
     this.dialog.open(PersonComponent, {
-      width: '70dvw',
       maxWidth: '100%',
       height: 'auto',
       maxHeight: '100dvh',
@@ -562,7 +564,6 @@ export class MemberComponent implements OnInit {
 
   openAddChurchDialog(): void {
     this.dialog.open(ChurchComponent, {
-      width: '70dvw',
       maxWidth: '100%',
       height: 'auto',
       maxHeight: '100dvh',
