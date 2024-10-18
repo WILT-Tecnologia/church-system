@@ -1,4 +1,4 @@
-<mat-card>
+<mat-card appearance="outlined">
   <div class="flex justify-between items-center m-2">
     <mat-card-header>
       <mat-card-title>{{pageTitle}}</mat-card-title>
@@ -11,12 +11,12 @@
   <mat-card-content>
     <form [formGroup]="familyForm" (ngSubmit)="handleSubmit()" class="form-field-group wrapper">
       <app-column>
-        <mat-checkbox (change)="onCheckboxChange($event)" color="primary">
-          A filiação não é membro?
+        <mat-checkbox formControlName="is_member" (change)="onCheckboxChange($event.checked)" color="primary">
+          A filiação é membro?
         </mat-checkbox>
       </app-column>
 
-      <app-column *ngIf="!memberExists()">
+      <app-column>
         <mat-form-field appearance="fill">
           <mat-label>Membro</mat-label>
           <mat-select formControlName="member_id">
@@ -42,7 +42,7 @@
         </mat-form-field>
       </app-column>
 
-      <app-column>
+      <app-column *ngIf="!!isMember()">
         <mat-form-field appearance="fill">
           <mat-label>Filiação</mat-label>
           <mat-select formControlName="person_id">
@@ -91,7 +91,7 @@
         </mat-form-field>
       </app-column>
 
-      <app-column *ngIf="memberExists()">
+      <app-column *ngIf="showNameField()">
         <mat-form-field appearance="fill">
           <mat-label>Nome</mat-label>
           <input matInput formControlName="name" required>
@@ -104,7 +104,7 @@
         <mat-divider></mat-divider>
         <div class="cta">
           <button mat-stroked-button color="warn" type="button" (click)="handleBack()">Cancelar</button>
-          <button mat-raised-button color="primary" type="submit" [disabled]="!familyForm.valid">
+          <button mat-raised-button color="primary" type="submit">
             {{isEditMode ? 'Atualizar' : 'Cadastrar'}}
           </button>
         </div>

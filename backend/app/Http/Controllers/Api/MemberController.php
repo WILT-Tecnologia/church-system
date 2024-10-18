@@ -7,6 +7,7 @@ use App\Http\Requests\StoreMemberRequest;
 use App\Http\Requests\UpdateMemberRequest;
 use App\Http\Resources\MemberResource;
 use App\Models\Member;
+use App\Http\Resources\FamilyResource;
 use Illuminate\Http\Request;
 
 class MemberController extends Controller
@@ -18,6 +19,19 @@ class MemberController extends Controller
     {
         return MemberResource::collection(Member::all());
     }
+
+    public function findFamilyPerMember(Request $request)
+{
+    $memberId = $request->query('member_id');
+
+    $member = Member::with(['families', 'person', 'families.kinship'])->find($memberId);
+
+    if (!$member) {
+        return response()->json(['error' => 'Membro não encontrado'], 404);
+    }
+
+    return FamilyResource::collection($member->families);
+}
 
     /**
      * Store a newly created resource in storage.

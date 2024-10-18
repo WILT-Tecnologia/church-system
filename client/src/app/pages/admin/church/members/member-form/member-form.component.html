@@ -351,7 +351,7 @@
         <ng-container *ngIf="isEditMode">
           <mat-tab label="Dados de filiação">
             <mat-divider></mat-divider>
-            <app-families></app-families>
+            <app-families [families]="families"></app-families>
           </mat-tab>
           <mat-tab label="Dados de ordenação">
             <mat-divider></mat-divider>

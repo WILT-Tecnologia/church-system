@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 })
 export class DateFormatPipe implements PipeTransform {
   transform(value: string): string {
-    if (!value) return 'Data não disponível';
+    if (!value) return 'Não informado';
 
     let dateFormated = dayjs(value).format('DD/MM/YYYY');
 

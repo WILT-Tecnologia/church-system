@@ -1,5 +1,6 @@
 import { CivilStatus, ColorRace, Formations } from './Auxiliaries';
 import { Church } from './Church';
+import { Families } from './Families';
 import { MemberOrigin } from './MemberOrigins';
 import { Person } from './Person';
 
@@ -39,4 +40,5 @@ export type Members = {
   receipt_date: string;
   created_at: string;
   updated_at: string;
+  families?: Families[];
 };

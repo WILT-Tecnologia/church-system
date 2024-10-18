@@ -43,6 +43,7 @@ import {
   MemberSituations,
 } from 'app/model/Auxiliaries';
 import { Church } from 'app/model/Church';
+import { Families } from 'app/model/Families';
 import { MemberOrigin } from 'app/model/MemberOrigins';
 import { Members } from 'app/model/Members';
 import { Person } from 'app/model/Person';
@@ -113,8 +114,10 @@ export class MemberComponent implements OnInit {
   colorRace: ColorRace[] = [];
   formations: Formations[] = [];
   kinships: Kinships[] = [];
+  families: Families[] = [];
   memberSituations: MemberSituations[] = [];
   memberOrigins: MemberOrigin[] = [];
+  selectedFamily: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -149,6 +152,7 @@ export class MemberComponent implements OnInit {
     if (this.data && this.data?.members) {
       this.isEditMode = true;
       this.memberId = this.data?.members.id;
+      this.families = this.data?.members?.families || [];
       this.handleEdit();
     }
   }
@@ -498,6 +502,12 @@ export class MemberComponent implements OnInit {
             ),
           },
         });
+        this.membersService
+          .getFamilyOfMember(this.memberId!)
+          .subscribe((families) => {
+            this.families = families;
+            console.log(this.families);
+          });
       });
   };
 

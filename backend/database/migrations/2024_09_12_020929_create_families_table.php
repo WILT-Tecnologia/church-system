@@ -17,6 +17,7 @@ return new class extends Migration
             $table->uuid('person_id')->nullable();
             $table->string('name')->nullable();
             $table->uuid('kinship_id');
+            $table->boolean('is_member')->default(false);
             $table->timestamps();
             $table->softDeletes();
 

@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
+  Input,
   OnChanges,
   OnInit,
   SimpleChanges,
@@ -9,6 +10,7 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -45,6 +47,7 @@ import { FamiliesService } from './families.service';
     MatInputModule,
     MatTooltipModule,
     MatIconModule,
+    MatCheckboxModule,
     MatFormFieldModule,
     FamiliesFormComponent,
     CommonModule,
@@ -53,7 +56,7 @@ import { FamiliesService } from './families.service';
   ],
 })
 export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
-  families: Families[] = [];
+  @Input() families: Families[] = [];
   pageSizeOptions: number[] = [25, 50, 100, 200];
   pageSize: number = 25;
   dataSourceMat = new MatTableDataSource<Families>(this.families);
@@ -65,6 +68,7 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
     { key: 'person.name', header: 'Filiação' },
     { key: 'kinship.name', header: 'Parentesco' },
     { key: 'name', header: 'Nome' },
+    { key: 'is_member', header: 'A filiação é membro?', type: 'boolean' },
   ];
 
   displayedColumns = this.columnDefinitions
@@ -98,8 +102,8 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['dataSource'] && changes['dataSource'].currentValue) {
-      this.dataSourceMat.data;
+    if (changes['families'] && changes['families'].currentValue) {
+      this.dataSourceMat.data = this.families;
     }
   }
 
@@ -150,7 +154,15 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
     return key.split('.').reduce((acc, part) => acc && acc[part], obj);
   }
 
+  getDefaultMemberId(): string | null {
+    if (this.families.length > 0) {
+      return this.families[0].member.id;
+    }
+    return null;
+  }
+
   addNewFamily = (): void => {
+    const defaultMemberId = this.getDefaultMemberId();
     const dialogRef = this.dialog.open(FamiliesFormComponent, {
       maxWidth: '100dvw',
       height: 'auto',
@@ -158,6 +170,7 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
       role: 'dialog',
       panelClass: 'dialog',
       disableClose: true,
+      data: { familiesComponent: this, defaultMemberId: defaultMemberId },
     });
 
     dialogRef.afterClosed().subscribe((result) => {

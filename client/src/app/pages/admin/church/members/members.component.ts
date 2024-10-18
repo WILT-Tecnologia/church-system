@@ -2,6 +2,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import {
   AfterViewInit,
   Component,
+  Input,
   OnChanges,
   OnInit,
   SimpleChanges,
@@ -23,12 +24,14 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { Families } from 'app/model/Families';
 import { MESSAGES } from 'app/service/snackbar/messages';
 import { DateFormatPipe } from 'app/utils/pipe/BirthDateFormatPipe';
 import { Members } from '../../../../model/Members';
 import { SnackbarService } from '../../../../service/snackbar/snackbar.service';
 import { MemberComponent } from './member-form/member-form.component';
 import { MembersService } from './members.service';
+import { FamiliesService } from './shared/families/families.service';
 
 @Component({
   selector: 'app-members',
@@ -59,6 +62,7 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
   dataSourceMat = new MatTableDataSource<Members>(this.member);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  @Input() families!: Families[];
 
   columnDefinitions = [
     { key: 'person.name', header: 'Nome' },
@@ -82,6 +86,7 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
     private loading: LoadingService,
     private snackbarService: SnackbarService,
     private memberService: MembersService,
+    private familiesService: FamiliesService,
     private dialog: MatDialog,
   ) {}
 
@@ -105,8 +110,8 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
   };
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['dataSource'] && changes['dataSource'].currentValue) {
-      this.dataSourceMat.data;
+    if (changes['member'] && changes['member'].currentValue) {
+      this.dataSourceMat.data = this.member;
     }
   }
 
@@ -188,6 +193,16 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
       disableClose: true,
       id: member.id,
       data: { members: member },
+    });
+
+    this.memberService.getFamilyOfMember(member.id).subscribe({
+      next: (families) => {
+        member.families = families;
+        dialogRef.componentInstance.families = families;
+      },
+      error: () => {
+        this.snackbarService.openError(MESSAGES.LOADING_ERROR);
+      },
     });
 
     dialogRef.afterClosed().subscribe((result: Members) => {

@@ -75,6 +75,7 @@ export class FamiliesFormComponent {
   kinships: Kinships[] = [];
 
   isMember = signal(false);
+  showNameField = signal(true);
 
   constructor(
     private fb: FormBuilder,
@@ -84,9 +85,14 @@ export class FamiliesFormComponent {
     private validationService: ValidationService,
     private dialog: MatDialog,
     private dialogRef: MatDialogRef<FamiliesFormComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { families: Families },
+    @Inject(MAT_DIALOG_DATA)
+    public data: { families: Families; defaultMemberId?: string },
   ) {
     this.familyForm = this.createForm();
+
+    if (this.data?.defaultMemberId) {
+      this.familyForm.get('member_id')?.setValue(this.data.defaultMemberId);
+    }
 
     this.filterMembers = this.setupFilter(
       this.searchControlMembers,
@@ -121,19 +127,23 @@ export class FamiliesFormComponent {
   createForm() {
     return this.fb.group({
       id: [this.data?.families?.id || ''],
-      name: [
-        { value: this.data?.families?.name || '', disabled: this.isMember },
-      ],
+      name: [this.data?.families?.name || '', [Validators.required]],
+      is_member: [this.data?.families?.is_member || false],
       member_id: [
         {
-          value: this.data?.families?.member.id || '',
+          value: this.data?.families?.member?.id || '',
           disabled: !this.isMember,
         },
         [Validators.required],
       ],
-      person_id: [this.data?.families?.person.id || '', [Validators.required]],
+      person_id: [
+        {
+          value: this.data?.families?.person?.id || '',
+          disabled: this.isEditMode,
+        },
+      ],
       kinship_id: [
-        this.data?.families?.kinship.id || '',
+        this.data?.families?.kinship?.id || '',
         [Validators.required],
       ],
       updated_at: [this.data?.families?.updated_at || ''],
@@ -217,31 +227,33 @@ export class FamiliesFormComponent {
     return field.split('.').reduce((acc, part) => acc?.[part], item);
   }
 
-  onCheckboxChange(event: any) {
+  onCheckboxChange(event: boolean) {
     const nameControl = this.familyForm.get('name');
-    const memberControl = this.familyForm.get('member_id');
+    const personControl = this.familyForm.get('person_id');
 
-    this.isMember.set(event.checked);
+    this.isMember.set(event);
 
-    if (event.checked) {
-      nameControl?.setValidators([Validators.required]);
-      nameControl?.enable();
-      memberControl?.clearValidators();
-      memberControl?.disable();
-      memberControl?.setValue(null);
-    } else {
+    if (!!this.isMember) {
       nameControl?.clearValidators();
       nameControl?.disable();
       nameControl?.setValue(null);
-      memberControl?.setValidators([Validators.required]);
-      memberControl?.enable();
+      personControl?.setValidators([Validators.required]);
+      personControl?.enable();
+      this.showNameField.set(false);
+    } else {
+      nameControl?.setValidators([Validators.required]);
+      nameControl?.enable();
+      personControl?.clearValidators();
+      personControl?.disable();
+      personControl?.setValue(null);
+      this.showNameField.set(true);
     }
 
     nameControl?.updateValueAndValidity();
-    memberControl?.updateValueAndValidity();
+    personControl?.updateValueAndValidity();
   }
 
-  memberExists(): boolean {
+  personExists(): boolean {
     return this.isMember();
   }
 
@@ -339,13 +351,15 @@ export class FamiliesFormComponent {
         this.familyForm.patchValue({
           id: family.id,
           name: family.name,
-          member_id: family.member.id,
-          person_id: family.person.id,
-          kinship_id: family.kinship.id,
+          member_id: family.member.id || '',
+          person_id: family.person.id || '',
+          kinship_id: family.kinship.id || '',
+          is_member: family.is_member,
           updated_at: dayjs(family.updated_at).format(
             'DD/MM/YYYY [às] HH:mm:ss',
           ),
         });
+        this.onCheckboxChange(family.is_member);
       });
   }
 

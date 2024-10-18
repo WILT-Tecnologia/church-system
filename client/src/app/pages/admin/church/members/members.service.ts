@@ -15,15 +15,20 @@ import { Church } from '../../../../model/Church';
 import { Members } from '../../../../model/Members';
 import { Person } from '../../../../model/Person';
 
+import { Families } from 'app/model/Families';
 import { DateFormatPipe } from 'app/utils/pipe/BirthDateFormatPipe';
 import { SexFormatPipe } from 'app/utils/pipe/SexFormatPipe';
 import { PhoneFormatPipe } from 'app/utils/pipe/phone-format.pipe';
+import { FamiliesService } from './shared/families/families.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MembersService {
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private familiesService: FamiliesService,
+  ) {}
 
   private api = `${environment.apiUrl}/church/members`;
 
@@ -31,6 +36,10 @@ export class MembersService {
   private formatDatePipe = new DateFormatPipe();
   private formatSexPipe = new SexFormatPipe();
   private formatPhonePipe = new PhoneFormatPipe();
+
+  getFamilyOfMember(memberId: string): Observable<Families[]> {
+    return this.familiesService.getFamilyByMemberId(memberId);
+  }
 
   getCivilStatus(): Observable<CivilStatus[]> {
     return this.http.get<CivilStatus[]>(
@@ -84,6 +93,10 @@ export class MembersService {
               member.person.phone_one,
             );
           }
+
+          this.getFamilyOfMember(member.id).subscribe((families) => {
+            member.families = families;
+          });
           return member;
         });
       }),

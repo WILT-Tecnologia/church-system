@@ -7,4 +7,6 @@ export const MESSAGES = {
   DELETE_ERROR: 'Não foi possível finalizar a exclusão do registro!',
   INFO: 'Informação',
   WARNING: 'Atenção',
+  LOADING_SUCCESS: 'Dados carregados com sucesso!',
+  LOADING_ERROR: 'Erro ao carregar os dados!',
 };

@@ -35,6 +35,12 @@ export class FamiliesService {
     return this.http.get<Families>(`${this.api}/${id}`);
   }
 
+  getFamilyByMemberId(memberId: string): Observable<Families[]> {
+    return this.http.get<Families[]>(
+      `${environment.apiUrl}/church/member?member_id=${memberId}`,
+    );
+  }
+
   createFamily(family: Families): Observable<Families> {
     return this.http.post<Families>(this.api, family);
   }
