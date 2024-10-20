@@ -9,8 +9,8 @@
   </div>
   <mat-divider></mat-divider>
 
-  <mat-card-content>
-    <form [formGroup]="memberForm" (ngSubmit)="handleSubmit()" class="form-field-group wrapper">
+  <form [formGroup]="memberForm" (ngSubmit)="handleSubmit()" class="form-field-group wrapper">
+    <mat-card-content>
       <mat-tab-group preserveContent dynamicHeight [(selectedIndex)]="currentStep">
         <mat-tab label="Dados pessoais" [disabled]="isTabDisabled(0)">
           <mat-divider></mat-divider>
@@ -364,14 +364,13 @@
         </ng-container>
       </mat-tab-group>
 
+
       <mat-card-footer>
         <mat-divider></mat-divider>
-
-        <div class="cta">
+        <mat-card-actions class="w-100 cta">
           <button mat-stroked-button color="warn" type="button" (click)="onBack()">
             {{currentStep === 0 ? 'Cancelar' : 'Voltar'}}
           </button>
-
           <ng-container *ngIf="isEditMode">
             <button mat-raised-button (click)="onNext()" type="button" color="primary"
               [disabled]="!canProceedToNextStep()" *ngIf="currentStep < 5">
@@ -382,7 +381,6 @@
               {{isEditMode ? 'Atualizar' : 'Cadastrar'}}
             </button>
           </ng-container>
-
           <ng-container *ngIf="!isEditMode">
             <button mat-raised-button (click)="onNext()" type="button" color="primary"
               [disabled]="!canProceedToNextStep()" *ngIf="currentStep < 2">
@@ -393,9 +391,13 @@
               Cadastrar
             </button>
           </ng-container>
-        </div>
+          <ng-container *ngIf="isEditMode">
+            <button mat-stroked-button type="submit" color="primary" [disabled]="memberForm.invalid">
+              Salvar
+            </button>
+          </ng-container>
+        </mat-card-actions>
       </mat-card-footer>
-    </form>
-
-  </mat-card-content>
+    </mat-card-content>
+  </form>
 </mat-card>

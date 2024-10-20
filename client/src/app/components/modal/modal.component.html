@@ -1,0 +1,47 @@
+<div class="overflow-hidden w-full h-full flex flex-col">
+  <!-- HEADER -->
+  <div class="flex justify-between flex-shrink-0 p-0 m-0 box-border h-full items-center">
+    <span class="px-4 text-lg font-semibold m-2">{{data.title}}</span>
+    <button mat-icon-button color="warn" (click)="closeModal(true)" *ngIf="data.isHandleClose" class="m-2">
+      <mat-icon color="warn">close</mat-icon>
+    </button>
+  </div>
+  <mat-divider></mat-divider>
+
+  <div class="p-4 flex-grow overflow-auto">
+    <ng-container *ngIf="data.customContent">
+      <ng-container *ngComponentOutlet="data.customContent"></ng-container>
+    </ng-container>
+  </div>
+
+
+  <div *ngIf="data.actions && data.actions.length > 0"
+    class="bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-end items-end md:flex-col-reverse md:w-full md:justify-stretch md:items-stretch gap-2 w-full p-4">
+    <ng-container *ngFor="let action of data.actions" [ngSwitch]="action.variant">
+      <button *ngSwitchCase="'mat-button'" mat-button [color]="action.color" (click)="action.action()">
+        {{ action.label }}
+      </button>
+      <button *ngSwitchCase="'mat-raised-button'" mat-raised-button [color]="action.color" (click)="action.action()">
+        {{ action.label }}
+      </button>
+      <button *ngSwitchCase="'mat-flat-button'" mat-flat-button [color]="action.color" (click)="action.action()">
+        {{ action.label }}
+      </button>
+      <button *ngSwitchCase="'mat-stroked-button'" mat-stroked-button [color]="action.color" (click)="action.action()">
+        {{ action.label }}
+      </button>
+      <button *ngSwitchCase="'mat-icon-button'" mat-icon-button [color]="action.color" (click)="action.action()">
+        <mat-icon>{{ action.icon }}</mat-icon>
+      </button>
+      <button *ngSwitchCase="'mat-fab'" mat-fab [color]="action.color" (click)="action.action()">
+        <mat-icon>{{ action.icon }}</mat-icon>
+      </button>
+      <button *ngSwitchCase="'mat-mini-fab'" mat-mini-fab [color]="action.color" (click)="action.action()">
+        <mat-icon>{{ action.icon }}</mat-icon>
+      </button>
+      <button *ngSwitchDefault mat-button [color]="action.color" (click)="action.action()">
+        {{ action.label }}
+      </button>
+    </ng-container>
+  </div>
+</div>

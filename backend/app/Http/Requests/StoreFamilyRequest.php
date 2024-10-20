@@ -24,8 +24,8 @@ class StoreFamilyRequest extends FormRequest
         return [
             'member_id' => ['required', 'exists:members,id'],
             'is_member' => ['boolean'],
-            'person_id' => ['required_unless:is_member,false', 'nullable','exists:persons,id'],
-            'name' => ['nullable'],
+            'person_id' => ['required_if:is_member,true', 'sometimes','nullable','exists:persons,id'],
+            'name' => ['sometimes','nullable'],
             'kinship_id' => ['required', 'exists:aux_kinship,id'],
         ];
     }

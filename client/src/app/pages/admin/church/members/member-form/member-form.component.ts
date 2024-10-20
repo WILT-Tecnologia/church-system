@@ -464,7 +464,12 @@ export class MemberComponent implements OnInit {
     if (this.memberForm.invalid) return;
 
     const memberData = this.combineStepData();
-    this.isEditMode ? this.updateMember(memberData.id) : this.handleCreate();
+    if (this.isEditMode) {
+      this.updateMember(memberData.id);
+      this.dialogRef.close(true);
+    } else {
+      this.handleCreate();
+    }
   }
 
   handleCreate() {
@@ -506,7 +511,6 @@ export class MemberComponent implements OnInit {
           .getFamilyOfMember(this.memberId!)
           .subscribe((families) => {
             this.families = families;
-            console.log(this.families);
           });
       });
   };

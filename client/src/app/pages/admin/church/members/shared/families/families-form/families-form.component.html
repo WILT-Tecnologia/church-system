@@ -42,7 +42,7 @@
         </mat-form-field>
       </app-column>
 
-      <app-column *ngIf="!!isMember()">
+      <app-column *ngIf="isMember()">
         <mat-form-field appearance="fill">
           <mat-label>Filiação</mat-label>
           <mat-select formControlName="person_id">
@@ -65,6 +65,15 @@
           <mat-error *ngIf="familyForm.get('person_id')?.invalid && familyForm.get('person_id')?.touched">
             {{ getErrorMessage('person_id') }}
           </mat-error>
+        </mat-form-field>
+      </app-column>
+
+      <app-column *ngIf="!isMember()">
+        <mat-form-field appearance="fill">
+          <mat-label>Nome</mat-label>
+          <input matInput formControlName="name" required>
+          <mat-error
+            *ngIf="familyForm.get('name')?.invalid && familyForm.get('name')?.touched">{{getErrorMessage('name')}}</mat-error>
         </mat-form-field>
       </app-column>
 
@@ -91,20 +100,11 @@
         </mat-form-field>
       </app-column>
 
-      <app-column *ngIf="showNameField()">
-        <mat-form-field appearance="fill">
-          <mat-label>Nome</mat-label>
-          <input matInput formControlName="name" required>
-          <mat-error
-            *ngIf="familyForm.get('name')?.invalid && familyForm.get('name')?.touched">{{getErrorMessage('name')}}</mat-error>
-        </mat-form-field>
-      </app-column>
-
       <mat-card-footer>
         <mat-divider></mat-divider>
         <div class="cta">
           <button mat-stroked-button color="warn" type="button" (click)="handleBack()">Cancelar</button>
-          <button mat-raised-button color="primary" type="submit">
+          <button mat-raised-button color="primary" type="submit" [disabled]="familyForm.invalid">
             {{isEditMode ? 'Atualizar' : 'Cadastrar'}}
           </button>
         </div>

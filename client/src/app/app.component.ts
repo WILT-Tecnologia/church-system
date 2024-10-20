@@ -27,6 +27,6 @@ export class AppComponent {
 
     setTimeout(() => {
       this.loadingService.hide();
-    }, 1000);
+    });
   }
 }

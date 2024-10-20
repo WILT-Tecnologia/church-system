@@ -25,7 +25,6 @@ class StoreChurchRequest extends FormRequest
         return [
             'responsible_id' => ['nullable', 'exists:persons,id'],
             'name' => ['required'],
-            'responsible_id' => ['nullable', 'exists:persons,id'],
             'email' => ['required', 'email'],
             'cnpj' => ['required', 'numeric', new Cnpj()],
             'cep' => ['required', 'numeric'],

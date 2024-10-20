@@ -31,7 +31,6 @@ import { Members } from '../../../../model/Members';
 import { SnackbarService } from '../../../../service/snackbar/snackbar.service';
 import { MemberComponent } from './member-form/member-form.component';
 import { MembersService } from './members.service';
-import { FamiliesService } from './shared/families/families.service';
 
 @Component({
   selector: 'app-members',
@@ -86,7 +85,6 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
     private loading: LoadingService,
     private snackbarService: SnackbarService,
     private memberService: MembersService,
-    private familiesService: FamiliesService,
     private dialog: MatDialog,
   ) {}
 
@@ -95,17 +93,14 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   loadMembers = () => {
-    this.memberService.getMembers().subscribe({
-      next: (members) => {
-        this.member = members;
-        this.dataSourceMat = new MatTableDataSource<Members>(this.member);
-        this.dataSourceMat.data = this.member;
-        this.dataSourceMat.paginator = this.paginator;
-        this.dataSourceMat.sort = this.sort;
-      },
-      error: (error) => {
-        this.snackbarService.openError(error.message);
-      },
+    this.loading.show();
+    this.memberService.getMembers().subscribe((members: Members[]) => {
+      this.member = members;
+      this.dataSourceMat = new MatTableDataSource<Members>(this.member);
+      this.dataSourceMat.data = this.member;
+      this.dataSourceMat.paginator = this.paginator;
+      this.dataSourceMat.sort = this.sort;
+      this.loading.hide();
     });
   };
 
@@ -125,6 +120,7 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
     };
 
     this.dataSourceMat.filter = filterValue;
+
     if (this.dataSourceMat.paginator) {
       this.dataSourceMat.paginator.firstPage();
     }
@@ -168,7 +164,7 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
       minWidth: '70dvw',
       maxWidth: '100dvw',
       height: 'auto',
-      maxHeight: '100dvh',
+      maxHeight: '95dvh',
       role: 'dialog',
       panelClass: 'dialog',
       disableClose: true,
@@ -183,11 +179,10 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
 
   editMembers = (member: Members): void => {
     const dialogRef = this.dialog.open(MemberComponent, {
-      width: 'auto',
       minWidth: '70dvw',
-      maxWidth: '100dvw',
-      height: 'auto',
-      maxHeight: '100dvh',
+      maxWidth: '70dvw',
+      minHeight: '50dvh',
+      maxHeight: '80dvh',
       role: 'dialog',
       panelClass: 'dialog',
       disableClose: true,
@@ -195,15 +190,12 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
       data: { members: member },
     });
 
-    this.memberService.getFamilyOfMember(member.id).subscribe({
-      next: (families) => {
+    this.memberService
+      .getFamilyOfMember(member.id)
+      .subscribe((families: Families[]) => {
         member.families = families;
         dialogRef.componentInstance.families = families;
-      },
-      error: () => {
-        this.snackbarService.openError(MESSAGES.LOADING_ERROR);
-      },
-    });
+      });
 
     dialogRef.afterClosed().subscribe((result: Members) => {
       if (result) {

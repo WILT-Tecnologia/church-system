@@ -31,6 +31,7 @@ import { debounceTime, forkJoin, map, Observable, startWith } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTableDataSource } from '@angular/material/table';
 import { Kinships } from 'app/model/Auxiliaries';
 import { MESSAGES } from 'app/service/snackbar/messages';
 import dayjs from 'dayjs';
@@ -76,6 +77,7 @@ export class FamiliesFormComponent {
 
   isMember = signal(false);
   showNameField = signal(true);
+  dataSourceMat = new MatTableDataSource<Families>(this.families);
 
   constructor(
     private fb: FormBuilder,
@@ -139,7 +141,7 @@ export class FamiliesFormComponent {
       person_id: [
         {
           value: this.data?.families?.person?.id || '',
-          disabled: this.isEditMode,
+          disabled: this.isMember,
         },
       ],
       kinship_id: [
@@ -155,9 +157,10 @@ export class FamiliesFormComponent {
     this.familiesService.getFamilies().subscribe({
       next: (families) => {
         this.families = families;
+        this.dataSourceMat.data = this.families;
       },
-      error: (error) => {
-        this.snackbarService.openError(error.message);
+      error: () => {
+        this.onError(MESSAGES.LOADING_ERROR);
       },
       complete: () => {
         this.loadingService.hide();
@@ -233,7 +236,7 @@ export class FamiliesFormComponent {
 
     this.isMember.set(event);
 
-    if (!!this.isMember) {
+    if (event) {
       nameControl?.clearValidators();
       nameControl?.disable();
       nameControl?.setValue(null);
@@ -306,15 +309,25 @@ export class FamiliesFormComponent {
   handleSubmit() {
     if (this.familyForm.invalid) return;
 
-    const familyData = this.familyForm.value;
-    this.isEditMode ? this.updateMember(familyData.id) : this.handleCreate();
+    const familyData = { ...this.familyForm.value };
+
+    if (familyData.is_member) {
+      familyData.name = null;
+    }
+
+    if (!familyData.is_member) {
+      familyData.person_id = null;
+    }
+
+    this.isEditMode
+      ? this.updateMember(familyData.id, familyData)
+      : this.handleCreate(familyData);
   }
 
   onSuccess(message: string) {
     this.loadingService.hide();
     this.snackbarService.openSuccess(message);
-    this.dialogRef.close();
-    this.loadFamilies();
+    this.dialogRef.close(this.familyForm.value);
   }
 
   onError(message: string) {
@@ -322,26 +335,25 @@ export class FamiliesFormComponent {
     this.snackbarService.openError(message);
   }
 
-  handleCreate() {
+  handleCreate(familyData?: any) {
     this.loadingService.show();
-    this.familiesService.createFamily(this.familyForm.value).subscribe({
-      next: () => this.onSuccess(MESSAGES.CREATE_SUCCESS),
-      error: () => this.onError(MESSAGES.CREATE_ERROR),
-      complete: () => {
-        this.loadingService.hide();
+    this.familiesService.createFamily(familyData).subscribe({
+      next: (createdFamily) => {
+        this.onSuccess(MESSAGES.CREATE_SUCCESS);
+        this.dialogRef.close(createdFamily);
       },
+      error: () => this.onError(MESSAGES.CREATE_ERROR),
+      complete: () => this.loadingService.hide(),
     });
   }
 
-  updateMember(familyId: string) {
+  updateMember(familyId: string, familyData?: any) {
     this.loadingService.show();
-    this.familiesService
-      .updateFamily(familyId, this.familyForm.value)
-      .subscribe({
-        next: () => this.onSuccess(MESSAGES.UPDATE_SUCCESS),
-        error: () => this.onError(MESSAGES.UPDATE_ERROR),
-        complete: () => this.loadingService.hide(),
-      });
+    this.familiesService.updateFamily(familyId, familyData).subscribe({
+      next: () => this.onSuccess(MESSAGES.UPDATE_SUCCESS),
+      error: () => this.onError(MESSAGES.UPDATE_ERROR),
+      complete: () => this.loadingService.hide(),
+    });
   }
 
   handleEdit() {
@@ -351,9 +363,9 @@ export class FamiliesFormComponent {
         this.familyForm.patchValue({
           id: family.id,
           name: family.name,
-          member_id: family.member.id || '',
-          person_id: family.person.id || '',
-          kinship_id: family.kinship.id || '',
+          member_id: family?.member?.id || '',
+          person_id: family?.person?.id || '',
+          kinship_id: family?.kinship?.id || '',
           is_member: family.is_member,
           updated_at: dayjs(family.updated_at).format(
             'DD/MM/YYYY [às] HH:mm:ss',

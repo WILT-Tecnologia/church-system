@@ -148,32 +148,13 @@ a:hover {
 .wrapper {
   display: flex;
   flex-direction: column;
-  padding: 2rem;
-  max-height: 100vh;
-  overflow-y: auto;
-  box-sizing: border-box;
-
-  @media screen and (max-width: 768px) {
-    padding: 1rem;
-  }
 }
 
 .form-field-group {
   display: flex;
   flex-direction: column;
-  flex: 1 1 100%;
+  flex: 1 1 auto;
   gap: 1rem;
-}
-
-.inputs {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  gap: 1rem;
-
-  @media screen and (max-width: 768px) {
-    flex-direction: column;
-  }
 }
 
 .add-option {
@@ -194,7 +175,8 @@ mat-form-field {
 
 .cta {
   display: flex;
-  justify-content: space-between;
+  flex-direction: row;
+  justify-content: flex-end;
   margin-top: 1rem;
   gap: 1rem;
 
@@ -210,27 +192,8 @@ mat-form-field {
   justify-content: center;
   align-items: center;
   margin: 0 auto;
-  padding: 2rem;
-  width: 100dvw;
   max-width: 100%;
-
-  @media screen and (max-width: 768px) {
-    width: 100%;
-    padding: 1rem;
-  }
-}
-
-@media screen and (min-width: 769px) {
-  .dialog {
-    width: 50dvw;
-    max-width: fit-content;
-  }
-}
-
-.mat-dialog-container {
-  padding: 0;
-  max-width: 100%;
-  width: 100%;
+  padding: 0.5rem;
 }
 
 .checkbox-group {
@@ -252,3 +215,41 @@ mat-label {
 mat-error {
   font-size: 0.5rem;
 }
+
+/* Customizando o scrollbar em navegadores Webkit */
+::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+::-webkit-scrollbar-track {
+  background: theme.$backgroundColor;
+}
+
+::-webkit-scrollbar-thumb {
+  background: theme.$greyVeryLight;
+  border-radius: 1rem;
+}
+
+/* Customização do scrollbar para Webkit */
+::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+::-webkit-scrollbar-track {
+  background: theme.$backgroundColor;
+}
+
+::-webkit-scrollbar-thumb {
+  background: theme.$greyVeryLight;
+  border-radius: 1rem;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    background: theme.$greyMain;
+    transition: all 0.2s ease-in-out;
+  }
+}
+
+/* ::-webkit-scrollbar-thumb:hover {
+  background: theme.$greyMain;
+} */

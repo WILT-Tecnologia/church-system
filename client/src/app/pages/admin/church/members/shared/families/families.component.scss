@@ -7,10 +7,25 @@
   justify-content: flex-start;
   padding: 1rem;
   gap: 2rem;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    align-items: stretch;
+    justify-content: stretch;
+
+    &>div>button {
+      width: 100%;
+    }
+  }
 }
 
 .search {
   width: 20rem;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    max-width: 100%;
+  }
 }
 
 .active.mat-mdc-standard-chip {
@@ -37,7 +52,7 @@
 .mat-cell,
 .rows,
 td {
-  max-width: 15rem;
+  max-width: 10rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -59,20 +74,23 @@ td {
   position: relative;
 }
 
-.rows:hover {
-  background-color: $hover;
+.rows {
+  &:hover {
+    background-color: $hover;
+  }
 }
 
 .actions-cell {
   position: relative;
-  width: 15rem;
+  width: 10rem;
   overflow: hidden;
-}
 
-.actions-container {
-  display: none;
-  justify-content: flex-end;
-  transition: opacity 0.3s ease;
+  .actions-container {
+    display: none;
+    //opacity: 0;
+    justify-content: flex-end;
+    transition: all 0.1s ease-in-out;
+  }
 }
 
 .rows:hover .actions-cell {
@@ -81,6 +99,7 @@ td {
 
 .rows:hover .actions-container {
   display: flex;
+  //opacity: 1;
 }
 
 /* Estilo dos ícones de ação */
@@ -92,25 +111,11 @@ td {
 }
 
 @media screen and (max-width: 768px) {
-  .add-button>button {
-    width: 100%;
-    margin: 1rem 0;
-  }
-
-  .filter-container {
-    display: flex;
-    flex-direction: column;
-  }
 
   .mat-header-cell,
   .mat-cell {
     font-size: 0.8rem;
     padding: 0.5rem;
-  }
-
-  .search {
-    width: 100%;
-    max-width: 100%;
   }
 
   .actions-container {

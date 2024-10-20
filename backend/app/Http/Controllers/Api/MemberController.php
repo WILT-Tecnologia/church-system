@@ -9,6 +9,7 @@ use App\Http\Resources\MemberResource;
 use App\Models\Member;
 use App\Http\Resources\FamilyResource;
 use Illuminate\Http\Request;
+use Ramsey\Uuid\Uuid;
 
 class MemberController extends Controller
 {
@@ -23,6 +24,10 @@ class MemberController extends Controller
     public function findFamilyPerMember(Request $request)
 {
     $memberId = $request->query('member_id');
+
+    if (!$memberId || !Uuid::isValid($memberId)) {
+        return response()->json(['error' => 'ID de membro inválido'], 400);
+    }
 
     $member = Member::with(['families', 'person', 'families.kinship'])->find($memberId);
 

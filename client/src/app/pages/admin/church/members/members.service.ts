@@ -94,9 +94,13 @@ export class MembersService {
             );
           }
 
-          this.getFamilyOfMember(member.id).subscribe((families) => {
-            member.families = families;
-          });
+          if (member.id) {
+            this.getFamilyOfMember(member.id).subscribe((families) => {
+              member.families = families;
+            });
+          } else {
+            member.families = [];
+          }
           return member;
         });
       }),

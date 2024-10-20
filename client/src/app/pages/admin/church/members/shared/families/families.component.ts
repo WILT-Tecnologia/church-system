@@ -57,8 +57,6 @@ import { FamiliesService } from './families.service';
 })
 export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() families: Families[] = [];
-  pageSizeOptions: number[] = [25, 50, 100, 200];
-  pageSize: number = 25;
   dataSourceMat = new MatTableDataSource<Families>(this.families);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -88,16 +86,11 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   loadFamilies() {
-    this.familiesService.getFamilies().subscribe({
-      next: (families) => {
-        this.families = families;
-        this.dataSourceMat.data = this.families;
-        this.dataSourceMat.paginator = this.paginator;
-        this.dataSourceMat.sort = this.sort;
-      },
-      error: (error) => {
-        this.snackbarService.openError(error.message);
-      },
+    this.loadingService.show();
+    this.familiesService.getFamilies().subscribe((families: Families[]) => {
+      this.families = families;
+      this.dataSourceMat.data = this.families;
+      this.loadingService.hide();
     });
   }
 
@@ -155,27 +148,44 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   getDefaultMemberId(): string | null {
-    if (this.families.length > 0) {
-      return this.families[0].member.id;
+    if (
+      this.families &&
+      this.families.length > 0 &&
+      this.families[0]?.member?.id
+    ) {
+      return this.families[0]?.member?.id || null;
     }
     return null;
   }
 
   addNewFamily = (): void => {
     const defaultMemberId = this.getDefaultMemberId();
+    if (!defaultMemberId) {
+      this.snackbarService.openError(MESSAGES.CREATE_ERROR);
+      return;
+    }
+
     const dialogRef = this.dialog.open(FamiliesFormComponent, {
       maxWidth: '100dvw',
       height: 'auto',
-      maxHeight: '100dvh',
+      maxHeight: '80dvh',
       role: 'dialog',
       panelClass: 'dialog',
       disableClose: true,
       data: { familiesComponent: this, defaultMemberId: defaultMemberId },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.loadFamilies();
+    dialogRef.afterClosed().subscribe((result: Families) => {
+      if (result && result.id) {
+        this.familiesService.getFamily(result.id).subscribe((family) => {
+          this.dataSourceMat.data = [...this.dataSourceMat.data, family];
+          this.familiesService
+            .getFamilyByMemberId(family.member.id)
+            .subscribe((families) => {
+              this.dataSourceMat.data = families;
+            });
+          this.dataSourceMat._updateChangeSubscription();
+        });
       }
     });
   };
@@ -184,26 +194,33 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
     const dialogRef = this.dialog.open(FamiliesFormComponent, {
       maxWidth: '100dvw',
       height: 'auto',
-      maxHeight: '100dvh',
+      maxHeight: '80dvh',
       role: 'dialog',
       panelClass: 'dialog',
       disableClose: true,
-      id: family.id,
+      id: family?.id,
       data: { families: family },
     });
 
     dialogRef.afterClosed().subscribe((result: Families) => {
-      if (result) {
-        this.loadFamilies();
+      if (result && result.id) {
+        this.familiesService.getFamily(result.id).subscribe((family) => {
+          this.dataSourceMat.data = this.dataSourceMat.data.map((f) =>
+            f.id === family.id ? family : f,
+          );
+        });
       }
     });
   };
 
   deleteFamily(family: Families) {
+    const nameFamily = family?.is_member
+      ? family?.person?.name + ' | ' + family?.kinship?.name
+      : family?.name + ' | ' + family?.kinship?.name;
     this.confirmeService
       .openConfirm(
         'Excluir o parentesco',
-        `Tem certeza que deseja excluir o parentesco ?`,
+        `Tem certeza que deseja excluir o parentesco: ${nameFamily} ?`,
         'Confirmar',
         'Cancelar',
       )
@@ -214,15 +231,17 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
           this.familiesService.deleteFamily(family.id).subscribe({
             next: () => {
               this.snackbarService.openSuccess(MESSAGES.DELETE_SUCCESS);
-              this.loadFamilies();
+              this.familiesService
+                .getFamilyByMemberId(family.member.id)
+                .subscribe((families) => {
+                  this.dataSourceMat.data = families;
+                });
             },
             error: () => {
               this.loadingService.hide();
               this.snackbarService.openError(MESSAGES.DELETE_ERROR);
             },
-            complete: () => {
-              this.loadingService.hide();
-            },
+            complete: () => this.loadingService.hide(),
           });
         }
       });
