@@ -22,10 +22,11 @@ class UpdateHistMemberRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'member_id' => ['sometimes', 'required', 'exists:members,id'],
             'table_name' => ['sometimes', 'required'],
-            'before_situation' => ['sometimes', 'required'],
+            'before_situation' => ['sometimes', 'nullable'],
             'after_situation' => ['sometimes', 'required'],
-            'change_date' => ['sometimes', 'required', 'datetime'],
+            'change_date' => ['sometimes', 'required', 'date_format:Y-m-d H:i:s'],
         ];
     }
 }

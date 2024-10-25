@@ -96,4 +96,9 @@ class Member extends Model
     {
         return $this->belongsTo(StatusMember::class);
     }
+
+    public function histMember(): BelongsTo
+    {
+        return $this->belongsTo(HistMember::class);
+    }
 }

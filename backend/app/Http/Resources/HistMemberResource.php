@@ -14,8 +14,10 @@ class HistMemberResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+
         return [
             'id' => $this->id,
+            'member_id' => new MemberResource($this->member),
             'table_name' => $this->table_name,
             'before_situation' => $this->before_situation,
             'after_situation' => $this->after_situation,

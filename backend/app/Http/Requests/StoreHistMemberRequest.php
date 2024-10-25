@@ -22,10 +22,11 @@ class StoreHistMemberRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'member_id' => ['required', 'exists:members,id'],
             'table_name' => ['required'],
-            'before_situation' => ['required'],
+            'before_situation' => ['nullable'],
             'after_situation' => ['required'],
-            'change_date' => ['required', 'datetime'],
+            'change_date' => ['required', 'date_format:Y-m-d H:i:s'],
         ];
     }
 }

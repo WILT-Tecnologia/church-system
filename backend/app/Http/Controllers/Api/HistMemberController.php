@@ -24,7 +24,7 @@ class HistMemberController extends Controller
      */
     public function store(StoreHistMemberRequest $request)
     {
-        $histMember = HistMember::created($request->validated());
+        $histMember = HistMember::create($request->validated());
 
         return new HistMemberResource($histMember);
     }
