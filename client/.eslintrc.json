@@ -6,53 +6,70 @@
   "parser": "@typescript-eslint/parser",
   "root": true,
   "extends": [
+    "next",
+    "next/core-web-vitals",
+    "next/typescript",
+    "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:prettier/recommended",
-    "plugin:angular/johnpapa"
+    "plugin:prettier/recommended"
   ],
-  "plugins": ["@typescript-eslint", "prettier", "angular"],
+  "settings": {
+    "babel": {
+      "rootMode": "upward"
+    },
+    "react": {
+      "version": "detect"
+    }
+  },
   "rules": {
     "@typescript-eslint/interface-name-prefix": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-explicit-any": "off",
-    "prefer-arrow-callback": "error",
-    "no-console": ["warn", { "allow": ["warn", "error"] }],
-    "sort-imports": [
+    "react/react-in-jsx-scope": "off",
+    "no-restricted-imports": [
       "error",
       {
-        "ignoreCase": true,
-        "ignoreDeclarationSort": true,
-        "ignoreMemberSort": true,
-        "memberSyntaxSortOrder": ["single", "all", "multiple", "none"],
-        "allowSeparatedGroups": true
-      }
-    ],
-    "import/order": [
-      "error",
-      {
-        "groups": [
-          "builtin",
-          "unknown",
-          "external",
-          "internal",
-          "parent",
-          "sibling",
-          "index"
-        ],
-        "pathGroups": [
-          {
-            "pattern": "angular",
-            "group": "external",
-            "position": "before"
-          }
-        ],
-        "newlines-between": "always",
-        "alphabetize": {
-          "order": "asc",
-          "caseInsensitive": true
-        }
+        "patterns": ["@mui/*/*/*"]
       }
     ]
-  }
+  },
+  "prefer-arrow-callback": "error",
+  "no-console": ["warn", { "allow": ["warn", "error"] }],
+  "sort-imports": [
+    "error",
+    {
+      "ignoreCase": true,
+      "ignoreDeclarationSort": true,
+      "ignoreMemberSort": true,
+      "memberSyntaxSortOrder": ["single", "all", "multiple", "none"],
+      "allowSeparatedGroups": true
+    }
+  ],
+  "import/order": [
+    "error",
+    {
+      "groups": [
+        "builtin",
+        "unknown",
+        "external",
+        "internal",
+        "parent",
+        "sibling",
+        "index"
+      ],
+      "pathGroups": [
+        {
+          "pattern": "react",
+          "group": "external",
+          "position": "before"
+        }
+      ],
+      "newlines-between": "always",
+      "alphabetize": {
+        "order": "asc",
+        "caseInsensitive": true
+      }
+    }
+  ]
 }
