@@ -173,7 +173,10 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
       role: 'dialog',
       panelClass: 'dialog',
       disableClose: true,
-      data: { familiesComponent: this, defaultMemberId: defaultMemberId },
+      data: {
+        familiesComponent: FamiliesFormComponent,
+        defaultMemberId: defaultMemberId,
+      },
     });
 
     dialogRef.afterClosed().subscribe((result: Families) => {

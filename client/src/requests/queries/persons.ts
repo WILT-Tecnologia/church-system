@@ -1,6 +1,6 @@
 import { Person } from '@/model/Person';
 import createApi from '@/services/api';
-import { personsMapper } from '@/utils/mappersDates';
+import { mappers } from '@/utils/mappers';
 import { Session } from 'next-auth';
 
 type ListPersonFilters = {
@@ -36,8 +36,7 @@ export const listPersons = async (
     const params = { ...restParams } as any;
 
     const response = await api.get<Person[]>('/admin/persons', { params });
-    console.log(response);
-    return response.data.map(personsMapper);
+    return response.data.map(mappers);
   } catch (error) {
     console.error('Error fetching users:', error);
     return [];

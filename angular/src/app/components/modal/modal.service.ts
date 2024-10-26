@@ -34,6 +34,9 @@ export class ModalService {
       },
     ],
     disableClose: boolean = true,
+    data?: {
+      [key: string]: any;
+    },
     customClassContainer?: string | string[],
   ) {
     return this.dialog.open(ModalComponent, {
@@ -52,6 +55,7 @@ export class ModalService {
         isHandleClose,
         actions,
         customClassContainer,
+        ...data,
       },
     });
   }

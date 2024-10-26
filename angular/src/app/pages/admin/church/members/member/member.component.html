@@ -1,402 +1,377 @@
-<mat-card appearance="outlined">
-  <div class="flex justify-between items-center m-2">
-    <mat-card-header>
-      <mat-card-title>{{pageTitle}}</mat-card-title>
-    </mat-card-header>
-    <button mat-icon-button color="warn" (click)="handleBack()">
-      <mat-icon color="warn">close</mat-icon>
-    </button>
-  </div>
-  <mat-divider></mat-divider>
+<form [formGroup]="memberForm" (ngSubmit)="handleSubmit()" class="form-field-group wrapper">
+  <mat-tab-group preserveContent dynamicHeight [(selectedIndex)]="currentStep">
+    <mat-tab label="Dados pessoais" [disabled]="isTabDisabled(0)">
+      <mat-divider></mat-divider>
+      <section class="py-4">
+        <mat-card appearance="outlined">
+          <mat-card-content>
+            <div formGroupName="stepOne">
+              <app-column>
+                <mat-form-field appearance="fill">
+                  <mat-label>Pessoa</mat-label>
+                  <mat-select formControlName="person_id">
+                    <mat-select-trigger>
+                      {{ getPersonName() }}
+                    </mat-select-trigger>
+                    <ng-container *ngIf="filteredPerson$ | async as persons">
+                      <mat-form-field appearance="fill" class="search-field">
+                        <mat-label>Pesquisar</mat-label>
+                        <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
+                      </mat-form-field>
+                      <mat-option *ngFor="let person of persons" [value]="person.id">
+                        {{ person.name }}
+                      </mat-option>
+                    </ng-container>
+                    <mat-option class="add-option" (click)="openAddPersonDialog()">
+                      Adicionar nova pessoa
+                    </mat-option>
+                  </mat-select>
+                  <mat-error
+                    *ngIf="memberForm.get('stepOne.person_id')?.invalid && memberForm.get('stepOne.person_id')?.touched">
+                    {{ getErrorMessage('stepOne.person_id') }}
+                  </mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="fill">
+                  <mat-label>Igreja</mat-label>
+                  <mat-select formControlName="church_id">
+                    <mat-select-trigger>
+                      {{ getChurchName() }}
+                    </mat-select-trigger>
+                    <ng-container *ngIf="filteredChurch$ | async as churches">
+                      <mat-form-field appearance="fill" class="search-field">
+                        <mat-label>Pesquisar</mat-label>
+                        <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
+                      </mat-form-field>
+                      <mat-option *ngFor="let church of churches" [value]="church.id">
+                        {{ church.name }}
+                      </mat-option>
+                    </ng-container>
+                    <mat-option class="add-option" (click)="openAddChurchDialog()">
+                      Adicionar nova igreja
+                    </mat-option>
+                  </mat-select>
+                  <mat-error
+                    *ngIf="memberForm.get('stepOne.church_id')?.invalid && memberForm.get('stepOne.church_id')?.touched">
+                    {{ getErrorMessage('stepOne.church_id') }}
+                  </mat-error>
+                </mat-form-field>
+              </app-column>
+              <app-column>
+                <mat-form-field appearance="fill">
+                  <mat-label>RG</mat-label>
+                  <input matInput formControlName="rg" maxlength="15" />
+                  <mat-error *ngIf="memberForm.get('stepOne.rg')?.invalid && memberForm.get('stepOne.rg')?.touched">
+                    {{ getErrorMessage('stepOne.rg') }}
+                  </mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="fill">
+                  <mat-label>Orgão Expedidor</mat-label>
+                  <input matInput formControlName="issuing_body" maxlength="15" />
+                  <mat-error
+                    *ngIf="memberForm.get('stepOne.issuing_body')?.invalid && memberForm.get('stepOne.issuing_body')?.touched">
+                    {{ getErrorMessage('stepOne.issuing_body') }}
+                  </mat-error>
+                </mat-form-field>
+              </app-column>
+              <app-column>
+                <mat-form-field appearance="fill">
+                  <mat-label>Estado Civil</mat-label>
+                  <mat-select formControlName="civil_status_id">
+                    <mat-select-trigger>
+                      {{ getCivilStatusName() }}
+                    </mat-select-trigger>
+                    <ng-container *ngIf="filteredCivilStatus | async as civilStatusList">
+                      <mat-form-field appearance="fill" class="search-field">
+                        <mat-label>Pesquisar</mat-label>
+                        <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
+                      </mat-form-field>
+                      <mat-option *ngFor="let civilStatus of civilStatusList" [value]="civilStatus.id">
+                        {{ civilStatus.name }}
+                      </mat-option>
+                    </ng-container>
+                  </mat-select>
+                  <mat-error
+                    *ngIf="memberForm.get('stepOne.civil_status_id')?.invalid && memberForm.get('stepOne.civil_status_id')?.touched">
+                    {{ getErrorMessage('stepOne.civil_status_id') }}
+                  </mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="fill">
+                  <mat-label>Cor/Raça</mat-label>
+                  <mat-select formControlName="color_race_id">
+                    <mat-select-trigger>
+                      {{ getColorRaceName() }}
+                    </mat-select-trigger>
+                    <ng-container *ngIf="filteredColorRace | async as colorRaces">
+                      <mat-form-field appearance="fill" class="search-field">
+                        <mat-label>Pesquisar</mat-label>
+                        <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
+                      </mat-form-field>
+                      <mat-option *ngFor="let colorRace of colorRaces" [value]="colorRace.id">
+                        {{ colorRace.name }}
+                      </mat-option>
+                    </ng-container>
+                  </mat-select>
+                  <mat-error
+                    *ngIf="memberForm.get('stepOne.color_race_id')?.invalid && memberForm.get('stepOne.color_race_id')?.touched">
+                    {{ getErrorMessage('stepOne.color_race_id') }}
+                  </mat-error>
+                </mat-form-field>
+              </app-column>
+              <app-column>
+                <mat-form-field appearance="fill">
+                  <mat-label>Nacionalidade</mat-label>
+                  <input matInput formControlName="nationality" />
+                  <mat-error
+                    *ngIf="memberForm.get('stepOne.nationality')?.invalid && memberForm.get('stepOne.nationality')?.touched">
+                    {{ getErrorMessage('stepOne.nationality') }}
+                  </mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="fill">
+                  <mat-label>Naturalidade</mat-label>
+                  <input matInput formControlName="naturalness" />
+                  <mat-error
+                    *ngIf="memberForm.get('stepOne.naturalness')?.invalid && memberForm.get('stepOne.naturalness')?.touched">
+                    {{ getErrorMessage('stepOne.naturalness') }}
+                  </mat-error>
+                </mat-form-field>
+              </app-column>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </section>
+    </mat-tab>
 
-  <form [formGroup]="memberForm" (ngSubmit)="handleSubmit()" class="form-field-group wrapper">
-    <mat-card-content>
-      <mat-tab-group preserveContent dynamicHeight [(selectedIndex)]="currentStep">
-        <mat-tab label="Dados pessoais" [disabled]="isTabDisabled(0)">
-          <mat-divider></mat-divider>
-          <section class="py-4">
-            <mat-card appearance="outlined">
-              <mat-card-header>
-                <mat-card-title class="pb-6">Dados pessoais</mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div formGroupName="stepOne">
-                  <app-column>
-                    <mat-form-field appearance="fill">
-                      <mat-label>Pessoa</mat-label>
-                      <mat-select formControlName="person_id">
-                        <mat-select-trigger>
-                          {{ getPersonName() }}
-                        </mat-select-trigger>
-                        <ng-container *ngIf="filteredPerson$ | async as persons">
-                          <mat-form-field appearance="fill" class="search-field">
-                            <mat-label>Pesquisar</mat-label>
-                            <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
-                          </mat-form-field>
-                          <mat-option *ngFor="let person of persons" [value]="person.id">
-                            {{ person.name }}
-                          </mat-option>
-                        </ng-container>
-                        <mat-option class="add-option" (click)="openAddPersonDialog()">
-                          Adicionar nova pessoa
-                        </mat-option>
-                      </mat-select>
-                      <mat-error
-                        *ngIf="memberForm.get('stepOne.person_id')?.invalid && memberForm.get('stepOne.person_id')?.touched">
-                        {{ getErrorMessage('stepOne.person_id') }}
-                      </mat-error>
-                    </mat-form-field>
-                    <mat-form-field appearance="fill">
-                      <mat-label>Igreja</mat-label>
-                      <mat-select formControlName="church_id">
-                        <mat-select-trigger>
-                          {{ getChurchName() }}
-                        </mat-select-trigger>
-                        <ng-container *ngIf="filteredChurch$ | async as churches">
-                          <mat-form-field appearance="fill" class="search-field">
-                            <mat-label>Pesquisar</mat-label>
-                            <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
-                          </mat-form-field>
-                          <mat-option *ngFor="let church of churches" [value]="church.id">
-                            {{ church.name }}
-                          </mat-option>
-                        </ng-container>
-                        <mat-option class="add-option" (click)="openAddChurchDialog()">
-                          Adicionar nova igreja
-                        </mat-option>
-                      </mat-select>
-                      <mat-error
-                        *ngIf="memberForm.get('stepOne.church_id')?.invalid && memberForm.get('stepOne.church_id')?.touched">
-                        {{ getErrorMessage('stepOne.church_id') }}
-                      </mat-error>
-                    </mat-form-field>
-                  </app-column>
-                  <app-column>
-                    <mat-form-field appearance="fill">
-                      <mat-label>RG</mat-label>
-                      <input matInput formControlName="rg" maxlength="15" />
-                      <mat-error *ngIf="memberForm.get('stepOne.rg')?.invalid && memberForm.get('stepOne.rg')?.touched">
-                        {{ getErrorMessage('stepOne.rg') }}
-                      </mat-error>
-                    </mat-form-field>
-                    <mat-form-field appearance="fill">
-                      <mat-label>Orgão Expedidor</mat-label>
-                      <input matInput formControlName="issuing_body" maxlength="15" />
-                      <mat-error
-                        *ngIf="memberForm.get('stepOne.issuing_body')?.invalid && memberForm.get('stepOne.issuing_body')?.touched">
-                        {{ getErrorMessage('stepOne.issuing_body') }}
-                      </mat-error>
-                    </mat-form-field>
-                  </app-column>
-                  <app-column>
-                    <mat-form-field appearance="fill">
-                      <mat-label>Estado Civil</mat-label>
-                      <mat-select formControlName="civil_status_id">
-                        <mat-select-trigger>
-                          {{ getCivilStatusName() }}
-                        </mat-select-trigger>
-                        <ng-container *ngIf="filteredCivilStatus | async as civilStatusList">
-                          <mat-form-field appearance="fill" class="search-field">
-                            <mat-label>Pesquisar</mat-label>
-                            <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
-                          </mat-form-field>
-                          <mat-option *ngFor="let civilStatus of civilStatusList" [value]="civilStatus.id">
-                            {{ civilStatus.name }}
-                          </mat-option>
-                        </ng-container>
-                      </mat-select>
-                      <mat-error
-                        *ngIf="memberForm.get('stepOne.civil_status_id')?.invalid && memberForm.get('stepOne.civil_status_id')?.touched">
-                        {{ getErrorMessage('stepOne.civil_status_id') }}
-                      </mat-error>
-                    </mat-form-field>
-                    <mat-form-field appearance="fill">
-                      <mat-label>Cor/Raça</mat-label>
-                      <mat-select formControlName="color_race_id">
-                        <mat-select-trigger>
-                          {{ getColorRaceName() }}
-                        </mat-select-trigger>
-                        <ng-container *ngIf="filteredColorRace | async as colorRaces">
-                          <mat-form-field appearance="fill" class="search-field">
-                            <mat-label>Pesquisar</mat-label>
-                            <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
-                          </mat-form-field>
-                          <mat-option *ngFor="let colorRace of colorRaces" [value]="colorRace.id">
-                            {{ colorRace.name }}
-                          </mat-option>
-                        </ng-container>
-                      </mat-select>
-                      <mat-error
-                        *ngIf="memberForm.get('stepOne.color_race_id')?.invalid && memberForm.get('stepOne.color_race_id')?.touched">
-                        {{ getErrorMessage('stepOne.color_race_id') }}
-                      </mat-error>
-                    </mat-form-field>
-                  </app-column>
-                  <app-column>
-                    <mat-form-field appearance="fill">
-                      <mat-label>Nacionalidade</mat-label>
-                      <input matInput formControlName="nationality" />
-                      <mat-error
-                        *ngIf="memberForm.get('stepOne.nationality')?.invalid && memberForm.get('stepOne.nationality')?.touched">
-                        {{ getErrorMessage('stepOne.nationality') }}
-                      </mat-error>
-                    </mat-form-field>
-                    <mat-form-field appearance="fill">
-                      <mat-label>Naturalidade</mat-label>
-                      <input matInput formControlName="naturalness" />
-                      <mat-error
-                        *ngIf="memberForm.get('stepOne.naturalness')?.invalid && memberForm.get('stepOne.naturalness')?.touched">
-                        {{ getErrorMessage('stepOne.naturalness') }}
-                      </mat-error>
-                    </mat-form-field>
-                  </app-column>
-                </div>
-              </mat-card-content>
-            </mat-card>
-          </section>
-        </mat-tab>
-
-        <mat-tab label="Dados complementares" [disabled]="isTabDisabled(1)">
-          <mat-divider></mat-divider>
-          <section class="py-4">
-            <mat-card appearance="outlined">
-              <mat-card-header>
-                <mat-card-title class="pb-6">Dados complementares</mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div formGroupName="stepTwo">
-                  <app-column>
-                    <mat-form-field appearance="fill">
-                      <mat-label>Formação</mat-label>
-                      <mat-select formControlName="formation_id">
-                        <mat-select-trigger>
-                          {{ getFormationsName() }}
-                        </mat-select-trigger>
-                        <ng-container *ngIf="filteredFormations | async as formationList">
-                          <mat-form-field appearance="fill" class="search-field">
-                            <mat-label>Pesquisar</mat-label>
-                            <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
-                          </mat-form-field>
-                          <mat-option *ngFor="let formations of formationList" [value]="formations.id">
-                            {{ formations.name }}
-                          </mat-option>
-                        </ng-container>
-                      </mat-select>
-                      <mat-error
-                        *ngIf="memberForm.get('stepOne.formation_id')?.invalid && memberForm.get('stepOne.formation_id')?.touched">
-                        {{ getErrorMessage('stepOne.formation_id') }}
-                      </mat-error>
-                    </mat-form-field>
-                    <mat-form-field>
-                      <mat-label>Curso de Formação</mat-label>
-                      <input matInput formControlName="formation_course" />
-                      <mat-error
-                        *ngIf="memberForm.get('stepTwo.formation_course')?.invalid && memberForm.get('stepTwo.formation_course')?.touched">
-                        {{ getErrorMessage('stepTwo.formation_course') }}
-                      </mat-error>
-                    </mat-form-field>
-                  </app-column>
-                  <app-column>
-                    <mat-form-field appearance="fill">
-                      <mat-label>Profissão</mat-label>
-                      <input matInput formControlName="profission" />
-                      <mat-error
-                        *ngIf="memberForm.get('stepTwo.profission')?.invalid && memberForm.get('stepTwo.profission')?.touched">
-                        {{ getErrorMessage('stepTwo.profission') }}
-                      </mat-error>
-                    </mat-form-field>
-                  </app-column>
-                  <div class="inputs checkbox-column" style="max-width: 30rem;">
-                    <mat-label>Deficiências</mat-label>
-                    <div class="checkbox-group">
-                      <div class="checkbox-column">
-                        <mat-checkbox color="primary" formControlName="def_hearing">Auditiva</mat-checkbox>
-                        <mat-checkbox color="primary" formControlName="def_visual">Visual</mat-checkbox>
-                        <mat-checkbox color="primary" formControlName="def_physical">Física</mat-checkbox>
-                        <mat-checkbox color="primary" formControlName="def_other">Outra</mat-checkbox>
-                      </div>
-                      <div class="checkbox-column">
-                        <mat-checkbox color="primary" formControlName="def_mental">Mental</mat-checkbox>
-                        <mat-checkbox color="primary" formControlName="def_intellectual">Intelectual</mat-checkbox>
-                        <mat-checkbox color="primary" formControlName="def_multiple">Múltipla</mat-checkbox>
-                      </div>
-                    </div>
-                    <mat-form-field appearance="fill" *ngIf="memberForm.get('stepTwo.def_other')?.value">
-                      <mat-label>Descrição da Outra Deficiência</mat-label>
-                      <textarea matInput rows="4" formControlName="def_other_description"
-                        matTextareaAutosize></textarea>
-                      <mat-error
-                        *ngIf="memberForm.get('stepTwo.def_other_description')?.invalid && memberForm.get('stepTwo.def_other_description')?.touched">
-                        {{ getErrorMessage('stepTwo.def_other_description') }}
-                      </mat-error>
-                    </mat-form-field>
+    <mat-tab label="Dados complementares" [disabled]="isTabDisabled(1)">
+      <mat-divider></mat-divider>
+      <section class="py-4">
+        <mat-card appearance="outlined">
+          <mat-card-content>
+            <div formGroupName="stepTwo">
+              <app-column>
+                <mat-form-field appearance="fill">
+                  <mat-label>Formação</mat-label>
+                  <mat-select formControlName="formation_id">
+                    <mat-select-trigger>
+                      {{ getFormationsName() }}
+                    </mat-select-trigger>
+                    <ng-container *ngIf="filteredFormations | async as formationList">
+                      <mat-form-field appearance="fill" class="search-field">
+                        <mat-label>Pesquisar</mat-label>
+                        <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
+                      </mat-form-field>
+                      <mat-option *ngFor="let formations of formationList" [value]="formations.id">
+                        {{ formations.name }}
+                      </mat-option>
+                    </ng-container>
+                  </mat-select>
+                  <mat-error
+                    *ngIf="memberForm.get('stepOne.formation_id')?.invalid && memberForm.get('stepOne.formation_id')?.touched">
+                    {{ getErrorMessage('stepOne.formation_id') }}
+                  </mat-error>
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Curso de Formação</mat-label>
+                  <input matInput formControlName="formation_course" />
+                  <mat-error
+                    *ngIf="memberForm.get('stepTwo.formation_course')?.invalid && memberForm.get('stepTwo.formation_course')?.touched">
+                    {{ getErrorMessage('stepTwo.formation_course') }}
+                  </mat-error>
+                </mat-form-field>
+              </app-column>
+              <app-column>
+                <mat-form-field appearance="fill">
+                  <mat-label>Profissão</mat-label>
+                  <input matInput formControlName="profission" />
+                  <mat-error
+                    *ngIf="memberForm.get('stepTwo.profission')?.invalid && memberForm.get('stepTwo.profission')?.touched">
+                    {{ getErrorMessage('stepTwo.profission') }}
+                  </mat-error>
+                </mat-form-field>
+              </app-column>
+              <div class="inputs checkbox-column" style="max-width: 30rem;">
+                <mat-label>Deficiências</mat-label>
+                <div class="checkbox-group">
+                  <div class="checkbox-column">
+                    <mat-checkbox color="primary" formControlName="def_hearing">Auditiva</mat-checkbox>
+                    <mat-checkbox color="primary" formControlName="def_visual">Visual</mat-checkbox>
+                    <mat-checkbox color="primary" formControlName="def_physical">Física</mat-checkbox>
+                    <mat-checkbox color="primary" formControlName="def_other">Outra</mat-checkbox>
+                  </div>
+                  <div class="checkbox-column">
+                    <mat-checkbox color="primary" formControlName="def_mental">Mental</mat-checkbox>
+                    <mat-checkbox color="primary" formControlName="def_intellectual">Intelectual</mat-checkbox>
+                    <mat-checkbox color="primary" formControlName="def_multiple">Múltipla</mat-checkbox>
                   </div>
                 </div>
-              </mat-card-content>
-            </mat-card>
-          </section>
-        </mat-tab>
+                <mat-form-field appearance="fill" *ngIf="memberForm.get('stepTwo.def_other')?.value">
+                  <mat-label>Descrição da Outra Deficiência</mat-label>
+                  <textarea matInput rows="4" formControlName="def_other_description" matTextareaAutosize></textarea>
+                  <mat-error
+                    *ngIf="memberForm.get('stepTwo.def_other_description')?.invalid && memberForm.get('stepTwo.def_other_description')?.touched">
+                    {{ getErrorMessage('stepTwo.def_other_description') }}
+                  </mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </section>
+    </mat-tab>
 
-        <mat-tab label="Dados espirituais" [disabled]="isTabDisabled(2)">
-          <mat-divider></mat-divider>
-          <section class="py-4">
-            <mat-card appearance="outlined">
-              <mat-card-header>
-                <mat-card-title class="pb-6">Dados espirituais</mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div formGroupName="stepThree">
-                  <app-column>
-                    <mat-form-field appearance="fill">
-                      <mat-label>Data do batismo</mat-label>
-                      <input matInput [matDatepicker]="baptismDate" formControlName="baptism_date" readonly>
-                      <mat-datepicker-toggle *ngIf="!memberForm.get('stepThree.baptism_date')?.value" matSuffix
-                        [for]="baptismDate"></mat-datepicker-toggle>
-                      <mat-datepicker #baptismDate></mat-datepicker>
-                      <button *ngIf="memberForm.get('stepThree.baptism_date')?.value" mat-icon-button matSuffix
-                        (click)="clearDate('stepThree.baptism_date')">
-                        <mat-icon>close</mat-icon>
-                      </button>
-                      <mat-error
-                        *ngIf="memberForm.get('stepThree.baptism_date')?.invalid && memberForm.get('stepThree.baptism_date')?.touched">
-                        {{ getErrorMessage('stepThree.baptism_date') }}
-                      </mat-error>
-                    </mat-form-field>
-                    <mat-form-field appearance="fill">
-                      <mat-label>Local do batismo</mat-label>
-                      <input matInput formControlName="baptism_locale" />
-                      <mat-error
-                        *ngIf="memberForm.get('stepThree.baptism_locale')?.invalid && memberForm.get('stepThree.baptism_locale')?.touched">{{ getErrorMessage('stepThree.baptism_locale') }}</mat-error>
-                    </mat-form-field>
-                    <mat-form-field appearance="fill">
-                      <mat-label>Oficial do batismo</mat-label>
-                      <input matInput formControlName="baptism_official" />
-                      <mat-error
-                        *ngIf="memberForm.get('stepThree.baptism_official')?.invalid && memberForm.get('stepThree.baptism_official')?.touched">{{ getErrorMessage('stepThree.baptism_official') }}</mat-error>
-                    </mat-form-field>
-                  </app-column>
+    <mat-tab label="Dados espirituais" [disabled]="isTabDisabled(2)">
+      <mat-divider></mat-divider>
+      <section class="py-4">
+        <mat-card appearance="outlined">
+          <mat-card-content>
+            <div formGroupName="stepThree">
+              <app-column>
+                <mat-form-field appearance="fill">
+                  <mat-label>Data do batismo</mat-label>
+                  <input matInput [matDatepicker]="baptismDate" formControlName="baptism_date" readonly>
+                  <mat-datepicker-toggle *ngIf="!memberForm.get('stepThree.baptism_date')?.value" matSuffix
+                    [for]="baptismDate"></mat-datepicker-toggle>
+                  <mat-datepicker #baptismDate></mat-datepicker>
+                  <button *ngIf="memberForm.get('stepThree.baptism_date')?.value" mat-icon-button matSuffix
+                    (click)="clearDate('stepThree.baptism_date')">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                  <mat-error
+                    *ngIf="memberForm.get('stepThree.baptism_date')?.invalid && memberForm.get('stepThree.baptism_date')?.touched">
+                    {{ getErrorMessage('stepThree.baptism_date') }}
+                  </mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="fill">
+                  <mat-label>Local do batismo</mat-label>
+                  <input matInput formControlName="baptism_locale" />
+                  <mat-error
+                    *ngIf="memberForm.get('stepThree.baptism_locale')?.invalid && memberForm.get('stepThree.baptism_locale')?.touched">{{ getErrorMessage('stepThree.baptism_locale') }}</mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="fill">
+                  <mat-label>Oficial do batismo</mat-label>
+                  <input matInput formControlName="baptism_official" />
+                  <mat-error
+                    *ngIf="memberForm.get('stepThree.baptism_official')?.invalid && memberForm.get('stepThree.baptism_official')?.touched">{{ getErrorMessage('stepThree.baptism_official') }}</mat-error>
+                </mat-form-field>
+              </app-column>
 
-                  <app-column>
-                    <div class="w-80">
-                      <mat-checkbox color="primary" formControlName="baptism_holy_spirit"
-                        (change)="onCheckboxChange('stepThree.baptism_holy_spirit_date', 'stepThree.baptism_holy_spirit')">
-                        Batizado pelo Espírito Santo?
-                      </mat-checkbox>
-                    </div>
-                    <mat-form-field class="w-3/6" appearance="fill"
-                      *ngIf="memberForm.get('stepThree.baptism_holy_spirit')?.value">
-                      <mat-label>Data do batismo do Espírito Santo</mat-label>
-                      <input matInput [matDatepicker]="baptismHolySpiritDate" formControlName="baptism_holy_spirit_date"
-                        readonly>
-                      <mat-datepicker-toggle matSuffix
-                        *ngIf="!memberForm.get('stepThree.baptism_holy_spirit_date')?.value"
-                        [for]="baptismHolySpiritDate"></mat-datepicker-toggle>
-                      <mat-datepicker #baptismHolySpiritDate></mat-datepicker>
-                      <button *ngIf="memberForm.get('stepThree.baptism_holy_spirit_date')?.value" mat-icon-button
-                        matSuffix (click)="clearDate('stepThree.baptism_holy_spirit_date')">
-                        <mat-icon>close</mat-icon>
-                      </button>
-                      <mat-error
-                        *ngIf="memberForm.get('stepThree.baptism_holy_spirit_date')?.invalid && memberForm.get('stepThree.baptism_holy_spirit_date')?.touched">
-                        {{ getErrorMessage('stepThree.baptism_holy_spirit_date') }}
-                      </mat-error>
-                    </mat-form-field>
-                  </app-column>
-
-                  <app-column>
-                    <mat-form-field appearance="fill">
-                      <mat-label>Data da recepção</mat-label>
-                      <input matInput [matDatepicker]="receiptDate" formControlName="receipt_date" readonly>
-                      <mat-datepicker-toggle *ngIf="!memberForm.get('stepThree.receipt_date')?.value" matSuffix
-                        [for]="receiptDate"></mat-datepicker-toggle>
-                      <mat-datepicker #receiptDate></mat-datepicker>
-                      <button *ngIf="memberForm.get('stepThree.receipt_date')?.value" mat-icon-button matSuffix
-                        (click)="clearDate('stepThree.receipt_date')">
-                        <mat-icon>close</mat-icon>
-                      </button>
-                      <mat-error
-                        *ngIf="memberForm.get('stepThree.receipt_date')?.invalid && memberForm.get('stepThree.receipt_date')?.touched">
-                        {{ getErrorMessage('stepThree.receipt_date') }}
-                      </mat-error>
-                    </mat-form-field>
-
-                    <mat-form-field>
-                      <mat-label>Origem do membro</mat-label>
-                      <mat-select formControlName="member_origin_id">
-                        <mat-select-trigger>
-                          {{getMemberOriginName()}}
-                        </mat-select-trigger>
-                        <mat-form-field appearance="fill" (click)="$event.stopPropagation()">
-                          <mat-label>Pesquisar</mat-label>
-                          <input matInput placeholder="Digite para buscar" [formControl]="searchControl"
-                            (click)="$event.stopPropagation()" />
-                        </mat-form-field>
-                        <mat-option *ngFor="let memberOrigin of filterMemberOrigins | async" [value]="memberOrigin.id">
-                          {{ memberOrigin.name }}
-                        </mat-option>
-                      </mat-select>
-                      <mat-error
-                        *ngIf="memberForm.get('stepThree.member_origin_id')?.invalid && memberForm.get('stepThree.member_origin_id')?.touched">
-                        {{ getErrorMessage('stepThree.member_origin_id') }}
-                      </mat-error>
-                    </mat-form-field>
-
-                  </app-column>
+              <app-column>
+                <div class="w-80">
+                  <mat-checkbox color="primary" formControlName="baptism_holy_spirit"
+                    (change)="onCheckboxChange('stepThree.baptism_holy_spirit_date', 'stepThree.baptism_holy_spirit')">
+                    Batizado pelo Espírito Santo?
+                  </mat-checkbox>
                 </div>
-              </mat-card-content>
-            </mat-card>
-          </section>
-        </mat-tab>
+                <mat-form-field class="w-3/6" appearance="fill"
+                  *ngIf="memberForm.get('stepThree.baptism_holy_spirit')?.value">
+                  <mat-label>Data do batismo do Espírito Santo</mat-label>
+                  <input matInput [matDatepicker]="baptismHolySpiritDate" formControlName="baptism_holy_spirit_date"
+                    readonly>
+                  <mat-datepicker-toggle matSuffix *ngIf="!memberForm.get('stepThree.baptism_holy_spirit_date')?.value"
+                    [for]="baptismHolySpiritDate"></mat-datepicker-toggle>
+                  <mat-datepicker #baptismHolySpiritDate></mat-datepicker>
+                  <button *ngIf="memberForm.get('stepThree.baptism_holy_spirit_date')?.value" mat-icon-button matSuffix
+                    (click)="clearDate('stepThree.baptism_holy_spirit_date')">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                  <mat-error
+                    *ngIf="memberForm.get('stepThree.baptism_holy_spirit_date')?.invalid && memberForm.get('stepThree.baptism_holy_spirit_date')?.touched">
+                    {{ getErrorMessage('stepThree.baptism_holy_spirit_date') }}
+                  </mat-error>
+                </mat-form-field>
+              </app-column>
 
-        <ng-container *ngIf="isEditMode">
-          <mat-tab label="Dados de filiação">
-            <mat-divider></mat-divider>
-            <app-families [families]="families"></app-families>
-          </mat-tab>
-          <mat-tab label="Dados de ordenação">
-            <mat-divider></mat-divider>
-            <p>Dados de ordenação</p>
-          </mat-tab>
-          <mat-tab label="Status do membro">
-            <mat-divider></mat-divider>
-            <p>Status do membro</p>
-          </mat-tab>
-        </ng-container>
-      </mat-tab-group>
+              <app-column>
+                <mat-form-field appearance="fill">
+                  <mat-label>Data da recepção</mat-label>
+                  <input matInput [matDatepicker]="receiptDate" formControlName="receipt_date" readonly>
+                  <mat-datepicker-toggle *ngIf="!memberForm.get('stepThree.receipt_date')?.value" matSuffix
+                    [for]="receiptDate"></mat-datepicker-toggle>
+                  <mat-datepicker #receiptDate></mat-datepicker>
+                  <button *ngIf="memberForm.get('stepThree.receipt_date')?.value" mat-icon-button matSuffix
+                    (click)="clearDate('stepThree.receipt_date')">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                  <mat-error
+                    *ngIf="memberForm.get('stepThree.receipt_date')?.invalid && memberForm.get('stepThree.receipt_date')?.touched">
+                    {{ getErrorMessage('stepThree.receipt_date') }}
+                  </mat-error>
+                </mat-form-field>
 
-      <mat-card-footer>
+                <mat-form-field>
+                  <mat-label>Origem do membro</mat-label>
+                  <mat-select formControlName="member_origin_id">
+                    <mat-select-trigger>
+                      {{getMemberOriginName()}}
+                    </mat-select-trigger>
+                    <mat-form-field appearance="fill" (click)="$event.stopPropagation()">
+                      <mat-label>Pesquisar</mat-label>
+                      <input matInput placeholder="Digite para buscar" [formControl]="searchControl"
+                        (click)="$event.stopPropagation()" />
+                    </mat-form-field>
+                    <mat-option *ngFor="let memberOrigin of filterMemberOrigins | async" [value]="memberOrigin.id">
+                      {{ memberOrigin.name }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error
+                    *ngIf="memberForm.get('stepThree.member_origin_id')?.invalid && memberForm.get('stepThree.member_origin_id')?.touched">
+                    {{ getErrorMessage('stepThree.member_origin_id') }}
+                  </mat-error>
+                </mat-form-field>
+
+              </app-column>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </section>
+    </mat-tab>
+
+    <ng-container *ngIf="isEditMode">
+      <mat-tab label="Dados de filiação">
         <mat-divider></mat-divider>
-        <mat-card-actions class="w-100 cta">
-          <button mat-stroked-button color="warn" type="button" (click)="onBack()">
-            {{currentStep === 0 ? 'Cancelar' : 'Voltar'}}
-          </button>
-          <ng-container *ngIf="isEditMode">
-            <button mat-raised-button (click)="onNext()" type="button" color="primary"
-              [disabled]="!canProceedToNextStep()" *ngIf="currentStep < 5">
-              Avançar
-            </button>
-            <button mat-raised-button color="primary" type="submit" *ngIf="currentStep === 5"
-              [disabled]="memberForm.invalid || !canProceedToNextStep()">
-              {{isEditMode ? 'Atualizar' : 'Cadastrar'}}
-            </button>
-          </ng-container>
-          <ng-container *ngIf="!isEditMode">
-            <button mat-raised-button (click)="onNext()" type="button" color="primary"
-              [disabled]="!canProceedToNextStep()" *ngIf="currentStep < 2">
-              Avançar
-            </button>
-            <button mat-raised-button color="primary" type="submit" [disabled]="memberForm.invalid"
-              *ngIf="currentStep === 2">
-              Cadastrar
-            </button>
-          </ng-container>
-          <ng-container *ngIf="isEditMode">
-            <button mat-stroked-button type="submit" color="primary" [disabled]="memberForm.invalid">
-              Salvar
-            </button>
-          </ng-container>
-        </mat-card-actions>
-      </mat-card-footer>
-    </mat-card-content>
-  </form>
-</mat-card>
+        <app-families [families]="families"></app-families>
+      </mat-tab>
+      <mat-tab label="Dados de ordenação">
+        <mat-divider></mat-divider>
+        <p>Dados de ordenação</p>
+      </mat-tab>
+      <mat-tab label="Status do membro">
+        <mat-divider></mat-divider>
+        <p>Status do membro</p>
+      </mat-tab>
+    </ng-container>
+  </mat-tab-group>
+
+  <mat-card-footer>
+    <mat-divider></mat-divider>
+    <mat-card-actions class="w-100 cta">
+      <button mat-stroked-button color="warn" type="button" (click)="onBack()">
+        {{currentStep === 0 ? 'Cancelar' : 'Voltar'}}
+      </button>
+      <ng-container *ngIf="isEditMode">
+        <button mat-raised-button (click)="onNext()" type="button" color="primary" [disabled]="!canProceedToNextStep()"
+          *ngIf="currentStep < 5">
+          Avançar
+        </button>
+        <button mat-raised-button color="primary" type="submit" *ngIf="currentStep === 5"
+          [disabled]="memberForm.invalid || !canProceedToNextStep()">
+          {{isEditMode ? 'Atualizar' : 'Cadastrar'}}
+        </button>
+      </ng-container>
+      <ng-container *ngIf="!isEditMode">
+        <button mat-raised-button (click)="onNext()" type="button" color="primary" [disabled]="!canProceedToNextStep()"
+          *ngIf="currentStep < 2">
+          Avançar
+        </button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="memberForm.invalid"
+          *ngIf="currentStep === 2">
+          Cadastrar
+        </button>
+      </ng-container>
+      <ng-container *ngIf="isEditMode">
+        <button mat-stroked-button type="submit" color="primary" [disabled]="memberForm.invalid">
+          Salvar
+        </button>
+      </ng-container>
+    </mat-card-actions>
+  </mat-card-footer>
+</form>

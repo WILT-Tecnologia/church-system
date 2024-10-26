@@ -1,19 +1,19 @@
 const routes = {
-  index: '/',
+  index: '/admin/administrative',
   church: {
-    index: '/church',
-    members: '/church/members',
-    ordinations: '/church/ordinations',
+    index: '/admin/church',
+    members: '/admin/church/members',
+    ordinations: '/admin/church/ordinations',
   },
   administrative: {
-    index: '/administrative',
-    churchs: '/administrative/church',
-    persons: '/administrative/persons',
-    users: '/administrative/users',
-    occupations: '/administrative/offices',
-    profiles: '/administrative/profiles',
-    eventType: '/administrative/event-type',
-    reports: '/administrative/reports',
+    index: '/admin/administrative',
+    churchs: '/admin/administrative/church',
+    persons: '/admin/administrative/persons',
+    users: '/admin/administrative/users',
+    occupations: '/admin/administrative/offices',
+    profiles: '/admin/administrative/profiles',
+    eventType: '/admin/administrative/event-type',
+    reports: '/admin/administrative/reports',
   },
 };
 

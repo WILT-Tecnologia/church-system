@@ -22,60 +22,39 @@
           <input type="text" matInput formControlName="member_id" [formControl]="searchControlMembers"
             [matAutocomplete]="auto">
           <mat-autocomplete #auto="matAutocomplete">
-            <mat-option *ngFor="let member of members" [value]="member.id">
+            <mat-option *ngFor="let member of (filterMembers$ | async)" [value]="member.id">
               {{ member.person.name }}
             </mat-option>
-            <mat-option class="add-option" (click)="openAddMemberDialog()">
-              Adicionar novo membro
-            </mat-option>
+            <!-- <mat-option class="add-option" (click)="openAddMemberDialog()">
+              Adicionar novo
+            </mat-option> -->
           </mat-autocomplete>
-          <!-- <mat-select formControlName="member_id">
-            <mat-select-trigger>
-              {{getMemberName()}}
-            </mat-select-trigger> -->
-          <!-- <ng-container *ngIf="filterMembers | async as members">
-              <mat-form-field appearance="fill" class="search-field">
-                <mat-label>Pesquisar</mat-label>
-                <input matInput placeholder="Digite para buscar" [formControl]="searchControlMembers" />
-              </mat-form-field>
-              <mat-option *ngFor="let member of members" [value]="member.id">
-                {{ member.person.name }}
-              </mat-option>
-            </ng-container> -->
-          <!-- </mat-select> -->
           <mat-error *ngIf="familyForm.get('member_id')?.invalid && familyForm.get('member_id')?.touched">
             {{ getErrorMessage('member_id') }}
           </mat-error>
         </mat-form-field>
       </app-column>
 
-      <app-column *ngIf="isMember()">
+      <app-column *ngIf="isMember">
         <mat-form-field appearance="fill">
           <mat-label>Filiação</mat-label>
-          <mat-select formControlName="person_id">
-            <mat-select-trigger>
-              {{getPersonName()}}
-            </mat-select-trigger>
-            <ng-container *ngIf="filterPersons | async as persons">
-              <mat-form-field appearance="fill" class="search-field">
-                <mat-label>Pesquisar</mat-label>
-                <input matInput placeholder="Digite para buscar" [formControl]="searchControlPersons" />
-              </mat-form-field>
-              <mat-option *ngFor="let person of persons" [value]="person.id">
-                {{ person.name }}
-              </mat-option>
-            </ng-container>
-            <mat-option class="add-option" (click)="openAddPersonDialog()">
-              Adicionar nova pessoa
+          <input type="text" matInput formControlName="person_id" [formControl]="searchControlPersons"
+            [matAutocomplete]="auto">
+          <mat-autocomplete #auto="matAutocomplete">
+            <mat-option *ngFor="let person of (filterPersons$ | async)" [value]="person.id">
+              {{ person.name }}
             </mat-option>
-          </mat-select>
+            <mat-option class="add-option" (click)="openAddPersonDialog()">
+              Adicionar novo
+            </mat-option>
+          </mat-autocomplete>
           <mat-error *ngIf="familyForm.get('person_id')?.invalid && familyForm.get('person_id')?.touched">
             {{ getErrorMessage('person_id') }}
           </mat-error>
         </mat-form-field>
       </app-column>
 
-      <app-column *ngIf="!isMember()">
+      <app-column *ngIf="!isMember">
         <mat-form-field appearance="fill">
           <mat-label>Nome</mat-label>
           <input matInput formControlName="name" required>
@@ -87,20 +66,15 @@
       <app-column>
         <mat-form-field appearance="fill">
           <mat-label>Parentesco</mat-label>
-          <mat-select formControlName="kinship_id">
-            <mat-select-trigger>
-              {{getKinshipName()}}
-            </mat-select-trigger>
-            <ng-container *ngIf="filterKinships | async as kinships">
-              <mat-form-field appearance="fill" class="search-field">
-                <mat-label>Pesquisar</mat-label>
-                <input matInput placeholder="Digite para buscar" [formControl]="searchControlKinship" />
-              </mat-form-field>
-              <mat-option *ngFor="let kinship of kinships" [value]="kinship.id">
-                {{ kinship.name }}
-              </mat-option>
-            </ng-container>
-          </mat-select>
+          <input type="text" matInput formControlName="kinship_id" [formControl]="searchControlKinship" required>
+          <mat-autocomplete #auto="matAutocomplete">
+            <mat-option *ngFor="let kinship of (filterKinships$ | async)" [value]="kinship.name">
+              {{ kinship.name }}
+            </mat-option>
+            <mat-option class="add-option">
+              Adicionar novo
+            </mat-option>
+          </mat-autocomplete>
           <mat-error *ngIf="familyForm.get('kinship_id')?.invalid && familyForm.get('kinship_id')?.touched">
             {{ getErrorMessage('kinship_id') }}
           </mat-error>

@@ -10,7 +10,7 @@ import {
 import { MatCardModule } from '@angular/material/card';
 
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -22,6 +22,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { Families } from 'app/model/Families';
 import { Members } from 'app/model/Members';
@@ -74,6 +75,7 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
     { key: 'church.responsible.name', header: 'Pastor presidente' },
     { key: 'baptism_date', header: 'Data do batismo', type: 'date' },
   ];
+
   displayedColumns = this.columnDefinitions
     .map((col) => col.key)
     .concat('actions');
@@ -85,7 +87,7 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
     private loading: LoadingService,
     private snackbarService: SnackbarService,
     private memberService: MembersService,
-    private dialog: MatDialog,
+    private modalService: ModalService,
   ) {}
 
   ngOnInit() {
@@ -156,16 +158,14 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   addNewMembers = (): void => {
-    const dialogRef = this.dialog.open(MemberComponent, {
-      minWidth: '70dvw',
-      maxWidth: '80dvw',
-      minHeight: '50dvh',
-      maxHeight: '80dvh',
-      role: 'dialog',
-      panelClass: 'dialog',
-      disableClose: true,
-      autoFocus: false,
-    });
+    const dialogRef = this.modalService.openModal(
+      `modal-${Math.random()}`,
+      MemberComponent,
+      'Adicionar novo membro',
+      true,
+      [],
+      true,
+    );
 
     dialogRef.afterClosed().subscribe((result: Members) => {
       if (result) {
@@ -175,27 +175,27 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
   };
 
   editMembers = (member: Members): void => {
-    const dialogRef = this.dialog.open(MemberComponent, {
-      minWidth: '70dvw',
-      maxWidth: '80dvw',
-      minHeight: '50dvh',
-      maxHeight: '80dvh',
-      role: 'dialog',
-      panelClass: 'dialog',
-      disableClose: true,
-      autoFocus: false,
-      data: { members: member, id: member.id },
-    });
-
-    this.memberService
-      .getFamilyOfMember(member.id)
-      .subscribe((families: Families[]) => {
-        member.families = families;
-        dialogRef.componentInstance.families = families;
-      });
+    const dialogRef = this.modalService.openModal(
+      `modal-${Math.random()}`,
+      MemberComponent,
+      'Editar membro',
+      true,
+      [],
+      true,
+      { members: member, id: member.id },
+    );
 
     dialogRef.afterClosed().subscribe((result: Members) => {
       if (result) {
+        this.memberService
+          .getFamilyOfMember(member.id)
+          .subscribe((families: Families[]) => {
+            member.families = families;
+            const component = dialogRef.componentInstance as unknown;
+            if (component instanceof MemberComponent) {
+              (component as MemberComponent).families = families;
+            }
+          });
         this.loadMembers();
       }
     });
@@ -210,7 +210,7 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
         'Cancelar',
       )
       .afterClosed()
-      .subscribe((result) => {
+      .subscribe((result: Members) => {
         if (result) {
           this.loading.show();
           this.memberService.deleteMember(members.id).subscribe({

@@ -6,20 +6,44 @@ import {
 } from '@mui/x-data-grid';
 import Link from 'next/link';
 
-const TableToolbar = (props: GridToolbarProps) => {
+interface TableToolbarProps extends GridToolbarProps {
+  href?: string;
+  label: string;
+  icon: React.ReactNode;
+  onClick?: () => void;
+}
+
+const TableToolbar = (props: TableToolbarProps) => {
   return (
-    <GridToolbarContainer sx={{ width: '100%' }} {...props}>
-      <Link href={props.href} key={props.href}>
+    <GridToolbarContainer
+      className="flex lg:flex-row md:flex-col m-2 items-center"
+      {...props}
+    >
+      {props.href && (
+        <Link href={props.href} key={props.href}>
+          <Button
+            startIcon={props.icon}
+            variant="text"
+            color="primary"
+            size="large"
+          >
+            {props.label}
+          </Button>
+        </Link>
+      )}
+
+      {!props.href && (
         <Button
           startIcon={props.icon}
-          variant="text"
+          variant="contained"
           color="primary"
-          fullWidth
-          size="small"
+          size="medium"
+          onClick={props.onClick}
         >
           {props.label}
         </Button>
-      </Link>
+      )}
+
       <GridToolbarExport
         printOptions={{
           disableToolbarButton: true,
@@ -27,6 +51,9 @@ const TableToolbar = (props: GridToolbarProps) => {
         slotProps={{
           button: {
             color: 'primary',
+            size: 'medium',
+            variant: 'outlined',
+            label: 'Exportar',
           },
           tooltip: {
             title: 'Exportar',

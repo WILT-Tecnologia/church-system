@@ -8,12 +8,13 @@ type TableProps = {
   columns: any[];
   rows: any[];
   sortingField: string;
-  href: string;
+  href?: string;
   label: string;
   isLoading: boolean;
   rowModesModel: any;
   setRowModesModel: any;
   setRows: any;
+  onCreate: () => void;
 } & DataGridProps;
 
 const Table = ({
@@ -24,6 +25,7 @@ const Table = ({
   setRowModesModel,
   sortingField,
   setRows,
+  onCreate,
   ...rest
 }: TableProps) => {
   return (
@@ -32,7 +34,7 @@ const Table = ({
         {...rest}
         rows={rows}
         columns={columns}
-        editMode="cell"
+        editMode="row"
         rowModesModel={rowModesModel}
         loading={isLoading}
         pageSizeOptions={[10, 25, 50, 100]}
@@ -47,7 +49,12 @@ const Table = ({
         slots={{
           noRowsOverlay: NoRow,
           toolbar: () => (
-            <TableToolbar href={rest.href} label={rest.label} icon={<Add />} />
+            <TableToolbar
+              href={rest.href}
+              onClick={onCreate}
+              label={rest.label}
+              icon={<Add />}
+            />
           ),
         }}
         slotProps={{

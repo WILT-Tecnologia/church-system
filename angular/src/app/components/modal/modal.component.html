@@ -1,6 +1,7 @@
 <div class="overflow-hidden w-full h-full flex flex-col">
   <!-- HEADER -->
-  <div class="flex justify-between flex-shrink-0 p-0 m-0 box-border h-full items-center">
+  <div class="flex justify-between flex-shrink-0 p-0 m-0 box-border h-full items-center"
+    *ngIf="data.title && data.isHandleClose">
     <span class="px-4 text-lg font-semibold m-2">{{data.title}}</span>
     <button mat-icon-button color="warn" (click)="closeModal(true)" *ngIf="data.isHandleClose" class="m-2">
       <mat-icon color="warn">close</mat-icon>

@@ -7,7 +7,7 @@ type ContainerTableProps = {
 
 const ContainerTable = ({
   children,
-  isPadding = true,
+  isPadding = false,
 }: ContainerTableProps) => {
   return <Box padding={isPadding ? '5rem' : '0rem'}>{children}</Box>;
 };

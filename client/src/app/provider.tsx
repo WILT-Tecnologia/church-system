@@ -4,7 +4,7 @@ import { Navbar } from '@/components/Navbar';
 import NextAuthSessionProvider from '@/providers/sessionProvider';
 import useFetchPrimaryColor from '@/requests/queries/FetchPrimaryColor';
 import GlobalStyles from '@/styles/global';
-import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
+import { Box, createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import {
   hydrate,
   HydrationBoundary,
@@ -12,7 +12,7 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../styles/globals.css';
 import Loading from './loading';
 
@@ -96,8 +96,8 @@ export const Provider = ({ children }: ThemeProviderPageProps) => {
             <CssBaseline />
             <GlobalStyles />
             {loading && <Loading />}
-            {!loading && isAdminRoute && <Navbar />}
-            {!loading && children}
+            {!loading && !isAdminRoute && <Navbar />}
+            {!loading && <Box className="m-4 p-4">{children}</Box>}
           </ThemeProvider>
         </HydrationBoundary>
       </QueryClientProvider>
