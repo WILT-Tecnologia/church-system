@@ -208,48 +208,10 @@ mat-form-field {
 
 mat-label {
   @media screen and (max-width: 768px) {
-    font-size: 0.5rem;
+    font-size: 0.8rem;
   }
 }
 
 mat-error {
   font-size: 0.75rem;
 }
-
-/* Customizando o scrollbar em navegadores Webkit */
-::-webkit-scrollbar {
-  width: 0.5rem;
-}
-
-::-webkit-scrollbar-track {
-  background: theme.$backgroundColor;
-}
-
-::-webkit-scrollbar-thumb {
-  background: theme.$greyVeryLight;
-  border-radius: 1rem;
-}
-
-/* Customização do scrollbar para Webkit */
-::-webkit-scrollbar {
-  width: 0.5rem;
-}
-
-::-webkit-scrollbar-track {
-  background: theme.$backgroundColor;
-}
-
-::-webkit-scrollbar-thumb {
-  background: theme.$greyVeryLight;
-  border-radius: 1rem;
-  transition: all 0.2s ease-in-out;
-
-  &:hover {
-    background: theme.$greyMain;
-    transition: all 0.2s ease-in-out;
-  }
-}
-
-/* ::-webkit-scrollbar-thumb:hover {
-  background: theme.$greyMain;
-} */

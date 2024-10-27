@@ -7,7 +7,10 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatOptionModule } from '@angular/material/core';
 import { MatDividerModule } from '@angular/material/divider';
@@ -112,12 +115,21 @@ export class FamiliesFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    /*this.loadInitialData();
+    this.loadInitialData();
     if (this.data && this.data?.families) {
       this.isEditMode = true;
       this.familyId = this.data?.families.id;
       this.handleEdit();
-    }*/
+    }
+    this.initializeControls();
+  }
+
+  initializeControls() {
+    this.searchControlMembers = this.familyForm.get('member_id') as FormControl;
+    this.searchControlPersons = this.familyForm.get('person_id') as FormControl;
+    this.searchControlKinship = this.familyForm.get(
+      'kinship_id',
+    ) as FormControl;
   }
 
   get pageTitle() {
@@ -126,24 +138,21 @@ export class FamiliesFormComponent implements OnInit {
 
   createForm() {
     return this.fb.group({
-      id: [this.data?.families?.id],
-      name: [this.data?.families?.name, [Validators.required]],
-      is_member: [this.data?.families?.is_member],
-      member_id: [
-        {
-          value: this.data?.families?.member?.id,
-          disabled: false,
-        },
-        [Validators.required],
-      ],
+      id: [this.data?.families?.id ?? ''],
+      is_member: [this.data?.families?.is_member ?? false],
+      member_id: [this.data?.families?.member?.id ?? '', [Validators.required]],
+      name: [this.data?.families?.name ?? '', [Validators.required]],
       person_id: [
         {
-          value: this.data?.families?.person?.id,
+          value: this.data?.families?.person?.id ?? '',
           disabled: true,
         },
       ],
-      kinship_id: [this.data?.families?.kinship?.id, [Validators.required]],
-      updated_at: [this.data?.families?.updated_at],
+      kinship_id: [
+        this.data?.families?.kinship?.id ?? '',
+        [Validators.required],
+      ],
+      updated_at: [this.data?.families?.updated_at ?? ''],
     });
   }
 
@@ -209,7 +218,7 @@ export class FamiliesFormComponent implements OnInit {
     if (event) {
       nameControl?.clearValidators();
       nameControl?.disable();
-      nameControl?.setValue(null);
+      nameControl?.setValue('');
       personControl?.setValidators([Validators.required]);
       personControl?.enable();
       this.showNameField = false;
@@ -218,7 +227,7 @@ export class FamiliesFormComponent implements OnInit {
       nameControl?.enable();
       personControl?.clearValidators();
       personControl?.disable();
-      personControl?.setValue(null);
+      personControl?.setValue('');
       this.showNameField = true;
     }
 
@@ -230,51 +239,61 @@ export class FamiliesFormComponent implements OnInit {
     return this.isMember;
   }
 
-  getName(
-    controlName: string,
-    items: any[],
-    defaultName: string,
-    nestedProperty?: string,
-  ): string {
-    const id = this.familyForm.get(controlName)?.value;
-    const item = items.find((r) => r.id === id);
-
-    if (item) {
-      if (nestedProperty) {
-        const nestedKeys = nestedProperty.split('.');
-        return nestedKeys.reduce((o, k) => (o || {})[k], item) ?? defaultName;
-      }
-      return item.name ?? defaultName;
-    }
-
-    return defaultName;
-  }
-
-  getPersonName(): string {
-    return this.getName(
-      'person_id',
-      this.persons,
-      'Selecione a pessoa',
-      'name',
-    );
-  }
-
-  getMemberName(): string {
-    return this.getName(
+  onMemberSelected(event: MatAutocompleteSelectedEvent) {
+    const selectedMember = event.option.value; // Aqui deve vir o objeto completo
+    console.log('selectedMember:', selectedMember);
+    this.updateFormField(
+      selectedMember,
       'member_id',
-      this.members,
-      'Selecione o membro',
-      'person.name',
+      this.searchControlMembers,
+    );
+    /* this.updateFormField(
+      event.option.value,
+      'member_id',
+      this.searchControlMembers,
+    ); */
+  }
+
+  onPersonSelected(event: MatAutocompleteSelectedEvent) {
+    this.updateFormField(
+      event.option.value,
+      'person_id',
+      this.searchControlPersons,
     );
   }
 
-  getKinshipName(): string {
-    return this.getName(
+  onKinshipSelected(event: MatAutocompleteSelectedEvent) {
+    this.updateFormField(
+      event.option.value,
       'kinship_id',
-      this.kinships,
-      'Selecione o parentesco',
-      'name',
+      this.searchControlKinship,
     );
+  }
+
+  updateFormField(
+    selectedValue: any,
+    formFieldName: string,
+    searchControl: FormControl,
+  ) {
+    if (selectedValue) {
+      this.familyForm.get(formFieldName)?.setValue(selectedValue.id);
+
+      let name = '';
+      if (formFieldName === 'member_id' && selectedValue.person) {
+        name = selectedValue.person.name;
+      } else if (formFieldName === 'person_id') {
+        name = selectedValue.name;
+      } else if (formFieldName === 'kinship_id') {
+        name = selectedValue.name;
+      }
+
+      searchControl.setValue(name, { emitEvent: false });
+      searchControl.markAsTouched();
+    }
+  }
+
+  trackById(index: number, item: any): string {
+    return item.id;
   }
 
   getErrorMessage(controlName: string) {
@@ -291,8 +310,14 @@ export class FamiliesFormComponent implements OnInit {
 
     const familyData = {
       ...this.familyForm.value,
-      name: this.familyForm.value.is_member ? null : this.familyForm.value.name,
+      name: this.familyForm.value.is_member ? '' : this.familyForm.value.name,
     };
+
+    if (this.isEditMode) {
+      familyData.id = this.familyId;
+    }
+
+    console.log('handleSubmit', familyData);
 
     this.isEditMode
       ? this.updateMember(this.familyId!, familyData)
@@ -313,10 +338,7 @@ export class FamiliesFormComponent implements OnInit {
   handleCreate(familyData?: any) {
     this.loadingService.show();
     this.familiesService.createFamily(familyData).subscribe({
-      next: (createdFamily) => {
-        this.onSuccess(MESSAGES.CREATE_SUCCESS);
-        this.dialogRef.close(createdFamily);
-      },
+      next: () => this.onSuccess(MESSAGES.CREATE_SUCCESS),
       error: () => this.onError(MESSAGES.CREATE_ERROR),
       complete: () => this.loadingService.hide(),
     });
@@ -349,17 +371,6 @@ export class FamiliesFormComponent implements OnInit {
         this.onCheckboxChange(family.is_member);
       });
   }
-
-  /*openAddMemberDialog() {
-    this.modalService.openModal(
-      `modal-${Math.random()}`,
-      MemberComponent,
-      'Adicionar membro',
-      true,
-      [],
-      true,
-    );
-  }*/
 
   openAddPersonDialog() {
     this.modalService.openModal(
