@@ -157,6 +157,29 @@ a:hover {
   gap: 1rem;
 }
 
+.add-button {
+  display: flex;
+  justify-content: flex-start;
+  padding: 1rem;
+}
+
+.add-button>button {
+  min-width: 15rem;
+  height: 2.5rem;
+}
+
+.filter-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  width: 100%;
+  max-width: 100%;
+}
+
+.search {
+  width: 20rem;
+}
+
 .add-option {
   color: theme.$greenMain !important;
 }

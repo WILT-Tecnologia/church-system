@@ -3,6 +3,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ChurchsComponent } from './churchs/churchs.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
 import { EventTypesComponent } from './eventTypes/eventTypes.component';
 import { MemberOriginComponent } from './member-origin/member-origin.component';
 import { OccupationsComponent } from './occupations/occupations.component';
@@ -26,6 +27,7 @@ import { UsersComponent } from './users/users.component';
     OccupationsComponent,
     ProfilesComponent,
     MemberOriginComponent,
+    DashboardComponent,
   ],
 })
 export class AdministrativeComponent implements OnInit {

@@ -1,147 +1,133 @@
-<mat-card appearance="outlined">
-  <div class="flex justify-between items-center m-2">
-    <mat-card-header>
-      <mat-card-title>{{pageTitle}}</mat-card-title>
-    </mat-card-header>
-    <button mat-icon-button color="warn" (click)="handleBack()">
-      <mat-icon color="warn">close</mat-icon>
-    </button>
-  </div>
+<form [formGroup]="personForm" (ngSubmit)="handleSubmit()" class="form-field-group wrapper">
+  <app-column>
+    <mat-form-field appearance="fill">
+      <mat-label>Usuário</mat-label>
+      <input matInput formControlName="user_id">
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Nome</mat-label>
+      <input matInput formControlName="name" maxlength="255" required>
+      <mat-error
+        *ngIf="personForm.get('name')?.invalid && personForm.get('name')?.touched">{{getErrorMessage('name')}}</mat-error>
+    </mat-form-field>
+  </app-column>
+  <app-column>
+    <mat-form-field appearance="fill">
+      <mat-label>CPF</mat-label>
+      <input matInput formControlName="cpf" mask="000.000.000-00" required>
+      <mat-error
+        *ngIf="personForm.get('cpf')?.invalid && personForm.get('cpf')?.touched">{{getErrorMessage('cpf')}}</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>E-mail</mat-label>
+      <input matInput formControlName="email" maxlength="255" required>
+      <mat-error
+        *ngIf="personForm.get('email')?.invalid && personForm.get('email')?.touched">{{getErrorMessage('email')}}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="birth_date">
+      <mat-label>Data de nascimento</mat-label>
+      <input matInput [matDatepicker]="picker" name="birth_date" formControlName="birth_date" readonly required>
+      <mat-error
+        *ngIf="personForm.get('birth_date')?.invalid && personForm.get('birth_date')?.touched">{{getErrorMessage('birth_date')}}</mat-error>
+      @if(personForm.value.birth_date) {
+      <button mat-icon-button matSuffix (click)="clearDate()">
+        <mat-icon>close</mat-icon>
+      </button>
+      }@else {
+      <ng-container>
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </ng-container>
+      }
+    </mat-form-field>
+  </app-column>
+  <app-column>
+    <mat-form-field>
+      <mat-label>Sexo</mat-label>
+      <mat-select formControlName="sex" required>
+        <mat-option *ngFor="let sex of sexs" [value]="sex.value">{{sex.viewValue}}</mat-option>
+      </mat-select>
+      <mat-error
+        *ngIf="personForm.get('sex')?.invalid && personForm.get('sex')?.touched">{{getErrorMessage('sex')}}</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Celular</mat-label>
+      <input matInput formControlName="phone_one" mask="(00) 00000-0000" required>
+      <mat-error
+        *ngIf="personForm.get('phone_one')?.invalid && personForm.get('phone_one')?.touched">{{getErrorMessage('phone_one')}}</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Telefone II</mat-label>
+      <input matInput formControlName="phone_two" mask="(00) 00000-0000">
+      <mat-error
+        *ngIf="personForm.get('phone_two')?.invalid && personForm.get('phone_two')?.touched">{{getErrorMessage('phone_two')}}</mat-error>
+    </mat-form-field>
+  </app-column>
   <mat-divider></mat-divider>
-
-  <mat-card-content>
-    <form [formGroup]="personForm" (ngSubmit)="handleSubmit()" class="form-field-group wrapper">
-      <app-column>
-        <mat-form-field appearance="fill">
-          <mat-label>Usuário</mat-label>
-          <input matInput formControlName="user_id">
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Nome</mat-label>
-          <input matInput formControlName="name" maxlength="255" required>
-          <mat-error
-            *ngIf="personForm.get('name')?.invalid && personForm.get('name')?.touched">{{getErrorMessage('name')}}</mat-error>
-        </mat-form-field>
-      </app-column>
-      <app-column>
-        <mat-form-field appearance="fill">
-          <mat-label>CPF</mat-label>
-          <input matInput formControlName="cpf" mask="000.000.000-00" required>
-          <mat-error
-            *ngIf="personForm.get('cpf')?.invalid && personForm.get('cpf')?.touched">{{getErrorMessage('cpf')}}</mat-error>
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>E-mail</mat-label>
-          <input matInput formControlName="email" maxlength="255" required>
-          <mat-error
-            *ngIf="personForm.get('email')?.invalid && personForm.get('email')?.touched">{{getErrorMessage('email')}}</mat-error>
-        </mat-form-field>
-        <mat-form-field class="birth_date">
-          <mat-label>Data de nascimento</mat-label>
-          <input matInput [matDatepicker]="picker" name="birth_date" formControlName="birth_date" readonly required>
-          <mat-error
-            *ngIf="personForm.get('birth_date')?.invalid && personForm.get('birth_date')?.touched">{{getErrorMessage('birth_date')}}</mat-error>
-          @if(personForm.value.birth_date) {
-          <button mat-icon-button matSuffix (click)="clearDate()">
-            <mat-icon>close</mat-icon>
-          </button>
-          }@else {
-          <ng-container>
-            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-          </ng-container>
-          }
-        </mat-form-field>
-      </app-column>
-      <app-column>
-        <mat-form-field>
-          <mat-label>Sexo</mat-label>
-          <mat-select formControlName="sex" required>
-            <mat-option *ngFor="let sex of sexs" [value]="sex.value">{{sex.viewValue}}</mat-option>
-          </mat-select>
-          <mat-error
-            *ngIf="personForm.get('sex')?.invalid && personForm.get('sex')?.touched">{{getErrorMessage('sex')}}</mat-error>
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Celular</mat-label>
-          <input matInput formControlName="phone_one" mask="(00) 00000-0000" required>
-          <mat-error
-            *ngIf="personForm.get('phone_one')?.invalid && personForm.get('phone_one')?.touched">{{getErrorMessage('phone_one')}}</mat-error>
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Telefone II</mat-label>
-          <input matInput formControlName="phone_two" mask="(00) 00000-0000">
-          <mat-error
-            *ngIf="personForm.get('phone_two')?.invalid && personForm.get('phone_two')?.touched">{{getErrorMessage('phone_two')}}</mat-error>
-        </mat-form-field>
-      </app-column>
-      <mat-divider></mat-divider>
-      <mat-card-subtitle>Endereços</mat-card-subtitle>
-      <app-column class="w-full">
-        <mat-form-field class="reduction" appearance="fill">
-          <mat-label>CEP</mat-label>
-          <input matInput formControlName="cep" mask="00000-000" required>
-          <mat-error
-            *ngIf="personForm.get('cep')?.invalid && personForm.get('cep')?.touched">{{getErrorMessage('cep')}}</mat-error>
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Rua</mat-label>
-          <input matInput formControlName="street" maxlength="255" required>
-          <mat-error
-            *ngIf="personForm.get('street')?.invalid && personForm.get('street')?.touched">{{getErrorMessage('street')}}</mat-error>
-        </mat-form-field>
-        <mat-form-field class="reduction" appearance="fill">
-          <mat-label>Número</mat-label>
-          <input matInput formControlName="number" maxlength="10" required>
-          <mat-error
-            *ngIf="personForm.get('number')?.invalid && personForm.get('number')?.touched">{{getErrorMessage('number')}}</mat-error>
-        </mat-form-field>
-      </app-column>
-      <app-column>
-        <mat-form-field appearance="fill">
-          <mat-label>Complemento</mat-label>
-          <input matInput formControlName="complement">
-          <mat-error
-            *ngIf="personForm.get('complement')?.invalid && personForm.get('complement')?.touched">{{getErrorMessage('complement')}}</mat-error>
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Bairro</mat-label>
-          <input matInput formControlName="district" maxlength="255" required>
-          <mat-error
-            *ngIf="personForm.get('district')?.invalid && personForm.get('district')?.touched">{{getErrorMessage('district')}}</mat-error>
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Cidade</mat-label>
-          <input matInput formControlName="city" maxlength="255" required>
-          <mat-error
-            *ngIf="personForm.get('city')?.invalid && personForm.get('city')?.touched">{{getErrorMessage('city')}}</mat-error>
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Estado</mat-label>
-          <input matInput formControlName="state" maxlength="255" required>
-          <mat-error
-            *ngIf="personForm.get('state')?.invalid && personForm.get('state')?.touched">{{getErrorMessage('state')}}</mat-error>
-        </mat-form-field>
-      </app-column>
-      <app-column class="w-2/4">
-        <mat-form-field appearance="fill">
-          <mat-label>País</mat-label>
-          <input matInput formControlName="country" maxlength="255" required>
-          <mat-error
-            *ngIf="personForm.get('country')?.invalid && personForm.get('country')?.touched">{{getErrorMessage('country')}}</mat-error>
-        </mat-form-field>
-      </app-column>
-      <mat-card-footer>
-        <ng-container *ngIf="isEditMode && personForm.get('updated_at')?.value">
-          <span>Atualizado em: {{ personForm.get('updated_at')?.value }}</span>
-        </ng-container>
-        <mat-divider></mat-divider>
-        <div class="cta">
-          <button mat-stroked-button type="button" color="warn" (click)="handleBack()">Cancelar</button>
-          <button mat-raised-button type="submit" color="primary"
-            [disabled]="personForm.invalid">{{isEditMode ? ' Atualizar' : 'Cadastrar'}}</button>
-        </div>
-      </mat-card-footer>
-    </form>
-  </mat-card-content>
-</mat-card>
+  <mat-card-subtitle>Endereços</mat-card-subtitle>
+  <app-column class="w-full">
+    <mat-form-field class="reduction" appearance="fill">
+      <mat-label>CEP</mat-label>
+      <input matInput formControlName="cep" mask="00000-000" required>
+      <mat-error
+        *ngIf="personForm.get('cep')?.invalid && personForm.get('cep')?.touched">{{getErrorMessage('cep')}}</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Rua</mat-label>
+      <input matInput formControlName="street" maxlength="255" required>
+      <mat-error
+        *ngIf="personForm.get('street')?.invalid && personForm.get('street')?.touched">{{getErrorMessage('street')}}</mat-error>
+    </mat-form-field>
+  </app-column>
+  <app-column>
+    <mat-form-field appearance="fill">
+      <mat-label>Número</mat-label>
+      <input matInput formControlName="number" maxlength="10" required>
+      <mat-error
+        *ngIf="personForm.get('number')?.invalid && personForm.get('number')?.touched">{{getErrorMessage('number')}}</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Complemento</mat-label>
+      <input matInput formControlName="complement">
+      <mat-error
+        *ngIf="personForm.get('complement')?.invalid && personForm.get('complement')?.touched">{{getErrorMessage('complement')}}</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Bairro</mat-label>
+      <input matInput formControlName="district" maxlength="255" required>
+      <mat-error
+        *ngIf="personForm.get('district')?.invalid && personForm.get('district')?.touched">{{getErrorMessage('district')}}</mat-error>
+    </mat-form-field>
+  </app-column>
+  <app-column class="w-full">
+    <mat-form-field appearance="fill">
+      <mat-label>Cidade</mat-label>
+      <input matInput formControlName="city" maxlength="255" required>
+      <mat-error
+        *ngIf="personForm.get('city')?.invalid && personForm.get('city')?.touched">{{getErrorMessage('city')}}</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Estado</mat-label>
+      <input matInput formControlName="state" maxlength="255" required>
+      <mat-error
+        *ngIf="personForm.get('state')?.invalid && personForm.get('state')?.touched">{{getErrorMessage('state')}}</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>País</mat-label>
+      <input matInput formControlName="country" maxlength="255" required>
+      <mat-error
+        *ngIf="personForm.get('country')?.invalid && personForm.get('country')?.touched">{{getErrorMessage('country')}}</mat-error>
+    </mat-form-field>
+  </app-column>
+  <mat-card-footer>
+    <ng-container *ngIf="isEditMode && personForm.get('updated_at')?.value">
+      <span>Atualizado em: {{ personForm.get('updated_at')?.value }}</span>
+    </ng-container>
+    <mat-divider></mat-divider>
+    <div class="cta">
+      <button mat-stroked-button type="button" color="warn" (click)="handleBack()">Cancelar</button>
+      <button mat-raised-button type="submit" color="primary"
+        [disabled]="personForm.invalid">{{isEditMode ? ' Atualizar' : 'Cadastrar'}}</button>
+    </div>
+  </mat-card-footer>
+</form>

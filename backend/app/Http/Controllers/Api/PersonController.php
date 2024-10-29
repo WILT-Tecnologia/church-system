@@ -13,7 +13,9 @@ class PersonController extends Controller
 {
     public function index()
     {
-        return PersonResource::collection(Person::all());
+        $persons = Person::all();
+
+        return response()->json(PersonResource::collection($persons));
     }
 
     /**
@@ -24,8 +26,6 @@ class PersonController extends Controller
         $data = $request->validated();
 
         $person = Person::create($data);
-
-
 
         return new PersonResource($person);
     }

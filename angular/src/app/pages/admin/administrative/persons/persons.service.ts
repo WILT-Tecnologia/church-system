@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DateFormatPipe } from 'app/utils/pipe/BirthDateFormatPipe';
+import { PhoneFormatPipe } from 'app/utils/pipe/phone-format.pipe';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { Person } from '../../../../model/Person';
@@ -16,6 +17,7 @@ export class PersonsService {
   private api = `${environment.apiUrl}/admin/persons`;
   private formatCPFPipe = new CpfFormatPipe();
   private formatBirthDatePipe = new DateFormatPipe();
+  private formatPhonePipe = new PhoneFormatPipe();
   private formatSexPipe = new SexFormatPipe();
 
   getPersons(): Observable<Person[]> {
@@ -27,6 +29,7 @@ export class PersonsService {
             person.birth_date,
           );
           person.sex = this.formatSexPipe.transform(person.sex);
+          person.phone_one = this.formatPhonePipe.transform(person.phone_one);
           return person;
         });
       }),

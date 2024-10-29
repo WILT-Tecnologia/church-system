@@ -107,7 +107,7 @@ export class PersonComponent implements OnInit {
     }
 
     this.personForm.get('cep')?.valueChanges.subscribe((cep: string) => {
-      if (cep.length === 8) {
+      if (cep.length === 8 && !this.isEditMode) {
         this.searchCep(cep);
       }
     });
@@ -240,7 +240,7 @@ export class PersonComponent implements OnInit {
   }
 
   searchCep(cep: string) {
-    if (this.personForm.get('cep')?.value?.length === '') {
+    if (!cep || cep.length !== 8) {
       return;
     }
 
