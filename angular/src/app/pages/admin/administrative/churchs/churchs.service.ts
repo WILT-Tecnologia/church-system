@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Church } from 'app/model/Church';
+import { Person as Responsible } from 'app/model/Person';
+import { CnpjFormatPipe } from 'app/utils/pipe/CnpjFormatPipe';
+import { environment } from 'environments/environment';
 import { map, Observable } from 'rxjs';
-import { environment } from '../../../../../environments/environment';
-import { Church, Responsible } from '../../../../model/Church';
-import { CnpjFormatPipe } from '../../../../utils/pipe/CnpjFormatPipe';
 
 @Injectable({
   providedIn: 'root',

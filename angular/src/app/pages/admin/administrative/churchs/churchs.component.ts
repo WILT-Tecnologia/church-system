@@ -2,9 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialog } from '@angular/material/dialog';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalService } from 'app/components/modal/modal.service';
+import { MESSAGES } from 'app/service/snackbar/messages';
 import { NotFoundRegisterComponent } from '../../../../components/not-found-register/not-found-register.component';
 import { TableComponent } from '../../../../components/table/table.component';
 import { Church } from '../../../../model/Church';
@@ -47,8 +48,8 @@ export class ChurchsComponent implements OnInit {
     private churchsService: ChurchsService,
     private snackbarService: SnackbarService,
     private loading: LoadingService,
-    private dialog: MatDialog,
     private confirmService: ConfirmService,
+    private modalService: ModalService,
   ) {}
 
   ngOnInit() {
@@ -57,50 +58,46 @@ export class ChurchsComponent implements OnInit {
 
   loadChurch = () => {
     this.loading.show();
-    this.churchsService.getChurch().subscribe((churchs) => {
-      this.churchs = churchs;
+    this.churchsService.getChurch().subscribe({
+      next: (churchs) => {
+        this.churchs = churchs;
+      },
+      error: () => this.snackbarService.openError(MESSAGES.LOADING_ERROR),
+      complete: () => this.loading.hide(),
     });
-    this.loading.hide();
   };
 
   addNewChurch = (): void => {
-    const dialogRef = this.dialog.open(ChurchComponent, {
-      width: 'auto',
-      maxWidth: '100%',
-      height: 'auto',
-      maxHeight: '100dvh',
-      role: 'dialog',
-      panelClass: 'dialog',
-      disableClose: true,
-    });
+    const dialogRef = this.modalService.openModal(
+      `modal-${Math.random()}`,
+      ChurchComponent,
+      'Adicionar igreja',
+      true,
+      [],
+      true,
+    );
 
-    dialogRef.afterClosed().subscribe((newChurch) => {
-      if (newChurch) {
-        this.loading.show();
+    dialogRef.afterClosed().subscribe((church: Church) => {
+      if (church) {
         this.loadChurch();
-        this.loading.hide();
       }
     });
   };
 
   editChurch = (church: Church): void => {
-    const dialogRef = this.dialog.open(ChurchComponent, {
-      id: church.id,
-      width: 'auto',
-      maxWidth: '100%',
-      height: 'auto',
-      maxHeight: '100dvh',
-      role: 'dialog',
-      panelClass: 'dialog',
-      disableClose: true,
-      data: { church },
-    });
+    const dialogRef = this.modalService.openModal(
+      `modal-${Math.random()}`,
+      ChurchComponent,
+      'Editar igreja',
+      true,
+      [],
+      true,
+      { church },
+    );
 
-    dialogRef.afterClosed().subscribe((updatedChurch) => {
-      if (updatedChurch) {
-        this.loading.show();
+    dialogRef.afterClosed().subscribe((church: Church) => {
+      if (church) {
         this.loadChurch();
-        this.loading.hide();
       }
     });
   };
@@ -118,13 +115,13 @@ export class ChurchsComponent implements OnInit {
         if (result) {
           this.churchsService.deleteChurch(church.id).subscribe({
             next: () => {
-              this.snackbarService.openSuccess('Igreja excluída com sucesso!');
+              this.snackbarService.openSuccess(MESSAGES.DELETE_SUCCESS);
               this.loadChurch();
             },
             error: () => {
               this.loading.hide();
               this.snackbarService.openError(
-                'Erro ao excluir a igreja. Tente novamente mais tarde.',
+                MESSAGES.DELETE_ERROR + ': ' + church.name,
               );
             },
             complete: () => this.loading.hide(),

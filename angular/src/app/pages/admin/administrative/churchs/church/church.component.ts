@@ -26,7 +26,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { ColumnComponent } from 'app/components/column/column.component';
+import { LoadingService } from 'app/components/loading/loading.service';
 import { Address } from 'app/model/Address';
+import { Church } from 'app/model/Church';
+import { Person as Responsible } from 'app/model/Person';
+import { CepService } from 'app/service/SearchCEP/CepService.service';
+import { SnackbarService } from 'app/service/snackbar/snackbar.service';
 import { ValidationService } from 'app/service/validation/validation.service';
 import dayjs from 'dayjs';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
@@ -38,11 +44,6 @@ import {
   Subject,
   takeUntil,
 } from 'rxjs';
-import { ColumnComponent } from '../../../../../components/column/column.component';
-import { LoadingService } from '../../../../../components/loading/loading.service';
-import { Church, Responsible } from '../../../../../model/Church';
-import { CepService } from '../../../../../service/SearchCEP/CepService.service';
-import { SnackbarService } from '../../../../../service/snackbar/snackbar.service';
 import { ChurchsService } from '../churchs.service';
 
 @Component({
@@ -184,10 +185,6 @@ export class ChurchComponent implements OnInit, OnDestroy {
     });
   };
 
-  get pageTitle(): string {
-    return this.isEditMode ? 'Editando a igreja' : 'Criando a Igreja';
-  }
-
   getErrorMessage(controlName: string): string | null {
     const control = this.churchForm.get(controlName);
     return control ? this.validationService.getErrorMessage(control) : null;
@@ -244,7 +241,7 @@ export class ChurchComponent implements OnInit, OnDestroy {
       .subscribe((church: Church) => {
         this.churchForm.patchValue({
           ...church,
-          responsable_id: church.responsible.id,
+          responsable_id: church.responsible.name,
           updated_at: dayjs(church.updated_at).format(
             'DD/MM/YYYY [às] HH:mm:ss',
           ),

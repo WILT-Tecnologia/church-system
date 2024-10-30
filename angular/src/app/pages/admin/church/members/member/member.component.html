@@ -14,9 +14,11 @@
                       {{ getPersonName() }}
                     </mat-select-trigger>
                     <ng-container *ngIf="filteredPerson$ | async as persons">
-                      <mat-form-field appearance="fill" class="search-field">
-                        <mat-label>Pesquisar</mat-label>
-                        <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
+                      <mat-form-field appearance="outline" class="search-field">
+                        <div class="flex flex-row gap-2">
+                          <mat-icon>search</mat-icon>
+                          <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
+                        </div>
                       </mat-form-field>
                       <mat-option *ngFor="let person of persons" [value]="person.id">
                         {{ person.name }}
