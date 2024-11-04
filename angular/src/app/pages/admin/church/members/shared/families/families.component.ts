@@ -11,7 +11,6 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -23,6 +22,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { TableComponent } from 'app/components/table/table.component';
 import { Families } from 'app/model/Families';
@@ -77,7 +77,7 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
     private loadingService: LoadingService,
     private snackbarService: SnackbarService,
     private familiesService: FamiliesService,
-    private dialog: MatDialog,
+    private modalService: ModalService,
   ) {}
 
   ngOnInit() {
@@ -103,9 +103,6 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
     if (changes['families'] && !changes['families'].firstChange) {
       this.dataSourceMat.data = this.families;
     }
-    /* if (changes['families'] && changes['families'].currentValue) {
-      this.dataSourceMat.data = this.families;
-    } */
   }
 
   applyFilter(event: Event) {
@@ -165,19 +162,17 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
       return;
     }
 
-    const dialogRef = this.dialog.open(FamiliesFormComponent, {
-      minWidth: '50dvw',
-      maxWidth: '75dvw',
-      minHeight: '50dvh',
-      maxHeight: '75dvh',
-      role: 'dialog',
-      panelClass: 'dialog',
-      disableClose: true,
-      data: {
-        familiesComponent: FamiliesFormComponent,
-        defaultMemberId: defaultMemberId,
+    const dialogRef = this.modalService.openModal(
+      `modal-${Math.random()}`,
+      FamiliesFormComponent,
+      'Adicionar filiação',
+      true,
+      [],
+      true,
+      {
+        families: { member: { id: defaultMemberId } } as Families,
       },
-    });
+    );
 
     dialogRef.afterClosed().subscribe((result: Families) => {
       if (result) {
@@ -195,16 +190,18 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
   };
 
   editFamily = (family: Families): void => {
-    const dialogRef = this.dialog.open(FamiliesFormComponent, {
-      minWidth: '50dvw',
-      maxWidth: '75dvw',
-      minHeight: '50dvh',
-      maxHeight: '75dvh',
-      role: 'dialog',
-      panelClass: 'dialog',
-      disableClose: true,
-      data: { families: family, id: family.id },
-    });
+    const dialogRef = this.modalService.openModal(
+      `modal-${Math.random()}`,
+      FamiliesFormComponent,
+      'Editar filiação',
+      true,
+      [],
+      true,
+      {
+        families: family,
+        id: family.id,
+      },
+    );
 
     dialogRef.afterClosed().subscribe((result: Families) => {
       if (result) {

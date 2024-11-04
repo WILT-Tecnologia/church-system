@@ -18,7 +18,8 @@
       <ng-container *ngFor="let column of columnDefinitions" [matColumnDef]="column.key">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ column.header }}</th>
         <ng-container *ngIf="column.type !== 'boolean'">
-          <td mat-cell [matTooltip]="getNestedValue(families, column.key)" *matCellDef="let families">
+          <td mat-cell [matTooltip]="getNestedValue(families, column.key)" [matTooltipPositionAtOrigin]="true"
+            *matCellDef="let families">
             {{ getNestedValue(families, column.key) }} </td>
         </ng-container>
         <ng-container *ngIf="column.type === 'boolean'">

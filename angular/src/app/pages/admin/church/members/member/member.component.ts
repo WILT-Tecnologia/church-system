@@ -240,10 +240,6 @@ export class MemberComponent implements OnInit {
     });
   }
 
-  get pageTitle() {
-    return this.isEditMode ? `Editando o membro` : `Cadastrar o membro`;
-  }
-
   setupSearchObservable(target: string): Observable<any[]> {
     return this.searchControl.valueChanges.pipe(
       debounceTime(300),

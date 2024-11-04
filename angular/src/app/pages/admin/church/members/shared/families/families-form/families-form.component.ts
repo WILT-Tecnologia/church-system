@@ -86,15 +86,11 @@ export class FamiliesFormComponent implements OnInit {
     public data: { families: Families },
   ) {
     this.familyForm = this.createForm();
-
-    if (this.data?.families?.id || '') {
-      this.familyForm.get('member_id')?.setValue(this.data?.families?.id || '');
-    }
+    this.checkEditMode();
   }
 
   ngOnInit() {
     this.loadInitialData();
-    this.checkEditMode();
     this.initializeControls();
   }
 
@@ -118,10 +114,6 @@ export class FamiliesFormComponent implements OnInit {
     });
   }
 
-  get pageTitle() {
-    return this.isEditMode ? `Editando filiação` : `Cadastrar filiação`;
-  }
-
   initializeControls() {
     this.searchControlMembers = this.familyForm.get('member_id') as FormControl;
     this.searchControlPersons = this.familyForm.get('person_id') as FormControl;
@@ -132,17 +124,17 @@ export class FamiliesFormComponent implements OnInit {
 
   private initializeFilters() {
     this.filterMembers$ = this.setupFilter(
-      this.familyForm.get('member_id') as FormControl,
+      this.searchControlMembers as FormControl,
       this.members,
       'person.name',
     );
     this.filterPersons$ = this.setupFilter(
-      this.familyForm.get('person_id') as FormControl,
+      this.searchControlPersons as FormControl,
       this.persons,
       'name',
     );
     this.filterKinships$ = this.setupFilter(
-      this.familyForm.get('kinship_id') as FormControl,
+      this.searchControlKinship as FormControl,
       this.kinships,
       'name',
     );
@@ -169,6 +161,9 @@ export class FamiliesFormComponent implements OnInit {
       this.isEditMode = true;
       this.familyId = this.data?.families.id;
       this.handleEdit();
+    } else {
+      const defaultMemberId = this.data?.families?.member?.id || '';
+      this.familyForm.get('member_id')?.setValue(defaultMemberId);
     }
   }
 
@@ -228,31 +223,33 @@ export class FamiliesFormComponent implements OnInit {
     return this.familyForm.get('is_member')?.value;
   }
 
+  displayName(itemId: string, items: any[], field: string): string {
+    const item = items.find((r) => r.id === itemId);
+    return item ? this.getFieldValue(item, field) ?? 'Selecione o item' : '';
+  }
+
   displayNameMember = (): string => {
-    const memberId = this.familyForm.get('member_id')?.value;
-    if (memberId) {
-      const member = this.members.find((r) => r.id === memberId);
-      return member?.person.name ?? 'Selecione o membro';
-    }
-    return '';
+    return this.displayName(
+      this.familyForm.get('member_id')?.value,
+      this.members,
+      'person.name',
+    );
   };
 
   displayNamePerson = (): string => {
-    const personId = this.familyForm.get('person_id')?.value;
-    if (personId) {
-      const person = this.persons.find((r) => r.id === personId);
-      return person?.name ?? 'Selecione a pessoa';
-    }
-    return 'Selecione a pessoa';
+    return this.displayName(
+      this.familyForm.get('person_id')?.value,
+      this.persons,
+      'name',
+    );
   };
 
-  displayNameKinship = (kinships: Kinships): string => {
-    const kinshipsId = this.familyForm.get('kinship_id')?.value;
-    if (kinshipsId) {
-      const kinships = this.kinships.find((r) => r.id === kinshipsId);
-      return kinships?.name ?? 'Selecione o parentesco';
-    }
-    return 'Selecione o parentesco';
+  displayNameKinship = (): string => {
+    return this.displayName(
+      this.familyForm.get('kinship_id')?.value,
+      this.kinships,
+      'name',
+    );
   };
 
   getErrorMessage(controlName: string) {
@@ -322,13 +319,12 @@ export class FamiliesFormComponent implements OnInit {
     this.familiesService
       .getFamily(this.familyId!)
       .subscribe((family: Families) => {
-        console.log('handleEdit', family);
         this.familyForm.patchValue({
           id: family.id,
           name: family.name ?? '',
-          member_id: family.member ? family.member?.person?.name : '',
-          person_id: family.person ? family.person.name : '',
-          kinship_id: family.kinship ? family.kinship.name : '',
+          member_id: family.member ? family.member?.id : '',
+          person_id: family.person ? family.person?.id : '',
+          kinship_id: family.kinship ? family.kinship?.id : '',
           is_member: family.is_member,
           updated_at: dayjs(family.updated_at).format(
             'DD/MM/YYYY [às] HH:mm:ss',
