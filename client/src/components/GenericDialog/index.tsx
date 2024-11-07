@@ -1,31 +1,28 @@
 import CloseIcon from '@mui/icons-material/Close';
 import {
   Dialog,
-  DialogActions,
   DialogContent,
   DialogTitle,
   Grow,
   IconButton,
   Typography,
 } from '@mui/material';
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 
 type GenericDialogProps = {
   open: boolean;
-  title?: () => string | ReactNode;
+  title?: string | ReactNode | (() => string | ReactNode);
   content: ReactNode;
-  footer?: ReactNode;
-  onClose?: () => void;
   maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   fullWidth?: boolean;
   fullScreen?: boolean;
+  onClose?: () => void;
 };
 
 const GenericDialog: React.FC<GenericDialogProps> = ({
   open,
   title,
   content,
-  footer,
   maxWidth,
   fullWidth,
   fullScreen,
@@ -50,7 +47,7 @@ const GenericDialog: React.FC<GenericDialogProps> = ({
         }}
       >
         <Typography variant="h6" component="div">
-          {title && title()}
+          {typeof title === 'function' ? title() : title}{' '}
         </Typography>
         <IconButton
           edge="end"
@@ -63,7 +60,6 @@ const GenericDialog: React.FC<GenericDialogProps> = ({
         </IconButton>
       </DialogTitle>
       <DialogContent dividers>{content}</DialogContent>
-      {footer && <DialogActions>{footer}</DialogActions>}
     </Dialog>
   );
 };

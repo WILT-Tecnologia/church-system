@@ -125,23 +125,14 @@ export default function usePerson() {
     openDialog('create');
   };
 
-  /* const handleSaveClick = (id: GridRowId) => () => {
-    const values = rows.find((row) => row.id === id);
-    if (values) {
-      console.log(values);
-      openDialog('edit', values);
-    }
-  }; */
-
   const handleSaveClick = (id: GridRowId) => () => {
     const values = rows.find((row) => row.id === id);
     if (values) {
-      // Atualiza os valores do formulário com os dados da linha selecionada
       Object.keys(values).forEach((key) => {
         setValue(key as keyof Schema, values[key as keyof Person]);
       });
       console.log(values);
-      openDialog('edit', values); // Abre o diálogo de edição
+      openDialog('edit', values);
     }
   };
 

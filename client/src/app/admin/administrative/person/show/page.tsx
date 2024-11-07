@@ -123,12 +123,7 @@ export default function ShowPerson() {
       case 'create':
         return <FormPerson />;
       case 'edit':
-        return (
-          <>
-            <div>Formulário de Edição: {selectedRow?.name}</div>
-            <FormPerson />
-          </>
-        );
+        return <FormPerson />;
       case 'delete':
         return (
           <Typography variant="body1" color="textSecondary">
@@ -138,7 +133,6 @@ export default function ShowPerson() {
           </Typography>
         );
       default:
-        return 'create';
     }
   };
 
@@ -205,8 +199,8 @@ export default function ShowPerson() {
         content={renderDialogContent()}
         footer={renderDialogFooter()}
         onClose={closeDialog}
-        maxWidth={'md'}
-        fullWidth={false}
+        maxWidth={'lg'}
+        fullWidth={true}
       />
     </>
   );

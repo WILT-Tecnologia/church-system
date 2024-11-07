@@ -13,7 +13,8 @@ import {
 } from '@tanstack/react-query';
 import { usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import '../styles/globals.css';
+import './globals.css';
+
 import Loading from './loading';
 
 type ThemeProviderPageProps = {

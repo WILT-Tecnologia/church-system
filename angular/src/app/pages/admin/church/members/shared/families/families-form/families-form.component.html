@@ -13,12 +13,6 @@
           {{ displayNameMember() }}
         </mat-select-trigger>
         <ng-container *ngIf="filterMembers$ | async as members">
-          <!-- <mat-form-field appearance="outline">
-            <div class="flex flex-row gap-2">
-              <mat-icon>search</mat-icon>
-              <input type="text" placeholder="Pesquisar" [formControl]="searchControlMembers" matInput>
-            </div>
-          </mat-form-field> -->
           <mat-option *ngFor="let member of members" [value]="member.id">
             {{ member.person.name }}
           </mat-option>
@@ -38,12 +32,6 @@
           {{ displayNamePerson() }}
         </mat-select-trigger>
         <ng-container *ngIf="filterPersons$ | async as persons">
-          <!-- <mat-form-field appearance="outline">
-            <div class="flex flex-row gap-2">
-              <mat-icon>search</mat-icon>
-              <input type="text" placeholder="Pesquisar" [formControl]="searchControlPersons" matInput>
-            </div>
-          </mat-form-field> -->
           <mat-option *ngFor="let person of persons" [value]="person.id">
             {{ person.name }}
           </mat-option>
@@ -71,15 +59,9 @@
         <mat-select-trigger>
           {{ displayNameKinship() }}
         </mat-select-trigger>
-        <ng-container *ngIf="filterKinships$ | async as kindships">
-          <!-- <mat-form-field appearance="outline">
-            <div class="flex flex-row gap-2">
-              <mat-icon>search</mat-icon>
-              <input type="text" placeholder="Pesquisar" [formControl]="searchControlKinship" matInput>
-            </div>
-          </mat-form-field> -->
-          <mat-option *ngFor="let kindship of kindships" [value]="kindship.id">
-            {{ kindship.name }}
+        <ng-container *ngIf="filterKinships$ | async as kinships">
+          <mat-option *ngFor="let kinship of kinships" [value]="kinship.id">
+            {{ kinship.name }}
           </mat-option>
         </ng-container>
       </mat-select>

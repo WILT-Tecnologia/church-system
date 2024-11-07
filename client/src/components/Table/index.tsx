@@ -37,10 +37,10 @@ const Table = ({
         editMode="row"
         rowModesModel={rowModesModel}
         loading={isLoading}
-        pageSizeOptions={[10, 25, 50, 100]}
+        pageSizeOptions={[25, 50, 100]}
         initialState={{
           pagination: {
-            paginationModel: { page: 0, pageSize: 10 },
+            paginationModel: { page: 0, pageSize: 25 },
           },
           sorting: {
             sortModel: [{ field: sortingField, sort: 'asc' }],

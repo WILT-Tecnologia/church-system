@@ -30,7 +30,6 @@ import { PersonComponent } from 'app/pages/admin/administrative/persons/person/p
 import { MESSAGES } from 'app/service/snackbar/messages';
 import { SnackbarService } from 'app/service/snackbar/snackbar.service';
 import { ValidationService } from 'app/service/validation/validation.service';
-import dayjs from 'dayjs';
 import { debounceTime, forkJoin, map, Observable, startWith } from 'rxjs';
 import { FamiliesService } from '../families.service';
 
@@ -57,22 +56,20 @@ import { FamiliesService } from '../families.service';
 })
 export class FamiliesFormComponent implements OnInit {
   familyId: string | null = null;
-  familyForm: FormGroup;
+  familyForm: FormGroup = {} as any;
   isEditMode: boolean = false;
-  searchControlMembers = new FormControl('');
-  searchControlPersons = new FormControl('');
-  searchControlKinship = new FormControl('');
+  searchControlMembers = new FormControl();
+  searchControlPersons = new FormControl();
+  searchControlKinship = new FormControl();
 
-  filterMembers$!: Observable<Members[]>;
-  filterPersons$!: Observable<Person[]>;
-  filterKinships$!: Observable<Kinships[]>;
+  filterMembers$: Observable<Members[]> = new Observable<Members[]>();
+  filterPersons$: Observable<Person[]> = new Observable<Person[]>();
+  filterKinships$: Observable<Kinships[]> = new Observable<Kinships[]>();
 
   families: Families[] = [];
   members: Members[] = [];
   persons: Person[] = [];
   kinships: Kinships[] = [];
-
-  //dataSourceMat = new MatTableDataSource<Families>(this.families);
 
   constructor(
     private fb: FormBuilder,
@@ -86,12 +83,12 @@ export class FamiliesFormComponent implements OnInit {
     public data: { families: Families },
   ) {
     this.familyForm = this.createForm();
+
     this.checkEditMode();
   }
 
   ngOnInit() {
     this.loadInitialData();
-    this.initializeControls();
   }
 
   createForm(): FormGroup {
@@ -114,57 +111,8 @@ export class FamiliesFormComponent implements OnInit {
     });
   }
 
-  initializeControls() {
-    this.searchControlMembers = this.familyForm.get('member_id') as FormControl;
-    this.searchControlPersons = this.familyForm.get('person_id') as FormControl;
-    this.searchControlKinship = this.familyForm.get(
-      'kinship_id',
-    ) as FormControl;
-  }
-
-  private initializeFilters() {
-    this.filterMembers$ = this.setupFilter(
-      this.searchControlMembers as FormControl,
-      this.members,
-      'person.name',
-    );
-    this.filterPersons$ = this.setupFilter(
-      this.searchControlPersons as FormControl,
-      this.persons,
-      'name',
-    );
-    this.filterKinships$ = this.setupFilter(
-      this.searchControlKinship as FormControl,
-      this.kinships,
-      'name',
-    );
-  }
-
-  loadInitialData() {
-    forkJoin({
-      members: this.familiesService.getMembers(),
-      persons: this.familiesService.getPersons(),
-      kinships: this.familiesService.getKinships(),
-    }).subscribe({
-      next: ({ members, persons, kinships }) => {
-        this.members = members;
-        this.persons = persons;
-        this.kinships = kinships;
-        this.initializeFilters();
-      },
-      error: () => this.snackbarService.openError(MESSAGES.LOADING_ERROR),
-    });
-  }
-
-  private checkEditMode() {
-    if (this.data && this.data?.families) {
-      this.isEditMode = true;
-      this.familyId = this.data?.families.id;
-      this.handleEdit();
-    } else {
-      const defaultMemberId = this.data?.families?.member?.id || '';
-      this.familyForm.get('member_id')?.setValue(defaultMemberId);
-    }
+  private getFieldValue(item: any, field: string): string | undefined {
+    return field.split('.').reduce((acc, part) => acc?.[part], item);
   }
 
   setupFilter(
@@ -185,8 +133,57 @@ export class FamiliesFormComponent implements OnInit {
     );
   }
 
-  private getFieldValue(item: any, field: string): string | undefined {
-    return field.split('.').reduce((acc, part) => acc?.[part], item);
+  private initializeFilters() {
+    this.filterMembers$ = this.setupFilter(
+      this.searchControlMembers,
+      this.members,
+      'person.name',
+    );
+    this.filterPersons$ = this.setupFilter(
+      this.searchControlPersons,
+      this.persons,
+      'name',
+    );
+    this.filterKinships$ = this.setupFilter(
+      this.searchControlKinship,
+      this.kinships,
+      'name',
+    );
+  }
+
+  loadInitialData() {
+    forkJoin({
+      members: this.familiesService.getMembers(),
+      persons: this.familiesService.getPersons(),
+      kinships: this.familiesService.getKinships(),
+    }).subscribe({
+      next: ({ members, persons, kinships }) => {
+        this.members = members;
+        this.persons = persons;
+        this.kinships = kinships;
+        this.searchControlMembers = this.familyForm.get(
+          'member_id',
+        ) as FormControl;
+        this.searchControlPersons = this.familyForm.get(
+          'person_id',
+        ) as FormControl;
+        this.searchControlKinship = this.familyForm.get(
+          'kinship_id',
+        ) as FormControl;
+      },
+      error: () => this.snackbarService.openError(MESSAGES.LOADING_ERROR),
+    });
+  }
+
+  private checkEditMode() {
+    if (this.data && this.data?.families) {
+      this.isEditMode = true;
+      this.familyId = this.data?.families.id;
+      this.handleEdit();
+    } else {
+      const defaultMemberId = this.data?.families?.member?.id || '';
+      this.familyForm.get('member_id')?.setValue(defaultMemberId);
+    }
   }
 
   onCheckboxChange(event: boolean) {
@@ -223,33 +220,30 @@ export class FamiliesFormComponent implements OnInit {
     return this.familyForm.get('is_member')?.value;
   }
 
-  displayName(itemId: string, items: any[], field: string): string {
-    const item = items.find((r) => r.id === itemId);
-    return item ? this.getFieldValue(item, field) ?? 'Selecione o item' : '';
+  displayNameMember(): string {
+    const memberId = this.familyForm.get('member_id')?.value;
+    const selectedMember = this.members.find(
+      (member) => member.id === memberId,
+    );
+    return selectedMember ? selectedMember.person.name : 'Selecione o membro';
   }
 
-  displayNameMember = (): string => {
-    return this.displayName(
-      this.familyForm.get('member_id')?.value,
-      this.members,
-      'person.name',
-    );
-  };
-
   displayNamePerson = (): string => {
-    return this.displayName(
-      this.familyForm.get('person_id')?.value,
-      this.persons,
-      'name',
-    );
+    const personId = this.familyForm.get('person_id')?.value;
+    if (personId) {
+      const person = this.persons.find((r) => r.id === personId);
+      return person?.name ?? 'Selecione a pessoa';
+    }
+    return 'Selecione a pessoa';
   };
 
   displayNameKinship = (): string => {
-    return this.displayName(
-      this.familyForm.get('kinship_id')?.value,
-      this.kinships,
-      'name',
-    );
+    const kinshipId = this.familyForm.get('kinship_id')?.value;
+    if (kinshipId) {
+      const kinship = this.kinships.find((r) => r.id === kinshipId);
+      return kinship?.name ?? 'Selecione o parentesco';
+    }
+    return 'Selecione o parentesco';
   };
 
   getErrorMessage(controlName: string) {
@@ -326,9 +320,6 @@ export class FamiliesFormComponent implements OnInit {
           person_id: family.person ? family.person?.id : '',
           kinship_id: family.kinship ? family.kinship?.id : '',
           is_member: family.is_member,
-          updated_at: dayjs(family.updated_at).format(
-            'DD/MM/YYYY [às] HH:mm:ss',
-          ),
         });
         this.onCheckboxChange(family.is_member);
       });
