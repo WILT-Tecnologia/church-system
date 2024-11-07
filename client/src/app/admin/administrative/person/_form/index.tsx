@@ -84,7 +84,7 @@ export default function FormPerson() {
               views={['year', 'month', 'day']}
               disabled={isSubmitting}
               loading={isSubmitting}
-              value={watch('birth_date') || dayjs()} // Usando `watch` para pegar o valor atual
+              value={watch('birth_date') ? dayjs(watch('birth_date')) : dayjs()}
               onChange={(value) =>
                 setValue('birth_date', value, { shouldValidate: true })
               }
