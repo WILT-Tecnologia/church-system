@@ -50,17 +50,18 @@ export class ModalService {
     data?: {
       [key: string]: any;
     },
-    customClassContainer?: string | string[],
+    customClassContainer: string | string[] = 'dialog',
   ) {
     return this.dialog.open(ModalComponent, {
-      minWidth: '50dvw',
-      maxWidth: '75dvw',
-      minHeight: '50dvh',
-      maxHeight: '75dvh',
+      width: 'auto',
+      minWidth: '65dvw',
+      maxWidth: '90dvw',
+      minHeight: '65dvh',
+      maxHeight: '90dvh',
       role: 'dialog',
       autoFocus: false,
       disableClose: disableClose,
-      panelClass: customClassContainer ?? 'dialog',
+      panelClass: customClassContainer,
       data: {
         id,
         customContent,

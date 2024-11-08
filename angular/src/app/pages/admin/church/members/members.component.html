@@ -5,8 +5,7 @@
     </button>
   </div>
   <div class="filter-container">
-    <mat-form-field class="search">
-      <mat-label>Pesquisar</mat-label>
+    <mat-form-field appearance="fill" class="search">
       <input matInput (input)="applyFilter($event)" placeholder="Digite para pesquisar" />
     </mat-form-field>
     <mat-paginator [pageSizeOptions]="pageSizeOptions" [pageSize]="pageSize" showFirstLastButtons></mat-paginator>

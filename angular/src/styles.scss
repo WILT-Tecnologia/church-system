@@ -213,9 +213,15 @@ mat-form-field {
   justify-content: center;
   align-items: center;
   margin: 0 auto;
-  max-width: 100%;
   padding: 0.5rem;
+
+  @media screen and (max-width: 768px) {
+    .dialog {
+      max-width: 100dvw;
+    }
+  }
 }
+
 
 .checkbox-group {
   display: flex;

@@ -157,7 +157,7 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
     return key.split('.').reduce((o, k) => (o ? o[k] : null), member);
   }
 
-  addNewMembers = (): void => {
+  addNewMembers = () => {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       MemberComponent,
@@ -165,6 +165,8 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
       true,
       [],
       true,
+      {},
+      'dialog',
     );
 
     dialogRef.afterClosed().subscribe((result: Members) => {
@@ -183,6 +185,7 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
       [],
       true,
       { members: member, id: member.id },
+      'dialog',
     );
 
     dialogRef.afterClosed().subscribe((result: Members) => {

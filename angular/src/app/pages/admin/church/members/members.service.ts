@@ -15,6 +15,7 @@ import { environment } from '../../../../../environments/environment';
 import { Church } from 'app/model/Church';
 import { Families } from 'app/model/Families';
 import { Members } from 'app/model/Members';
+import { Ordination } from 'app/model/Ordination';
 import { Person } from 'app/model/Person';
 import { DateFormatPipe } from 'app/utils/pipe/BirthDateFormatPipe';
 import { SexFormatPipe } from 'app/utils/pipe/SexFormatPipe';
@@ -39,6 +40,12 @@ export class MembersService {
 
   getFamilyOfMember(memberId: string): Observable<Families[]> {
     return this.familiesService.getFamilyByMemberId(memberId);
+  }
+
+  getOrdinationByMemberId(memberId: string): Observable<Ordination[]> {
+    return this.http.get<Ordination[]>(
+      `${environment.apiUrl}/church/ordination?member_id=${memberId}`,
+    );
   }
 
   getCivilStatus(): Observable<CivilStatus[]> {

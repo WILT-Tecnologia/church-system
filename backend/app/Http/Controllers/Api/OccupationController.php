@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreOccupationRequest;
 use App\Http\Requests\UpdateOccupationRequest;
-use App\Http\Resources\OccupationResouce;
+use App\Http\Resources\OccupationResource;
 use App\Models\Occupation;
 use Illuminate\Http\Request;
 
@@ -16,7 +16,7 @@ class OccupationController extends Controller
      */
     public function index()
     {
-        return OccupationResouce::collection(Occupation::all());
+        return OccupationResource::collection(Occupation::all());
     }
 
     /**
@@ -26,7 +26,7 @@ class OccupationController extends Controller
     {
         $occupation = Occupation::create($request->validated());
 
-        return new OccupationResouce($occupation);
+        return new OccupationResource($occupation);
     }
 
     /**
@@ -34,7 +34,7 @@ class OccupationController extends Controller
      */
     public function show(Occupation $occupation)
     {
-        return new OccupationResouce($occupation);
+        return new OccupationResource($occupation);
     }
 
     /**
@@ -44,7 +44,7 @@ class OccupationController extends Controller
     {
         $occupation->update($request->validated());
 
-        return new OccupationResouce($occupation);
+        return new OccupationResource($occupation);
     }
 
     /**

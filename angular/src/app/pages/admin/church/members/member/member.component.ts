@@ -47,6 +47,7 @@ import { Church } from 'app/model/Church';
 import { Families } from 'app/model/Families';
 import { MemberOrigin } from 'app/model/MemberOrigins';
 import { Members } from 'app/model/Members';
+import { Ordination } from 'app/model/Ordination';
 import { Person } from 'app/model/Person';
 import { ChurchComponent } from 'app/pages/admin/administrative/churchs/church/church.component';
 import { PersonComponent } from 'app/pages/admin/administrative/persons/person/person.component';
@@ -59,6 +60,7 @@ import { provideNgxMask } from 'ngx-mask';
 import { debounceTime, map, Observable, startWith } from 'rxjs';
 import { MembersService } from '../members.service';
 import { FamiliesComponent } from '../shared/families/families.component';
+import { OrdinationsComponent } from '../shared/ordinations/ordinations.component';
 
 @Component({
   selector: 'app-member',
@@ -88,6 +90,7 @@ import { FamiliesComponent } from '../shared/families/families.component';
     ColumnComponent,
     FamiliesComponent,
     MatDialogModule,
+    OrdinationsComponent,
   ],
 })
 export class MemberComponent implements OnInit {
@@ -117,6 +120,7 @@ export class MemberComponent implements OnInit {
   formations: Formations[] = [];
   kinships: Kinships[] = [];
   families: Families[] = [];
+  ordinations: Ordination[] = [];
   memberSituations: MemberSituations[] = [];
   memberOrigins: MemberOrigin[] = [];
 
@@ -237,6 +241,12 @@ export class MemberComponent implements OnInit {
         ],
         receipt_date: [this.data?.members?.receipt_date || ''],
       }),
+
+      stepFour: this.fb.group({}),
+
+      stepFive: this.fb.group({}),
+
+      stepSix: this.fb.group({}),
     });
   }
 
@@ -387,6 +397,19 @@ export class MemberComponent implements OnInit {
   }
 
   onNext() {
+    const stepForm = this.getCurrentStepFormGroup(this.currentStep + 1);
+
+    if (stepForm && stepForm.valid) {
+      this.currentStep++;
+    } else {
+      stepForm.markAsTouched();
+      this.snackbarService.openError(
+        'Por favor, preencha todos os campos obrigatórios.',
+      );
+    }
+  }
+
+  /* onNext() {
     const currentStepFormGroup = this.getCurrentStepFormGroup(this.currentStep);
     if (currentStepFormGroup.valid) {
       this.currentStep++;
@@ -396,7 +419,7 @@ export class MemberComponent implements OnInit {
         'Por favor, preencha todos os campos obrigatórios.',
       );
     }
-  }
+  } */
 
   canProceedToNextStep(): boolean {
     const currentStepGroup = this.getCurrentStepFormGroup();
@@ -497,6 +520,11 @@ export class MemberComponent implements OnInit {
           .getFamilyOfMember(this.memberId!)
           .subscribe((families) => {
             this.families = families;
+          });
+        this.membersService
+          .getOrdinationByMemberId(this.memberId!)
+          .subscribe((ordinations) => {
+            this.ordinations = ordinations;
           });
       });
   };

@@ -3,8 +3,10 @@ import { Occupation } from './Occupation';
 
 export type Ordination = {
   id: string;
-  member_id: Members;
-  occupation_id?: Occupation;
+  member: Members;
+  member_id: string;
+  occupation: Occupation;
+  occupation_id?: string;
   status: boolean;
   initial_date: string;
   end_date: string;

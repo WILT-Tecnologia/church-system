@@ -24,7 +24,6 @@ import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
-import { TableComponent } from 'app/components/table/table.component';
 import { Families } from 'app/model/Families';
 import { MESSAGES } from 'app/service/snackbar/messages';
 import { SnackbarService } from 'app/service/snackbar/snackbar.service';
@@ -50,7 +49,6 @@ import { FamiliesService } from './families.service';
     MatCheckboxModule,
     MatFormFieldModule,
     CommonModule,
-    TableComponent,
     NotFoundRegisterComponent,
   ],
 })
@@ -61,10 +59,10 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
   @ViewChild(MatSort) sort!: MatSort;
 
   columnDefinitions = [
-    { key: 'member.person.name', header: 'Membro' },
-    { key: 'person.name', header: 'Filiação' },
-    { key: 'kinship.name', header: 'Parentesco' },
-    { key: 'name', header: 'Nome' },
+    { key: 'member.person.name', header: 'Membro', type: 'string' },
+    { key: 'person.name', header: 'Filiação', type: 'string' },
+    { key: 'kinship.name', header: 'Parentesco', type: 'string' },
+    { key: 'name', header: 'Nome', type: 'string' },
     { key: 'is_member', header: 'A filiação é membro?', type: 'boolean' },
   ];
 
@@ -84,12 +82,14 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
     this.loadFamilies();
   }
 
-  loadFamilies() {
+  loadFamilies = () => {
     this.loadingService.show();
     this.familiesService.getFamilies().subscribe({
       next: (families) => {
         this.families = families;
         this.dataSourceMat.data = this.families;
+        this.dataSourceMat.paginator = this.paginator;
+        this.dataSourceMat.sort = this.sort;
       },
       error: () => {
         this.loadingService.hide();
@@ -97,12 +97,21 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
       },
       complete: () => this.loadingService.hide(),
     });
+  };
+
+  getNestedValue(obj: any, key: string): any {
+    return key.split('.').reduce((o, k) => (o ? o[k] : null), obj);
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['families'] && !changes['families'].firstChange) {
       this.dataSourceMat.data = this.families;
     }
+  }
+
+  ngAfterViewInit() {
+    this.dataSourceMat.paginator = this.paginator;
+    this.dataSourceMat.sort = this.sort;
   }
 
   applyFilter(event: Event) {
@@ -115,6 +124,7 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
     };
 
     this.dataSourceMat.filter = filterValue;
+
     if (this.dataSourceMat.paginator) {
       this.dataSourceMat.paginator.firstPage();
     }
@@ -138,22 +148,26 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
     return false;
   }
 
-  ngAfterViewInit() {
-    this.dataSourceMat.paginator = this.paginator;
-    this.dataSourceMat.sort = this.sort;
-  }
-
-  getNestedValue(obj: any, key: string): any {
-    return key.split('.').reduce((acc, part) => acc && acc[part], obj);
-  }
-
   getDefaultMemberId(): string | null {
     if (this.families && this.families.length > 0) {
       return this.families[0]?.member?.id;
     } else {
-      return null;
+      return '';
     }
   }
+
+  openModalAddFamily = () => {
+    return this.modalService.openModal(
+      `modal-${Math.random()}`,
+      FamiliesFormComponent,
+      'Adicionar filiação',
+      true,
+      [],
+      true,
+      {},
+      'dialog',
+    );
+  };
 
   addNewFamily = (): void => {
     const defaultMemberId = this.getDefaultMemberId();
@@ -172,6 +186,7 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
       {
         families: { member: { id: defaultMemberId } } as Families,
       },
+      'dialog',
     );
 
     dialogRef.afterClosed().subscribe((result: Families) => {
@@ -201,6 +216,7 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
         families: family,
         id: family.id,
       },
+      'dialog',
     );
 
     dialogRef.afterClosed().subscribe((result: Families) => {
@@ -236,6 +252,7 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
                 .getFamilyByMemberId(family?.member?.id)
                 .subscribe((families) => {
                   this.dataSourceMat.data = families;
+                  this.families = families;
                 });
             },
             error: () => {

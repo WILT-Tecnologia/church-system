@@ -21,8 +21,9 @@ Route::prefix('church')->group(function () {
     Route::apiResource('members', \App\Http\Controllers\Api\MemberController::class);
 
     // Rota para buscar famílias de um membro específico
-    // Aceita o parâmetro member_id na query string
     Route::get('member', [\App\Http\Controllers\Api\MemberController::class, 'findFamilyPerMember']);
+    // Rota para buscar ordenações de um membro específico
+    Route::get('ordination', [\App\Http\Controllers\Api\MemberController::class, 'findOrdinationPerMember']);
 
     Route::apiResource('families', \App\Http\Controllers\Api\FamilyController::class);
     Route::apiResource('ordinations', \App\Http\Controllers\Api\OrdinationController::class);

@@ -6,31 +6,29 @@
       </button>
     </div>
     <div>
-      <mat-form-field class="search">
-        <mat-label>Pesquisar</mat-label>
+      <mat-form-field appearance="fill" class="search">
         <input matInput (input)="applyFilter($event)" placeholder="Digite para pesquisar" />
       </mat-form-field>
     </div>
   </div>
 
   <div class="mat-table-responsive">
-    <table mat-table [dataSource]="dataSourceMat" matSort class="mat-elevation-z1">
+    <table mat-table matSort [dataSource]="dataSourceMat" class="mat-elevation-z1">
       <ng-container *ngFor="let column of columnDefinitions" [matColumnDef]="column.key">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ column.header }}</th>
-        <ng-container *ngIf="column.type !== 'boolean'">
-          <td mat-cell [matTooltip]="getNestedValue(families, column.key)" [matTooltipPositionAtOrigin]="true"
-            *matCellDef="let families">
-            {{ getNestedValue(families, column.key) }} </td>
-        </ng-container>
-        <ng-container *ngIf="column.type === 'boolean'">
-          <td mat-cell *matCellDef="let families">
+        <td mat-cell *matCellDef="let families">
+          <ng-container *ngIf="column.type === 'string'">
+            {{ getNestedValue(families, column.key) }}
+          </ng-container>
+          <ng-container *ngIf="column.type === 'boolean'">
             <mat-checkbox color="primary" [matTooltip]="getNestedValue(families, column.key)"
               [checked]="getNestedValue(families, column.key)" disabled></mat-checkbox>
-          </td>
-        </ng-container>
+          </ng-container>
+        </td>
       </ng-container>
 
-      <ng-container matColumnDef="actions" stickyEnd>
+
+      <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let families" class="actions-cell">
           <div class="actions-container">
@@ -52,5 +50,5 @@
 
 <ng-template #noDataTemplate>
   <app-not-found-register [template]="'parentesco'" [ctaLabel]="'Adicionar'"
-    [addRegisterFn]="addNewFamily"></app-not-found-register>
+    [addRegisterFn]="openModalAddFamily"></app-not-found-register>
 </ng-template>

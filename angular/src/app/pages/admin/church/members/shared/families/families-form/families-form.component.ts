@@ -152,6 +152,7 @@ export class FamiliesFormComponent implements OnInit {
   }
 
   loadInitialData() {
+    this.loadingService.show();
     forkJoin({
       members: this.familiesService.getMembers(),
       persons: this.familiesService.getPersons(),
@@ -161,15 +162,7 @@ export class FamiliesFormComponent implements OnInit {
         this.members = members;
         this.persons = persons;
         this.kinships = kinships;
-        this.searchControlMembers = this.familyForm.get(
-          'member_id',
-        ) as FormControl;
-        this.searchControlPersons = this.familyForm.get(
-          'person_id',
-        ) as FormControl;
-        this.searchControlKinship = this.familyForm.get(
-          'kinship_id',
-        ) as FormControl;
+        this.initializeFilters();
       },
       error: () => this.snackbarService.openError(MESSAGES.LOADING_ERROR),
     });
@@ -181,7 +174,7 @@ export class FamiliesFormComponent implements OnInit {
       this.familyId = this.data?.families.id;
       this.handleEdit();
     } else {
-      const defaultMemberId = this.data?.families?.member?.id || '';
+      const defaultMemberId = this.data?.families?.member_id || '';
       this.familyForm.get('member_id')?.setValue(defaultMemberId);
     }
   }
@@ -259,7 +252,6 @@ export class FamiliesFormComponent implements OnInit {
     if (this.familyForm.invalid) return;
 
     const familyData = this.getFormData();
-    console.log('handleSubmit', familyData);
 
     if (this.isEditMode) {
       familyData.id = this.familyId;
@@ -272,7 +264,8 @@ export class FamiliesFormComponent implements OnInit {
 
   private getFormData(): any {
     return {
-      ...this.familyForm.value,
+      id: this.familyId ?? '',
+      is_member: this.handleIsMemberChange(),
       name: this.familyForm.value.is_member ? '' : this.familyForm.value.name,
       member_id: this.familyForm.value.member_id,
       person_id: this.familyForm.value.person_id,
@@ -314,7 +307,7 @@ export class FamiliesFormComponent implements OnInit {
       .getFamily(this.familyId!)
       .subscribe((family: Families) => {
         this.familyForm.patchValue({
-          id: family.id,
+          id: family.id ?? '',
           name: family.name ?? '',
           member_id: family.member ? family.member?.id : '',
           person_id: family.person ? family.person?.id : '',

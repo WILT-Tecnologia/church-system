@@ -263,7 +263,7 @@
                     Batizado pelo Espírito Santo?
                   </mat-checkbox>
                 </div>
-                <mat-form-field class="w-3/6" appearance="fill"
+                <mat-form-field class="w-3/6 lg:w-full" appearance="fill"
                   *ngIf="memberForm.get('stepThree.baptism_holy_spirit')?.value">
                   <mat-label>Data do batismo do Espírito Santo</mat-label>
                   <input matInput [matDatepicker]="baptismHolySpiritDate" formControlName="baptism_holy_spirit_date"
@@ -330,28 +330,34 @@
     <ng-container *ngIf="isEditMode">
       <mat-tab label="Dados de filiação">
         <mat-divider></mat-divider>
-        <app-families [families]="families"></app-families>
+        <div formGroupName="stepFour">
+          <app-families [families]="families"></app-families>
+        </div>
       </mat-tab>
       <mat-tab label="Dados de ordenação">
         <mat-divider></mat-divider>
-        <p>Dados de ordenação</p>
+        <div formGroupName="stepFive">
+          <app-ordinations [ordination]="ordinations"></app-ordinations>
+        </div>
       </mat-tab>
       <mat-tab label="Status do membro">
         <mat-divider></mat-divider>
-        <p>Status do membro</p>
+        <div formGroupName="stepSix">
+          <p>Status do membro</p>
+        </div>
       </mat-tab>
     </ng-container>
   </mat-tab-group>
 
   <mat-card-footer>
     <mat-divider></mat-divider>
-    <mat-card-actions class="w-100 cta">
+    <div class="cta">
       <button mat-stroked-button color="warn" type="button" (click)="onBack()">
         {{currentStep === 0 ? 'Cancelar' : 'Voltar'}}
       </button>
       <ng-container *ngIf="isEditMode">
-        <button mat-raised-button (click)="onNext()" type="button" color="primary" [disabled]="!canProceedToNextStep()"
-          *ngIf="currentStep < 5">
+        <button mat-raised-button (click)="onNext()" type="button" color="primary"
+          [disabled]="memberForm.get('step' + currentStep + 1)?.valid" *ngIf="currentStep < 5">
           Avançar
         </button>
         <button mat-raised-button color="primary" type="submit" *ngIf="currentStep === 5"
@@ -360,8 +366,8 @@
         </button>
       </ng-container>
       <ng-container *ngIf="!isEditMode">
-        <button mat-raised-button (click)="onNext()" type="button" color="primary" [disabled]="!canProceedToNextStep()"
-          *ngIf="currentStep < 2">
+        <button mat-raised-button (click)="onNext()" type="button" color="primary"
+          [disabled]="memberForm.get('step' + currentStep + 1)?.valid" *ngIf="currentStep < 2">
           Avançar
         </button>
         <button mat-raised-button color="primary" type="submit" [disabled]="memberForm.invalid"
@@ -374,6 +380,6 @@
           Salvar
         </button>
       </ng-container>
-    </mat-card-actions>
+    </div>
   </mat-card-footer>
 </form>
