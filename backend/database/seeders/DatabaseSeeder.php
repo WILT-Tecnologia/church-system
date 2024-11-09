@@ -8,6 +8,11 @@ use Database\Seeders\Auxiliar\ColorRaceSeeder;
 use Database\Seeders\Auxiliar\FormationSeeder;
 use Database\Seeders\Auxiliar\KinshipSeeder;
 use Database\Seeders\Auxiliar\MemberSituationSeeder;
+use Database\Seeders\ChurchSeeder;
+use Database\Seeders\PersonSeeder;
+use Database\Seeders\MemberOriginSeeder;
+use Database\Seeders\EventTypeSeeder;
+use Database\Seeders\OccupationSeeder;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -30,13 +35,17 @@ class DatabaseSeeder extends Seeder
 
 
         // User::factory()->create([
-        //     'name' => 'Test User',
+            //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
 
         if (env('APP_ENV') == 'local') {
             $this->call([
                 PersonSeeder::class,
+                ChurchSeeder::class,
+                MemberOriginSeeder::class,
+                EventTypeSeeder::class,
+                OccupationSeeder::class,
             ]);
         }
     }

@@ -1,0 +1,62 @@
+@import '../../../styles/theme.scss';
+
+.navbar {
+  background: $white;
+  box-shadow: 0 0.1rem 0.1rem rgba(0, 0, 0, 0.15);
+  padding: 0;
+}
+
+.container-section-one-nav {
+  flex: 1 1 0%;
+  box-sizing: border-box;
+  place-content: center flex-start;
+  align-items: center;
+  flex-direction: row;
+  display: flex
+}
+
+.row-padding {
+  padding: 0 1rem;
+
+  @media screen and (max-width: 768px) {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+  }
+}
+
+.user-button {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  vertical-align: middle;
+  margin-left: auto;
+}
+
+.button-text {
+  display: inline-flex;
+  vertical-align: middle;
+  color: $textColor;
+  font-weight: normal;
+}
+
+.button-size {
+  width: 10rem;
+}
+
+.spacing-components {
+  margin: 0 1rem;
+}
+
+.button-icon {
+  display: inline-flex;
+  vertical-align: middle;
+  color: $greenMain;
+}
+
+.logout {
+  color: $redMain
+}

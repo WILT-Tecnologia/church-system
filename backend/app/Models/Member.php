@@ -87,9 +87,9 @@ class Member extends Model
         return $this->hasMany(Family::class);
     }
 
-    public function ordination(): BelongsTo
+    public function ordination(): HasMany
     {
-        return $this->belongsTo(Ordination::class);
+        return $this->HasMany(Ordination::class);
     }
 
     public function statusMember(): BelongsTo

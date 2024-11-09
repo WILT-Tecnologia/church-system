@@ -1,0 +1,53 @@
+$greenMain: #0da6a6;
+$greenlight: #3dd5d6;
+$greendark: #004747;
+
+$redMain: #ff0031;
+$redLight: #f0758d;
+$redDark: #99001d;
+
+$greyMain: #4d4d4d;
+$greyLight: #808080;
+$greyVeryLight: #a2a2a2;
+$greyDark: #1a1a1a;
+
+$success: #23bf6a;
+$warning: #ffb946;
+$danger: #f7685b;
+
+$backgroundColor: #f0f0f0;
+$white: #ffffff;
+$textColor: #4d4d4d;
+$defaultText: #ffffff;
+$separator: #c7c7c7;
+$hover: #c4c4c44d;
+
+$primaryColors: (50: $greenlight,
+  100: $greenlight,
+  200: $greenlight,
+  300: $greenMain,
+  400: $greenMain,
+  500: $greenMain,
+  600: $greendark,
+  700: $greendark,
+  800: $greendark,
+  900: $greendark,
+  A100: $greenlight,
+  A200: $greenMain,
+  A400: $greenMain,
+  A700: $greendark,
+  contrast: (50: $textColor,
+    100: $textColor,
+    200: $textColor,
+    300: $textColor,
+    400: $textColor,
+    500: $defaultText,
+    600: $defaultText,
+    700: $defaultText,
+    800: $defaultText,
+    900: $defaultText,
+    A100: $defaultText,
+    A200: $defaultText,
+    A400: $defaultText,
+    A700: $defaultText,
+  ))

@@ -62,4 +62,4 @@ COPY --from=node-builder /app/node_modules /var/www/node_modules
 RUN composer install
 
 # Comando para executar a aplicação
-# CMD ["npm", "run", "dev"]
+# CMD ["./start.sh"]

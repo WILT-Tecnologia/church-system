@@ -15,7 +15,7 @@ class CivilStatusSeeder extends Seeder
     public function run(): void
     {
         $this->insert(Str::uuid(), '01', 'Casado(a)');
-        $this->insert(Str::uuid(),'02', 'Divorciado(a)');
+        $this->insert(Str::uuid(), '02', 'Divorciado(a)');
         $this->insert(Str::uuid(), '03', 'Separado(a)');
         $this->insert(Str::uuid(), '04', 'Solteiro(a)');
         $this->insert(Str::uuid(), '05', 'Viúvo(a)');

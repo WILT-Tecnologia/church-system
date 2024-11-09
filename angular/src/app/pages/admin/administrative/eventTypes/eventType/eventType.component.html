@@ -1,0 +1,47 @@
+<mat-card appearance="outlined">
+  <div class="flex justify-between items-center m-2">
+    <mat-card-header>
+      <mat-card-title>{{pageTitle}}</mat-card-title>
+    </mat-card-header>
+    <button mat-icon-button color="warn" (click)="handleBack()">
+      <mat-icon color="warn">close</mat-icon>
+    </button>
+  </div>
+  <mat-divider></mat-divider>
+
+  <mat-card-content>
+    <form [formGroup]="eventTypeForm" (ngSubmit)="handleSubmit()" class="form-field-group wrapper">
+      <app-column>
+        <mat-slide-toggle formControlName="status" color="primary">Ativo</mat-slide-toggle>
+      </app-column>
+      <app-column>
+        <mat-form-field appearance="fill">
+          <mat-label>Nome</mat-label>
+          <input matInput formControlName="name" maxlength="255" required>
+          <mat-error
+            *ngIf="eventTypeForm.get('name')?.invalid && eventTypeForm.get('name')?.touched">{{getErrorMessage('name')}}</mat-error>
+        </mat-form-field>
+      </app-column>
+      <app-column>
+        <mat-form-field appearance="fill">
+          <mat-label>Descrição</mat-label>
+          <textarea matInput rows="3" formControlName="description" maxlength="255"></textarea>
+          <mat-error
+            *ngIf="eventTypeForm.get('description')?.invalid && eventTypeForm.get('description')?.touched">{{getErrorMessage('description')}}</mat-error>
+        </mat-form-field>
+      </app-column>
+      <mat-card-footer>
+        <ng-container *ngIf="isEditMode && eventTypeForm.get('updated_at')?.value">
+          <span class="info">Atualizado em {{ eventTypeForm.get('updated_at')?.value }}</span>
+        </ng-container>
+        <mat-divider></mat-divider>
+        <div class="cta">
+          <button type="button" mat-stroked-button color="warn" (click)="handleBack()">Cancelar</button>
+          <button type="submit" mat-raised-button color="primary" [disabled]="eventTypeForm.invalid">
+            {{isEditMode ? 'Atualizar' : 'Cadastrar'}}
+          </button>
+        </div>
+      </mat-card-footer>
+    </form>
+  </mat-card-content>
+</mat-card>

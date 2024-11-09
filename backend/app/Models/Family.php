@@ -23,7 +23,8 @@ class Family extends Model
         'member_id',
         'person_id',
         'name',
-        'kinship_id'
+        'kinship_id',
+        'is_member',
     ];
 
     public function member(): BelongsTo

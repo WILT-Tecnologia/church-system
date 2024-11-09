@@ -1,0 +1,44 @@
+<mat-toolbar class="navbar">
+  <div class="container-section-one-nav p-4">
+    <app-logo></app-logo>
+    <ng-container *ngIf="!isMobile">
+      <span class="ps-nav-separator"></span>
+      <span class="text-default">Church System</span>
+    </ng-container>
+  </div>
+  <span class="spacer"></span>
+  <ng-container *ngIf="!!userName || !!isLoggedIn">
+    <div class="row row-padding">
+      <button mat-button color="primary" (click)="navigateToChurch()">Igreja</button>
+      <button mat-button class="spacing-components" color="primary"
+        (click)="navigateToAdministrative()">Administrativo</button>
+      <button mat-button class="user-button" [matMenuTriggerFor]="userMenu">
+        <ng-container *ngIf="!isMobile">
+          <span class="button-text text-default">{{ userName || 'Usuário' }}</span>
+        </ng-container>
+        <ng-container *ngIf="isMobile">
+          <mat-icon>account_circle</mat-icon>
+        </ng-container>
+        <span class="button-icon">
+          <mat-icon>arrow_drop_down</mat-icon>
+        </span>
+      </button>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!isLoggedIn">
+    <div class="row-padding">
+      <button mat-raised-button color="primary" (click)="navigateToLogin()">Login</button>
+    </div>
+  </ng-container>
+
+</mat-toolbar>
+
+<mat-menu #userMenu="matMenu">
+  <button mat-menu-item (click)="navigateToProfile()">
+    <span>Perfil</span>
+  </button>
+  <button class="logout" mat-menu-item (click)="logout()">
+    <span>Sair</span>
+  </button>
+</mat-menu>

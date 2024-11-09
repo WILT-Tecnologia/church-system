@@ -1,0 +1,11 @@
+<ng-container *ngIf="churchs && churchs.length > 0; else noDataTemplate">
+  <app-table [dataSource]="churchs" [displayedColumns]="displayedColumns" [columnDefinitions]="columnDefinitions"
+    [editFn]="editChurch" [deleteFn]="deleteChurch" [ctaFn]="addNewChurch" [ctaLabel]="'Adicionar'"
+    [sortColumn]="'name'" [sortDirection]="'asc'" [isTooltip]="true">
+  </app-table>
+</ng-container>
+
+<ng-template #noDataTemplate>
+  <app-not-found-register [template]="'igreja'" [ctaLabel]="'Adicionar Nova Igreja'"
+    [addRegisterFn]="addNewChurch"></app-not-found-register>
+</ng-template>
