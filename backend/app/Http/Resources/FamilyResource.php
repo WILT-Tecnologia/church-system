@@ -16,7 +16,7 @@ class FamilyResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'member' => new MemberResource($this->member),
+            'member' => $this->member->id,
             'is_member' => $this->is_member,
             'person' => new PersonResource($this->person),
             'name' => $this->name,
