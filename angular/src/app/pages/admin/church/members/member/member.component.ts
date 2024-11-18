@@ -397,7 +397,7 @@ export class MemberComponent implements OnInit {
   }
 
   onNext() {
-    const stepForm = this.getCurrentStepFormGroup(this.currentStep + 1);
+    const stepForm = this.getCurrentStepFormGroup(this.currentStep);
 
     if (stepForm && stepForm.valid) {
       this.currentStep++;
@@ -408,18 +408,6 @@ export class MemberComponent implements OnInit {
       );
     }
   }
-
-  /* onNext() {
-    const currentStepFormGroup = this.getCurrentStepFormGroup(this.currentStep);
-    if (currentStepFormGroup.valid) {
-      this.currentStep++;
-    } else {
-      currentStepFormGroup.markAsTouched();
-      this.snackbarService.openError(
-        'Por favor, preencha todos os campos obrigatórios.',
-      );
-    }
-  } */
 
   canProceedToNextStep(): boolean {
     const currentStepGroup = this.getCurrentStepFormGroup();

@@ -1,10 +1,10 @@
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import {
+  HTTP_INTERCEPTORS,
   provideHttpClient,
   withFetch,
-  withInterceptors,
 } from '@angular/common/http';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { provideClientHydration } from '@angular/platform-browser';
@@ -16,7 +16,7 @@ import {
 } from '@auth0/angular-jwt';
 import { routes } from './app.routes';
 
-import { loadingInterceptor } from './components/loading/loading.interceptor';
+import { LoadingInterceptor } from './components/loading/loading.interceptor';
 import { getPtBrPaginatorIntl } from './utils/paginator-pt-br';
 
 export function tokenGetter() {
@@ -33,12 +33,14 @@ const jwtModuleOptions: JwtModuleOptions = {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideClientHydration(),
     provideAnimationsAsync(),
-    provideHttpClient(withInterceptors([loadingInterceptor]), withFetch()),
+    provideHttpClient(withFetch()),
     JwtHelperService,
     { provide: JWT_OPTIONS, useValue: jwtModuleOptions },
+    { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true },
     { provide: MatPaginatorIntl, useValue: getPtBrPaginatorIntl() },
   ],
 };

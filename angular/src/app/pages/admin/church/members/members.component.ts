@@ -188,17 +188,22 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
       'dialog',
     );
 
+    dialogRef.afterOpened().subscribe(() => {
+      this.memberService
+        .getFamilyOfMember(member.id)
+        .subscribe((families: Families[]) => {
+          const updatedMember = { ...member, families }; // Criando uma cópia do membro
+          console.log(families);
+          const component =
+            dialogRef.componentInstance as unknown as MemberComponent;
+          if (component) {
+            component.families = families;
+          }
+        });
+    });
+
     dialogRef.afterClosed().subscribe((result: Members) => {
       if (result) {
-        this.memberService
-          .getFamilyOfMember(member.id)
-          .subscribe((families: Families[]) => {
-            member.families = families;
-            const component = dialogRef.componentInstance as unknown;
-            if (component instanceof MemberComponent) {
-              (component as MemberComponent).families = families;
-            }
-          });
         this.loadMembers();
       }
     });

@@ -25,8 +25,6 @@ export class AppComponent {
 
     //this.isLoggedIn = !!localStorage.getItem('access_token') && !this.jwtHelper.isTokenExpired(localStorage.getItem('access_token'));
 
-    setTimeout(() => {
-      this.loadingService.hide();
-    });
+    this.loadingService.hide();
   }
 }

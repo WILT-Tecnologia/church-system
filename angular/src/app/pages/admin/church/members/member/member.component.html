@@ -366,8 +366,8 @@
         </button>
       </ng-container>
       <ng-container *ngIf="!isEditMode">
-        <button mat-raised-button (click)="onNext()" type="button" color="primary"
-          [disabled]="memberForm.get('step' + currentStep + 1)?.valid" *ngIf="currentStep < 2">
+        <button mat-raised-button (click)="onNext()" type="button" color="primary" [disabled]="!canProceedToNextStep()"
+          *ngIf="currentStep < 2">
           Avançar
         </button>
         <button mat-raised-button color="primary" type="submit" [disabled]="memberForm.invalid"

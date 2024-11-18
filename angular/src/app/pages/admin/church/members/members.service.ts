@@ -9,7 +9,7 @@ import {
 } from 'app/model/Auxiliaries';
 import { MemberOrigin } from 'app/model/MemberOrigins';
 import { CpfFormatPipe } from 'app/utils/pipe/CpfFormatPipe';
-import { map, Observable } from 'rxjs';
+import { forkJoin, map, Observable, switchMap } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 
 import { Church } from 'app/model/Church';
@@ -44,7 +44,7 @@ export class MembersService {
 
   getOrdinationByMemberId(memberId: string): Observable<Ordination[]> {
     return this.http.get<Ordination[]>(
-      `${environment.apiUrl}/church/ordination?member_id=${memberId}`,
+      `${environment.apiUrl}/church/members/${memberId}`,
     );
   }
 
@@ -88,6 +88,23 @@ export class MembersService {
 
   getMembers(): Observable<Members[]> {
     return this.http.get<Members[]>(this.api).pipe(
+      switchMap((members: Members[]) => {
+        const memberRequests = members.map((member: Members) => {
+          return this.getFamilyOfMember(member.id).pipe(
+            map((families) => {
+              member.families = families;
+              return member;
+            }),
+          );
+        });
+
+        return forkJoin(memberRequests);
+      }),
+    );
+  }
+
+  /* getMembers(): Observable<Members[]> {
+    return this.http.get<Members[]>(this.api).pipe(
       map((members: Members[]) => {
         return members.map((member: Members) => {
           if (member.person) {
@@ -108,11 +125,12 @@ export class MembersService {
           } else {
             member.families = [];
           }
+
           return member;
         });
       }),
     );
-  }
+  } */
 
   getMemberById(id: string): Observable<Members> {
     return this.http.get<Members>(`${this.api}/${id}`);
