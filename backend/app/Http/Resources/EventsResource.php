@@ -17,7 +17,7 @@ class EventsResource extends JsonResource
         return [
             'id' => $this->id,
             'church' => new ChurchResource($this->church),
-            'event_type' => new EventTypeResource($this-> event),
+            'event_type' => new EventTypeResource($this-> eventType),
             'name' => $this->name,
             'obs' => $this->obs,
         ];

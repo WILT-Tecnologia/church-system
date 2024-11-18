@@ -25,9 +25,9 @@ class EventType extends Model
         'status',
     ];
 
-    public function events(): HasMany
+    public function evento(): HasMany
     {
-        return $this->hasMany(Events::class);
+        return $this->hasMany(Evento::class);
     }
 
 }

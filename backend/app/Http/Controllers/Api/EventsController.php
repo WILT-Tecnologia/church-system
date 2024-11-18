@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreEventsRequest;
 use App\Http\Requests\UpdateEventsRequest;
 use App\Http\Resources\EventsResource;
+use App\Models\Evento;
 use App\Models\Events;
 use Illuminate\Http\Request;
 
@@ -16,7 +17,7 @@ class EventsController extends Controller
      */
     public function index()
     {
-        return EventsResource::collection(Events::all());
+        return EventsResource::collection(Evento::all());
     }
 
     /**
@@ -24,7 +25,7 @@ class EventsController extends Controller
      */
     public function store(StoreEventsRequest $request)
     {
-        $evento = Events::create($request->validated());
+        $evento = Evento::create($request->validated());
 
         return new EventsResource($evento);
     }
@@ -32,7 +33,7 @@ class EventsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Events $evento)
+    public function show(Evento $evento)
     {
         return new EventsResource($evento);
     }
@@ -40,7 +41,7 @@ class EventsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateEventsRequest $request, Events $evento)
+    public function update(UpdateEventsRequest $request, Evento $evento)
     {
         $evento->update($request->validated());
 
@@ -50,7 +51,7 @@ class EventsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Events $evento)
+    public function destroy(Evento $evento)
     {
         $evento->delete();
 
