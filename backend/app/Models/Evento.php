@@ -5,29 +5,34 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class EventType extends Model
+class Evento extends Model
 {
     use HasFactory;
     use HasUuids;
     use SoftDeletes;
 
-    protected $table = 'event_types';
+    protected $table = 'events';
 
     protected $primaryKey = 'id';
 
     protected $fillable = [
         'id',
+        'church_id',
+        'event_type_id',
         'name',
-        'description',
-        'status',
+        'obs',
     ];
 
-    public function evento(): HasMany
+    public function church(): BelongsTo
     {
-        return $this->hasMany(Evento::class);
+        return $this->belongsTo(Church::class);
     }
 
+    public function eventType(): BelongsTo
+    {
+        return $this->belongsTo(EventType::class);
+    }
 }
