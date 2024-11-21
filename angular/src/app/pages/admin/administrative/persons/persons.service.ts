@@ -1,12 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { DateFormatPipe } from 'app/utils/pipe/BirthDateFormatPipe';
-import { PhoneFormatPipe } from 'app/utils/pipe/phone-format.pipe';
+import { Person } from 'app/model/Person';
+import { FormatsPipe } from 'app/utils/pipes/formats.pipe';
+import { environment } from 'environments/environment';
 import { map, Observable } from 'rxjs';
-import { environment } from '../../../../../environments/environment';
-import { Person } from '../../../../model/Person';
-import { CpfFormatPipe } from '../../../../utils/pipe/CpfFormatPipe';
-import { SexFormatPipe } from '../../../../utils/pipe/SexFormatPipe';
 
 @Injectable({
   providedIn: 'root',
@@ -15,21 +12,16 @@ export class PersonsService {
   constructor(private http: HttpClient) {}
 
   private api = `${environment.apiUrl}/admin/persons`;
-  private formatCPFPipe = new CpfFormatPipe();
-  private formatBirthDatePipe = new DateFormatPipe();
-  private formatPhonePipe = new PhoneFormatPipe();
-  private formatSexPipe = new SexFormatPipe();
+  private formats = new FormatsPipe();
 
   getPersons(): Observable<Person[]> {
     return this.http.get<Person[]>(this.api).pipe(
       map((person: Person[]) => {
         return person.map((person) => {
-          person.cpf = this.formatCPFPipe.transform(person.cpf);
-          person.birth_date = this.formatBirthDatePipe.transform(
-            person.birth_date,
-          );
-          person.sex = this.formatSexPipe.transform(person.sex);
-          person.phone_one = this.formatPhonePipe.transform(person.phone_one);
+          person.cpf = this.formats.cpfFormat(person.cpf);
+          person.birth_date = this.formats.dateFormat(person.birth_date);
+          person.sex = this.formats.SexTransform(person.sex);
+          person.phone_one = this.formats.phoneFormat(person.phone_one);
           return person;
         });
       }),

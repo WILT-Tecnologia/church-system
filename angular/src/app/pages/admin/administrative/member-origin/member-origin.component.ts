@@ -7,8 +7,8 @@ import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { TableComponent } from 'app/components/table/table.component';
+import { ToastService } from 'app/components/toast/toast.service';
 import { MemberOrigin } from 'app/model/MemberOrigins';
-import { SnackbarService } from 'app/service/snackbar/snackbar.service';
 import { MemberOriginFormComponent } from './member-origin-form/member-origin-form.component';
 import { MemberOriginService } from './member-origin.service';
 
@@ -37,7 +37,7 @@ export class MemberOriginComponent implements OnInit {
 
   constructor(
     private MemberOriginService: MemberOriginService,
-    private snackbarService: SnackbarService,
+    private toast: ToastService,
     private loading: LoadingService,
     private dialog: MatDialog,
     private confirmService: ConfirmService,
@@ -108,16 +108,12 @@ export class MemberOriginComponent implements OnInit {
             memberOrigin.id,
           ).subscribe({
             next: () => {
-              this.snackbarService.openSuccess(
-                'Origem de Membro excluído com sucesso!',
-              );
+              this.toast.openSuccess('Origem de Membro excluído com sucesso!');
               this.loadMemberOrigins();
             },
             error: () => {
               this.loading.hide();
-              this.snackbarService.openError(
-                'Erro ao excluir Origem de Membros!',
-              );
+              this.toast.openError('Erro ao excluir Origem de Membros!');
             },
             complete: () => {
               this.loading.hide();

@@ -5,10 +5,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { ToastService } from 'app/components/toast/toast.service';
 import { NotFoundRegisterComponent } from '../../../../components/not-found-register/not-found-register.component';
 import { TableComponent } from '../../../../components/table/table.component';
 import { Occupation } from '../../../../model/Occupation';
-import { SnackbarService } from '../../../../service/snackbar/snackbar.service';
 import { OccupationComponent } from './occupation/occupation.component';
 import { OccupationsService } from './occupations.service';
 
@@ -37,7 +37,7 @@ export class OccupationsComponent implements OnInit {
 
   constructor(
     private occupationsService: OccupationsService,
-    private snackbarService: SnackbarService,
+    private toast: ToastService,
     private loading: LoadingService,
     private confirmeService: ConfirmService,
     private dialog: MatDialog,
@@ -102,14 +102,12 @@ export class OccupationsComponent implements OnInit {
           this.loading.show();
           this.occupationsService.deleteOccupation(occupation.id).subscribe({
             next: () => {
-              this.snackbarService.openSuccess(
-                'Ocupação excluída com sucesso!',
-              );
+              this.toast.openSuccess('Ocupação excluída com sucesso!');
               this.loadOccupations();
             },
             error: () => {
               this.loading.hide();
-              this.snackbarService.openError('Erro ao excluir a ocupação!');
+              this.toast.openError('Erro ao excluir a ocupação!');
             },
             complete: () => {
               this.loading.hide();

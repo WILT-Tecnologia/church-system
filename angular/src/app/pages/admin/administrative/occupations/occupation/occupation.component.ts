@@ -15,11 +15,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ColumnComponent } from 'app/components/column/column.component';
-import { ValidationService } from 'app/service/validation/validation.service';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { ToastService } from 'app/components/toast/toast.service';
+import { Occupation } from 'app/model/Occupation';
+import { ValidationService } from 'app/utils/validation/validation.service';
 import dayjs from 'dayjs';
-import { LoadingService } from '../../../../../components/loading/loading.service';
-import { Occupation } from '../../../../../model/Occupation';
-import { SnackbarService } from '../../../../../service/snackbar/snackbar.service';
 import { OccupationsService } from '../occupations.service';
 
 @Component({
@@ -48,7 +48,7 @@ export class OccupationComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private loadingService: LoadingService,
-    private snackbarService: SnackbarService,
+    private toast: ToastService,
     private occupationsService: OccupationsService,
     private validationService: ValidationService,
     private dialogRef: MatDialogRef<OccupationComponent>,
@@ -119,13 +119,11 @@ export class OccupationComponent implements OnInit {
       .createOccupation(this.occupationForm.value)
       .subscribe({
         next: () => {
-          this.snackbarService.openSuccess('Ocupação criada com sucesso!');
+          this.toast.openSuccess('Ocupação criada com sucesso!');
           this.dialogRef.close(this.occupationForm.value);
         },
         error: () => {
-          this.snackbarService.openError(
-            'Erro ao criar a ocupação. Tente novamente!',
-          );
+          this.toast.openError('Erro ao criar a ocupação. Tente novamente!');
           this.loadingService.hide();
         },
         complete: () => {
@@ -140,12 +138,12 @@ export class OccupationComponent implements OnInit {
       .updateOccupation(occupationId!, this.occupationForm.value)
       .subscribe({
         next: () => {
-          this.snackbarService.openSuccess('Ocupação atualizada com sucesso!');
+          this.toast.openSuccess('Ocupação atualizada com sucesso!');
           this.dialogRef.close(this.occupationForm.value);
         },
         error: () => {
           this.loadingService.hide();
-          this.snackbarService.openError(
+          this.toast.openError(
             'Erro ao atualizar a ocupação. Tente novamente!',
           );
         },

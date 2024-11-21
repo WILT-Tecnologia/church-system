@@ -24,9 +24,9 @@ import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
+import { ToastService } from 'app/components/toast/toast.service';
 import { Families } from 'app/model/Families';
-import { MESSAGES } from 'app/service/snackbar/messages';
-import { SnackbarService } from 'app/service/snackbar/snackbar.service';
+import { MESSAGES } from 'app/utils/messages';
 import { FamiliesFormComponent } from './families-form/families-form.component';
 import { FamiliesService } from './families.service';
 
@@ -73,7 +73,7 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
   constructor(
     private confirmeService: ConfirmService,
     private loadingService: LoadingService,
-    private snackbarService: SnackbarService,
+    private toast: ToastService,
     private familiesService: FamiliesService,
     private modalService: ModalService,
   ) {}
@@ -93,7 +93,7 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
       },
       error: () => {
         this.loadingService.hide();
-        this.snackbarService.openError(MESSAGES.LOADING_ERROR);
+        this.toast.openError(MESSAGES.LOADING_ERROR);
       },
       complete: () => this.loadingService.hide(),
     });
@@ -172,7 +172,7 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
   addNewFamily = (): void => {
     const defaultMemberId = this.getDefaultMemberId();
     if (!defaultMemberId) {
-      this.snackbarService.openError(MESSAGES.CREATE_ERROR);
+      this.toast.openError(MESSAGES.CREATE_ERROR);
       return;
     }
 
@@ -247,7 +247,7 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
           this.loadingService.show();
           this.familiesService.deleteFamily(family.id).subscribe({
             next: () => {
-              this.snackbarService.openSuccess(MESSAGES.DELETE_SUCCESS);
+              this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
               this.familiesService
                 .getFamilyByMemberId(family?.member?.id)
                 .subscribe((families) => {
@@ -257,7 +257,7 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
             },
             error: () => {
               this.loadingService.hide();
-              this.snackbarService.openError(MESSAGES.DELETE_ERROR);
+              this.toast.openError(MESSAGES.DELETE_ERROR);
             },
             complete: () => this.loadingService.hide(),
           });

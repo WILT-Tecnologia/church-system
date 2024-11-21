@@ -3,10 +3,10 @@ import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { Router } from '@angular/router';
-import { NotFoundRegisterComponent } from '../../../../components/not-found-register/not-found-register.component';
-import { TableComponent } from '../../../../components/table/table.component';
-import { User } from '../../../../model/User';
-import { SnackbarService } from '../../../../service/snackbar/snackbar.service';
+import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
+import { TableComponent } from 'app/components/table/table.component';
+import { ToastService } from 'app/components/toast/toast.service';
+import { User } from 'app/model/User';
 import { UsersService } from './users.service';
 
 @Component({
@@ -25,8 +25,8 @@ import { UsersService } from './users.service';
 export class UsersComponent implements OnInit {
   constructor(
     private router: Router,
-    private snackbarService: SnackbarService,
-    private userService: UsersService
+    private toast: ToastService,
+    private userService: UsersService,
   ) {}
 
   ngOnInit() {
@@ -59,11 +59,11 @@ export class UsersComponent implements OnInit {
   deleteUser = (user: User): void => {
     this.userService.deleteUser(user.id).subscribe({
       next: () => {
-        this.snackbarService.openSuccess('Usuário excluído com sucesso!');
+        this.toast.openSuccess('Usuário excluído com sucesso!');
         this.loadUsers();
       },
       error: () => {
-        this.snackbarService.openError('Erro ao excluir o usuário!');
+        this.toast.openError('Erro ao excluir o usuário!');
       },
     });
   };

@@ -15,12 +15,38 @@
     <table mat-table [dataSource]="dataSourceMat" matSort class="mat-elevation-z1">
       <ng-container *ngFor="let column of columnDefinitions" [matColumnDef]="column.key">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ column.header }}</th>
-        <td mat-cell [matTooltip]="getNestedValue(member, column.key)" *matCellDef="let member">
+        <td mat-cell [matTooltip]="member | formatValues : column.key : column.type" [matTooltipPositionAtOrigin]="true"
+          *matCellDef="let member">
           <ng-container *ngIf="column.type === 'date'">
-            {{ dateFormatPipe.transform(getNestedValue(member, column.key)) }}
+            {{ member | formatValues : column.key : column.type }}
           </ng-container>
-          <ng-container *ngIf="column.type !== 'date'">
-            {{ getNestedValue(member, column.key) }}
+          <ng-container *ngIf="column.type === 'string'">
+            {{ member | formatValues : column.key : column.type }}
+          </ng-container>
+          <ng-container *ngIf="column.type === 'cpf'">
+            {{ member | formatValues : column.key : column.type }}
+          </ng-container>
+          <ng-container *ngIf="column.type === 'cnpj'">
+            {{ member | formatValues : column.key : column.type }}
+          </ng-container>
+          <ng-container *ngIf="column.type === 'datetime'">
+            {{ member | formatValues : column.key : column.type }}
+          </ng-container>
+          <ng-container *ngIf="column.type === 'phone'">
+            {{ member | formatValues : column.key : column.type }}
+          </ng-container>
+          <ng-container *ngIf="column.type === 'sex'">
+            {{ member | formatValues : column.key : column.type }}
+          </ng-container>
+          <ng-container *ngIf="column.type === 'number'">
+            {{ member | formatValues : column.key : column.type }}
+          </ng-container>
+          <ng-container *ngIf="column.type === 'boolean'">
+            <span [ngClass]="
+                          member[column.key] ? 'status-active' : 'status-inactive'
+                        ">
+              {{ member[column.key] ? 'Ativado' : 'Desativado' }}
+            </span>
           </ng-container>
         </td>
       </ng-container>

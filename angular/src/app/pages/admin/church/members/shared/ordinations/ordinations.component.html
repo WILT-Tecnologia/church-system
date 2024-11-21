@@ -16,16 +16,38 @@
     <table mat-table matSort [dataSource]="dataSourceMat" class="mat-elevation-z1">
       <ng-container *ngFor="let column of columnDefinitions" [matColumnDef]="column.key">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ column.header }}</th>
-        <td mat-cell *matCellDef="let ordination">
+        <td mat-cell [matTooltip]="ordination | formatValues : column.key : column.type"
+          [matTooltipPositionAtOrigin]="true" *matCellDef="let ordination">
           <ng-container *ngIf="column.type === 'date'">
-            {{ dateFormatPipe.transform(getNestedValue(ordination, column.key)) }}
+            {{ ordination | formatValues : column.key : column.type }}
           </ng-container>
           <ng-container *ngIf="column.type === 'string'">
-            {{ getNestedValue(ordination, column.key) }}
+            {{ ordination | formatValues : column.key : column.type }}
+          </ng-container>
+          <ng-container *ngIf="column.type === 'cpf'">
+            {{ ordination | formatValues : column.key : column.type }}
+          </ng-container>
+          <ng-container *ngIf="column.type === 'cnpj'">
+            {{ ordination | formatValues : column.key : column.type }}
+          </ng-container>
+          <ng-container *ngIf="column.type === 'datetime'">
+            {{ ordination | formatValues : column.key : column.type }}
+          </ng-container>
+          <ng-container *ngIf="column.type === 'phone'">
+            {{ ordination | formatValues : column.key : column.type }}
+          </ng-container>
+          <ng-container *ngIf="column.type === 'sex'">
+            {{ ordination | formatValues : column.key : column.type }}
+          </ng-container>
+          <ng-container *ngIf="column.type === 'number'">
+            {{ ordination | formatValues : column.key : column.type }}
           </ng-container>
           <ng-container *ngIf="column.type === 'boolean'">
-            <mat-checkbox color="primary" [matTooltip]="getNestedValue(ordination, column.key)"
-              [checked]="getNestedValue(ordination, column.key)" disabled></mat-checkbox>
+            <span [ngClass]="
+                                  ordination[column.key] ? 'status-active' : 'status-inactive'
+                                ">
+              {{ ordination[column.key] ? 'Ativado' : 'Desativado' }}
+            </span>
           </ng-container>
         </td>
       </ng-container>

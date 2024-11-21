@@ -15,13 +15,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ActivatedRoute } from '@angular/router';
+import { ColumnComponent } from 'app/components/column/column.component';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { ToastService } from 'app/components/toast/toast.service';
 import { EventTypes } from 'app/model/EventTypes';
-import { ValidationService } from 'app/service/validation/validation.service';
+import { CoreService } from 'app/services/core/core.service';
+import { ValidationService } from 'app/utils/validation/validation.service';
 import dayjs from 'dayjs';
-import { ColumnComponent } from '../../../../../components/column/column.component';
-import { LoadingService } from '../../../../../components/loading/loading.service';
-import { CoreService } from '../../../../../service/core/core.service';
-import { SnackbarService } from '../../../../../service/snackbar/snackbar.service';
 import { EventTypesService } from '../eventTypes.service';
 
 @Component({
@@ -52,7 +52,7 @@ export class EventTypeComponent implements OnInit {
     private core: CoreService,
     private route: ActivatedRoute,
     private eventTypesService: EventTypesService,
-    private snackbarService: SnackbarService,
+    private toast: ToastService,
     private loadingService: LoadingService,
     private validationService: ValidationService,
     private dialogRef: MatDialogRef<EventTypeComponent>,
@@ -124,14 +124,12 @@ export class EventTypeComponent implements OnInit {
       .createEventTypes(this.eventTypeForm.value)
       .subscribe({
         next: () => {
-          this.snackbarService.openSuccess(
-            'Tipo de evento criado com sucesso.',
-          );
+          this.toast.openSuccess('Tipo de evento criado com sucesso.');
           this.dialogRef.close(this.eventTypeForm.value);
         },
         error: (error) => {
           this.loadingService.hide();
-          this.snackbarService.openError(error.error.message);
+          this.toast.openError(error.error.message);
         },
         complete: () => this.loadingService.hide(),
       });
@@ -156,14 +154,12 @@ export class EventTypeComponent implements OnInit {
       .updateEventTypes(eventTypeId!, this.eventTypeForm.value)
       .subscribe({
         next: () => {
-          this.snackbarService.openSuccess(
-            'Tipo de evento atualizado com sucesso.',
-          );
+          this.toast.openSuccess('Tipo de evento atualizado com sucesso.');
           this.dialogRef.close(this.eventTypeForm.value);
         },
         error: () => {
           this.loadingService.hide();
-          this.snackbarService.openError('Erro ao atualizar o tipo de evento.');
+          this.toast.openError('Erro ao atualizar o tipo de evento.');
         },
         complete: () => this.loadingService.hide(),
       });

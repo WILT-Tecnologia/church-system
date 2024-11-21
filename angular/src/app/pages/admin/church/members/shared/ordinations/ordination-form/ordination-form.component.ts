@@ -27,13 +27,13 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
+import { ToastService } from 'app/components/toast/toast.service';
 import { Members } from 'app/model/Members';
 import { Occupation } from 'app/model/Occupation';
 import { Ordination } from 'app/model/Ordination';
 import { OccupationComponent } from 'app/pages/admin/administrative/occupations/occupation/occupation.component';
-import { MESSAGES } from 'app/service/snackbar/messages';
-import { SnackbarService } from 'app/service/snackbar/snackbar.service';
-import { ValidationService } from 'app/service/validation/validation.service';
+import { MESSAGES } from 'app/utils/messages';
+import { ValidationService } from 'app/utils/validation/validation.service';
 import dayjs from 'dayjs';
 import { provideNgxMask } from 'ngx-mask';
 import { debounceTime, forkJoin, map, Observable, startWith } from 'rxjs';
@@ -83,7 +83,7 @@ export class OrdinationFormComponent implements OnInit {
   constructor(
     private ordinationsService: OrdinationsService,
     private fb: FormBuilder,
-    private snackbarService: SnackbarService,
+    private toast: ToastService,
     private loadingService: LoadingService,
     private validationService: ValidationService,
     private modalService: ModalService,
@@ -162,7 +162,7 @@ export class OrdinationFormComponent implements OnInit {
         this.occupations = occupations;
         this.initializeFilters();
       },
-      error: () => this.snackbarService.openError(MESSAGES.LOADING_ERROR),
+      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
     });
   }
 
@@ -191,13 +191,13 @@ export class OrdinationFormComponent implements OnInit {
 
   onSuccess(message: string) {
     this.loadingService.hide();
-    this.snackbarService.openSuccess(message);
+    this.toast.openSuccess(message);
     this.dialogRef.close();
   }
 
   onError(message: string) {
     this.loadingService.hide();
-    this.snackbarService.openError(message);
+    this.toast.openError(message);
   }
 
   private getFormData(): any {

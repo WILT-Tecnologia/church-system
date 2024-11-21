@@ -8,7 +8,6 @@ import {
   MemberSituations,
 } from 'app/model/Auxiliaries';
 import { MemberOrigin } from 'app/model/MemberOrigins';
-import { CpfFormatPipe } from 'app/utils/pipe/CpfFormatPipe';
 import { forkJoin, map, Observable, switchMap } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 
@@ -17,9 +16,6 @@ import { Families } from 'app/model/Families';
 import { Members } from 'app/model/Members';
 import { Ordination } from 'app/model/Ordination';
 import { Person } from 'app/model/Person';
-import { DateFormatPipe } from 'app/utils/pipe/BirthDateFormatPipe';
-import { SexFormatPipe } from 'app/utils/pipe/SexFormatPipe';
-import { PhoneFormatPipe } from 'app/utils/pipe/phone-format.pipe';
 import { FamiliesService } from './shared/families/families.service';
 
 @Injectable({
@@ -32,11 +28,6 @@ export class MembersService {
   ) {}
 
   private api = `${environment.apiUrl}/church/members`;
-
-  private formatCpfPipe = new CpfFormatPipe();
-  private formatDatePipe = new DateFormatPipe();
-  private formatSexPipe = new SexFormatPipe();
-  private formatPhonePipe = new PhoneFormatPipe();
 
   getFamilyOfMember(memberId: string): Observable<Families[]> {
     return this.familiesService.getFamilyByMemberId(memberId);

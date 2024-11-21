@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Church } from 'app/model/Church';
 import { Person as Responsible } from 'app/model/Person';
-import { CnpjFormatPipe } from 'app/utils/pipe/CnpjFormatPipe';
+import { FormatsPipe } from 'app/utils/pipes/formats.pipe';
 import { environment } from 'environments/environment';
 import { map, Observable } from 'rxjs';
 
@@ -13,17 +13,18 @@ export class ChurchsService {
   constructor(private http: HttpClient) {}
 
   private api = `${environment.apiUrl}/admin/churches`;
-  private formatCnpjPipe = new CnpjFormatPipe();
+  private personsApi = `${environment.apiUrl}/admin/persons`;
+  private format = new FormatsPipe();
 
   getResponsables(): Observable<Responsible[]> {
-    return this.http.get<Responsible[]>(`${environment.apiUrl}/admin/persons`);
+    return this.http.get<Responsible[]>(this.personsApi);
   }
 
   getChurch(): Observable<Church[]> {
     return this.http.get<Church[]>(this.api).pipe(
       map((church: Church[]) => {
-        return church.map((church) => {
-          church.cnpj = this.formatCnpjPipe.transform(church.cnpj);
+        return church.map((church: Church) => {
+          church.cnpj = this.format.cnpjFormat(church.cnpj);
           return church;
         });
       }),

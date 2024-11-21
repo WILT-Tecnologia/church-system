@@ -5,10 +5,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { ToastService } from 'app/components/toast/toast.service';
 import { NotFoundRegisterComponent } from '../../../../components/not-found-register/not-found-register.component';
 import { TableComponent } from '../../../../components/table/table.component';
 import { EventTypes } from '../../../../model/EventTypes';
-import { SnackbarService } from '../../../../service/snackbar/snackbar.service';
 import { EventTypeComponent } from './eventType/eventType.component';
 import { EventTypesService } from './eventTypes.service';
 
@@ -37,7 +37,7 @@ export class EventTypesComponent implements OnInit {
 
   constructor(
     private eventTypesService: EventTypesService,
-    private snackbarService: SnackbarService,
+    private toast: ToastService,
     private loading: LoadingService,
     private confirmService: ConfirmService,
     private dialog: MatDialog,
@@ -104,14 +104,12 @@ export class EventTypesComponent implements OnInit {
         if (result) {
           this.eventTypesService.deleteEventTypes(eventType.id).subscribe({
             next: () => {
-              this.snackbarService.openSuccess(
-                'Tipo de evento excluído com sucesso!',
-              );
+              this.toast.openSuccess('Tipo de evento excluído com sucesso!');
               this.loadEventTypes();
             },
             error: () => {
               this.loading.hide();
-              this.snackbarService.openError(
+              this.toast.openError(
                 'Erro ao excluir o tipo de evento. Tente novamente mais tarde.',
               );
             },

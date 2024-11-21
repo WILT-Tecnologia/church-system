@@ -22,14 +22,14 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
+import { ToastService } from 'app/components/toast/toast.service';
 import { Kinships } from 'app/model/Auxiliaries';
 import { Families } from 'app/model/Families';
 import { Members } from 'app/model/Members';
 import { Person } from 'app/model/Person';
 import { PersonComponent } from 'app/pages/admin/administrative/persons/person/person.component';
-import { MESSAGES } from 'app/service/snackbar/messages';
-import { SnackbarService } from 'app/service/snackbar/snackbar.service';
-import { ValidationService } from 'app/service/validation/validation.service';
+import { MESSAGES } from 'app/utils/messages';
+import { ValidationService } from 'app/utils/validation/validation.service';
 import { debounceTime, forkJoin, map, Observable, startWith } from 'rxjs';
 import { FamiliesService } from '../families.service';
 
@@ -73,7 +73,7 @@ export class FamiliesFormComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private snackbarService: SnackbarService,
+    private toast: ToastService,
     private familiesService: FamiliesService,
     private loadingService: LoadingService,
     private validationService: ValidationService,
@@ -164,7 +164,7 @@ export class FamiliesFormComponent implements OnInit {
         this.kinships = kinships;
         this.initializeFilters();
       },
-      error: () => this.snackbarService.openError(MESSAGES.LOADING_ERROR),
+      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
     });
   }
 
@@ -275,13 +275,13 @@ export class FamiliesFormComponent implements OnInit {
 
   onSuccess(message: string) {
     this.loadingService.hide();
-    this.snackbarService.openSuccess(message);
+    this.toast.openSuccess(message);
     this.dialogRef.close();
   }
 
   onError(message: string) {
     this.loadingService.hide();
-    this.snackbarService.openError(message);
+    this.toast.openError(message);
   }
 
   handleCreate(familyData?: any) {
