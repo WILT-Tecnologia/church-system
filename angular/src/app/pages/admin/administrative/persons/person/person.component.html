@@ -26,7 +26,8 @@
     </mat-form-field>
     <mat-form-field class="birth_date">
       <mat-label>Data de nascimento</mat-label>
-      <input matInput [matDatepicker]="picker" name="birth_date" formControlName="birth_date" readonly required>
+      <input matInput [matDatepicker]="picker" name="birth_date" [min]="minDate" [max]="maxDate"
+        formControlName="birth_date" (focus)="openCalendar()" required readonly>
       <mat-error
         *ngIf="personForm.get('birth_date')?.invalid && personForm.get('birth_date')?.touched">{{getErrorMessage('birth_date')}}</mat-error>
       @if(personForm.value.birth_date) {
@@ -36,7 +37,12 @@
       }@else {
       <ng-container>
         <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
+        <mat-datepicker #picker startView="year">
+          <mat-datepicker-actions>
+            <button mat-button color="warn" matDatepickerCancel>Cancel</button>
+            <button mat-raised-button color="primary" matDatepickerApply>Apply</button>
+          </mat-datepicker-actions>
+        </mat-datepicker>
       </ng-container>
       }
     </mat-form-field>
@@ -88,7 +94,7 @@
     </mat-form-field>
     <mat-form-field appearance="fill">
       <mat-label>Complemento</mat-label>
-      <input matInput formControlName="complement">
+      <input matInput formControlName="complement" maxlength="255">
       <mat-error
         *ngIf="personForm.get('complement')?.invalid && personForm.get('complement')?.touched">{{getErrorMessage('complement')}}</mat-error>
     </mat-form-field>
@@ -120,14 +126,14 @@
     </mat-form-field>
   </app-column>
   <mat-card-footer>
-    <ng-container *ngIf="isEditMode && personForm.get('updated_at')?.value">
-      <span>Atualizado em: {{ personForm.get('updated_at')?.value }}</span>
+    <ng-container *ngIf="isEditMode">
+      <span>Atualizado em {{ personForm.get('updated_at')?.value }}</span>
     </ng-container>
     <mat-divider></mat-divider>
     <div class="cta">
       <button mat-stroked-button type="button" color="warn" (click)="handleBack()">Cancelar</button>
       <button mat-raised-button type="submit" color="primary"
-        [disabled]="personForm.invalid">{{isEditMode ? ' Atualizar' : 'Cadastrar'}}</button>
+        [disabled]="personForm.invalid">{{isEditMode ? 'Atualizar' : 'Cadastrar'}}</button>
     </div>
   </mat-card-footer>
 </form>

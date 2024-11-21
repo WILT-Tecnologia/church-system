@@ -14,11 +14,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ActivatedRoute } from '@angular/router';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { ToastService } from 'app/components/toast/toast.service';
+import { Profile } from 'app/model/Profile';
 import dayjs from 'dayjs';
-import { LoadingService } from '../../../../../components/loading/loading.service';
-import { Profile } from '../../../../../model/Profile';
-import { CoreService } from '../../../../../service/core/core.service';
-import { SnackbarService } from '../../../../../service/snackbar/snackbar.service';
 import { ProfilesService } from '../profiles.service';
 
 @Component({
@@ -45,11 +44,10 @@ export class ProfileComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private core: CoreService,
     private route: ActivatedRoute,
-    private loadingService: LoadingService,
-    private snackbarService: SnackbarService,
-    private profilesService: ProfilesService
+    private loading: LoadingService,
+    private toast: ToastService,
+    private profilesService: ProfilesService,
   ) {
     this.profileForm = this.fb.group({
       name: [
@@ -79,7 +77,7 @@ export class ProfileComponent implements OnInit {
   }
 
   handleBack = () => {
-    this.core.handleBack();
+    console.log('back');
   };
 
   handleSubmit = () => {
@@ -95,57 +93,55 @@ export class ProfileComponent implements OnInit {
   };
 
   createProfile = () => {
-    this.loadingService.show();
+    this.loading.show();
     this.profilesService.createProfile(this.profileForm.value).subscribe({
       next: () => {
-        this.loadingService.hide();
-        this.snackbarService.openSuccess('Perfil criado com sucesso!');
-        this.core.handleBack();
+        this.loading.hide();
+        this.toast.openSuccess('Perfil criado com sucesso!');
       },
       error: () => {
-        this.loadingService.hide();
-        this.snackbarService.openError(
+        this.loading.hide();
+        this.toast.openError(
           `Erro ao criar o perfil ${
             this.profileForm.get('name')?.value
-          }. Tente novamente mais tarde!`
+          }. Tente novamente mais tarde!`,
         );
       },
     });
   };
 
   handleEditMode = () => {
-    this.loadingService.show();
+    this.loading.show();
     this.profilesService
       .getProfileById(this.profileId!)
       .subscribe((profile: Profile) => {
         const formattedUpdatedAt = dayjs(profile.updated_at).format(
-          'DD/MM/YYYY [às] HH:mm:ss'
+          'DD/MM/YYYY [às] HH:mm:ss',
         );
         this.profileForm.patchValue({
           ...profile,
           updated_at: formattedUpdatedAt,
         });
-        this.loadingService.hide();
+        this.loading.hide();
       });
-    this.loadingService.hide();
+    this.loading.hide();
   };
 
   updateProfile = () => {
-    this.loadingService.show();
+    this.loading.show();
     this.profilesService
       .updateProfile(this.profileId!, this.profileForm.value)
       .subscribe({
         next: () => {
-          this.loadingService.hide();
-          this.snackbarService.openSuccess('Perfil atualizado com sucesso!');
-          this.core.handleBack();
+          this.loading.hide();
+          this.toast.openSuccess('Perfil atualizado com sucesso!');
         },
         error: () => {
-          this.loadingService.hide();
-          this.snackbarService.openError(
+          this.loading.hide();
+          this.toast.openError(
             `Erro ao atualizar o perfil ${
               this.profileForm.get('name')?.value
-            }. Tente novamente mais tarde!`
+            }. Tente novamente mais tarde!`,
           );
         },
       });

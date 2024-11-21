@@ -36,6 +36,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { ToastService } from 'app/components/toast/toast.service';
 import {
   CivilStatus,
   ColorRace,
@@ -51,10 +52,9 @@ import { Ordination } from 'app/model/Ordination';
 import { Person } from 'app/model/Person';
 import { ChurchComponent } from 'app/pages/admin/administrative/churchs/church/church.component';
 import { PersonComponent } from 'app/pages/admin/administrative/persons/person/person.component';
-import { NavigationService } from 'app/service/navigation/navigation.service';
-import { MESSAGES } from 'app/service/snackbar/messages';
-import { SnackbarService } from 'app/service/snackbar/snackbar.service';
-import { ValidationService } from 'app/service/validation/validation.service';
+import { NavigationService } from 'app/services/navigation/navigation.service';
+import { MESSAGES } from 'app/utils/messages';
+import { ValidationService } from 'app/utils/validation/validation.service';
 import dayjs from 'dayjs';
 import { provideNgxMask } from 'ngx-mask';
 import { debounceTime, map, Observable, startWith } from 'rxjs';
@@ -126,7 +126,7 @@ export class MemberComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private snackbarService: SnackbarService,
+    private toast: ToastService,
     private membersService: MembersService,
     private loadingService: LoadingService,
     private validationService: ValidationService,
@@ -397,29 +397,15 @@ export class MemberComponent implements OnInit {
   }
 
   onNext() {
-    const stepForm = this.getCurrentStepFormGroup(this.currentStep + 1);
+    const stepForm = this.getCurrentStepFormGroup(this.currentStep);
 
     if (stepForm && stepForm.valid) {
       this.currentStep++;
     } else {
       stepForm.markAsTouched();
-      this.snackbarService.openError(
-        'Por favor, preencha todos os campos obrigatórios.',
-      );
+      this.toast.openError('Por favor, preencha todos os campos obrigatórios.');
     }
   }
-
-  /* onNext() {
-    const currentStepFormGroup = this.getCurrentStepFormGroup(this.currentStep);
-    if (currentStepFormGroup.valid) {
-      this.currentStep++;
-    } else {
-      currentStepFormGroup.markAsTouched();
-      this.snackbarService.openError(
-        'Por favor, preencha todos os campos obrigatórios.',
-      );
-    }
-  } */
 
   canProceedToNextStep(): boolean {
     const currentStepGroup = this.getCurrentStepFormGroup();
@@ -486,7 +472,7 @@ export class MemberComponent implements OnInit {
 
     const memberData = this.combineStepData();
     this.membersService.createMember(memberData).subscribe({
-      next: () => this.onSuccess(MESSAGES.CREATE_SUCCESS),
+      next: () => this.onSuccessCreate(MESSAGES.CREATE_SUCCESS),
       error: () => this.onError(MESSAGES.CREATE_ERROR),
       complete: () => this.loadingService.hide(),
     });
@@ -497,7 +483,7 @@ export class MemberComponent implements OnInit {
 
     const memberData = this.combineStepData();
     this.membersService.updateMember(memberId!, memberData).subscribe({
-      next: () => this.onSuccess(MESSAGES.UPDATE_SUCCESS),
+      next: () => this.onSuccessUpdate(MESSAGES.UPDATE_SUCCESS),
       error: () => this.onError(MESSAGES.UPDATE_ERROR),
       complete: () => this.loadingService.hide(),
     });
@@ -529,17 +515,24 @@ export class MemberComponent implements OnInit {
       });
   };
 
-  onSuccess(message: string) {
+  onSuccessCreate(message: string) {
     this.loadingService.hide();
-    this.snackbarService.openSuccess(message);
+    this.toast.openSuccess(message);
     this.loadMembers();
     this.isEditMode = true;
     this.currentStep = 3;
   }
 
+  onSuccessUpdate(message: string) {
+    this.loadingService.hide();
+    this.toast.openSuccess(message);
+    this.dialogRef.close(this.memberForm.value);
+    this.loadMembers();
+  }
+
   onError(message: string) {
     this.loadingService.hide();
-    this.snackbarService.openError(message);
+    this.toast.openError(message);
   }
 
   filterPerson(value: string): Person[] {

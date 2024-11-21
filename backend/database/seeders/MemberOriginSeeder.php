@@ -13,6 +13,6 @@ class MemberOriginSeeder extends Seeder
      */
     public function run(): void
     {
-        MemberOrigin::factory(100)->create();
+        MemberOrigin::factory(10)->create();
     }
 }

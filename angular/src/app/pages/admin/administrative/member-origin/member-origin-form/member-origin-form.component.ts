@@ -15,9 +15,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { ToastService } from 'app/components/toast/toast.service';
 import { MemberOrigin } from 'app/model/MemberOrigins';
-import { SnackbarService } from 'app/service/snackbar/snackbar.service';
-import { ValidationService } from 'app/service/validation/validation.service';
+import { ValidationService } from 'app/utils/validation/validation.service';
 import dayjs from 'dayjs';
 import { ColumnComponent } from '../../../../../components/column/column.component';
 import { MemberOriginService } from '../member-origin.service';
@@ -47,7 +47,7 @@ export class MemberOriginFormComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private snackbarService: SnackbarService,
+    private toast: ToastService,
     private loadingService: LoadingService,
     private memberOriginService: MemberOriginService,
     private validationService: ValidationService,
@@ -131,14 +131,12 @@ export class MemberOriginFormComponent implements OnInit {
       .createMemberOrigin(this.memberOriginForm.value)
       .subscribe({
         next: () => {
-          this.snackbarService.openSuccess(
-            'Origem de membro criada com sucesso!',
-          );
+          this.toast.openSuccess('Origem de membro criada com sucesso!');
           this.dialogRef.close(this.memberOriginForm.value);
         },
         error: (error) => {
           this.loadingService.hide();
-          this.snackbarService.openError('Erro ao criar a origem de membro!');
+          this.toast.openError('Erro ao criar a origem de membro!');
         },
         complete: () => {
           this.loadingService.hide();
@@ -152,16 +150,12 @@ export class MemberOriginFormComponent implements OnInit {
       .updateMemberOrigin(memberOriginId!, this.memberOriginForm.value)
       .subscribe({
         next: () => {
-          this.snackbarService.openSuccess(
-            'Origem de membro atualizada com sucesso!',
-          );
+          this.toast.openSuccess('Origem de membro atualizada com sucesso!');
           this.dialogRef.close(this.memberOriginForm.value);
         },
         error: () => {
           this.loadingService.hide();
-          this.snackbarService.openError(
-            'Erro ao atualizar a origem de membro!',
-          );
+          this.toast.openError('Erro ao atualizar a origem de membro!');
         },
         complete: () => {
           this.loadingService.hide();

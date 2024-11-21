@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   Inject,
+  OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
@@ -31,15 +32,17 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { ColumnComponent } from 'app/components/column/column.component';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { ToastService } from 'app/components/toast/toast.service';
 import { Address } from 'app/model/Address';
 import { Person } from 'app/model/Person';
-import { ValidationService } from 'app/service/validation/validation.service';
+import { CepService } from 'app/services/search-cep/search-cep.service';
+import { MESSAGES } from 'app/utils/messages';
+import { ValidationService } from 'app/utils/validation/validation.service';
+import { cpfValidator } from 'app/utils/validators/cpf-validator';
+import { phoneValidator } from 'app/utils/validators/phone-validator';
 import dayjs from 'dayjs';
-import { LoadingService } from '../../../../../components/loading/loading.service';
-import { CepService } from '../../../../../service/SearchCEP/CepService.service';
-import { SnackbarService } from '../../../../../service/snackbar/snackbar.service';
-import { cpfValidator } from '../../../../../utils/validators/cpf-validator';
-import { phoneValidator } from '../../../../../utils/validators/phone-validator';
+import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 import { PersonsService } from '../persons.service';
 
 type Sex = {
@@ -73,22 +76,25 @@ type Sex = {
     ColumnComponent,
   ],
 })
-export class PersonComponent implements OnInit {
+export class PersonComponent implements OnInit, OnDestroy {
   @ViewChild(MatDatepicker) picker!: MatDatepicker<Date>;
-  personId: string | null = null;
   personForm: FormGroup;
+  personId: string | null = null;
   isEditMode: boolean = false;
-  tooltipTextStatus: string = '';
-  tooltipTextChangePassword: string = '';
   sexs: Sex[] = [
     { value: 'M', viewValue: 'Masculino' },
     { value: 'F', viewValue: 'Feminino' },
   ];
+  private readonly _currentDate = new Date();
+  readonly minDate = new Date(1900, 0, 1);
+  readonly maxDate = new Date(this._currentDate);
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
     private personService: PersonsService,
-    private snackbarService: SnackbarService,
+    private toast: ToastService,
     private cepService: CepService,
     private loadingService: LoadingService,
     private validationService: ValidationService,
@@ -106,14 +112,29 @@ export class PersonComponent implements OnInit {
       this.handleEditMode();
     }
 
-    this.personForm.get('cep')?.valueChanges.subscribe((cep: string) => {
-      if (cep.length === 8 && !this.isEditMode) {
-        this.searchCep(cep);
-      }
-    });
+    let previousCepValue = this.personForm.get('cep')?.value;
+
+    this.personForm
+      .get('cep')
+      ?.valueChanges.pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((cep: string) => {
+        if (cep.length === 8 && cep !== previousCepValue) {
+          this.searchCep(cep);
+        }
+        previousCepValue = cep;
+      });
   }
 
-  createForm() {
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  createForm = () => {
     return this.fb.group({
       id: [this.data?.person?.id || ''],
       user_id: [this.data?.person?.user_id || ''],
@@ -166,15 +187,10 @@ export class PersonComponent implements OnInit {
         this.data?.person?.country || '',
         [Validators.required, Validators.maxLength(255)],
       ],
-      updated_at: [this.data?.person?.updated_at || ''],
     });
-  }
+  };
 
-  get pageTitle(): string {
-    return this.isEditMode ? 'Editando pessoa' : 'Criando pessoa';
-  }
-
-  getErrorMessage(controlName: string) {
+  getErrorMessage(controlName: string): string | null {
     const control = this.personForm.get(controlName);
     return control ? this.validationService.getErrorMessage(control) : null;
   }
@@ -196,12 +212,12 @@ export class PersonComponent implements OnInit {
     this.loadingService.show();
     this.personService.createPerson(this.personForm.value).subscribe({
       next: () => {
-        this.snackbarService.openSuccess('Pessoa criada com sucesso!');
+        this.toast.openSuccess(MESSAGES.CREATE_SUCCESS);
         this.dialogRef.close(this.personForm.value);
       },
       error: () => {
         this.loadingService.hide();
-        this.snackbarService.openError('Erro ao criar a pessoa!');
+        this.toast.openError(MESSAGES.CREATE_ERROR);
       },
       complete: () => this.loadingService.hide(),
     });
@@ -213,12 +229,12 @@ export class PersonComponent implements OnInit {
       .updatePerson(personId!, this.personForm.value)
       .subscribe({
         next: () => {
-          this.snackbarService.openSuccess('Pessoa atualizada com sucesso!');
+          this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS);
           this.dialogRef.close(this.personForm.value);
         },
         error: () => {
           this.loadingService.hide();
-          this.snackbarService.openError('Erro ao atualizar a pessoa!');
+          this.toast.openError(MESSAGES.UPDATE_ERROR);
         },
         complete: () => this.loadingService.hide(),
       });
@@ -239,28 +255,29 @@ export class PersonComponent implements OnInit {
     this.personForm.get('birth_date')?.setValue(null);
   }
 
-  searchCep(cep: string) {
-    if (!cep || cep.length !== 8) {
+  openCalendar(): void {
+    if (this.picker) {
+      this.picker.open();
+    }
+  }
+
+  searchCep(cep: string): void {
+    if (this.personForm.get('cep')?.value?.length === '') {
       return;
     }
 
     this.cepService.searchCep(cep).subscribe({
       next: (data: Address) => {
         if (data) {
-          this.loadingService.show();
           this.personForm.patchValue({
             street: data.street || '',
             district: data.neighborhood || '',
             city: data.city || '',
             state: data.state || '',
           });
-          this.loadingService.hide();
         }
       },
-      error: () => {
-        this.loadingService.hide();
-        this.snackbarService.openError('CEP não encontrado!');
-      },
+      error: () => this.loadingService.hide(),
       complete: () => this.loadingService.hide(),
     });
   }

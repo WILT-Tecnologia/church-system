@@ -25,11 +25,11 @@ import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
+import { ToastService } from 'app/components/toast/toast.service';
 import { Members } from 'app/model/Members';
 import { Ordination } from 'app/model/Ordination';
-import { MESSAGES } from 'app/service/snackbar/messages';
-import { SnackbarService } from 'app/service/snackbar/snackbar.service';
-import { DateFormatPipe } from 'app/utils/pipe/BirthDateFormatPipe';
+import { MESSAGES } from 'app/utils/messages';
+import { FormatValuesPipe } from 'app/utils/pipes/format-values.pipe';
 import { OrdinationFormComponent } from './ordination-form/ordination-form.component';
 import { OrdinationsService } from './ordinations.service';
 
@@ -54,15 +54,15 @@ import { OrdinationsService } from './ordinations.service';
     MatCheckboxModule,
     CommonModule,
     NotFoundRegisterComponent,
+    FormatValuesPipe,
   ],
 })
 export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() ordination: Ordination[] = [];
-  member: Members[] = [];
+  members: Members[] = [];
   dataSourceMat = new MatTableDataSource<Ordination>(this.ordination);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-  dateFormatPipe = new DateFormatPipe();
 
   columnDefinitions = [
     { key: 'member.person.name', header: 'Membros', type: 'string' },
@@ -79,7 +79,7 @@ export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
   constructor(
     private confirmeService: ConfirmService,
     private loadingService: LoadingService,
-    private snackbarService: SnackbarService,
+    private toast: ToastService,
     private ordinationService: OrdinationsService,
     private modalService: ModalService,
   ) {}
@@ -92,9 +92,9 @@ export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
   loadMembers = () => {
     this.ordinationService.getMembers().subscribe({
       next: (members) => {
-        this.member = members;
+        this.members = members;
       },
-      error: () => this.snackbarService.openError(MESSAGES.LOADING_ERROR),
+      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
     });
   };
 
@@ -109,7 +109,7 @@ export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
       },
       error: () => {
         this.loadingService.hide();
-        this.snackbarService.openError(MESSAGES.LOADING_ERROR);
+        this.toast.openError(MESSAGES.LOADING_ERROR);
       },
       complete: () => this.loadingService.hide(),
     });
@@ -165,8 +165,8 @@ export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   getDefaultMemberId(): string | null {
-    console.log('getDefaultMemberId:', this.member[0]?.id);
-    return this.member.length > 0 ? this.member[0].id : null;
+    console.log('getDefaultMemberId:', this.ordination[0]?.id);
+    return this.ordination.length > 0 ? this.ordination[0].id : null;
   }
 
   openModalAddOrdination = () => {
@@ -183,7 +183,7 @@ export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
   addNewOrdination = (): void => {
     const defaultMemberId = this.getDefaultMemberId();
     if (!defaultMemberId) {
-      this.snackbarService.openError(
+      this.toast.openError(
         'Nenhum membro encontrado para associar à ordenação.',
       );
       return;
@@ -213,7 +213,7 @@ export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
         },
         error: () => {
           this.loadingService.hide();
-          this.snackbarService.openError(MESSAGES.CREATE_ERROR);
+          this.toast.openError(MESSAGES.CREATE_ERROR);
         },
         complete: () => this.loadingService.hide(),
       });
@@ -248,12 +248,12 @@ export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
                 this.ordination[index] = updatedOrdination;
                 this.dataSourceMat.data = this.ordination; // Atualiza diretamente a tabela
               }
-              this.snackbarService.openSuccess(MESSAGES.UPDATE_SUCCESS);
+              this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS);
               this.loadOrdinations(); // Sincroniza os dados com o backend
             },
             error: () => {
               this.loadingService.hide();
-              this.snackbarService.openError(MESSAGES.DELETE_ERROR);
+              this.toast.openError(MESSAGES.DELETE_ERROR);
             },
             complete: () => this.loadingService.hide(),
           });
@@ -277,7 +277,7 @@ export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
           this.loadingService.show();
           this.ordinationService.deleteOrdination(ordination.id).subscribe({
             next: () => {
-              this.snackbarService.openSuccess(MESSAGES.DELETE_SUCCESS);
+              this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
               this.ordinationService
                 .getOrdinationByMemberId(ordination?.member?.id)
                 .subscribe((ordination) => {
@@ -287,7 +287,7 @@ export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
             },
             error: () => {
               this.loadingService.hide();
-              this.snackbarService.openError(MESSAGES.DELETE_ERROR);
+              this.toast.openError(MESSAGES.DELETE_ERROR);
             },
             complete: () => this.loadingService.hide(),
           });

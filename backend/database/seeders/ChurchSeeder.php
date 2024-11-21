@@ -18,24 +18,24 @@ class ChurchSeeder extends Seeder
 
         $responsibles = Person::all()->pluck('id')->toArray();
 
-        foreach (range(1, 999) as $index) {
+        foreach (range(1, 100) as $index) {
             Church::create([
                 'responsible_id' => $faker->randomElement($responsibles),
-                'name'           => $faker->company,
-                'email'          => $faker->unique()->safeEmail,
-                'cnpj'           => $faker->cnpj(false),  // CNPJ válido
-                'cep'            => $faker->postcode,
-                'street'         => $faker->streetName,
-                'number'         => $faker->buildingNumber,
-                'complement'     => $faker->secondaryAddress,
-                'district'       => $faker->citySuffix,
-                'city'           => $faker->city,
-                'state'          => $faker->stateAbbr,
-                'country'        => 'Brasil',
-                'logo'           => $faker->imageUrl(100, 100, 'logo'),
-                'favicon'        => $faker->imageUrl(32, 32, 'favicon'),
-                'background'     => $faker->imageUrl(1920, 1080, 'church'),
-                'color'          => $faker->hexColor,
+                'name' => $faker->company,
+                'email' => $faker->unique()->safeEmail,
+                'cnpj' => $faker->cnpj(false),  // CNPJ válido
+                'cep' => $faker->postcode,
+                'street' => $faker->streetName,
+                'number' => $faker->buildingNumber,
+                'complement' => $faker->secondaryAddress,
+                'district' => $faker->citySuffix,
+                'city' => $faker->city,
+                'state' => $faker->stateAbbr,
+                'country' => 'Brasil',
+                'logo' => $faker->imageUrl(100, 100, 'logo'),
+                'favicon' => $faker->imageUrl(32, 32, 'favicon'),
+                'background' => $faker->imageUrl(1920, 1080, 'church'),
+                'color' => $faker->hexColor,
             ]);
         }
     }

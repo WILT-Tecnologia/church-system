@@ -62,7 +62,7 @@
   <app-column>
     <mat-form-field appearance="fill">
       <mat-label>Número</mat-label>
-      <input matInput formControlName="number" maxlength="255" required>
+      <input matInput formControlName="number" maxlength="10" required>
       <mat-error
         *ngIf="churchForm.get('number')?.invalid && churchForm.get('number')?.touched">{{getErrorMessage('number')}}</mat-error>
     </mat-form-field>
@@ -100,11 +100,13 @@
     </mat-form-field>
   </app-column>
   <mat-card-footer>
-    <span class="info" *ngIf="isEditMode">Atualizado em {{ churchForm.get('updated_at')?.value }}</span>
+    <ng-container *ngIf="isEditMode">
+      <span>Atualizado em {{ churchForm.get('updated_at')?.value }}</span>
+    </ng-container>
     <mat-divider></mat-divider>
     <div class="cta">
-      <button type="button" mat-stroked-button color="warn" (click)="handleBack()">Cancelar</button>
-      <button type="submit" mat-raised-button color="primary"
+      <button mat-stroked-button type="button" color="warn" (click)="handleBack()">Cancelar</button>
+      <button mat-raised-button type="submit" color="primary"
         [disabled]="churchForm.invalid">{{isEditMode ? 'Atualizar' : 'Cadastrar'}}</button>
     </div>
   </mat-card-footer>

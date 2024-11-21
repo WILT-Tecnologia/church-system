@@ -14,7 +14,7 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ChurchComponent } from 'app/pages/admin/church/church.component';
-import { AuthService } from '../../service/auth/auth.service';
+import { AuthService } from '../../services/auth/auth.service';
 import { LogoComponent } from './logo/logo.component';
 
 @Component({

@@ -11,7 +11,7 @@ import { LoadingService } from './loading.service';
   imports: [MatProgressSpinnerModule, CommonModule],
 })
 export class LoadingComponent implements OnInit {
-  loading$: Observable<boolean> = this.loadingService.loading;
+  loading$!: Observable<boolean>;
 
   constructor(private loadingService: LoadingService) {}
 

@@ -28,12 +28,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { ToastService } from 'app/components/toast/toast.service';
 import { Address } from 'app/model/Address';
 import { Church } from 'app/model/Church';
 import { Person as Responsible } from 'app/model/Person';
-import { CepService } from 'app/service/SearchCEP/CepService.service';
-import { SnackbarService } from 'app/service/snackbar/snackbar.service';
-import { ValidationService } from 'app/service/validation/validation.service';
+import { CepService } from 'app/services/search-cep/search-cep.service';
+import { MESSAGES } from 'app/utils/messages';
+import { ValidationService } from 'app/utils/validation/validation.service';
 import dayjs from 'dayjs';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import {
@@ -64,7 +65,6 @@ import { ChurchsService } from '../churchs.service';
     NgxMaskDirective,
     ReactiveFormsModule,
     CommonModule,
-    ChurchComponent,
     ColumnComponent,
   ],
   providers: [provideNgxMask()],
@@ -74,8 +74,10 @@ export class ChurchComponent implements OnInit, OnDestroy {
   churchForm: FormGroup;
   churchId: string | null = null;
   isEditMode: boolean = false;
-  searchControl = new FormControl();
+
+  searchControl = new FormControl('');
   filteredResponsables$!: Observable<Responsible[]>;
+
   responsible: Responsible[] = [];
 
   private destroy$ = new Subject<void>();
@@ -83,20 +85,16 @@ export class ChurchComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private churchsService: ChurchsService,
-    private snackbarService: SnackbarService,
+    private toast: ToastService,
     private cepService: CepService,
-    private loadingService: LoadingService,
+    private loading: LoadingService,
     private validationService: ValidationService,
     private dialogRef: MatDialogRef<ChurchComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { church: Church },
   ) {
     this.churchForm = this.createForm();
 
-    this.filteredResponsables$ = this.searchControl.valueChanges.pipe(
-      debounceTime(300),
-      startWith(''),
-      map((searchTerm) => this.filterResponsables(searchTerm ?? '')),
-    );
+    this.filteredResponsables$ = this.setupSearchObservable('responsible');
   }
 
   ngOnInit() {
@@ -107,14 +105,14 @@ export class ChurchComponent implements OnInit, OnDestroy {
       this.churchId = this.data?.church?.id;
       this.churchForm.patchValue({
         ...this.data.church,
-        responsible_id: this.data.church.responsible.id || null,
+        responsible_id: this.data.church.responsible?.id,
       });
       this.handleEditMode();
     }
 
     this.churchForm.get('responsible_id')?.valueChanges.subscribe((id) => {
       const responsable = this.responsible.find((resp) => resp.id === id);
-      return responsable?.name || 'Selecione o responsável';
+      return responsable ? responsable?.name : 'Selecione o responsável';
     });
 
     this.churchForm
@@ -130,6 +128,21 @@ export class ChurchComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  setupSearchObservable(target: string): Observable<any[]> {
+    return this.searchControl.valueChanges.pipe(
+      debounceTime(300),
+      startWith(''),
+      map((searchTerm) => {
+        const items = (this as any)[target] || [];
+        return items
+          .filter((item: any) =>
+            item.name.toLowerCase().includes(searchTerm?.toLowerCase()),
+          )
+          .sort((a: any, b: any) => a.name.localeCompare(b.name));
+      }),
+    );
   }
 
   createForm = () => {
@@ -204,34 +217,34 @@ export class ChurchComponent implements OnInit, OnDestroy {
   };
 
   handleCreate = () => {
-    this.loadingService.show();
+    this.loading.show();
     this.churchsService.createChurch(this.churchForm.value).subscribe({
       next: () => {
-        this.snackbarService.openSuccess('Igreja criada com sucesso');
+        this.toast.openSuccess(MESSAGES.CREATE_SUCCESS);
         this.dialogRef.close(this.churchForm.value);
       },
       error: () => {
-        this.loadingService.hide();
-        this.snackbarService.openError('Erro ao criar a igreja');
+        this.loading.hide();
+        this.toast.openError(MESSAGES.CREATE_ERROR);
       },
-      complete: () => this.loadingService.hide(),
+      complete: () => this.loading.hide(),
     });
   };
 
   handleUpdate = (churchId: string) => {
-    this.loadingService.show();
+    this.loading.show();
     this.churchsService
       .updateChurch(churchId!, this.churchForm.value)
       .subscribe({
         next: () => {
-          this.snackbarService.openSuccess('Igreja atualizada com sucesso');
+          this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS);
           this.dialogRef.close(this.churchForm.value);
         },
         error: () => {
-          this.loadingService.hide();
-          this.snackbarService.openError('Erro ao atualizar a igreja.');
+          this.loading.hide();
+          this.toast.openError(MESSAGES.UPDATE_ERROR);
         },
-        complete: () => this.loadingService.hide(),
+        complete: () => this.loading.hide(),
       });
   };
 
@@ -241,31 +254,24 @@ export class ChurchComponent implements OnInit, OnDestroy {
       .subscribe((church: Church) => {
         this.churchForm.patchValue({
           ...church,
-          responsable_id: church.responsible.name,
-          updated_at: dayjs(church.updated_at).format(
-            'DD/MM/YYYY [às] HH:mm:ss',
-          ),
+          updated_at: dayjs(church.updated_at).format('DD/MM/YYYY [às] HH:mm'),
         });
+        this.responsible = church.responsible ? [church.responsible] : [];
       });
   };
 
   fetchResponsables() {
-    this.churchsService.getResponsables().subscribe({
-      next: (responsible) => {
-        this.responsible = responsible;
-        this.filteredResponsables$ = this.searchControl.valueChanges.pipe(
-          debounceTime(300),
-          startWith(''),
-          map((searchTerm) =>
-            this.filterResponsables(searchTerm ?? '').sort((a, b) =>
-              a.name.localeCompare(b.name),
-            ),
+    this.churchsService.getResponsables().subscribe((responsables) => {
+      this.responsible = responsables;
+      this.filteredResponsables$ = this.searchControl.valueChanges.pipe(
+        debounceTime(300),
+        startWith(''),
+        map((searchTerm) =>
+          this.filterResponsables(searchTerm ?? '').sort((a, b) =>
+            a.name.localeCompare(b.name),
           ),
-        );
-      },
-      error: (error) => {
-        this.snackbarService.openError(error.message);
-      },
+        ),
+      );
     });
   }
 
@@ -280,31 +286,27 @@ export class ChurchComponent implements OnInit, OnDestroy {
     const responsible = this.responsible.find(
       (resp) => resp.id === responsibleId,
     );
-    return responsible?.name || 'Selecione o responsável';
+    return responsible ? responsible.name : 'Selecione o responsável';
   }
 
   searchCep(cep: string): void {
     if (this.churchForm.get('cep')?.value?.length === '') {
       return;
     }
+
     this.cepService.searchCep(cep).subscribe({
       next: (data: Address) => {
         if (data) {
-          this.loadingService.show();
           this.churchForm.patchValue({
             street: data.street || '',
             district: data.neighborhood || '',
             city: data.city || '',
             state: data.state || '',
           });
-          this.loadingService.hide();
         }
       },
-      error: () => {
-        this.loadingService.hide();
-        this.snackbarService.openError('CEP não encontrado!');
-      },
-      complete: () => this.loadingService.hide(),
+      error: () => this.loading.hide(),
+      complete: () => this.loading.hide(),
     });
   }
 }

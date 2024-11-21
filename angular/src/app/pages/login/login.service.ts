@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { CoreService } from 'app/service/core/core.service';
+import { ToastService } from 'app/components/toast/toast.service';
+import { CoreService } from 'app/services/core/core.service';
 import { LoadingService } from '../../components/loading/loading.service';
-import { AuthService } from '../../service/auth/auth.service';
-import { SnackbarService } from '../../service/snackbar/snackbar.service';
+import { AuthService } from '../../services/auth/auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,8 +10,7 @@ import { SnackbarService } from '../../service/snackbar/snackbar.service';
 export class LoginService {
   constructor(
     private authService: AuthService,
-    private router: Router,
-    private snackbarService: SnackbarService,
+    private toast: ToastService,
     private loading: LoadingService,
     private core: CoreService,
   ) {}
@@ -40,9 +38,9 @@ export class LoginService {
 
   private handleLoginError(err: any) {
     if (err.status === 401) {
-      this.snackbarService.openError('Login ou senha inválidos');
+      this.toast.openError('Login ou senha inválidos');
     } else {
-      this.snackbarService.openError('Erro ao tentar realizar login');
+      this.toast.openError('Erro ao tentar realizar login');
     }
   }
 }

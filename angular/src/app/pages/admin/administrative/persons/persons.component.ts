@@ -1,27 +1,30 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+  ViewChild,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import {
-  MatPaginator,
-  MatPaginatorModule,
-  PageEvent,
-} from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
-import { MESSAGES } from 'app/service/snackbar/messages';
-import { NotFoundRegisterComponent } from '../../../../components/not-found-register/not-found-register.component';
-import { TableComponent } from '../../../../components/table/table.component';
-import { Person } from '../../../../model/Person';
-import { SnackbarService } from '../../../../service/snackbar/snackbar.service';
+import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
+import { ToastService } from 'app/components/toast/toast.service';
+import { Person } from 'app/model/Person';
+import { MESSAGES } from 'app/utils/messages';
+import { FormatValuesPipe } from 'app/utils/pipes/format-values.pipe';
 import { PersonComponent } from './person/person.component';
 import { PersonsService } from './persons.service';
 
@@ -40,29 +43,27 @@ import { PersonsService } from './persons.service';
     MatInputModule,
     MatCardModule,
     MatTooltipModule,
-    TableComponent,
     MatIconModule,
     NotFoundRegisterComponent,
     CommonModule,
+    FormatValuesPipe,
   ],
 })
-export class PersonsComponent implements OnInit {
+export class PersonsComponent implements OnInit, AfterViewInit, OnChanges {
   persons: Person[] = [];
-  totalPersons = 0;
-  pageSize = 25;
-  pageIndex = 0;
   pageSizeOptions: number[] = [25, 50, 100, 200];
+  pageSize: number = 25;
   dataSourceMat = new MatTableDataSource<Person>(this.persons);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   columnDefinitions = [
-    { key: 'name', header: 'Nome' },
-    { key: 'cpf', header: 'CPF' },
-    { key: 'email', header: 'Email' },
-    { key: 'birth_date', header: 'Data de Nascimento' },
-    { key: 'sex', header: 'Sexo' },
-    { key: 'phone_one', header: 'Celular' },
+    { key: 'name', header: 'Nome', type: 'string' },
+    { key: 'cpf', header: 'CPF', type: 'cpf' },
+    { key: 'email', header: 'Email', type: 'string' },
+    { key: 'birth_date', header: 'Data de Nascimento', type: 'date' },
+    { key: 'sex', header: 'Sexo', type: 'sex' },
+    { key: 'phone_one', header: 'Celular', type: 'phone' },
   ];
 
   displayedColumns = this.columnDefinitions
@@ -71,7 +72,7 @@ export class PersonsComponent implements OnInit {
 
   constructor(
     private personsService: PersonsService,
-    private snackbarService: SnackbarService,
+    private toast: ToastService,
     private loading: LoadingService,
     private confirmService: ConfirmService,
     private modalService: ModalService,
@@ -81,27 +82,10 @@ export class PersonsComponent implements OnInit {
     this.loadPersons();
   }
 
-  loadPersons = () => {
-    this.personsService.getPersons().subscribe({
-      next: (response) => {
-        this.persons = response;
-        this.dataSourceMat.data = this.persons;
-        if (this.paginator) {
-          this.paginator.length = this.totalPersons;
-          this.paginator.pageIndex = this.pageIndex;
-          this.paginator.pageSize = this.pageSize;
-          this.paginator.pageSizeOptions = this.pageSizeOptions;
-        }
-      },
-      error: () => this.snackbarService.openError(MESSAGES.LOADING_ERROR),
-      complete: () => this.loading.hide(),
-    });
-  };
-
-  onPageChange(event: PageEvent) {
-    this.pageIndex = event.pageIndex;
-    this.pageSize = event.pageSize;
-    //this.loadPersons();
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['persons'] && changes['persons'].currentValue) {
+      this.dataSourceMat.data = this.persons;
+    }
   }
 
   applyFilter(event: Event) {
@@ -109,15 +93,33 @@ export class PersonsComponent implements OnInit {
       .trim()
       .toLowerCase();
 
-    this.dataSourceMat.data = this.persons.filter((person: Person) => {
-      return Object.values(person).some((value) =>
-        value?.toString().toLowerCase().includes(filterValue),
-      );
-    });
+    this.dataSourceMat.filterPredicate = (data: any, filter: string) => {
+      return this.searchInObject(data, filter);
+    };
+
+    this.dataSourceMat.filter = filterValue;
 
     if (this.dataSourceMat.paginator) {
       this.dataSourceMat.paginator.firstPage();
     }
+  }
+
+  searchInObject(obj: any, searchText: string): boolean {
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        const value = obj[key];
+        if (typeof value === 'object' && value !== null) {
+          if (this.searchInObject(value, searchText)) {
+            return true;
+          }
+        } else {
+          if (String(value).toLowerCase().includes(searchText)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   ngAfterViewInit() {
@@ -125,18 +127,18 @@ export class PersonsComponent implements OnInit {
     this.dataSourceMat.sort = this.sort;
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['persons'] && changes['persons'].currentValue) {
-      this.dataSourceMat.data = this.persons;
-      this.dataSourceMat.paginator = this.paginator;
-      this.dataSourceMat.paginator.pageSize = this.pageSize;
-      this.dataSourceMat.paginator.pageIndex = this.pageIndex;
-    }
-  }
-
-  getNestedValue(member: any, key: string): any {
-    return key.split('.').reduce((o, k) => (o ? o[k] : null), member);
-  }
+  loadPersons = () => {
+    this.personsService.getPersons().subscribe({
+      next: (response) => {
+        this.persons = response;
+        this.dataSourceMat.data = this.persons;
+        this.dataSourceMat.paginator = this.paginator;
+        this.dataSourceMat.sort = this.sort;
+      },
+      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
+      complete: () => this.loading.hide(),
+    });
+  };
 
   addNewPerson = (): void => {
     const dialogRef = this.modalService.openModal(
@@ -149,8 +151,10 @@ export class PersonsComponent implements OnInit {
       {},
     );
 
-    dialogRef.afterClosed().subscribe((newPerson) => {
-      if (newPerson) this.loadPersons();
+    dialogRef.afterClosed().subscribe((person: Person) => {
+      if (person) {
+        this.loadPersons();
+      }
     });
   };
 
@@ -165,8 +169,10 @@ export class PersonsComponent implements OnInit {
       { person },
     );
 
-    dialogRef.afterClosed().subscribe((updatedPerson) => {
-      if (updatedPerson) this.loadPersons();
+    dialogRef.afterClosed().subscribe((person: Person) => {
+      if (person) {
+        this.loadPersons();
+      }
     });
   };
 
@@ -179,17 +185,17 @@ export class PersonsComponent implements OnInit {
         'Cancelar',
       )
       .afterClosed()
-      .subscribe((result: Person) => {
-        if (result) {
+      .subscribe((person: Person) => {
+        if (person) {
           this.loading.show();
           this.personsService.deletePerson(person.id).subscribe({
             next: () => {
-              this.snackbarService.openSuccess(MESSAGES.DELETE_SUCCESS);
+              this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
               this.loadPersons();
             },
             error: () => {
               this.loading.hide();
-              this.snackbarService.openError(MESSAGES.DELETE_ERROR);
+              this.toast.openError(MESSAGES.DELETE_ERROR);
             },
             complete: () => this.loading.hide(),
           });

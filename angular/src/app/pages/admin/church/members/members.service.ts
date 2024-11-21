@@ -8,8 +8,7 @@ import {
   MemberSituations,
 } from 'app/model/Auxiliaries';
 import { MemberOrigin } from 'app/model/MemberOrigins';
-import { CpfFormatPipe } from 'app/utils/pipe/CpfFormatPipe';
-import { map, Observable } from 'rxjs';
+import { forkJoin, map, Observable, switchMap } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 
 import { Church } from 'app/model/Church';
@@ -17,9 +16,6 @@ import { Families } from 'app/model/Families';
 import { Members } from 'app/model/Members';
 import { Ordination } from 'app/model/Ordination';
 import { Person } from 'app/model/Person';
-import { DateFormatPipe } from 'app/utils/pipe/BirthDateFormatPipe';
-import { SexFormatPipe } from 'app/utils/pipe/SexFormatPipe';
-import { PhoneFormatPipe } from 'app/utils/pipe/phone-format.pipe';
 import { FamiliesService } from './shared/families/families.service';
 
 @Injectable({
@@ -33,18 +29,13 @@ export class MembersService {
 
   private api = `${environment.apiUrl}/church/members`;
 
-  private formatCpfPipe = new CpfFormatPipe();
-  private formatDatePipe = new DateFormatPipe();
-  private formatSexPipe = new SexFormatPipe();
-  private formatPhonePipe = new PhoneFormatPipe();
-
   getFamilyOfMember(memberId: string): Observable<Families[]> {
     return this.familiesService.getFamilyByMemberId(memberId);
   }
 
   getOrdinationByMemberId(memberId: string): Observable<Ordination[]> {
     return this.http.get<Ordination[]>(
-      `${environment.apiUrl}/church/ordination?member_id=${memberId}`,
+      `${environment.apiUrl}/church/members/${memberId}`,
     );
   }
 
@@ -88,6 +79,23 @@ export class MembersService {
 
   getMembers(): Observable<Members[]> {
     return this.http.get<Members[]>(this.api).pipe(
+      switchMap((members: Members[]) => {
+        const memberRequests = members.map((member: Members) => {
+          return this.getFamilyOfMember(member.id).pipe(
+            map((families) => {
+              member.families = families;
+              return member;
+            }),
+          );
+        });
+
+        return forkJoin(memberRequests);
+      }),
+    );
+  }
+
+  /* getMembers(): Observable<Members[]> {
+    return this.http.get<Members[]>(this.api).pipe(
       map((members: Members[]) => {
         return members.map((member: Members) => {
           if (member.person) {
@@ -108,11 +116,12 @@ export class MembersService {
           } else {
             member.families = [];
           }
+
           return member;
         });
       }),
     );
-  }
+  } */
 
   getMemberById(id: string): Observable<Members> {
     return this.http.get<Members>(`${this.api}/${id}`);

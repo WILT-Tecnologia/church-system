@@ -137,6 +137,16 @@ a:hover {
   }
 }
 
+.snackbar-warning {
+  .mdc-snackbar__surface {
+    background-color: theme.$warning !important;
+  }
+
+  .mdc-snackbar__label {
+    color: theme.$white !important;
+  }
+}
+
 /* Estilos de SnackBar */
 
 /***********************************************************/

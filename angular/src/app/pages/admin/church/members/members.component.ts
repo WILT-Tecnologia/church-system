@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -24,11 +24,11 @@ import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
+import { ToastService } from 'app/components/toast/toast.service';
 import { Families } from 'app/model/Families';
 import { Members } from 'app/model/Members';
-import { MESSAGES } from 'app/service/snackbar/messages';
-import { SnackbarService } from 'app/service/snackbar/snackbar.service';
-import { DateFormatPipe } from 'app/utils/pipe/BirthDateFormatPipe';
+import { MESSAGES } from 'app/utils/messages';
+import { FormatValuesPipe } from 'app/utils/pipes/format-values.pipe';
 import { MemberComponent } from './member/member.component';
 import { MembersService } from './members.service';
 
@@ -51,9 +51,9 @@ import { MembersService } from './members.service';
     MatTooltipModule,
     MatDialogModule,
     CommonModule,
+    FormatValuesPipe,
     NotFoundRegisterComponent,
   ],
-  providers: [DatePipe],
 })
 export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
   member: Members[] = [];
@@ -65,14 +65,18 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
   families!: Families[];
 
   columnDefinitions = [
-    { key: 'person.name', header: 'Nome' },
-    { key: 'person.cpf', header: 'CPF' },
-    { key: 'person.email', header: 'Email' },
-    { key: 'person.birth_date', header: 'Data de Nascimento' },
-    { key: 'person.sex', header: 'Sexo' },
-    { key: 'person.phone_one', header: 'Celular' },
-    { key: 'church.name', header: 'Igreja' },
-    { key: 'church.responsible.name', header: 'Pastor presidente' },
+    { key: 'person.name', header: 'Nome', type: 'string' },
+    { key: 'person.cpf', header: 'CPF', type: 'cpf' },
+    { key: 'person.email', header: 'Email', type: 'string' },
+    { key: 'person.birth_date', header: 'Data de Nascimento', type: 'date' },
+    { key: 'person.sex', header: 'Sexo', type: 'sex' },
+    { key: 'person.phone_one', header: 'Celular', type: 'phone' },
+    { key: 'church.name', header: 'Igreja', type: 'string' },
+    {
+      key: 'church.responsible.name',
+      header: 'Pastor presidente',
+      type: 'string',
+    },
     { key: 'baptism_date', header: 'Data do batismo', type: 'date' },
   ];
 
@@ -80,12 +84,10 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
     .map((col) => col.key)
     .concat('actions');
 
-  dateFormatPipe = new DateFormatPipe();
-
   constructor(
     private confirmeService: ConfirmService,
     private loading: LoadingService,
-    private snackbarService: SnackbarService,
+    private toast: ToastService,
     private memberService: MembersService,
     private modalService: ModalService,
   ) {}
@@ -93,20 +95,6 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
   ngOnInit() {
     this.loadMembers();
   }
-
-  loadMembers = () => {
-    this.loading.show();
-    this.memberService.getMembers().subscribe({
-      next: (members) => {
-        this.member = members;
-        this.dataSourceMat.data = this.member;
-        this.dataSourceMat.paginator = this.paginator;
-        this.dataSourceMat.sort = this.sort;
-      },
-      error: () => this.snackbarService.openError(MESSAGES.LOADING_ERROR),
-      complete: () => this.loading.hide(),
-    });
-  };
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['member'] && changes['member'].currentValue) {
@@ -153,9 +141,19 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
     this.dataSourceMat.sort = this.sort;
   }
 
-  getNestedValue(member: any, key: string): any {
-    return key.split('.').reduce((o, k) => (o ? o[k] : null), member);
-  }
+  loadMembers = () => {
+    this.loading.show();
+    this.memberService.getMembers().subscribe({
+      next: (members) => {
+        this.member = members;
+        this.dataSourceMat.data = this.member;
+        this.dataSourceMat.paginator = this.paginator;
+        this.dataSourceMat.sort = this.sort;
+      },
+      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
+      complete: () => this.loading.hide(),
+    });
+  };
 
   addNewMembers = () => {
     const dialogRef = this.modalService.openModal(
@@ -188,17 +186,20 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
       'dialog',
     );
 
+    dialogRef.afterOpened().subscribe(() => {
+      this.memberService
+        .getFamilyOfMember(member.id)
+        .subscribe((families: Families[]) => {
+          const component =
+            dialogRef.componentInstance as unknown as MemberComponent;
+          if (component) {
+            component.families = families;
+          }
+        });
+    });
+
     dialogRef.afterClosed().subscribe((result: Members) => {
       if (result) {
-        this.memberService
-          .getFamilyOfMember(member.id)
-          .subscribe((families: Families[]) => {
-            member.families = families;
-            const component = dialogRef.componentInstance as unknown;
-            if (component instanceof MemberComponent) {
-              (component as MemberComponent).families = families;
-            }
-          });
         this.loadMembers();
       }
     });
@@ -218,12 +219,12 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
           this.loading.show();
           this.memberService.deleteMember(members.id).subscribe({
             next: () => {
-              this.snackbarService.openSuccess(MESSAGES.DELETE_SUCCESS);
+              this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
               this.loadMembers();
             },
             error: () => {
               this.loading.hide();
-              this.snackbarService.openError(MESSAGES.DELETE_ERROR);
+              this.toast.openError(MESSAGES.DELETE_ERROR);
             },
             complete: () => this.loading.hide(),
           });

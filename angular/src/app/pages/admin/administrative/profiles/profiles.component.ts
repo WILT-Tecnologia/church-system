@@ -3,10 +3,12 @@ import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { Router } from '@angular/router';
-import { NotFoundRegisterComponent } from '../../../../components/not-found-register/not-found-register.component';
-import { TableComponent } from '../../../../components/table/table.component';
-import { Profile } from '../../../../model/Profile';
-import { SnackbarService } from '../../../../service/snackbar/snackbar.service';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
+import { TableComponent } from 'app/components/table/table.component';
+import { ToastService } from 'app/components/toast/toast.service';
+import { Profile } from 'app/model/Profile';
+import { MESSAGES } from 'app/utils/messages';
 import { ProfilesService } from './profiles.service';
 
 @Component({
@@ -35,7 +37,8 @@ export class ProfilesComponent implements OnInit {
   constructor(
     private router: Router,
     private profilesService: ProfilesService,
-    private snackbarService: SnackbarService
+    private toast: ToastService,
+    private loading: LoadingService,
   ) {}
 
   ngOnInit() {
@@ -43,27 +46,35 @@ export class ProfilesComponent implements OnInit {
   }
 
   loadProfiles = () => {
-    this.profilesService.getProfiles().subscribe((profiles) => {
-      this.profiles = profiles;
+    this.loading.show();
+    this.profilesService.getProfiles().subscribe({
+      next: (profiles) => {
+        this.profiles = profiles;
+      },
+      error: () => {
+        this.loading.hide();
+        this.toast.openError(MESSAGES.LOADING_ERROR);
+      },
+      complete: () => this.loading.hide(),
     });
   };
 
   addNewProfile = (): void => {
-    this.router.navigate(['administrative/profiles/profile/new']);
+    console.log('addNewProfile');
   };
 
   editProfile = (profile: Profile): void => {
-    this.router.navigate(['administrative/profiles/profile/edit', profile.id]);
+    console.log('editProfile', profile);
   };
 
   deleteProfile = (profile: Profile): void => {
     this.profilesService.deleteProfile(profile.id).subscribe({
       next: () => {
-        this.snackbarService.openSuccess('Perfil excluído com sucesso!');
+        this.toast.openSuccess('Perfil excluído com sucesso!');
         this.loadProfiles();
       },
       error: () => {
-        this.snackbarService.openError('Erro ao excluir o perfil!');
+        this.toast.openError('Erro ao excluir o perfil!');
       },
     });
   };

@@ -1,26 +1,56 @@
-<mat-card *ngIf="persons.length > 0; else noDataTemplate">
+<mat-card *ngIf="persons && persons.length > 0; else noDataTemplate">
   <div class="add-button">
     <button mat-raised-button color="primary" (click)="addNewPerson()">
       Adicionar
     </button>
   </div>
   <div class="filter-container">
-    <mat-form-field class="search">
-      <mat-label>Pesquisar</mat-label>
-      <input matInput (input)="applyFilter($event)" placeholder="Digite para pesquisar" />
+    <mat-form-field appearance="fill" class="search">
+      <div class="flex flex-row gap-2">
+        <mat-icon>search</mat-icon>
+        <input matInput (input)="applyFilter($event)" placeholder="Digite para pesquisar" />
+      </div>
     </mat-form-field>
-    <mat-paginator [pageSizeOptions]="pageSizeOptions" [length]="totalPersons" [pageSize]="pageSize"
-      (page)="onPageChange($event)" [pageIndex]="pageIndex" [length]="totalPersons"
-      showFirstLastButtons></mat-paginator>
+    <mat-paginator [pageSizeOptions]="pageSizeOptions" [pageSize]="pageSize" showFirstLastButtons></mat-paginator>
   </div>
+
   <div class="mat-table-responsive">
     <table mat-table [dataSource]="dataSourceMat" matSort class="mat-elevation-z1">
       <ng-container *ngFor="let column of columnDefinitions" [matColumnDef]="column.key">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>
-          {{ column.header }}
-        </th>
-        <td mat-cell [matTooltip]="getNestedValue(person, column.key)" *matCellDef="let person">
-          {{ getNestedValue(person, column.key) }}
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ column.header }}</th>
+        <td mat-cell [matTooltip]="persons | formatValues : column.key : column.type"
+          [matTooltipPositionAtOrigin]="true" *matCellDef="let persons">
+          <ng-container *ngIf="column.type === 'date'">
+            {{ persons | formatValues : column.key : column.type }}
+          </ng-container>
+          <ng-container *ngIf="column.type === 'string'">
+            {{ persons | formatValues : column.key : column.type }}
+          </ng-container>
+          <ng-container *ngIf="column.type === 'cpf'">
+            {{ persons | formatValues : column.key : column.type }}
+          </ng-container>
+          <ng-container *ngIf="column.type === 'cnpj'">
+            {{ persons | formatValues : column.key : column.type }}
+          </ng-container>
+          <ng-container *ngIf="column.type === 'datetime'">
+            {{ persons | formatValues : column.key : column.type }}
+          </ng-container>
+          <ng-container *ngIf="column.type === 'phone'">
+            {{ persons | formatValues : column.key : column.type }}
+          </ng-container>
+          <ng-container *ngIf="column.type === 'sex'">
+            {{ persons | formatValues : column.key : column.type }}
+          </ng-container>
+          <ng-container *ngIf="column.type === 'number'">
+            {{ persons | formatValues : column.key : column.type }}
+          </ng-container>
+          <ng-container *ngIf="column.type === 'boolean'">
+            <span [ngClass]="
+                                  persons[column.key] ? 'status-active' : 'status-inactive'
+                                ">
+              {{ persons[column.key] ? 'Ativado' : 'Desativado' }}
+            </span>
+          </ng-container>
         </td>
       </ng-container>
 
