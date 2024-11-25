@@ -12,6 +12,4 @@ export type Families = {
   person_id: string;
   kinship: Kinships;
   kinship_id: string;
-  created_at: string;
-  updated_at: string;
 };

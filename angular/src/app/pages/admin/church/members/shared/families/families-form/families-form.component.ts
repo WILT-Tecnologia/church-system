@@ -83,12 +83,11 @@ export class FamiliesFormComponent implements OnInit {
     public data: { families: Families },
   ) {
     this.familyForm = this.createForm();
-
-    this.checkEditMode();
   }
 
   ngOnInit() {
     this.loadInitialData();
+    this.checkEditMode();
   }
 
   createForm(): FormGroup {
@@ -107,7 +106,6 @@ export class FamiliesFormComponent implements OnInit {
         this.data?.families?.kinship?.id ?? '',
         [Validators.required],
       ],
-      updated_at: [this.data?.families?.updated_at ?? ''],
     });
   }
 
@@ -164,18 +162,20 @@ export class FamiliesFormComponent implements OnInit {
         this.kinships = kinships;
         this.initializeFilters();
       },
-      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
+      error: () => {
+        this.loadingService.hide();
+        this.toast.openError(MESSAGES.LOADING_ERROR);
+      },
+      complete: () => this.loadingService.hide(),
     });
   }
 
   private checkEditMode() {
-    if (this.data && this.data?.families) {
-      this.isEditMode = true;
+    console.log(this.data);
+    if (this.data && this.data?.families.id && this.data?.families) {
       this.familyId = this.data?.families.id;
+      this.isEditMode = true;
       this.handleEdit();
-    } else {
-      const defaultMemberId = this.data?.families?.member_id || '';
-      this.familyForm.get('member_id')?.setValue(defaultMemberId);
     }
   }
 
@@ -213,30 +213,24 @@ export class FamiliesFormComponent implements OnInit {
     return this.familyForm.get('is_member')?.value;
   }
 
-  displayNameMember(): string {
+  displayNameMember = (): string => {
     const memberId = this.familyForm.get('member_id')?.value;
     const selectedMember = this.members.find(
       (member) => member.id === memberId,
     );
     return selectedMember ? selectedMember.person.name : 'Selecione o membro';
-  }
+  };
 
   displayNamePerson = (): string => {
     const personId = this.familyForm.get('person_id')?.value;
-    if (personId) {
-      const person = this.persons.find((r) => r.id === personId);
-      return person?.name ?? 'Selecione a pessoa';
-    }
-    return 'Selecione a pessoa';
+    const person = this.persons.find((r) => r.id === personId);
+    return person ? person?.name : 'Selecione a pessoa';
   };
 
   displayNameKinship = (): string => {
     const kinshipId = this.familyForm.get('kinship_id')?.value;
-    if (kinshipId) {
-      const kinship = this.kinships.find((r) => r.id === kinshipId);
-      return kinship?.name ?? 'Selecione o parentesco';
-    }
-    return 'Selecione o parentesco';
+    const kinship = this.kinships.find((r) => r.id === kinshipId);
+    return kinship ? kinship?.name : 'Selecione o parentesco';
   };
 
   getErrorMessage(controlName: string) {
@@ -276,7 +270,7 @@ export class FamiliesFormComponent implements OnInit {
   onSuccess(message: string) {
     this.loadingService.hide();
     this.toast.openSuccess(message);
-    this.dialogRef.close();
+    this.dialogRef.close(this.familyForm.value);
   }
 
   onError(message: string) {

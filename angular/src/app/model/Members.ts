@@ -2,6 +2,7 @@ import { CivilStatus, ColorRace, Formations } from './Auxiliaries';
 import { Church } from './Church';
 import { Families } from './Families';
 import { MemberOrigin } from './MemberOrigins';
+import { Ordination } from './Ordination';
 import { Person } from './Person';
 
 export type Members = {
@@ -40,5 +41,6 @@ export type Members = {
   receipt_date: string;
   created_at: string;
   updated_at: string;
-  families?: Families[];
+  family: Families[];
+  ordination: Ordination;
 };

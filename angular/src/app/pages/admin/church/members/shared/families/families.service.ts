@@ -6,12 +6,16 @@ import { Members } from 'app/model/Members';
 import { Person } from 'app/model/Person';
 import { environment } from 'environments/environment';
 import { Observable } from 'rxjs';
+import { MembersService } from '../../members.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FamiliesService {
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private membersService: MembersService,
+  ) {}
 
   private api = `${environment.apiUrl}/church/families`;
 
@@ -27,18 +31,16 @@ export class FamiliesService {
     return this.http.get<Members[]>(`${environment.apiUrl}/church/members`);
   }
 
+  /* getMember(memberId: string): Observable<Members> {
+    return this.membersService.getMemberById(memberId);
+  } */
+
   getFamilies(): Observable<Families[]> {
     return this.http.get<Families[]>(this.api);
   }
 
   getFamily(id: string): Observable<Families> {
     return this.http.get<Families>(`${this.api}/${id}`);
-  }
-
-  getFamilyByMemberId(memberId: string): Observable<Families[]> {
-    return this.http.get<Families[]>(
-      `${environment.apiUrl}/church/members/${memberId}`,
-    );
   }
 
   createFamily(family: Families): Observable<Families> {

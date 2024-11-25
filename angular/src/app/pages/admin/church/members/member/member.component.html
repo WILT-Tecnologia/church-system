@@ -9,7 +9,7 @@
               <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>Pessoa</mat-label>
-                  <mat-select formControlName="person_id">
+                  <mat-select formControlName="person_id" (openedChange)="onPersonSelectOpened($event)">
                     <mat-select-trigger>
                       {{ getPersonName() }}
                     </mat-select-trigger>
@@ -17,7 +17,7 @@
                       <mat-form-field appearance="outline" class="search-field">
                         <div class="flex flex-row gap-2">
                           <mat-icon>search</mat-icon>
-                          <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
+                          <input matInput placeholder="Digite para buscar" [formControl]="searchControlPerson" />
                         </div>
                       </mat-form-field>
                       <mat-option *ngFor="let person of persons" [value]="person.id">
@@ -35,14 +35,14 @@
                 </mat-form-field>
                 <mat-form-field appearance="fill">
                   <mat-label>Igreja</mat-label>
-                  <mat-select formControlName="church_id">
+                  <mat-select formControlName="church_id" (openedChange)="onChurchSelectOpened($event)">
                     <mat-select-trigger>
                       {{ getChurchName() }}
                     </mat-select-trigger>
                     <ng-container *ngIf="filteredChurch$ | async as churches">
                       <mat-form-field appearance="fill" class="search-field">
                         <mat-label>Pesquisar</mat-label>
-                        <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
+                        <input matInput placeholder="Digite para buscar" [formControl]="searchControlChurch" />
                       </mat-form-field>
                       <mat-option *ngFor="let church of churches" [value]="church.id">
                         {{ church.name }}
@@ -85,7 +85,7 @@
                     <ng-container *ngIf="filteredCivilStatus | async as civilStatusList">
                       <mat-form-field appearance="fill" class="search-field">
                         <mat-label>Pesquisar</mat-label>
-                        <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
+                        <input matInput placeholder="Digite para buscar" [formControl]="searchControlCivilStatus" />
                       </mat-form-field>
                       <mat-option *ngFor="let civilStatus of civilStatusList" [value]="civilStatus.id">
                         {{ civilStatus.name }}
@@ -106,7 +106,7 @@
                     <ng-container *ngIf="filteredColorRace | async as colorRaces">
                       <mat-form-field appearance="fill" class="search-field">
                         <mat-label>Pesquisar</mat-label>
-                        <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
+                        <input matInput placeholder="Digite para buscar" [formControl]="searchControlColorRace" />
                       </mat-form-field>
                       <mat-option *ngFor="let colorRace of colorRaces" [value]="colorRace.id">
                         {{ colorRace.name }}
@@ -159,7 +159,7 @@
                     <ng-container *ngIf="filteredFormations | async as formationList">
                       <mat-form-field appearance="fill" class="search-field">
                         <mat-label>Pesquisar</mat-label>
-                        <input matInput placeholder="Digite para buscar" [formControl]="searchControl" />
+                        <input matInput placeholder="Digite para buscar" [formControl]="searchControlFormations" />
                       </mat-form-field>
                       <mat-option *ngFor="let formations of formationList" [value]="formations.id">
                         {{ formations.name }}
@@ -307,7 +307,7 @@
                     </mat-select-trigger>
                     <mat-form-field appearance="fill" (click)="$event.stopPropagation()">
                       <mat-label>Pesquisar</mat-label>
-                      <input matInput placeholder="Digite para buscar" [formControl]="searchControl"
+                      <input matInput placeholder="Digite para buscar" [formControl]="searchControlMemberOrigins"
                         (click)="$event.stopPropagation()" />
                     </mat-form-field>
                     <mat-option *ngFor="let memberOrigin of filterMemberOrigins | async" [value]="memberOrigin.id">
@@ -370,8 +370,8 @@
           *ngIf="currentStep < 2">
           Avançar
         </button>
-        <button mat-raised-button color="primary" type="submit" [disabled]="memberForm.invalid"
-          *ngIf="currentStep === 2">
+        <button mat-raised-button color="primary" type="submit" (click)="finalizeStepThree()"
+          [disabled]="memberForm.invalid" *ngIf="currentStep === 2">
           Cadastrar
         </button>
       </ng-container>
