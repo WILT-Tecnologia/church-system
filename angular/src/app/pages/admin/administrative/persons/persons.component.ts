@@ -191,13 +191,15 @@ export class PersonsComponent implements OnInit, AfterViewInit, OnChanges {
           this.personsService.deletePerson(person.id).subscribe({
             next: () => {
               this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
-              this.loadPersons();
             },
             error: () => {
               this.loading.hide();
               this.toast.openError(MESSAGES.DELETE_ERROR);
             },
-            complete: () => this.loading.hide(),
+            complete: () => {
+              this.loadPersons();
+              this.loading.hide();
+            },
           });
         }
       });

@@ -81,7 +81,7 @@ a:hover {
 }
 
 .active {
-  color: theme.$greenMain;
+  color: theme.$success;
 }
 
 .inactive {
@@ -213,6 +213,17 @@ mat-form-field {
 
   @media screen and (max-width: 768px) {
     width: 100%;
+    flex-direction: column-reverse;
+  }
+}
+
+.button-group {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 1rem;
+
+  @media screen and (max-width: 768px) {
     flex-direction: column-reverse;
   }
 }

@@ -45,9 +45,7 @@
             {{ persons | formatValues : column.key : column.type }}
           </ng-container>
           <ng-container *ngIf="column.type === 'boolean'">
-            <span [ngClass]="
-                                  persons[column.key] ? 'status-active' : 'status-inactive'
-                                ">
+            <span [ngClass]="persons[column.key] ? 'active' : 'inactive'">
               {{ persons[column.key] ? 'Ativado' : 'Desativado' }}
             </span>
           </ng-container>
