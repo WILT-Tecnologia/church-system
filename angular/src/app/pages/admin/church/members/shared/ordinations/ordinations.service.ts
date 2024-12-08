@@ -34,7 +34,7 @@ export class OrdinationsService {
 
   getOrdinationByMemberId(memberId: string): Observable<Ordination[]> {
     return this.http.get<Ordination[]>(
-      `${environment.apiUrl}/church/ordination?member_id=${memberId}`,
+      `${environment.apiUrl}/church/ordination/${memberId}`,
     );
   }
 
