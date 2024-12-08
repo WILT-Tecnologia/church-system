@@ -30,6 +30,7 @@ import { Members } from 'app/model/Members';
 import { Ordination } from 'app/model/Ordination';
 import { MESSAGES } from 'app/utils/messages';
 import { FormatValuesPipe } from 'app/utils/pipes/format-values.pipe';
+import { MemberService } from '../member.service';
 import { OrdinationFormComponent } from './ordination-form/ordination-form.component';
 import { OrdinationsService } from './ordinations.service';
 
@@ -65,11 +66,11 @@ export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
   @ViewChild(MatSort) sort!: MatSort;
 
   columnDefinitions = [
-    { key: 'member.person.name', header: 'Membros', type: 'string' },
+    { key: 'status', header: 'Status', type: 'boolean' },
+    { key: 'member.person.name', header: 'Membro', type: 'string' },
     { key: 'occupation.name', header: 'Ocupação', type: 'string' },
     { key: 'initial_date', header: 'Data Inicial', type: 'date' },
     { key: 'end_date', header: 'Data Final', type: 'date' },
-    { key: 'status', header: 'Status', type: 'boolean' },
   ];
 
   displayedColumns = this.columnDefinitions
@@ -80,13 +81,13 @@ export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
     private confirmeService: ConfirmService,
     private loadingService: LoadingService,
     private toast: ToastService,
-    private ordinationService: OrdinationsService,
     private modalService: ModalService,
+    private ordinationService: OrdinationsService,
+    private memberService: MemberService,
   ) {}
 
   ngOnInit() {
     this.loadOrdinations();
-    this.loadMembers();
   }
 
   loadMembers = () => {
@@ -100,7 +101,8 @@ export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
 
   loadOrdinations = () => {
     this.loadingService.show();
-    this.ordinationService.getOrdinations().subscribe({
+    const memberId = this.memberService.getEditingMemberId();
+    this.ordinationService.getOrdinationByMemberId(memberId!).subscribe({
       next: (ordination) => {
         this.ordination = ordination;
         this.dataSourceMat.data = this.ordination;
@@ -114,10 +116,6 @@ export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
       complete: () => this.loadingService.hide(),
     });
   };
-
-  getNestedValue(obj: any, key: string): any {
-    return key.split('.').reduce((o, k) => (o ? o[k] : null), obj);
-  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['ordination'] && !changes['ordination'].firstChange) {
@@ -164,11 +162,6 @@ export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
     return false;
   }
 
-  getDefaultMemberId(): string | null {
-    console.log('getDefaultMemberId:', this.ordination[0]?.id);
-    return this.ordination.length > 0 ? this.ordination[0].id : null;
-  }
-
   openModalAddOrdination = () => {
     return this.modalService.openModal(
       `modal-${Math.random()}`,
@@ -177,121 +170,81 @@ export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
       true,
       [],
       true,
+      {},
+      'dialog',
     );
   };
 
   addNewOrdination = (): void => {
-    const defaultMemberId = this.getDefaultMemberId();
-    if (!defaultMemberId) {
-      this.toast.openError(
-        'Nenhum membro encontrado para associar à ordenação.',
-      );
-      return;
-    }
+    const defaultMemberId = this.memberService.getEditingMemberId();
 
-    this.modalService
-      .openModal(
-        `modal-${Math.random()}`,
-        OrdinationFormComponent,
-        'Adicionar ordinação',
-        true,
-        [],
-        true,
-        {
-          ordination: { member: { id: defaultMemberId } } as Ordination,
-        },
-        'dialog',
-      )
-      .afterClosed()
-      .subscribe({
-        next: (ordination: Ordination) => {
-          if (ordination) {
-            this.ordination = [...this.ordination, ordination];
-            this.dataSourceMat.data = this.ordination;
-            this.loadOrdinations();
-          }
-        },
-        error: () => {
-          this.loadingService.hide();
-          this.toast.openError(MESSAGES.CREATE_ERROR);
-        },
-        complete: () => this.loadingService.hide(),
-      });
+    const dialogRef = this.modalService.openModal(
+      `modal-${Math.random()}`,
+      OrdinationFormComponent,
+      'Adicionar ordinação',
+      true,
+      [],
+      true,
+      {
+        ordination: { member: { id: defaultMemberId } } as Ordination,
+      },
+      'dialog',
+    );
+
+    dialogRef.afterClosed().subscribe((result: Ordination) => {
+      if (result) {
+        this.loadOrdinations();
+      }
+    });
   };
 
   editOrdination = (ordination: Ordination): void => {
-    this.modalService
-      .openModal(
-        `modal-${Math.random()}`,
-        OrdinationFormComponent,
-        'Editar ordinação',
-        true,
-        [],
-        true,
-        {
-          ordination: ordination,
-          id: ordination.id,
-        },
-        'dialog',
-      )
-      .afterClosed()
-      .subscribe((result: Ordination) => {
-        if (result) {
-          this.loadingService.show();
-          this.ordinationService.getOrdinationById(ordination.id).subscribe({
-            next: (updatedOrdination: Ordination) => {
-              this.loadingService.show();
-              const index = this.ordination.findIndex(
-                (o) => o.id === updatedOrdination.id,
-              );
-              if (index >= 0) {
-                this.ordination[index] = updatedOrdination;
-                this.dataSourceMat.data = this.ordination; // Atualiza diretamente a tabela
-              }
-              this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS);
-              this.loadOrdinations(); // Sincroniza os dados com o backend
-            },
-            error: () => {
-              this.loadingService.hide();
-              this.toast.openError(MESSAGES.DELETE_ERROR);
-            },
-            complete: () => this.loadingService.hide(),
-          });
-        }
-      });
+    const dialogRef = this.modalService.openModal(
+      `modal-${Math.random()}`,
+      OrdinationFormComponent,
+      'Editar ordinação',
+      true,
+      [],
+      true,
+      {
+        ordination: ordination,
+        id: ordination.id,
+      },
+      'dialog',
+    );
+
+    dialogRef.afterClosed().subscribe((result: Ordination) => {
+      if (result) {
+        this.loadOrdinations();
+      }
+    });
   };
 
   deleteOrdination = (ordination: Ordination): void => {
     const nameOrdination =
       ordination?.member?.person?.name + ' | ' + ordination?.occupation?.name;
-    this.confirmeService
-      .openConfirm(
-        'Excluir ordinação',
-        `Tem certeza que deseja excluir esta ordinação? ${nameOrdination}`,
-        'Confirmar',
-        'Cancelar',
-      )
-      .afterClosed()
-      .subscribe((result: Ordination) => {
-        if (result) {
-          this.loadingService.show();
-          this.ordinationService.deleteOrdination(ordination.id).subscribe({
-            next: () => {
-              this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
-              this.ordinationService
-                .getOrdinationByMemberId(ordination?.member?.id)
-                .subscribe((ordination) => {
-                  this.dataSourceMat.data = ordination;
-                });
-              this.loadOrdinations();
-            },
-            error: () => {
-              this.loadingService.hide();
-              this.toast.openError(MESSAGES.DELETE_ERROR);
-            },
-            complete: () => this.loadingService.hide(),
-          });
-        }
-      });
+    const dialogRef = this.confirmeService.openConfirm(
+      'Excluir ordinação',
+      `Tem certeza que deseja excluir esta ordinação? ${nameOrdination}`,
+      'Confirmar',
+      'Cancelar',
+    );
+
+    dialogRef.afterClosed().subscribe((result: Ordination) => {
+      if (result) {
+        this.loadingService.show();
+        this.ordinationService.deleteOrdination(ordination.id).subscribe({
+          next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
+          error: () => {
+            this.loadingService.hide();
+            this.toast.openError(MESSAGES.DELETE_ERROR);
+          },
+          complete: () => {
+            this.loadOrdinations();
+            this.loadingService.hide();
+          },
+        });
+      }
+    });
   };
 }

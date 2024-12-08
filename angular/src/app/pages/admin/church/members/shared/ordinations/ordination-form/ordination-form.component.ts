@@ -10,7 +10,6 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import {
   MAT_DATE_LOCALE,
   MatOptionModule,
@@ -51,7 +50,6 @@ import { OrdinationsService } from '../ordinations.service';
     provideNgxMask(),
   ],
   imports: [
-    MatCardModule,
     MatDatepickerModule,
     MatFormFieldModule,
     MatInputModule,
@@ -81,9 +79,9 @@ export class OrdinationFormComponent implements OnInit {
   occupations: Occupation[] = [];
 
   constructor(
-    private ordinationsService: OrdinationsService,
     private fb: FormBuilder,
     private toast: ToastService,
+    private ordinationsService: OrdinationsService,
     private loadingService: LoadingService,
     private validationService: ValidationService,
     private modalService: ModalService,
@@ -91,27 +89,27 @@ export class OrdinationFormComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: { ordination: Ordination },
   ) {
     this.ordinationForm = this.createForm();
-    this.checkEditMode();
   }
 
   ngOnInit() {
     this.loadInitialData();
+    this.checkEditMode();
   }
 
   createForm(): FormGroup {
     return this.fb.group({
-      id: [this.data?.ordination?.id || ''],
-      member_id: [this.data?.ordination?.member?.id || '', Validators.required],
+      id: [this.data?.ordination?.id ?? ''],
+      member_id: [this.data?.ordination?.member?.id ?? '', Validators.required],
       occupation_id: [
-        this.data?.ordination?.occupation?.id || '',
+        this.data?.ordination?.occupation?.id ?? '',
         Validators.required,
       ],
       initial_date: [
-        this.data?.ordination?.initial_date || '',
+        this.data?.ordination?.initial_date ?? '',
         Validators.required,
       ],
-      end_date: [this.data?.ordination?.end_date || '', Validators.required],
-      status: [this.data?.ordination?.status || true, Validators.required],
+      end_date: [this.data?.ordination?.end_date ?? '', Validators.required],
+      status: [this.data?.ordination?.status ?? true, Validators.required],
     });
   }
 
@@ -163,18 +161,15 @@ export class OrdinationFormComponent implements OnInit {
         this.initializeFilters();
       },
       error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
+      complete: () => this.loadingService.hide(),
     });
   }
 
   private checkEditMode() {
-    if (this.data && this.data.ordination) {
-      this.isEditMode = true;
+    if (this.data && this.data?.ordination && this.data?.ordination?.id) {
       this.ordinationId = this.data.ordination.id;
-      this.ordinationForm.patchValue(this.data.ordination);
+      this.isEditMode = true;
       this.handleEdit();
-    } else {
-      const defaultMemberId = this.data.ordination?.member?.id || '';
-      this.ordinationForm.get('member_id')?.setValue(defaultMemberId);
     }
   }
 
@@ -192,7 +187,7 @@ export class OrdinationFormComponent implements OnInit {
   onSuccess(message: string) {
     this.loadingService.hide();
     this.toast.openSuccess(message);
-    this.dialogRef.close();
+    this.dialogRef.close(this.ordinationForm.value);
   }
 
   onError(message: string) {
@@ -202,14 +197,23 @@ export class OrdinationFormComponent implements OnInit {
 
   private getFormData(): any {
     return {
-      ...this.ordinationForm.value,
+      id: this.ordinationId ?? '',
+      member_id: this.ordinationForm.value.member_id,
+      occupation_id: this.ordinationForm.value.occupation_id,
+      initial_date: this.ordinationForm.value.initial_date,
+      end_date: this.ordinationForm.value.end_date,
+      status: this.ordinationForm.value.status,
     };
   }
 
   handleSubmit() {
-    this.loadingService.show();
+    if (this.ordinationForm.invalid) return;
 
     const data = this.getFormData();
+
+    if (this.isEditMode) {
+      data.id = this.ordinationId;
+    }
 
     this.isEditMode
       ? this.handleUpdate(this.ordinationId!, data)
@@ -217,6 +221,7 @@ export class OrdinationFormComponent implements OnInit {
   }
 
   handleCreate(data: any) {
+    this.loadingService.show();
     this.ordinationsService.createOrdination(data).subscribe({
       next: () => this.onSuccess(MESSAGES.CREATE_SUCCESS),
       error: () => this.onError(MESSAGES.CREATE_ERROR),
@@ -225,6 +230,7 @@ export class OrdinationFormComponent implements OnInit {
   }
 
   handleUpdate(ordinationId: string, data: any) {
+    this.loadingService.show();
     this.ordinationsService.updateOrdination(ordinationId, data).subscribe({
       next: () => this.onSuccess(MESSAGES.CREATE_SUCCESS),
       error: () => this.onError(MESSAGES.CREATE_ERROR),
@@ -236,7 +242,14 @@ export class OrdinationFormComponent implements OnInit {
     this.ordinationsService
       .getOrdinationById(this.ordinationId!)
       .subscribe((ordination: Ordination) => {
-        this.ordinationForm.patchValue(ordination);
+        this.ordinationForm.patchValue({
+          id: ordination.id ?? '',
+          member_id: ordination.member_id ?? '',
+          occupation_id: ordination.occupation_id ?? '',
+          initial_date: ordination.initial_date ?? '',
+          end_date: ordination.end_date ?? '',
+          status: ordination.status ?? true,
+        });
       });
   };
 

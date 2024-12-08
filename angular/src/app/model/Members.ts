@@ -1,4 +1,9 @@
-import { CivilStatus, ColorRace, Formations } from './Auxiliaries';
+import {
+  CivilStatus,
+  ColorRace,
+  Formations,
+  MemberSituations,
+} from './Auxiliaries';
 import { Church } from './Church';
 import { Families } from './Families';
 import { MemberOrigin } from './MemberOrigins';
@@ -39,8 +44,19 @@ export type Members = {
   member_origin: MemberOrigin;
   member_origin_id: string;
   receipt_date: string;
-  created_at: string;
   updated_at: string;
   family: Families[];
-  ordination: Ordination;
+  ordination: Ordination[];
+  status_member: StatusMember[];
+};
+
+export type StatusMember = {
+  id: string;
+  member: Members;
+  member_id: string;
+  member_situation: MemberSituations;
+  member_situation_id: string;
+  initial_period: string;
+  final_period: string;
+  updated_at: string;
 };

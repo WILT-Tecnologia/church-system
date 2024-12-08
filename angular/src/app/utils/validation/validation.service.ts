@@ -8,6 +8,10 @@ import { messages } from './message';
 export class ValidationService {
   constructor() {}
 
+  getFieldValue(item: any, field: string): string | undefined {
+    return field.split('.').reduce((acc, part) => acc?.[part], item);
+  }
+
   getErrorMessage(control: AbstractControl): string | null {
     if (control && control.invalid && (control.dirty || control.touched)) {
       const errors = control.errors;

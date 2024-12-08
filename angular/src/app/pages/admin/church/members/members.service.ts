@@ -5,7 +5,6 @@ import {
   ColorRace,
   Formations,
   Kinships,
-  MemberSituations,
 } from 'app/model/Auxiliaries';
 import { MemberOrigin } from 'app/model/MemberOrigins';
 import { map, Observable } from 'rxjs';
@@ -28,7 +27,15 @@ export class MembersService {
   private apiAux = `${environment.apiUrl}/aux`;
 
   getOrdinationByMemberId(memberId: string): Observable<Ordination[]> {
-    return this.http.get<Ordination[]>(`${this.api}/${memberId}`);
+    return this.http
+      .get<Members>(`${this.api}/${memberId}`)
+      .pipe(map((member) => member.ordination));
+  }
+
+  getFamilyOfMemberId(memberId: string): Observable<Families[]> {
+    return this.http
+      .get<Members>(`${this.api}/${memberId}`)
+      .pipe(map((member) => member.family));
   }
 
   getCivilStatus(): Observable<CivilStatus[]> {
@@ -47,12 +54,6 @@ export class MembersService {
     return this.http.get<Kinships[]>(`${this.apiAux}/kinships`);
   }
 
-  getMemberSituations(): Observable<MemberSituations[]> {
-    return this.http.get<MemberSituations[]>(
-      `${this.apiAux}/member-situations`,
-    );
-  }
-
   getPersons(): Observable<Person[]> {
     return this.http.get<Person[]>(`${this.apiAdmin}/persons`);
   }
@@ -67,12 +68,6 @@ export class MembersService {
 
   getMembers(): Observable<Members[]> {
     return this.http.get<Members[]>(this.api);
-  }
-
-  getFamilyOfMemberId(memberId: string): Observable<Families[]> {
-    return this.http
-      .get<Members>(`${this.api}/${memberId}`)
-      .pipe(map((member) => member.family));
   }
 
   getMemberById(id: string): Observable<Members> {

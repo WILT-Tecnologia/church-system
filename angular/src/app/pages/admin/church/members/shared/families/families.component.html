@@ -44,9 +44,9 @@
           </ng-container>
           <ng-container *ngIf="column.type === 'boolean'">
             <span [ngClass]="
-                                  families[column.key] ? 'status-active' : 'status-inactive'
+                                  families[column.key] ? 'active' : 'inactive'
                                 ">
-              {{ families[column.key] ? 'Ativado' : 'Desativado' }}
+              {{ families[column.key] ? 'Sim' : 'Não' }}
             </span>
           </ng-container>
         </td>

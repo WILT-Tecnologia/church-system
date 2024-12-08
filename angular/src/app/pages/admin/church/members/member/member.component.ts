@@ -41,7 +41,7 @@ import { CivilStatus, ColorRace, Formations } from 'app/model/Auxiliaries';
 import { Church } from 'app/model/Church';
 import { Families } from 'app/model/Families';
 import { MemberOrigin } from 'app/model/MemberOrigins';
-import { Members } from 'app/model/Members';
+import { Members, StatusMember } from 'app/model/Members';
 import { Ordination } from 'app/model/Ordination';
 import { Person } from 'app/model/Person';
 import { ChurchComponent } from 'app/pages/admin/administrative/churchs/church/church.component';
@@ -55,6 +55,7 @@ import { debounceTime, map, Observable, startWith } from 'rxjs';
 import { MembersService } from '../members.service';
 import { FamiliesComponent } from '../shared/families/families.component';
 import { OrdinationsComponent } from '../shared/ordinations/ordinations.component';
+import { StatusMemberComponent } from '../shared/status-member/status-member.component';
 
 @Component({
   selector: 'app-member',
@@ -85,6 +86,7 @@ import { OrdinationsComponent } from '../shared/ordinations/ordinations.componen
     FamiliesComponent,
     MatDialogModule,
     OrdinationsComponent,
+    StatusMemberComponent,
   ],
 })
 export class MemberComponent implements OnInit {
@@ -117,6 +119,7 @@ export class MemberComponent implements OnInit {
   formations: Formations[] = [];
   families: Families[] = [];
   ordinations: Ordination[] = [];
+  statusMember: StatusMember[] = [];
   memberOrigins: MemberOrigin[] = [];
 
   constructor(
@@ -504,6 +507,7 @@ export class MemberComponent implements OnInit {
 
       const familyData = this.families;
       const ordinationData = this.ordinations;
+      const statusMemberdata = this.statusMember;
       const status = this.memberForm.valid ? 'valid' : 'invalid';
 
       // Combine os dados
@@ -511,6 +515,7 @@ export class MemberComponent implements OnInit {
         stepThree: stepThreeData,
         family: familyData,
         ordination: ordinationData,
+        statusMember: statusMemberdata,
         status,
       };
 
@@ -546,7 +551,6 @@ export class MemberComponent implements OnInit {
       this.toast.openError('Erro: o ID do membro não foi fornecido.');
       return;
     }
-    console.log(memberid);
 
     this.showLoading();
 
@@ -737,9 +741,7 @@ export class MemberComponent implements OnInit {
       next: (churchs) => {
         this.churchs = churchs;
       },
-      error: (error) => {
-        this.toast.openError(MESSAGES.LOADING_ERROR);
-      },
+      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
       complete: () => this.hideLoading(),
     });
   }

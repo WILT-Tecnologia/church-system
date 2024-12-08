@@ -171,7 +171,6 @@ export class FamiliesFormComponent implements OnInit {
   }
 
   private checkEditMode() {
-    console.log(this.data);
     if (this.data && this.data?.families.id && this.data?.families) {
       this.familyId = this.data?.families.id;
       this.isEditMode = true;

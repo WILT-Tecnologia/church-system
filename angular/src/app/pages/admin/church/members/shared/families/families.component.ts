@@ -63,11 +63,11 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
   @ViewChild(MatSort) sort!: MatSort;
 
   columnDefinitions = [
+    { key: 'is_member', header: 'A filiação é membro?', type: 'boolean' },
     { key: 'member.person.name', header: 'Membro', type: 'string' },
     { key: 'person.name', header: 'Filiação', type: 'string' },
     { key: 'kinship.name', header: 'Parentesco', type: 'string' },
     { key: 'name', header: 'Nome', type: 'string' },
-    { key: 'is_member', header: 'A filiação é membro?', type: 'boolean' },
   ];
 
   displayedColumns = this.columnDefinitions

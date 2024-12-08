@@ -31,10 +31,6 @@ export class FamiliesService {
     return this.http.get<Members[]>(`${environment.apiUrl}/church/members`);
   }
 
-  /* getMember(memberId: string): Observable<Members> {
-    return this.membersService.getMemberById(memberId);
-  } */
-
   getFamilies(): Observable<Families[]> {
     return this.http.get<Families[]>(this.api);
   }
