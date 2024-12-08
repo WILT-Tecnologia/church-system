@@ -23,7 +23,6 @@ import {
 } from '@angular/material/datepicker';
 import {
   MAT_DIALOG_DATA,
-  MatDialog,
   MatDialogModule,
   MatDialogRef,
 } from '@angular/material/dialog';
@@ -36,18 +35,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalService } from 'app/components/modal/modal.service';
 import { ToastService } from 'app/components/toast/toast.service';
-import {
-  CivilStatus,
-  ColorRace,
-  Formations,
-  Kinships,
-  MemberSituations,
-} from 'app/model/Auxiliaries';
+import { CivilStatus, ColorRace, Formations } from 'app/model/Auxiliaries';
 import { Church } from 'app/model/Church';
 import { Families } from 'app/model/Families';
 import { MemberOrigin } from 'app/model/MemberOrigins';
-import { Members } from 'app/model/Members';
+import { Members, StatusMember } from 'app/model/Members';
 import { Ordination } from 'app/model/Ordination';
 import { Person } from 'app/model/Person';
 import { ChurchComponent } from 'app/pages/admin/administrative/churchs/church/church.component';
@@ -61,6 +55,7 @@ import { debounceTime, map, Observable, startWith } from 'rxjs';
 import { MembersService } from '../members.service';
 import { FamiliesComponent } from '../shared/families/families.component';
 import { OrdinationsComponent } from '../shared/ordinations/ordinations.component';
+import { StatusMemberComponent } from '../shared/status-member/status-member.component';
 
 @Component({
   selector: 'app-member',
@@ -91,6 +86,7 @@ import { OrdinationsComponent } from '../shared/ordinations/ordinations.componen
     FamiliesComponent,
     MatDialogModule,
     OrdinationsComponent,
+    StatusMemberComponent,
   ],
 })
 export class MemberComponent implements OnInit {
@@ -101,7 +97,12 @@ export class MemberComponent implements OnInit {
   isInitialStepCompleted = false;
   currentStep = 0;
 
-  searchControl = new FormControl('');
+  searchControlPerson = new FormControl('');
+  searchControlChurch = new FormControl('');
+  searchControlCivilStatus = new FormControl('');
+  searchControlColorRace = new FormControl('');
+  searchControlFormations = new FormControl('');
+  searchControlMemberOrigins = new FormControl('');
 
   filteredPerson$: Observable<Person[]>;
   filteredChurch$: Observable<Church[]>;
@@ -109,8 +110,6 @@ export class MemberComponent implements OnInit {
   filteredCivilStatus: Observable<CivilStatus[]>;
   filteredColorRace: Observable<ColorRace[]>;
   filteredFormations: Observable<Formations[]>;
-  filteredKinships: Observable<Kinships[]>;
-  filteredMemberSituations: Observable<MemberSituations[]>;
 
   members: Members[] = [];
   persons: Person[] = [];
@@ -118,10 +117,9 @@ export class MemberComponent implements OnInit {
   civilStatus: CivilStatus[] = [];
   colorRace: ColorRace[] = [];
   formations: Formations[] = [];
-  kinships: Kinships[] = [];
   families: Families[] = [];
   ordinations: Ordination[] = [];
-  memberSituations: MemberSituations[] = [];
+  statusMember: StatusMember[] = [];
   memberOrigins: MemberOrigin[] = [];
 
   constructor(
@@ -131,21 +129,37 @@ export class MemberComponent implements OnInit {
     private loadingService: LoadingService,
     private validationService: ValidationService,
     public navigationService: NavigationService,
-    private dialog: MatDialog,
+    private modalService: ModalService,
+    //private dialog: MatDialog,
     private dialogRef: MatDialogRef<MemberComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { members: Members },
   ) {
     this.memberForm = this.createMemberForm();
 
-    this.filteredPerson$ = this.setupSearchObservable('Person');
-    this.filteredChurch$ = this.setupSearchObservable('Church');
-    this.filteredColorRace = this.setupSearchObservable('ColorRace');
-    this.filteredCivilStatus = this.setupSearchObservable('CivilStatus');
-    this.filteredFormations = this.setupSearchObservable('Formations');
-    this.filterMemberOrigins = this.setupSearchObservable('MemberOrigin');
-    this.filteredKinships = this.setupSearchObservable('Kinships');
-    this.filteredMemberSituations =
-      this.setupSearchObservable('MemberSituations');
+    this.filteredPerson$ = this.setupSearchObservable(
+      'Person',
+      this.searchControlPerson,
+    );
+    this.filteredChurch$ = this.setupSearchObservable(
+      'Church',
+      this.searchControlChurch,
+    );
+    this.filteredColorRace = this.setupSearchObservable(
+      'ColorRace',
+      this.searchControlColorRace,
+    );
+    this.filteredCivilStatus = this.setupSearchObservable(
+      'CivilStatus',
+      this.searchControlCivilStatus,
+    );
+    this.filteredFormations = this.setupSearchObservable(
+      'Formations',
+      this.searchControlFormations,
+    );
+    this.filterMemberOrigins = this.setupSearchObservable(
+      'MemberOrigin',
+      this.searchControlMemberOrigins,
+    );
 
     this.navigationService.currentStep$.subscribe((index: number) => {
       this.currentStep = index;
@@ -157,8 +171,7 @@ export class MemberComponent implements OnInit {
     if (this.data && this.data?.members) {
       this.isEditMode = true;
       this.memberId = this.data?.members.id;
-      this.families = this.data?.members?.families || [];
-      this.handleEdit();
+      this.handleEdit(this.memberId);
     }
   }
 
@@ -250,8 +263,11 @@ export class MemberComponent implements OnInit {
     });
   }
 
-  setupSearchObservable(target: string): Observable<any[]> {
-    return this.searchControl.valueChanges.pipe(
+  setupSearchObservable(
+    target: string,
+    searchControl: FormControl,
+  ): Observable<any[]> {
+    return searchControl.valueChanges.pipe(
       debounceTime(300),
       startWith(''),
       map((searchTerm) => {
@@ -265,16 +281,32 @@ export class MemberComponent implements OnInit {
     );
   }
 
+  showLoading = (): void => {
+    this.loadingService.show();
+  };
+
+  hideLoading = (): void => {
+    this.loadingService.hide();
+  };
+
   loadMembers() {
-    this.membersService.getMembers().subscribe((members) => {
-      this.members = members;
+    this.showLoading();
+    this.membersService.getMembers().subscribe({
+      next: (members) => {
+        this.members = members;
+      },
+      error: () => {
+        this.hideLoading();
+        this.toast.openError(MESSAGES.LOADING_ERROR);
+      },
+      complete: () => this.hideLoading(),
     });
   }
 
   loadInitialData() {
     this.membersService.getPersons().subscribe((persons) => {
       this.persons = persons;
-      this.filteredPerson$ = this.searchControl.valueChanges.pipe(
+      this.filteredPerson$ = this.searchControlPerson.valueChanges.pipe(
         debounceTime(300),
         startWith(''),
         map((searchTerm) =>
@@ -287,7 +319,7 @@ export class MemberComponent implements OnInit {
 
     this.membersService.getChurch().subscribe((churchs) => {
       this.churchs = churchs;
-      this.filteredChurch$ = this.searchControl.valueChanges.pipe(
+      this.filteredChurch$ = this.searchControlChurch.valueChanges.pipe(
         debounceTime(300),
         startWith(''),
         map((searchTerm) =>
@@ -300,20 +332,21 @@ export class MemberComponent implements OnInit {
 
     this.membersService.getCivilStatus().subscribe((civilStatus) => {
       this.civilStatus = civilStatus;
-      this.filteredCivilStatus = this.searchControl.valueChanges.pipe(
-        debounceTime(300),
-        startWith(''),
-        map((searchTerm) =>
-          this.filterCivilStatus(searchTerm ?? '').sort((a, b) =>
-            a.name.localeCompare(b.name),
+      this.filteredCivilStatus =
+        this.searchControlCivilStatus.valueChanges.pipe(
+          debounceTime(300),
+          startWith(''),
+          map((searchTerm) =>
+            this.filterCivilStatus(searchTerm ?? '').sort((a, b) =>
+              a.name.localeCompare(b.name),
+            ),
           ),
-        ),
-      );
+        );
     });
 
     this.membersService.getColorRace().subscribe((colorRace) => {
       this.colorRace = colorRace;
-      this.filteredColorRace = this.searchControl.valueChanges.pipe(
+      this.filteredColorRace = this.searchControlColorRace.valueChanges.pipe(
         debounceTime(300),
         startWith(''),
         map((searchTerm) =>
@@ -326,7 +359,7 @@ export class MemberComponent implements OnInit {
 
     this.membersService.getFormations().subscribe((formations) => {
       this.formations = formations;
-      this.filteredFormations = this.searchControl.valueChanges.pipe(
+      this.filteredFormations = this.searchControlFormations.valueChanges.pipe(
         debounceTime(300),
         startWith(''),
         map((searchTerm) =>
@@ -339,15 +372,16 @@ export class MemberComponent implements OnInit {
 
     this.membersService.getMemberOrigins().subscribe((memberOrigin) => {
       this.memberOrigins = memberOrigin;
-      this.filterMemberOrigins = this.searchControl.valueChanges.pipe(
-        debounceTime(300),
-        startWith(''),
-        map((searchTerm) =>
-          this.filterMemberOrigin(searchTerm ?? '').sort((a, b) =>
-            a.name.localeCompare(b.name),
+      this.filterMemberOrigins =
+        this.searchControlMemberOrigins.valueChanges.pipe(
+          debounceTime(300),
+          startWith(''),
+          map((searchTerm) =>
+            this.filterMemberOrigin(searchTerm ?? '').sort((a, b) =>
+              a.name.localeCompare(b.name),
+            ),
           ),
-        ),
-      );
+        );
     });
   }
 
@@ -467,32 +501,61 @@ export class MemberComponent implements OnInit {
     }
   }
 
-  handleCreate() {
-    this.loadingService.show();
+  finalizeStepThree() {
+    if (this.memberForm.get('stepThree')?.valid) {
+      const stepThreeData = this.memberForm.get('stepThree')?.value;
 
+      const familyData = this.families;
+      const ordinationData = this.ordinations;
+      const statusMemberdata = this.statusMember;
+      const status = this.memberForm.valid ? 'valid' : 'invalid';
+
+      // Combine os dados
+      const finalData = {
+        stepThree: stepThreeData,
+        family: familyData,
+        ordination: ordinationData,
+        statusMember: statusMemberdata,
+        status,
+      };
+
+      this.memberForm.patchValue(finalData);
+    } else {
+      this.toast.openError('Por favor, preencha todos os campos obrigatórios.');
+    }
+  }
+
+  handleCreate() {
+    this.showLoading();
     const memberData = this.combineStepData();
     this.membersService.createMember(memberData).subscribe({
       next: () => this.onSuccessCreate(MESSAGES.CREATE_SUCCESS),
       error: () => this.onError(MESSAGES.CREATE_ERROR),
-      complete: () => this.loadingService.hide(),
+      complete: () => this.hideLoading(),
     });
   }
 
   updateMember(memberId: string) {
-    this.loadingService.show();
+    this.showLoading();
 
     const memberData = this.combineStepData();
     this.membersService.updateMember(memberId!, memberData).subscribe({
       next: () => this.onSuccessUpdate(MESSAGES.UPDATE_SUCCESS),
       error: () => this.onError(MESSAGES.UPDATE_ERROR),
-      complete: () => this.loadingService.hide(),
+      complete: () => this.hideLoading(),
     });
   }
 
-  handleEdit = () => {
-    this.membersService
-      .getMemberById(this.memberId!)
-      .subscribe((member: Members) => {
+  handleEdit = (memberid: string) => {
+    if (!memberid) {
+      this.toast.openError('Erro: o ID do membro não foi fornecido.');
+      return;
+    }
+
+    this.showLoading();
+
+    this.membersService.getMemberById(memberid).subscribe({
+      next: (member) => {
         this.memberForm.patchValue({
           ...member,
           stepOne: {
@@ -503,35 +566,37 @@ export class MemberComponent implements OnInit {
           },
         });
         this.membersService
-          .getFamilyOfMember(this.memberId!)
-          .subscribe((families) => {
-            this.families = families;
-          });
-        this.membersService
           .getOrdinationByMemberId(this.memberId!)
           .subscribe((ordinations) => {
             this.ordinations = ordinations;
           });
-      });
+      },
+      error: () => {
+        this.hideLoading();
+        this.toast.openError(MESSAGES.LOADING_ERROR);
+      },
+      complete: () => this.hideLoading(),
+    });
   };
 
   onSuccessCreate(message: string) {
-    this.loadingService.hide();
+    this.hideLoading();
     this.toast.openSuccess(message);
     this.loadMembers();
     this.isEditMode = true;
+    this.handleEdit;
     this.currentStep = 3;
   }
 
   onSuccessUpdate(message: string) {
-    this.loadingService.hide();
+    this.hideLoading();
     this.toast.openSuccess(message);
     this.dialogRef.close(this.memberForm.value);
     this.loadMembers();
   }
 
   onError(message: string) {
-    this.loadingService.hide();
+    this.hideLoading();
     this.toast.openError(message);
   }
 
@@ -573,24 +638,42 @@ export class MemberComponent implements OnInit {
   }
 
   openAddPersonDialog(): void {
-    this.dialog.open(PersonComponent, {
-      maxWidth: '100%',
-      height: 'auto',
-      maxHeight: '100dvh',
-      role: 'dialog',
-      panelClass: 'dialog',
-      disableClose: true,
+    const dialogRef = this.modalService.openModal(
+      `modal-${Math.random()}`,
+      PersonComponent,
+      'Adicionar pessoa',
+      true,
+      [],
+      true,
+      {},
+    );
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.membersService.getPersons().subscribe((persons) => {
+          this.persons = persons;
+        });
+      }
     });
   }
 
   openAddChurchDialog(): void {
-    this.dialog.open(ChurchComponent, {
-      maxWidth: '100%',
-      height: 'auto',
-      maxHeight: '100dvh',
-      role: 'dialog',
-      panelClass: 'dialog',
-      disableClose: true,
+    const dialogRef = this.modalService.openModal(
+      `modal-${Math.random()}`,
+      ChurchComponent,
+      'Adicionar igreja',
+      true,
+      [],
+      true,
+      {},
+    );
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.membersService.getChurch().subscribe((churchs) => {
+          this.churchs = churchs;
+        });
+      }
     });
   }
 
@@ -651,5 +734,33 @@ export class MemberComponent implements OnInit {
       return formation?.name ?? 'Selecione a formação';
     }
     return 'Selecione a formação';
+  }
+
+  getAllChurchs(): void {
+    this.membersService.getChurch().subscribe({
+      next: (churchs) => {
+        this.churchs = churchs;
+      },
+      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
+      complete: () => this.hideLoading(),
+    });
+  }
+
+  getAllPersons(): void {
+    this.membersService.getPersons().subscribe((persons) => {
+      this.persons = persons;
+    });
+  }
+
+  onPersonSelectOpened(isOpened: boolean): void {
+    if (isOpened && !this.persons?.length) {
+      this.getAllPersons();
+    }
+  }
+
+  onChurchSelectOpened(isOpened: boolean): void {
+    if (isOpened && !this.churchs?.length) {
+      this.getAllChurchs();
+    }
   }
 }

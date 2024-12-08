@@ -14,14 +14,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { ActivatedRoute } from '@angular/router';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ToastService } from 'app/components/toast/toast.service';
 import { EventTypes } from 'app/model/EventTypes';
-import { CoreService } from 'app/services/core/core.service';
 import { ValidationService } from 'app/utils/validation/validation.service';
 import dayjs from 'dayjs';
+
+import { MESSAGES } from 'app/utils/messages';
+import { ActionsComponent } from '../../../../../components/actions/actions.component';
 import { EventTypesService } from '../eventTypes.service';
 
 @Component({
@@ -40,6 +41,7 @@ import { EventTypesService } from '../eventTypes.service';
     ReactiveFormsModule,
     CommonModule,
     ColumnComponent,
+    ActionsComponent,
   ],
 })
 export class EventTypeComponent implements OnInit {
@@ -49,8 +51,6 @@ export class EventTypeComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private core: CoreService,
-    private route: ActivatedRoute,
     private eventTypesService: EventTypesService,
     private toast: ToastService,
     private loadingService: LoadingService,
@@ -62,13 +62,17 @@ export class EventTypeComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.modeEdit();
+  }
+
+  modeEdit = () => {
     if (this.data && this.data.eventType) {
       this.isEditMode = true;
       this.eventTypeId = this.data.eventType.id;
       this.eventTypeForm.patchValue(this.data.eventType);
       this.handleEditMode();
     }
-  }
+  };
 
   createForm = () => {
     return (this.eventTypeForm = this.fb.group({
@@ -89,12 +93,6 @@ export class EventTypeComponent implements OnInit {
       updated_at: [this.data?.eventType?.updated_at || ''],
     }));
   };
-
-  get pageTitle() {
-    return this.isEditMode
-      ? 'Editando tipo de evento'
-      : 'Criando tipo de evento';
-  }
 
   getErrorMessage(controlName: string) {
     const control = this.eventTypeForm.get(controlName);
@@ -118,22 +116,24 @@ export class EventTypeComponent implements OnInit {
     this.dialogRef.close();
   };
 
-  handleCreate = () => {
+  showLoading() {
     this.loadingService.show();
-    this.eventTypesService
-      .createEventTypes(this.eventTypeForm.value)
-      .subscribe({
-        next: () => {
-          this.toast.openSuccess('Tipo de evento criado com sucesso.');
-          this.dialogRef.close(this.eventTypeForm.value);
-        },
-        error: (error) => {
-          this.loadingService.hide();
-          this.toast.openError(error.error.message);
-        },
-        complete: () => this.loadingService.hide(),
-      });
-  };
+  }
+
+  hideLoading() {
+    this.loadingService.hide();
+  }
+
+  onSuccess(message: string) {
+    this.hideLoading();
+    this.toast.openSuccess(message);
+    this.dialogRef.close(this.eventTypeForm.value);
+  }
+
+  onError(message: string) {
+    this.hideLoading();
+    this.toast.openError(message);
+  }
 
   handleEditMode = () => {
     this.eventTypesService
@@ -148,20 +148,25 @@ export class EventTypeComponent implements OnInit {
       });
   };
 
+  handleCreate = () => {
+    this.showLoading();
+    this.eventTypesService
+      .createEventTypes(this.eventTypeForm.value)
+      .subscribe({
+        next: () => this.onSuccess(MESSAGES.CREATE_SUCCESS),
+        error: () => this.onError(MESSAGES.CREATE_ERROR),
+        complete: () => this.hideLoading(),
+      });
+  };
+
   handleUpdate = (eventTypeId: string) => {
-    this.loadingService.show();
+    this.showLoading();
     this.eventTypesService
       .updateEventTypes(eventTypeId!, this.eventTypeForm.value)
       .subscribe({
-        next: () => {
-          this.toast.openSuccess('Tipo de evento atualizado com sucesso.');
-          this.dialogRef.close(this.eventTypeForm.value);
-        },
-        error: () => {
-          this.loadingService.hide();
-          this.toast.openError('Erro ao atualizar o tipo de evento.');
-        },
-        complete: () => this.loadingService.hide(),
+        next: () => this.onSuccess(MESSAGES.UPDATE_SUCCESS),
+        error: () => this.onError(MESSAGES.UPDATE_ERROR),
+        complete: () => this.hideLoading(),
       });
   };
 }

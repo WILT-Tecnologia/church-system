@@ -4,7 +4,7 @@ import { Members } from 'app/model/Members';
 import { Occupation } from 'app/model/Occupation';
 import { Ordination } from 'app/model/Ordination';
 import { environment } from 'environments/environment';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -28,14 +28,14 @@ export class OrdinationsService {
     return this.http.get<Ordination[]>(this.api);
   }
 
-  getOrdinationById(id: string): Observable<Ordination> {
-    return this.http.get<Ordination>(`${this.api}/${id}`);
+  getOrdinationById(memberId: string): Observable<Ordination> {
+    return this.http.get<Ordination>(`${this.api}/${memberId}`);
   }
 
   getOrdinationByMemberId(memberId: string): Observable<Ordination[]> {
-    return this.http.get<Ordination[]>(
-      `${environment.apiUrl}/church/ordination?member_id=${memberId}`,
-    );
+    return this.http
+      .get<Members>(`${this.memberApi}/${memberId}`)
+      .pipe(map((member) => member.ordination));
   }
 
   createOrdination(ordination: Ordination): Observable<Ordination> {

@@ -187,6 +187,7 @@ export class PersonComponent implements OnInit, OnDestroy {
         this.data?.person?.country || '',
         [Validators.required, Validators.maxLength(255)],
       ],
+      updated_at: [this.data?.person?.updated_at || ''],
     });
   };
 

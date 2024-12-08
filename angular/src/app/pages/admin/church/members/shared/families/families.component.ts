@@ -27,6 +27,9 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { ToastService } from 'app/components/toast/toast.service';
 import { Families } from 'app/model/Families';
 import { MESSAGES } from 'app/utils/messages';
+import { FormatValuesPipe } from 'app/utils/pipes/format-values.pipe';
+import { MembersService } from '../../members.service';
+import { MemberService } from '../member.service';
 import { FamiliesFormComponent } from './families-form/families-form.component';
 import { FamiliesService } from './families.service';
 
@@ -50,6 +53,7 @@ import { FamiliesService } from './families.service';
     MatFormFieldModule,
     CommonModule,
     NotFoundRegisterComponent,
+    FormatValuesPipe,
   ],
 })
 export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
@@ -59,11 +63,11 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
   @ViewChild(MatSort) sort!: MatSort;
 
   columnDefinitions = [
+    { key: 'is_member', header: 'A filiação é membro?', type: 'boolean' },
     { key: 'member.person.name', header: 'Membro', type: 'string' },
     { key: 'person.name', header: 'Filiação', type: 'string' },
     { key: 'kinship.name', header: 'Parentesco', type: 'string' },
     { key: 'name', header: 'Nome', type: 'string' },
-    { key: 'is_member', header: 'A filiação é membro?', type: 'boolean' },
   ];
 
   displayedColumns = this.columnDefinitions
@@ -76,6 +80,8 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
     private toast: ToastService,
     private familiesService: FamiliesService,
     private modalService: ModalService,
+    private membersService: MembersService,
+    private memberService: MemberService,
   ) {}
 
   ngOnInit() {
@@ -84,7 +90,8 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
 
   loadFamilies = () => {
     this.loadingService.show();
-    this.familiesService.getFamilies().subscribe({
+    const memberId = this.memberService.getEditingMemberId();
+    this.membersService.getFamilyOfMemberId(memberId!).subscribe({
       next: (families) => {
         this.families = families;
         this.dataSourceMat.data = this.families;
@@ -98,10 +105,6 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
       complete: () => this.loadingService.hide(),
     });
   };
-
-  getNestedValue(obj: any, key: string): any {
-    return key.split('.').reduce((o, k) => (o ? o[k] : null), obj);
-  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['families'] && !changes['families'].firstChange) {
@@ -148,14 +151,6 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
     return false;
   }
 
-  getDefaultMemberId(): string | null {
-    if (this.families && this.families.length > 0) {
-      return this.families[0]?.member?.id;
-    } else {
-      return '';
-    }
-  }
-
   openModalAddFamily = () => {
     return this.modalService.openModal(
       `modal-${Math.random()}`,
@@ -170,11 +165,7 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
   };
 
   addNewFamily = (): void => {
-    const defaultMemberId = this.getDefaultMemberId();
-    if (!defaultMemberId) {
-      this.toast.openError(MESSAGES.CREATE_ERROR);
-      return;
-    }
+    const defaultMemberId = this.memberService.getEditingMemberId();
 
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
@@ -191,15 +182,7 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
 
     dialogRef.afterClosed().subscribe((result: Families) => {
       if (result) {
-        this.familiesService.getFamily(result.id).subscribe((family) => {
-          this.dataSourceMat.data = [...this.dataSourceMat.data, family];
-          this.familiesService
-            .getFamilyByMemberId(family.member.id)
-            .subscribe((families) => {
-              this.dataSourceMat.data = families;
-            });
-          this.dataSourceMat._updateChangeSubscription();
-        });
+        this.loadFamilies();
       }
     });
   };
@@ -221,11 +204,7 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
 
     dialogRef.afterClosed().subscribe((result: Families) => {
       if (result) {
-        this.familiesService.getFamily(result.id).subscribe((family) => {
-          this.dataSourceMat.data = this.dataSourceMat.data.map((f) =>
-            f.id === family.id ? family : f,
-          );
-        });
+        this.loadFamilies();
       }
     });
   };
@@ -246,20 +225,15 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
         if (result) {
           this.loadingService.show();
           this.familiesService.deleteFamily(family.id).subscribe({
-            next: () => {
-              this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
-              this.familiesService
-                .getFamilyByMemberId(family?.member?.id)
-                .subscribe((families) => {
-                  this.dataSourceMat.data = families;
-                  this.families = families;
-                });
-            },
+            next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
             error: () => {
               this.loadingService.hide();
               this.toast.openError(MESSAGES.DELETE_ERROR);
             },
-            complete: () => this.loadingService.hide(),
+            complete: () => {
+              this.loadFamilies();
+              this.loadingService.hide();
+            },
           });
         }
       });

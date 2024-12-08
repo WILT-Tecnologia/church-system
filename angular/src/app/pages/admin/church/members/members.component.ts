@@ -31,6 +31,7 @@ import { MESSAGES } from 'app/utils/messages';
 import { FormatValuesPipe } from 'app/utils/pipes/format-values.pipe';
 import { MemberComponent } from './member/member.component';
 import { MembersService } from './members.service';
+import { MemberService } from './shared/member.service';
 
 @Component({
   selector: 'app-members',
@@ -56,13 +57,13 @@ import { MembersService } from './members.service';
   ],
 })
 export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
+  families!: Families[];
   member: Members[] = [];
   pageSizeOptions: number[] = [25, 50, 100, 200];
   pageSize: number = 25;
   dataSourceMat = new MatTableDataSource<Members>(this.member);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-  families!: Families[];
 
   columnDefinitions = [
     { key: 'person.name', header: 'Nome', type: 'string' },
@@ -88,8 +89,9 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
     private confirmeService: ConfirmService,
     private loading: LoadingService,
     private toast: ToastService,
-    private memberService: MembersService,
+    private membersService: MembersService,
     private modalService: ModalService,
+    private memberService: MemberService,
   ) {}
 
   ngOnInit() {
@@ -143,7 +145,7 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
 
   loadMembers = () => {
     this.loading.show();
-    this.memberService.getMembers().subscribe({
+    this.membersService.getMembers().subscribe({
       next: (members) => {
         this.member = members;
         this.dataSourceMat.data = this.member;
@@ -175,6 +177,7 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
   };
 
   editMembers = (member: Members): void => {
+    this.memberService.setEditingMemberId(member.id);
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       MemberComponent,
@@ -185,18 +188,6 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
       { members: member, id: member.id },
       'dialog',
     );
-
-    dialogRef.afterOpened().subscribe(() => {
-      this.memberService
-        .getFamilyOfMember(member.id)
-        .subscribe((families: Families[]) => {
-          const component =
-            dialogRef.componentInstance as unknown as MemberComponent;
-          if (component) {
-            component.families = families;
-          }
-        });
-    });
 
     dialogRef.afterClosed().subscribe((result: Members) => {
       if (result) {
@@ -217,7 +208,7 @@ export class MembersComponent implements OnInit, AfterViewInit, OnChanges {
       .subscribe((result: Members) => {
         if (result) {
           this.loading.show();
-          this.memberService.deleteMember(members.id).subscribe({
+          this.membersService.deleteMember(members.id).subscribe({
             next: () => {
               this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
               this.loadMembers();
