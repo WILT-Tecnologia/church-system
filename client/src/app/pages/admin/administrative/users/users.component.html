@@ -1,0 +1,14 @@
+<!-- <ng-container *ngIf="users && users.length > 0; else noDataTemplate">
+  <app-table [dataSource]="users" [displayedColumns]="displayedColumns" [columnDefinitions]="columnDefinitions"
+    [editFn]="editUser" [deleteFn]="deleteUser" [ctaFn]="addNewUser" [ctaLabel]="'Adicionar'" [sortColumn]="'name'"
+    [sortDirection]="'asc'">
+  </app-table>
+</ng-container> -->
+
+<ng-template #noDataTemplate>
+  <app-not-found-register
+    [template]="'usuário'"
+    [ctaLabel]="'Adicionar Novo Usuário'"
+    [addRegisterFn]="addNewUser"
+  ></app-not-found-register>
+</ng-template>

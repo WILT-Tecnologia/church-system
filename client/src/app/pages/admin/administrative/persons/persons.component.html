@@ -1,0 +1,18 @@
+<ng-container *ngIf="(persons && persons.length > 0) || rendering; else noData">
+  <app-crud
+    [fields]="persons"
+    [dataSourceMat]="dataSourceMat"
+    [columnDefinitions]="columnDefinitions"
+    [addFn]="addNewPerson"
+    [editFn]="editPerson"
+    [deleteFn]="deletePerson"
+  ></app-crud>
+</ng-container>
+
+<ng-template #noData>
+  <app-not-found-register
+    [template]="'pessoa'"
+    [ctaLabel]="'Adicionar Nova Pessoa'"
+    [addRegisterFn]="addNewPerson"
+  ></app-not-found-register>
+</ng-template>

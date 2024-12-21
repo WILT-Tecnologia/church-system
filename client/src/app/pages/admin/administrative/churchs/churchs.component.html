@@ -1,0 +1,18 @@
+<ng-container *ngIf="(churchs && churchs.length > 0) || rendeing; else noData">
+  <app-crud
+    [fields]="churchs"
+    [dataSourceMat]="dataSourceMat"
+    [columnDefinitions]="columnDefinitions"
+    [addFn]="addNewChurch"
+    [editFn]="editChurch"
+    [deleteFn]="deleteChurch"
+  ></app-crud>
+</ng-container>
+
+<ng-template #noData>
+  <app-not-found-register
+    [template]="'igreja'"
+    [ctaLabel]="'Adicionar Nova Igreja'"
+    [addRegisterFn]="addNewChurch"
+  ></app-not-found-register>
+</ng-template>

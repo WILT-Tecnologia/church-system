@@ -1,0 +1,13 @@
+<!-- <ng-container *ngIf="profiles && profiles.length > 0; else noDataTemplate">
+  <app-table [dataSource]="profiles" [displayedColumns]="displayedColumns" [columnDefinitions]="columnDefinitions"
+    [editFn]="editProfile" [deleteFn]="deleteProfile" [ctaFn]="addNewProfile" [ctaLabel]="'Adicionar'"
+    [sortColumn]="'name'" [sortDirection]="'asc'"></app-table>
+</ng-container> -->
+
+<ng-template #noDataTemplate>
+  <app-not-found-register
+    [template]="'perfil'"
+    [ctaLabel]="'Adicionar Novo Perfil'"
+    [addRegisterFn]="addNewProfile"
+  ></app-not-found-register>
+</ng-template>

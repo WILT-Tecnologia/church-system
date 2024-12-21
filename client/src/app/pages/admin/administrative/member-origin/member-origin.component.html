@@ -1,0 +1,21 @@
+<!-- <ng-container
+  *ngIf="memberOrigins && memberOrigins.length > 0; else noDataTemplate"
+>
+  <app-crud
+    [dataSource]="memberOrigins"
+    [displayedColumns]="displayedColumns"
+    [columnDefinitions]="columnDefinitions"
+    [editFn]="editMemberOrigin"
+    [deleteFn]="deleteMemberOrigin"
+    [ctaFn]="addNewMemberOrigin"
+    [ctaLabel]="'Adicionar'"
+  ></app-crud>
+</ng-container> -->
+
+<ng-template #noDataTemplate>
+  <app-not-found-register
+    [template]="'origem do membro'"
+    [ctaLabel]="'Adicionar nova origem'"
+    [addRegisterFn]="addNewMemberOrigin"
+  ></app-not-found-register>
+</ng-template>
