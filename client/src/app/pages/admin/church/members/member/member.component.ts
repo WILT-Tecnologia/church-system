@@ -41,7 +41,7 @@ import { CivilStatus, ColorRace, Formations } from 'app/model/Auxiliaries';
 import { Church } from 'app/model/Church';
 import { Families } from 'app/model/Families';
 import { MemberOrigin } from 'app/model/MemberOrigins';
-import { Members, StatusMember } from 'app/model/Members';
+import { History, Members, StatusMember } from 'app/model/Members';
 import { Ordination } from 'app/model/Ordination';
 import { Person } from 'app/model/Person';
 import { ChurchComponent } from 'app/pages/admin/administrative/churchs/church/church.component';
@@ -52,8 +52,10 @@ import { ValidationService } from 'app/utils/validation/validation.service';
 import dayjs from 'dayjs';
 import { provideNgxMask } from 'ngx-mask';
 import { debounceTime, map, Observable, startWith } from 'rxjs';
+import { ActionsComponent } from '../../../../../components/actions/actions.component';
 import { MembersService } from '../members.service';
 import { FamiliesComponent } from '../shared/families/families.component';
+import { HistoryComponent } from '../shared/history/history.component';
 import { OrdinationsComponent } from '../shared/ordinations/ordinations.component';
 import { StatusMemberComponent } from '../shared/status-member/status-member.component';
 
@@ -87,6 +89,8 @@ import { StatusMemberComponent } from '../shared/status-member/status-member.com
     MatDialogModule,
     OrdinationsComponent,
     StatusMemberComponent,
+    ActionsComponent,
+    HistoryComponent,
   ],
 })
 export class MemberComponent implements OnInit {
@@ -121,6 +125,7 @@ export class MemberComponent implements OnInit {
   ordinations: Ordination[] = [];
   statusMember: StatusMember[] = [];
   memberOrigins: MemberOrigin[] = [];
+  history: History[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -260,6 +265,8 @@ export class MemberComponent implements OnInit {
       stepFive: this.fb.group({}),
 
       stepSix: this.fb.group({}),
+
+      stepSeven: this.fb.group({}),
     });
   }
 
@@ -460,6 +467,8 @@ export class MemberComponent implements OnInit {
         return this.memberForm.get('stepFive') as FormGroup;
       case 5:
         return this.memberForm.get('stepSix') as FormGroup;
+      case 6:
+        return this.memberForm.get('stepSeven') as FormGroup;
       default:
         return this.memberForm.get('stepOne') as FormGroup;
     }
@@ -472,6 +481,7 @@ export class MemberComponent implements OnInit {
     const stepFourData = this.memberForm.get('stepFour')?.value;
     const stepFiveData = this.memberForm.get('stepFive')?.value;
     const stepSixData = this.memberForm.get('stepSix')?.value;
+    const stepSevenData = this.memberForm.get('stepSeven')?.value;
 
     const combinedData = {
       ...stepOneData,
@@ -480,6 +490,7 @@ export class MemberComponent implements OnInit {
       ...stepFourData,
       ...stepFiveData,
       ...stepSixData,
+      ...stepSevenData,
     };
 
     return combinedData;
@@ -644,7 +655,6 @@ export class MemberComponent implements OnInit {
       'Adicionar pessoa',
       true,
       true,
-      {},
     );
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -663,7 +673,6 @@ export class MemberComponent implements OnInit {
       'Adicionar igreja',
       true,
       true,
-      {},
     );
 
     dialogRef.afterClosed().subscribe((result) => {

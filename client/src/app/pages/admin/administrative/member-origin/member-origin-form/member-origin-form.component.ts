@@ -19,6 +19,7 @@ import { ToastService } from 'app/components/toast/toast.service';
 import { MemberOrigin } from 'app/model/MemberOrigins';
 import { ValidationService } from 'app/utils/validation/validation.service';
 import dayjs from 'dayjs';
+import { ActionsComponent } from '../../../../../components/actions/actions.component';
 import { ColumnComponent } from '../../../../../components/column/column.component';
 import { MemberOriginService } from '../member-origin.service';
 
@@ -38,6 +39,7 @@ import { MemberOriginService } from '../member-origin.service';
     ReactiveFormsModule,
     CommonModule,
     ColumnComponent,
+    ActionsComponent,
   ],
 })
 export class MemberOriginFormComponent implements OnInit {

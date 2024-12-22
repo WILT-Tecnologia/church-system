@@ -25,6 +25,8 @@ import { MatIconModule } from '@angular/material/icon';
   ],
 })
 export class ModalComponent {
+  isFullscreen: boolean = false;
+
   constructor(
     public dialogRef: MatDialogRef<ModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -32,7 +34,20 @@ export class ModalComponent {
 
   ngOnInit() {}
 
-  public closeModal(result: boolean): void {
-    this.dialogRef.close(result);
+  closeModal = (): void => {
+    this.dialogRef.close();
+  };
+
+  toggleFullscreen() {
+    const dialogElement = document.querySelector('.mat-dialog-container');
+
+    if (dialogElement) {
+      if (this.isFullscreen) {
+        dialogElement.classList.remove('fullscreen');
+      } else {
+        dialogElement.classList.add('fullscreen');
+      }
+      this.isFullscreen = !this.isFullscreen;
+    }
   }
 }

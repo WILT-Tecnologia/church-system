@@ -9,11 +9,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { Router, RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
 
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { MatTabsModule } from '@angular/material/tabs';
-import { ChurchComponent } from 'app/pages/admin/church/church.component';
 import { AuthService } from '../../services/auth/auth.service';
 import { LogoComponent } from './logo/logo.component';
 
@@ -23,15 +21,12 @@ import { LogoComponent } from './logo/logo.component';
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
   imports: [
-    MatTabsModule,
     MatToolbarModule,
     MatButtonModule,
     MatMenuModule,
     MatIconModule,
     CommonModule,
     LogoComponent,
-    ChurchComponent,
-    RouterModule,
   ],
 })
 export class NavbarComponent implements OnInit {
@@ -63,19 +58,19 @@ export class NavbarComponent implements OnInit {
   }
 
   navigateToChurch() {
-    this.router.navigate(['/church']);
+    this.router.navigateByUrl('/church');
   }
 
   navigateToAdministrative() {
-    this.router.navigate(['/administrative']);
+    this.router.navigateByUrl('/administrative');
   }
 
   navigateToProfile() {
-    this.router.navigate(['/profile']);
+    this.router.navigateByUrl('/profile');
   }
 
   navigateToLogin() {
-    this.router.navigate(['/login']);
+    this.router.navigateByUrl('/login');
   }
 
   logout() {

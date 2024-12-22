@@ -1,13 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatDialog } from '@angular/material/dialog';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
+import { CrudComponent } from 'app/components/crud/crud.component';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalService } from 'app/components/modal/modal.service';
+import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { ToastService } from 'app/components/toast/toast.service';
-import { NotFoundRegisterComponent } from '../../../../components/not-found-register/not-found-register.component';
-import { Occupation } from '../../../../model/Occupation';
+import { Occupation } from 'app/model/Occupation';
+import { MESSAGES } from 'app/utils/messages';
 import { OccupationComponent } from './occupation/occupation.component';
 import { OccupationsService } from './occupations.service';
 
@@ -16,29 +19,28 @@ import { OccupationsService } from './occupations.service';
   templateUrl: './occupations.component.html',
   styleUrls: ['./occupations.component.scss'],
   standalone: true,
-  imports: [
-    MatCardModule,
-    MatButtonModule,
-    NotFoundRegisterComponent,
-    CommonModule,
-  ],
+  imports: [NotFoundRegisterComponent, CommonModule, CrudComponent],
 })
 export class OccupationsComponent implements OnInit {
   occupations: Occupation[] = [];
-  displayedColumns: string[] = ['name', 'description', 'status', 'actions'];
-  columnDefinitions = {
-    name: 'Nome',
-    description: 'Descrição',
-    status: 'Situação',
-    actions: 'Ações',
-  };
+  rendering: boolean = true;
+  dataSourceMat = new MatTableDataSource<Occupation>(this.occupations);
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
+  columnDefinitions = [
+    { key: 'status', header: 'Situação', type: 'boolean' },
+    { key: 'name', header: 'Cargo', type: 'string' },
+    { key: 'description', header: 'Descrição', type: 'string' },
+    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
+  ];
 
   constructor(
-    private occupationsService: OccupationsService,
     private toast: ToastService,
     private loading: LoadingService,
     private confirmeService: ConfirmService,
-    private dialog: MatDialog,
+    private modal: ModalService,
+    private occupationsService: OccupationsService,
   ) {}
 
   ngOnInit() {
@@ -46,72 +48,103 @@ export class OccupationsComponent implements OnInit {
   }
 
   loadOccupations = () => {
-    this.occupationsService.getOccupations().subscribe((occupations) => {
-      this.occupations = occupations;
+    this.occupationsService.getOccupations().subscribe({
+      next: (occupations) => {
+        this.occupations = occupations;
+        this.dataSourceMat.data = this.occupations;
+        this.dataSourceMat.paginator = this.paginator;
+        this.dataSourceMat.sort = this.sort;
+        this.rendering = false;
+      },
+      error: () => {
+        this.toast.openError(MESSAGES.LOADING_ERROR);
+      },
+      complete: () => {
+        this.loading.hide();
+      },
     });
   };
 
-  addNewOccupation = (): void => {
-    const dialogRef = this.dialog.open(OccupationComponent, {
-      maxWidth: '100%',
-      height: 'auto',
-      maxHeight: '100dvh',
-      role: 'dialog',
-      panelClass: 'dialog',
-      disableClose: true,
-    });
+  addNewOccupation = () => {
+    const dialogRef = this.modal.openModal(
+      `modal-${Math.random()}`,
+      OccupationComponent,
+      'Adicionando ocupação',
+      true,
+      true,
+    );
 
-    dialogRef.afterClosed().subscribe((newOccupation) => {
+    dialogRef.afterClosed().subscribe((newOccupation: Occupation) => {
       if (newOccupation) {
         this.loadOccupations();
       }
     });
   };
 
-  editOccupation = (occupation: Occupation): void => {
-    const dialogRef = this.dialog.open(OccupationComponent, {
-      maxWidth: '100%',
-      height: 'auto',
-      maxHeight: '100dvh',
-      role: 'dialog',
-      panelClass: 'dialog',
-      disableClose: true,
-      data: { occupation },
-    });
+  editOccupation = (occupation: Occupation) => {
+    const dialogRef = this.modal.openModal(
+      `modal-${Math.random()}`,
+      OccupationComponent,
+      'Editando ocupação',
+      true,
+      true,
+      { occupation },
+    );
 
-    dialogRef.afterClosed().subscribe((updatedOccupation) => {
+    dialogRef.afterClosed().subscribe((updatedOccupation: Occupation) => {
       if (updatedOccupation) {
         this.loadOccupations();
       }
     });
   };
 
-  deleteOccupation = (occupation: Occupation): void => {
-    this.confirmeService
-      .openConfirm(
-        'Atenção',
-        `Tem certeza que deseja excluir esta ocupação: ${occupation.name}?`,
-        'Sim',
-        'Cancelar',
-      )
-      .afterClosed()
-      .subscribe((result) => {
-        if (result) {
-          this.loading.show();
-          this.occupationsService.deleteOccupation(occupation.id).subscribe({
-            next: () => {
-              this.toast.openSuccess('Ocupação excluída com sucesso!');
-              this.loadOccupations();
-            },
-            error: () => {
-              this.loading.hide();
-              this.toast.openError('Erro ao excluir a ocupação!');
-            },
-            complete: () => {
-              this.loading.hide();
-            },
-          });
-        }
+  deleteOccupation = (occupation: Occupation) => {
+    const modal = this.confirmeService.openConfirm(
+      'Atenção',
+      `Tem certeza que deseja excluir esta ocupação: ${occupation.name}?`,
+      'Confirmar',
+      'Cancelar',
+    );
+
+    modal.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loading.show();
+        this.occupationsService.deleteOccupation(occupation.id).subscribe({
+          next: () => {
+            this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
+          },
+          error: () => {
+            this.loading.hide();
+            this.toast.openError(MESSAGES.DELETE_ERROR);
+          },
+          complete: () => {
+            this.loadOccupations();
+            this.loading.hide();
+          },
+        });
+      }
+    });
+  };
+  toggleStatus = (occupation: Occupation) => {
+    const updatedStatus = !occupation.status;
+    occupation.status = updatedStatus;
+
+    this.occupationsService
+      .updatedStatus(occupation.id, updatedStatus)
+      .subscribe({
+        next: () => {
+          this.toast.openSuccess(
+            `Ocupação ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`,
+          );
+        },
+        error: () => {
+          this.loading.hide();
+          this.toast.openError(MESSAGES.UPDATE_ERROR);
+        },
+        complete: () => {
+          this.loadOccupations();
+          this.loading.hide();
+        },
       });
   };
 }

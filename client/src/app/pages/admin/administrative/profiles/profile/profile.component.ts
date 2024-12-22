@@ -13,11 +13,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { ActivatedRoute } from '@angular/router';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Profile } from 'app/model/Profile';
 import dayjs from 'dayjs';
+
+import { ActionsComponent } from 'app/components/actions/actions.component';
+import { ValidationService } from 'app/utils/validation/validation.service';
 import { ProfilesService } from '../profiles.service';
 
 @Component({
@@ -35,6 +37,7 @@ import { ProfilesService } from '../profiles.service';
     MatIconModule,
     ReactiveFormsModule,
     CommonModule,
+    ActionsComponent,
   ],
 })
 export class ProfileComponent implements OnInit {
@@ -44,7 +47,7 @@ export class ProfileComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private route: ActivatedRoute,
+    private validation: ValidationService,
     private loading: LoadingService,
     private toast: ToastService,
     private profilesService: ProfilesService,
@@ -65,11 +68,15 @@ export class ProfileComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.profileId = this.route.snapshot.paramMap.get('id');
     this.isEditMode = !!this.profileId;
     if (this.isEditMode) {
       this.handleEditMode();
     }
+  }
+
+  getErrorMessage(controlName: string) {
+    const control = this.profileForm.get(controlName);
+    return control ? this.validation.getErrorMessage(control) : null;
   }
 
   get pageTitle() {
@@ -77,7 +84,7 @@ export class ProfileComponent implements OnInit {
   }
 
   handleBack = () => {
-    console.log('back');
+    window.history.back();
   };
 
   handleSubmit = () => {

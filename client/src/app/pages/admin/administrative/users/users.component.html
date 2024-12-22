@@ -1,14 +1,18 @@
-<!-- <ng-container *ngIf="users && users.length > 0; else noDataTemplate">
-  <app-table [dataSource]="users" [displayedColumns]="displayedColumns" [columnDefinitions]="columnDefinitions"
-    [editFn]="editUser" [deleteFn]="deleteUser" [ctaFn]="addNewUser" [ctaLabel]="'Adicionar'" [sortColumn]="'name'"
-    [sortDirection]="'asc'">
-  </app-table>
-</ng-container> -->
+<ng-container *ngIf="(users && users.length > 0) || rendering; else noData">
+  <app-crud
+    [fields]="users"
+    [dataSourceMat]="dataSourceMat"
+    [columnDefinitions]="columnDefinitions"
+    [addFn]="addNewUser"
+    [editFn]="editUser"
+    [deleteFn]="deleteUser"
+  ></app-crud>
+</ng-container>
 
-<ng-template #noDataTemplate>
+<ng-template #noData>
   <app-not-found-register
     [template]="'usuário'"
-    [ctaLabel]="'Adicionar Novo Usuário'"
+    [ctaLabel]="'Adicionar'"
     [addRegisterFn]="addNewUser"
   ></app-not-found-register>
 </ng-template>

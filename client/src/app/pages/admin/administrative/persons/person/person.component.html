@@ -124,7 +124,7 @@
     </mat-form-field>
   </app-column>
   <mat-divider></mat-divider>
-  <mat-card-subtitle>Endereços</mat-card-subtitle>
+  <span>Endereços</span>
   <app-column class="w-full">
     <mat-form-field class="reduction" appearance="fill">
       <mat-label>CEP</mat-label>
@@ -212,25 +212,23 @@
       >
     </mat-form-field>
   </app-column>
-  <mat-card-footer>
-    <mat-divider></mat-divider>
-    <div class="cta">
-      <button
-        mat-stroked-button
-        type="button"
-        color="warn"
-        (click)="handleBack()"
-      >
-        Cancelar
-      </button>
-      <button
-        mat-raised-button
-        type="submit"
-        color="primary"
-        [disabled]="personForm.invalid"
-      >
-        {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
-      </button>
-    </div>
-  </mat-card-footer>
+  <mat-divider></mat-divider>
+  <app-actions>
+    <button
+      mat-stroked-button
+      type="button"
+      color="warn"
+      (click)="handleBack()"
+    >
+      Cancelar
+    </button>
+    <button
+      mat-raised-button
+      type="submit"
+      color="primary"
+      [disabled]="personForm.invalid"
+    >
+      {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
+    </button>
+  </app-actions>
 </form>

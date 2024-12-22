@@ -60,3 +60,13 @@ export type StatusMember = {
   final_period: string;
   updated_at: string;
 };
+
+export type History = {
+  id: string;
+  member: Members;
+  member_id: string;
+  table_name: string;
+  before_situation: string;
+  after_situation: string;
+  change_date: string;
+};

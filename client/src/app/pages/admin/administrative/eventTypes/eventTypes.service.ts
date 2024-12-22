@@ -26,12 +26,17 @@ export class EventTypesService {
 
   updateEventTypes(
     eventTypeId: string,
-    eventTypeData: Partial<EventTypes>
+    eventTypeData: Partial<EventTypes>,
   ): Observable<EventTypes> {
     return this.http.put<EventTypes>(
       `${this.api}/${eventTypeId}`,
-      eventTypeData
+      eventTypeData,
     );
+  }
+
+  updatedStatus(id: string, status: boolean): Observable<EventTypes> {
+    const statusData = { status };
+    return this.http.put<EventTypes>(`${this.api}/${id}`, statusData);
   }
 
   deleteEventTypes(eventTypeId: string): Observable<EventTypes> {

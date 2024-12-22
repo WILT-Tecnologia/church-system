@@ -1,13 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { ToastService } from 'app/components/toast/toast.service';
 import { MemberOrigin } from 'app/model/MemberOrigins';
+import { MESSAGES } from 'app/utils/messages';
 import { CrudComponent } from '../../../../components/crud/crud.component';
 import { MemberOriginFormComponent } from './member-origin-form/member-origin-form.component';
 import { MemberOriginService } from './member-origin.service';
@@ -27,20 +31,23 @@ import { MemberOriginService } from './member-origin.service';
 })
 export class MemberOriginComponent implements OnInit {
   memberOrigins: MemberOrigin[] = [];
-  displayedColumns: string[] = ['name', 'status', 'updated_at', 'actions'];
-  columnDefinitions = {
-    name: 'Nome',
-    status: 'Situação',
-    updated_at: 'Última Atualização',
-    actions: 'Ações',
-  };
+  rendering: boolean = true;
+  dataSourceMat = new MatTableDataSource<MemberOrigin>(this.memberOrigins);
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+  columnDefinitions = [
+    { key: 'status', header: 'Situação', type: 'boolean' },
+    { key: 'name', header: 'Origem', type: 'string' },
+    { key: 'description', header: 'Descrição', type: 'string' },
+    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
+  ];
 
   constructor(
-    private MemberOriginService: MemberOriginService,
     private toast: ToastService,
     private loading: LoadingService,
-    private dialog: MatDialog,
+    private modal: ModalService,
     private confirmService: ConfirmService,
+    private MemberOriginService: MemberOriginService,
   ) {}
 
   ngOnInit() {
@@ -48,78 +55,105 @@ export class MemberOriginComponent implements OnInit {
   }
 
   loadMemberOrigins = () => {
-    this.MemberOriginService.getMemberOrigins().subscribe((memberOrigin) => {
-      this.memberOrigins = memberOrigin;
+    this.MemberOriginService.getMemberOrigins().subscribe({
+      next: (memberOrigins) => {
+        this.memberOrigins = memberOrigins;
+        this.dataSourceMat.data = this.memberOrigins;
+        this.dataSourceMat.paginator = this.paginator;
+        this.dataSourceMat.sort = this.sort;
+        this.rendering = false;
+      },
+      error: () => {
+        this.loading.hide();
+        this.toast.openError(MESSAGES.LOADING_ERROR);
+      },
+      complete: () => {
+        this.loading.hide();
+      },
     });
   };
 
-  addNewMemberOrigin = (): void => {
-    const dialogRef = this.dialog.open(MemberOriginFormComponent, {
-      maxWidth: '100%',
-      height: 'auto',
-      maxHeight: '100dvh',
-      role: 'dialog',
-      panelClass: 'dialog',
-      disableClose: true,
-    });
+  addNewMemberOrigin = () => {
+    const modal = this.modal.openModal(
+      `modal-${Math.random()}`,
+      MemberOriginFormComponent,
+      'Adicionar uma origem de membro',
+      true,
+      true,
+    );
 
-    dialogRef.afterClosed().subscribe((result) => {
+    modal.afterClosed().subscribe((result: MemberOrigin) => {
       if (result) {
-        this.loading.show();
         this.loadMemberOrigins();
-        this.loading.hide();
       }
     });
   };
 
-  editMemberOrigin = (memberOrigin: MemberOrigin): void => {
-    const dialogRef = this.dialog.open(MemberOriginFormComponent, {
-      id: memberOrigin.id,
-      maxWidth: '100%',
-      height: 'auto',
-      maxHeight: '100dvh',
-      role: 'dialog',
-      panelClass: 'dialog',
-      disableClose: true,
-      data: { memberOrigin },
-    });
+  editMemberOrigin = (memberOrigin: MemberOrigin) => {
+    const dialogRef = this.modal.openModal(
+      `modal-${Math.random()}`,
+      MemberOriginFormComponent,
+      `Editar Origem de Membros: ${memberOrigin.name}`,
+      true,
+      true,
+      { memberOrigin },
+    );
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().subscribe((result: MemberOrigin) => {
       if (result) {
-        this.loading.show();
         this.loadMemberOrigins();
-        this.loading.hide();
       }
     });
   };
 
-  deleteMemberOrigin = (memberOrigin: MemberOrigin): void => {
-    this.confirmService
-      .openConfirm(
-        'Atenção',
-        `Tem certeza que deseja excluir a Origem de Membros ${memberOrigin.name}?`,
-        'Sim, excluir',
-        'Cancelar',
-      )
-      .afterClosed()
-      .subscribe((result) => {
-        if (result) {
-          this.MemberOriginService.deleteMemberOrigin(
-            memberOrigin.id,
-          ).subscribe({
-            next: () => {
-              this.toast.openSuccess('Origem de Membro excluído com sucesso!');
-              this.loadMemberOrigins();
-            },
-            error: () => {
-              this.loading.hide();
-              this.toast.openError('Erro ao excluir Origem de Membros!');
-            },
-            complete: () => {
-              this.loading.hide();
-            },
-          });
-        }
-      });
+  deleteMemberOrigin = (memberOrigin: MemberOrigin) => {
+    const modal = this.confirmService.openConfirm(
+      'Atenção',
+      `Tem certeza que deseja excluir a Origem de Membros ${memberOrigin.name}?`,
+      'Confirmar ',
+      'Cancelar',
+    );
+
+    modal.afterClosed().subscribe((result: MemberOrigin) => {
+      if (result) {
+        this.MemberOriginService.deleteMemberOrigin(memberOrigin.id).subscribe({
+          next: () => {
+            this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
+          },
+          error: () => {
+            this.loading.hide();
+            this.toast.openError(MESSAGES.DELETE_ERROR);
+          },
+          complete: () => {
+            this.loadMemberOrigins();
+            this.loading.hide();
+          },
+        });
+      }
+    });
+  };
+
+  toggleStatus = (memberOrigin: MemberOrigin) => {
+    const updatedStatus = !memberOrigin.status;
+    memberOrigin.status = updatedStatus;
+
+    this.MemberOriginService.updatedStatus(
+      memberOrigin.id,
+      updatedStatus,
+    ).subscribe({
+      next: () => {
+        this.toast.openSuccess(
+          `Perfil ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`,
+        );
+      },
+      error: () => {
+        this.loading.hide();
+        this.toast.openError(MESSAGES.UPDATE_ERROR);
+      },
+      complete: () => {
+        this.loadMemberOrigins();
+        this.loading.hide();
+      },
+    });
   };
 }

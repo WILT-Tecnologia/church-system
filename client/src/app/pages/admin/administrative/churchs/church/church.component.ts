@@ -46,6 +46,7 @@ import {
   Subject,
   takeUntil,
 } from 'rxjs';
+import { ActionsComponent } from '../../../../../components/actions/actions.component';
 import { ChurchsService } from '../churchs.service';
 
 @Component({
@@ -67,6 +68,7 @@ import { ChurchsService } from '../churchs.service';
     ReactiveFormsModule,
     CommonModule,
     ColumnComponent,
+    ActionsComponent,
   ],
   providers: [provideNgxMask()],
 })

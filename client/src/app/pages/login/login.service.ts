@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { ToastService } from 'app/components/toast/toast.service';
-import { CoreService } from 'app/services/core/core.service';
 import { LoadingService } from '../../components/loading/loading.service';
 import { AuthService } from '../../services/auth/auth.service';
 
@@ -12,7 +12,7 @@ export class LoginService {
     private authService: AuthService,
     private toast: ToastService,
     private loading: LoadingService,
-    private core: CoreService,
+    private router: Router,
   ) {}
 
   login(credentials: { login: string; password: string }) {
@@ -33,7 +33,7 @@ export class LoginService {
 
   private handleLoginSuccess(result: any) {
     this.authService.storeUserData(result.access_token, result.user);
-    this.core.handleHome();
+    this.router.navigateByUrl('/');
   }
 
   private handleLoginError(err: any) {

@@ -33,6 +33,7 @@ export class ChurchsComponent implements OnInit {
     { key: 'name', header: 'Nome', type: 'string' },
     { key: 'email', header: 'Email', type: 'string' },
     { key: 'cnpj', header: 'CNPJ', type: 'cnpj' },
+    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
   ];
 
   constructor(

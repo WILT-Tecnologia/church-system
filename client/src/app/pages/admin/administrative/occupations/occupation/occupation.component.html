@@ -1,15 +1,25 @@
-<form [formGroup]="occupationForm" (ngSubmit)="handleSubmit()" class="form-field-group wrapper">
+<form
+  [formGroup]="occupationForm"
+  (ngSubmit)="handleSubmit()"
+  class="form-field-group wrapper"
+>
   <app-column>
-    <mat-slide-toggle formControlName="status"
-      color="primary">{{occupationForm.get('status')?.value ? 'Ativado' : 'Desativado'}}</mat-slide-toggle>
+    <mat-slide-toggle formControlName="status" color="primary">{{
+      occupationForm.get('status')?.value ? 'Ativado' : 'Desativado'
+    }}</mat-slide-toggle>
   </app-column>
 
   <app-column>
     <mat-form-field appearance="fill">
       <mat-label>Nome</mat-label>
-      <input matInput formControlName="name" maxlength="255" required>
+      <input matInput formControlName="name" maxlength="255" required />
       <mat-error
-        *ngIf="occupationForm.get('name')?.invalid && occupationForm.get('name')?.touched">{{getErrorMessage('name')}}</mat-error>
+        *ngIf="
+          occupationForm.get('name')?.invalid &&
+          occupationForm.get('name')?.touched
+        "
+        >{{ getErrorMessage('name') }}</mat-error
+      >
     </mat-form-field>
   </app-column>
 
@@ -18,20 +28,34 @@
       <mat-label>Descrição</mat-label>
       <textarea matInput rows="5" formControlName="description"></textarea>
       <mat-error
-        *ngIf="occupationForm.get('description')?.invalid && occupationForm.get('description')?.touched">{{getErrorMessage('description')}}</mat-error>
+        *ngIf="
+          occupationForm.get('description')?.invalid &&
+          occupationForm.get('description')?.touched
+        "
+        >{{ getErrorMessage('description') }}</mat-error
+      >
     </mat-form-field>
   </app-column>
 
-  <mat-card-footer>
-    <ng-container *ngIf="isEditMode && occupationForm.get('updated_at')?.value">
-      <span class="info">Atualizado em {{ occupationForm.get('updated_at')?.value }}</span>
-    </ng-container>
-    <mat-divider></mat-divider>
+  <mat-divider></mat-divider>
+  <app-actions>
     <div class="cta">
-      <button type="button" mat-stroked-button color="warn" (click)="handleBack()">Cancelar</button>
-      <button type="submit" mat-raised-button color="primary" [disabled]="occupationForm.invalid">
-        {{isEditMode ? 'Atualizar' : 'Cadastrar'}}
+      <button
+        type="button"
+        mat-stroked-button
+        color="warn"
+        (click)="handleBack()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        mat-raised-button
+        color="primary"
+        [disabled]="occupationForm.invalid"
+      >
+        {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
       </button>
     </div>
-  </mat-card-footer>
+  </app-actions>
 </form>

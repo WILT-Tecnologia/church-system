@@ -43,16 +43,33 @@ import { FormatValuesPipe } from 'app/utils/pipes/format-values.pipe';
   ],
 })
 export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
+  /**
+   * @param fields: Objeto que recebe os campos que serão exibidos na tabela
+   * @param ctaLabel: Label do botão de adicionar
+   * @param toggleFn: Função que altera o status do toggle
+   * @param deleteFn: Função que deleta o item
+   * @param editFn: Função que edita o item
+   * @param addFn: Função que adiciona o item
+   * @param tooltipTextButtonToggleFn: Texto do tooltip do botão de toggle
+   * @param pageSizeOptions: Tamanho da paginacao
+   * @param pageSize: Tamanho da paginacao
+   * @param enableToggleStatus: Habilita o toggle de status
+   * @param enableAddButtonAdd: Habilita o botão de adicionar
+   * @param dataSourceMat: Dados da tabela
+   * @param columnDefinitions: Colunas da tabela
+   * @returns
+   */
   @Input() fields: any[] = [];
   @Input() ctaLabel?: string;
   @Input() toggleFn!: (element: any) => void;
   @Input() deleteFn!: (element: any) => void;
   @Input() editFn!: (element: any) => void;
   @Input() addFn!: () => void;
-  @Input() tooltipText!: string;
+  @Input() tooltipTextButtonToggleFn: string = '';
   @Input() pageSizeOptions: number[] = [10, 25, 50, 100];
   @Input() pageSize: number = 10;
   @Input() enableToggleStatus: boolean = false;
+  @Input() enableAddButtonAdd: boolean = true;
   @Input() dataSourceMat = new MatTableDataSource<any>([]);
   @Input() columnDefinitions: { key: string; header: string; type: string }[] =
     [];

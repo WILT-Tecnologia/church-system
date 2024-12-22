@@ -26,12 +26,17 @@ export class MemberOriginService {
 
   updateMemberOrigin(
     memberOriginId: string,
-    memberOriginData: Partial<MemberOrigin>
+    memberOriginData: Partial<MemberOrigin>,
   ): Observable<MemberOrigin> {
     return this.http.put<MemberOrigin>(
       `${this.api}/${memberOriginId}`,
-      memberOriginData
+      memberOriginData,
     );
+  }
+
+  updatedStatus(id: string, status: boolean): Observable<MemberOrigin> {
+    const statusData = { status };
+    return this.http.put<MemberOrigin>(`${this.api}/${id}`, statusData);
   }
 
   deleteMemberOrigin(memberOriginId: string): Observable<MemberOrigin> {

@@ -1,24 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, SimpleChanges, ViewChild } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ToastService } from 'app/components/toast/toast.service';
 
-import { MatDividerModule } from '@angular/material/divider';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { EventTypes } from 'app/model/EventTypes';
 import { MESSAGES } from 'app/utils/messages';
-import { FormatValuesPipe } from 'app/utils/pipes/format-values.pipe';
+import { CrudComponent } from '../../../../components/crud/crud.component';
 import { EventTypeComponent } from './eventType/eventType.component';
 import { EventTypesService } from './eventTypes.service';
 
@@ -27,26 +20,11 @@ import { EventTypesService } from './eventTypes.service';
   templateUrl: './eventTypes.component.html',
   styleUrls: ['./eventTypes.component.scss'],
   standalone: true,
-  imports: [
-    MatTableModule,
-    MatSortModule,
-    MatDividerModule,
-    MatPaginatorModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatTooltipModule,
-    MatIconModule,
-    MatCardModule,
-    MatButtonModule,
-    NotFoundRegisterComponent,
-    CommonModule,
-    FormatValuesPipe,
-  ],
+  imports: [NotFoundRegisterComponent, CommonModule, CrudComponent],
 })
 export class EventTypesComponent implements OnInit {
   eventTypes: EventTypes[] = [];
-  pageSizeOptions: number[] = [25, 50, 100, 200];
-  pageSize: number = 25;
+  rendering: boolean = true;
   dataSourceMat = new MatTableDataSource<EventTypes>(this.eventTypes);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -55,68 +33,19 @@ export class EventTypesComponent implements OnInit {
     { key: 'status', header: 'Status', type: 'boolean' },
     { key: 'name', header: 'Nome', type: 'string' },
     { key: 'description', header: 'Descrição', type: 'string' },
-    { key: 'updated_at', header: 'Atualizado em', type: 'datetime' },
+    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
   ];
 
-  displayedColumns = this.columnDefinitions
-    .map((col) => col.key)
-    .concat('actions');
-
   constructor(
-    private eventTypesService: EventTypesService,
     private toast: ToastService,
     private loading: LoadingService,
     private confirmService: ConfirmService,
     private modalService: ModalService,
+    private eventTypesService: EventTypesService,
   ) {}
 
   ngOnInit() {
     this.loadEventTypes();
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['eventTypes'] && changes['eventTypes'].currentValue) {
-      this.dataSourceMat.data = this.eventTypes;
-    }
-  }
-
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value
-      .trim()
-      .toLowerCase();
-
-    this.dataSourceMat.filterPredicate = (data: any, filter: string) => {
-      return this.searchInObject(data, filter);
-    };
-
-    this.dataSourceMat.filter = filterValue;
-
-    if (this.dataSourceMat.paginator) {
-      this.dataSourceMat.paginator.firstPage();
-    }
-  }
-
-  searchInObject(obj: any, searchText: string): boolean {
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        const value = obj[key];
-        if (typeof value === 'object' && value !== null) {
-          if (this.searchInObject(value, searchText)) {
-            return true;
-          }
-        } else {
-          if (String(value).toLowerCase().includes(searchText)) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
-
-  ngAfterViewInit() {
-    this.dataSourceMat.paginator = this.paginator;
-    this.dataSourceMat.sort = this.sort;
   }
 
   loadEventTypes = () => {
@@ -126,20 +55,20 @@ export class EventTypesComponent implements OnInit {
         this.dataSourceMat.data = this.eventTypes;
         this.dataSourceMat.paginator = this.paginator;
         this.dataSourceMat.sort = this.sort;
+        this.rendering = false;
       },
       error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
       complete: () => this.loading.hide(),
     });
   };
 
-  addNewEventTypes = (): void => {
+  addNewEventTypes = () => {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       EventTypeComponent,
-      'Adicionar tipo de evento',
+      'Adicionando tipo de evento',
       true,
       true,
-      {},
     );
 
     dialogRef.afterClosed().subscribe((newEventType) => {
@@ -149,11 +78,11 @@ export class EventTypesComponent implements OnInit {
     });
   };
 
-  editEventTypes = (eventType: EventTypes): void => {
+  editEventTypes = (eventType: EventTypes) => {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       EventTypeComponent,
-      'Editar tipo de evento',
+      `Editando o tipo de evento: ${eventType.name}`,
       true,
       true,
       { eventType },
@@ -166,7 +95,7 @@ export class EventTypesComponent implements OnInit {
     });
   };
 
-  deleteEventTypes = (eventType: EventTypes): void => {
+  deleteEventTypes = (eventType: EventTypes) => {
     this.confirmService
       .openConfirm(
         'Atenção!',
@@ -191,6 +120,29 @@ export class EventTypesComponent implements OnInit {
             },
           });
         }
+      });
+  };
+
+  toggleStatus = (eventType: EventTypes) => {
+    const updatedStatus = !eventType.status;
+    eventType.status = updatedStatus;
+
+    this.eventTypesService
+      .updatedStatus(eventType.id, updatedStatus)
+      .subscribe({
+        next: () => {
+          this.toast.openSuccess(
+            `Tipo de evento ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`,
+          );
+        },
+        error: () => {
+          this.loading.hide();
+          this.toast.openError(MESSAGES.UPDATE_ERROR);
+        },
+        complete: () => {
+          this.loadEventTypes();
+          this.loading.hide();
+        },
       });
   };
 }

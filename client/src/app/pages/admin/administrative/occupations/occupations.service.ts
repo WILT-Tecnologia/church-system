@@ -26,12 +26,17 @@ export class OccupationsService {
 
   updateOccupation(
     occupationId: string,
-    occupationData: Partial<Occupation>
+    occupationData: Partial<Occupation>,
   ): Observable<Occupation> {
     return this.http.put<Occupation>(
       `${this.api}/${occupationId}`,
-      occupationData
+      occupationData,
     );
+  }
+
+  updatedStatus(id: string, status: boolean): Observable<Occupation> {
+    const statusData = { status };
+    return this.http.put<Occupation>(`${this.api}/${id}`, statusData);
   }
 
   deleteOccupation(occupationId: string): Observable<Occupation> {

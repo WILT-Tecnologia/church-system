@@ -43,6 +43,7 @@ import { cpfValidator } from 'app/utils/validators/cpf-validator';
 import { phoneValidator } from 'app/utils/validators/phone-validator';
 import dayjs from 'dayjs';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import { ActionsComponent } from '../../../../../components/actions/actions.component';
 import { PersonsService } from '../persons.service';
 
 type Sex = {
@@ -74,6 +75,7 @@ type Sex = {
     ReactiveFormsModule,
     CommonModule,
     ColumnComponent,
+    ActionsComponent,
   ],
 })
 export class PersonComponent implements OnInit, OnDestroy {

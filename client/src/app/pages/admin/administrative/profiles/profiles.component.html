@@ -1,8 +1,18 @@
-<!-- <ng-container *ngIf="profiles && profiles.length > 0; else noDataTemplate">
-  <app-table [dataSource]="profiles" [displayedColumns]="displayedColumns" [columnDefinitions]="columnDefinitions"
-    [editFn]="editProfile" [deleteFn]="deleteProfile" [ctaFn]="addNewProfile" [ctaLabel]="'Adicionar'"
-    [sortColumn]="'name'" [sortDirection]="'asc'"></app-table>
-</ng-container> -->
+<ng-container
+  *ngIf="(profiles && profiles.length > 0) || rendering; else noDataTemplate"
+>
+  <app-crud
+    [fields]="profiles"
+    [dataSourceMat]="dataSourceMat"
+    [columnDefinitions]="columnDefinitions"
+    [addFn]="addNewProfile"
+    [editFn]="editProfile"
+    [deleteFn]="deleteProfile"
+    [toggleFn]="toggleStatus"
+    [enableToggleStatus]="true"
+    [tooltipTextButtonToggleFn]="'Ativa/Desativa o perfil'"
+  ></app-crud>
+</ng-container>
 
 <ng-template #noDataTemplate>
   <app-not-found-register

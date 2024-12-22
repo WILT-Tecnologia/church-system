@@ -9,12 +9,22 @@
   <span class="spacer"></span>
   <ng-container *ngIf="!!userName || !!isLoggedIn">
     <div class="row row-padding">
-      <button mat-button color="primary" (click)="navigateToChurch()">Igreja</button>
-      <button mat-button class="spacing-components" color="primary"
-        (click)="navigateToAdministrative()">Administrativo</button>
+      <button mat-button color="primary" (click)="navigateToChurch()">
+        Igreja
+      </button>
+      <button
+        mat-button
+        class="spacing-components"
+        color="primary"
+        (click)="navigateToAdministrative()"
+      >
+        Administrativo
+      </button>
       <button mat-button class="user-button" [matMenuTriggerFor]="userMenu">
         <ng-container *ngIf="!isMobile">
-          <span class="button-text text-default">{{ userName || 'Usuário' }}</span>
+          <span class="button-text text-default">{{
+            userName || 'Usuário'
+          }}</span>
         </ng-container>
         <ng-container *ngIf="isMobile">
           <mat-icon>account_circle</mat-icon>
@@ -28,17 +38,14 @@
 
   <ng-container *ngIf="!isLoggedIn">
     <div class="row-padding">
-      <button mat-raised-button color="primary" (click)="navigateToLogin()">Login</button>
+      <button mat-raised-button color="primary" (click)="navigateToLogin()">
+        Login
+      </button>
     </div>
   </ng-container>
-
 </mat-toolbar>
 
 <mat-menu #userMenu="matMenu">
-  <button mat-menu-item (click)="navigateToProfile()">
-    <span>Perfil</span>
-  </button>
-  <button class="logout" mat-menu-item (click)="logout()">
-    <span>Sair</span>
-  </button>
+  <button mat-menu-item (click)="navigateToProfile()">Perfil</button>
+  <button class="logout" mat-menu-item (click)="logout()">Sair</button>
 </mat-menu>

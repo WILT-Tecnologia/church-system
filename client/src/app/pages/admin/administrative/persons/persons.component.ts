@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -20,12 +19,7 @@ import { PersonsService } from './persons.service';
   standalone: true,
   templateUrl: './persons.component.html',
   styleUrls: ['./persons.component.scss'],
-  imports: [
-    MatButtonModule,
-    NotFoundRegisterComponent,
-    CommonModule,
-    CrudComponent,
-  ],
+  imports: [NotFoundRegisterComponent, CommonModule, CrudComponent],
 })
 export class PersonsComponent implements OnInit {
   persons: Person[] = [];
@@ -77,7 +71,6 @@ export class PersonsComponent implements OnInit {
       'Adicionando uma pessoa',
       true,
       true,
-      {},
     );
 
     dialogRef.afterClosed().subscribe((person: Person) => {

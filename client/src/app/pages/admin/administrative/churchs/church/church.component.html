@@ -49,6 +49,7 @@
       >
     </mat-form-field>
   </app-column>
+
   <app-column>
     <mat-form-field appearance="fill">
       <mat-label>E-mail</mat-label>
@@ -81,7 +82,7 @@
       >
     </mat-form-field>
   </app-column>
-  <mat-card-subtitle>Endereço</mat-card-subtitle>
+  <span>Endereço</span>
   <mat-divider></mat-divider>
   <app-column>
     <mat-form-field class="reduction" appearance="fill">
@@ -170,28 +171,23 @@
       >
     </mat-form-field>
   </app-column>
-  <mat-card-footer>
-    <ng-container *ngIf="isEditMode">
-      <span>Atualizado em {{ churchForm.get('updated_at')?.value }}</span>
-    </ng-container>
-    <mat-divider></mat-divider>
-    <div class="cta">
-      <button
-        mat-stroked-button
-        type="button"
-        color="warn"
-        (click)="handleBack()"
-      >
-        Cancelar
-      </button>
-      <button
-        mat-raised-button
-        type="submit"
-        color="primary"
-        [disabled]="churchForm.invalid"
-      >
-        {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
-      </button>
-    </div>
-  </mat-card-footer>
+  <mat-divider></mat-divider>
+  <app-actions>
+    <button
+      mat-stroked-button
+      type="button"
+      color="warn"
+      (click)="handleBack()"
+    >
+      Cancelar
+    </button>
+    <button
+      mat-raised-button
+      type="submit"
+      color="primary"
+      [disabled]="churchForm.invalid"
+    >
+      {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
+    </button>
+  </app-actions>
 </form>

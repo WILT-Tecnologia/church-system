@@ -20,6 +20,7 @@ import { ToastService } from 'app/components/toast/toast.service';
 import { Occupation } from 'app/model/Occupation';
 import { ValidationService } from 'app/utils/validation/validation.service';
 import dayjs from 'dayjs';
+import { ActionsComponent } from '../../../../../components/actions/actions.component';
 import { OccupationsService } from '../occupations.service';
 
 @Component({
@@ -38,6 +39,7 @@ import { OccupationsService } from '../occupations.service';
     ColumnComponent,
     ReactiveFormsModule,
     CommonModule,
+    ActionsComponent,
   ],
 })
 export class OccupationComponent implements OnInit {

@@ -25,9 +25,14 @@ export class ProfilesService {
 
   updateProfile(
     profileId: string,
-    profileData: Partial<Profile>
+    profileData: Partial<Profile>,
   ): Observable<Profile> {
     return this.http.put<Profile>(`${this.api}/${profileId}`, profileData);
+  }
+
+  updatedStatus(id: string, status: boolean): Observable<Profile> {
+    const statusData = { status };
+    return this.http.put<Profile>(`${this.api}/${id}`, statusData);
   }
 
   deleteProfile(profileId: string): Observable<Profile> {
