@@ -265,8 +265,6 @@ export class MemberComponent implements OnInit {
       stepFive: this.fb.group({}),
 
       stepSix: this.fb.group({}),
-
-      stepSeven: this.fb.group({}),
     });
   }
 
@@ -467,8 +465,6 @@ export class MemberComponent implements OnInit {
         return this.memberForm.get('stepFive') as FormGroup;
       case 5:
         return this.memberForm.get('stepSix') as FormGroup;
-      case 6:
-        return this.memberForm.get('stepSeven') as FormGroup;
       default:
         return this.memberForm.get('stepOne') as FormGroup;
     }
@@ -481,7 +477,6 @@ export class MemberComponent implements OnInit {
     const stepFourData = this.memberForm.get('stepFour')?.value;
     const stepFiveData = this.memberForm.get('stepFive')?.value;
     const stepSixData = this.memberForm.get('stepSix')?.value;
-    const stepSevenData = this.memberForm.get('stepSeven')?.value;
 
     const combinedData = {
       ...stepOneData,
@@ -490,7 +485,6 @@ export class MemberComponent implements OnInit {
       ...stepFourData,
       ...stepFiveData,
       ...stepSixData,
-      ...stepSevenData,
     };
 
     return combinedData;

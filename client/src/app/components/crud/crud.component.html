@@ -88,40 +88,68 @@
             <mat-icon>more_vert</mat-icon>
           </button>
           <mat-menu #menu="matMenu">
-            <ng-container *ngIf="enableToggleStatus">
-              <div class="m-4 flex flex-col items-center justify-center">
-                <button
-                  mat-raised-button
-                  type="button"
-                  [matTooltip]="tooltipTextButtonToggleFn"
-                  [color]="fields.status ? 'warn' : 'primary'"
-                  [ngClass]="fields.status ? 'inactived' : 'actived'"
-                  (click)="toggleFn(fields)"
-                >
-                  {{ fields.status ? 'Desativar' : 'Ativar' }}
-                </button>
-              </div>
-              <mat-divider></mat-divider>
+            <!-- Itera sobre as ações definidas dinamicamente -->
+            <ng-container *ngFor="let action of actions">
+              <ng-container [ngSwitch]="action.type">
+                <!-- Botão Toggle (Ativar/Desativar) -->
+                <ng-container *ngSwitchCase="'toggle'">
+                  <div class="m-4 flex flex-col items-center justify-center">
+                    <button
+                      mat-raised-button
+                      type="button"
+                      [matTooltip]="action.tooltip ?? ''"
+                      [color]="fields.status ? 'warn' : 'primary'"
+                      (click)="action.action(fields)"
+                    >
+                      {{
+                        fields.status
+                          ? action.inactiveLabel
+                          : action.activeLabel
+                      }}
+                    </button>
+                  </div>
+                  <mat-divider></mat-divider>
+                </ng-container>
+
+                <!-- Botão Editar -->
+                <ng-container *ngSwitchCase="'edit'">
+                  <button
+                    mat-menu-item
+                    matTooltip="{{ action.tooltip }}"
+                    (click)="action.action(fields)"
+                  >
+                    <mat-icon>{{ action.icon }}</mat-icon>
+                    <span class="label-button-menu">{{ action.label }}</span>
+                  </button>
+                </ng-container>
+
+                <!-- Botão Excluir -->
+                <ng-container *ngSwitchCase="'delete'">
+                  <button
+                    mat-menu-item
+                    matTooltip="{{ action.tooltip }}"
+                    (click)="action.action(fields)"
+                  >
+                    <mat-icon color="warn">{{ action.icon }}</mat-icon>
+                    <span class="label-button-menu text-red-600">{{
+                      action.label
+                    }}</span>
+                  </button>
+                </ng-container>
+
+                <!-- Botão historico -->
+                <ng-container *ngSwitchCase="'history'">
+                  <button
+                    mat-menu-item
+                    matTooltip="{{ action.tooltip }}"
+                    (click)="action.action(fields)"
+                  >
+                    <mat-icon>{{ action.icon }}</mat-icon>
+                    <span class="label-button-menu">{{ action.label }}</span>
+                  </button>
+                </ng-container>
+              </ng-container>
             </ng-container>
-            <!-- Botões de editar e excluir -->
-            <div class="flex flex-col my-2">
-              <button
-                mat-menu-item
-                matTooltip="Editar"
-                (click)="editFn(fields)"
-              >
-                <mat-icon>edit</mat-icon>
-                <span class="label-button-menu">Editar</span>
-              </button>
-              <button
-                mat-menu-item
-                matTooltip="Excluir"
-                (click)="deleteFn(fields)"
-              >
-                <mat-icon class="delete">delete</mat-icon>
-                <span class="label-button-menu delete">Excluir</span>
-              </button>
-            </div>
           </mat-menu>
         </div>
       </td>

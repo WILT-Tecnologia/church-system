@@ -4,7 +4,10 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { CrudComponent } from 'app/components/crud/crud.component';
+import {
+  ActionsProps,
+  CrudComponent,
+} from 'app/components/crud/crud.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
@@ -30,6 +33,22 @@ export class MembersComponent implements OnInit {
   dataSourceMat = new MatTableDataSource<Members>(this.member);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  actions: ActionsProps[] = [
+    {
+      type: 'edit',
+      tooltip: 'Editar',
+      icon: 'edit',
+      label: 'Editar',
+      action: (member: Members) => this.editMembers(member),
+    },
+    {
+      type: 'delete',
+      tooltip: 'Excluir',
+      icon: 'delete',
+      label: 'Excluir',
+      action: (member: Members) => this.deleteMembers(member),
+    },
+  ];
 
   columnDefinitions = [
     { key: 'person.name', header: 'Nome', type: 'string' },
