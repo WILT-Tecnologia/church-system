@@ -17,6 +17,7 @@ import { Members } from 'app/model/Members';
 import { MESSAGES } from 'app/utils/messages';
 import { MemberComponent } from './member/member.component';
 import { MembersService } from './members.service';
+import { HistoryComponent } from './shared/history/history.component';
 import { MemberService } from './shared/member.service';
 
 @Component({
@@ -34,6 +35,13 @@ export class MembersComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   actions: ActionsProps[] = [
+    {
+      type: 'history',
+      tooltip: 'Histórico',
+      icon: 'history',
+      label: 'Histórico',
+      action: (member: Members) => this.handleHistory(member),
+    },
     {
       type: 'edit',
       tooltip: 'Editar',
@@ -98,7 +106,7 @@ export class MembersComponent implements OnInit {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       MemberComponent,
-      'Adicionar novo membro',
+      'Adicionando novo membro',
       true,
       true,
     );
@@ -110,12 +118,12 @@ export class MembersComponent implements OnInit {
     });
   };
 
-  editMembers = (member: Members): void => {
+  editMembers = (member: Members) => {
     this.memberService.setEditingMemberId(member.id);
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       MemberComponent,
-      'Editar membro',
+      `Editando o membro: ${member.person.name}`,
       true,
       true,
       { members: member, id: member.id },
@@ -128,9 +136,27 @@ export class MembersComponent implements OnInit {
     });
   };
 
-  deleteMembers = (members: Members): void => {
+  handleHistory = (member: Members) => {
+    this.memberService.setEditingMemberId(member.id);
+    const dialogRef = this.modalService.openModal(
+      `modal-${Math.random()}`,
+      HistoryComponent,
+      `Histórico do membro: ${member.person.name}`,
+      true,
+      true,
+      { members: member, id: member.id },
+    );
+
+    dialogRef.afterClosed().subscribe((result: Members) => {
+      if (result) {
+        this.loadMembers();
+      }
+    });
+  };
+
+  deleteMembers = (members: Members) => {
     const modal = this.confirmeService.openConfirm(
-      'Excluir membros',
+      'Atenção!',
       `Tem certeza que deseja excluir o membro ${members.person.name} ?`,
       'Confirmar',
       'Cancelar',

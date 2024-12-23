@@ -30,7 +30,7 @@ export class FormatsPipe implements PipeTransform {
   }
 
   dateTimeFormat(value: string): string {
-    if (!value) return 'Não informado';
+    if (!value) return '';
 
     const dateFormated = dayjs(value).format('DD/MM/YYYY [às] HH:mm:ss');
 
@@ -38,7 +38,7 @@ export class FormatsPipe implements PipeTransform {
   }
 
   dateFormat(value: string): string {
-    if (!value) return 'Não informado';
+    if (!value) return '';
 
     let dateFormated = dayjs(value).format('DD/MM/YYYY');
 
