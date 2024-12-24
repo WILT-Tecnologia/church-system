@@ -8,10 +8,11 @@
     [fields]="occupations"
     [dataSourceMat]="dataSourceMat"
     [columnDefinitions]="columnDefinitions"
-    [addFn]="addNewOccupation"
-    [editFn]="editOccupation"
-    [deleteFn]="deleteOccupation"
+    [addFn]="handleCreate"
+    [editFn]="handleEdit"
+    [deleteFn]="handleDelete"
     [toggleFn]="toggleStatus"
+    [actions]="actions"
     [enableToggleStatus]="true"
     [tooltipTextButtonToggleFn]="'Ativa/Desativa a ocupação'"
   ></app-crud>
@@ -21,6 +22,6 @@
   <app-not-found-register
     [template]="'Ocupações'"
     [ctaLabel]="'Adicionar Nova Ocupação'"
-    [addRegisterFn]="addNewOccupation"
+    [addRegisterFn]="handleCreate"
   ></app-not-found-register>
 </ng-template>

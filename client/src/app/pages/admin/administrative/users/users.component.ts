@@ -10,7 +10,10 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { ToastService } from 'app/components/toast/toast.service';
 import { User } from 'app/model/User';
 import { MESSAGES } from 'app/utils/messages';
-import { CrudComponent } from '../../../../components/crud/crud.component';
+import {
+  ActionsProps,
+  CrudComponent,
+} from '../../../../components/crud/crud.component';
 import { UserFormComponent } from './user-form/user-form.component';
 import { UsersService } from './users.service';
 
@@ -27,6 +30,23 @@ export class UsersComponent implements OnInit {
   dataSourceMat = new MatTableDataSource<User>(this.users);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
+  actions: ActionsProps[] = [
+    {
+      type: 'edit',
+      tooltip: 'Editar',
+      icon: 'edit',
+      label: 'Editar',
+      action: (user: User) => this.handleEdit(user),
+    },
+    {
+      type: 'delete',
+      tooltip: 'Excluir',
+      icon: 'delete',
+      label: 'Excluir',
+      action: (user: User) => this.handleDelete(user),
+    },
+  ];
 
   columnDefinitions = [
     { key: 'status', header: 'Situação', type: 'boolean' },
@@ -62,7 +82,7 @@ export class UsersComponent implements OnInit {
     });
   };
 
-  addNewUser = () => {
+  handleCreate = () => {
     const modal = this.modalService.openModal(
       `modal-${Math.random()}`,
       UserFormComponent,
@@ -78,7 +98,7 @@ export class UsersComponent implements OnInit {
     });
   };
 
-  editUser = (user: User) => {
+  handleEdit = (user: User) => {
     const modal = this.modalService.openModal(
       `modal-${Math.random()}`,
       UserFormComponent,
@@ -95,7 +115,7 @@ export class UsersComponent implements OnInit {
     });
   };
 
-  deleteUser = (user: User) => {
+  handleDelete = (user: User) => {
     const modal = this.confirmService.openConfirm(
       'Atenção',
       'Deseja realmente excluir o usuário?',

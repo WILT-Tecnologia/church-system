@@ -12,7 +12,10 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { ToastService } from 'app/components/toast/toast.service';
 import { MemberOrigin } from 'app/model/MemberOrigins';
 import { MESSAGES } from 'app/utils/messages';
-import { CrudComponent } from '../../../../components/crud/crud.component';
+import {
+  ActionsProps,
+  CrudComponent,
+} from '../../../../components/crud/crud.component';
 import { MemberOriginFormComponent } from './member-origin-form/member-origin-form.component';
 import { MemberOriginService } from './member-origin.service';
 
@@ -35,6 +38,24 @@ export class MemberOriginComponent implements OnInit {
   dataSourceMat = new MatTableDataSource<MemberOrigin>(this.memberOrigins);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
+  actions: ActionsProps[] = [
+    {
+      type: 'edit',
+      tooltip: 'Editar',
+      icon: 'edit',
+      label: 'Editar',
+      action: (memberOrigin: MemberOrigin) => this.handleEdit(memberOrigin),
+    },
+    {
+      type: 'delete',
+      tooltip: 'Excluir',
+      icon: 'delete',
+      label: 'Excluir',
+      action: (memberOrigin: MemberOrigin) => this.handleDelete(memberOrigin),
+    },
+  ];
+
   columnDefinitions = [
     { key: 'status', header: 'Situação', type: 'boolean' },
     { key: 'name', header: 'Origem', type: 'string' },
@@ -73,7 +94,7 @@ export class MemberOriginComponent implements OnInit {
     });
   };
 
-  addNewMemberOrigin = () => {
+  handleCreate = () => {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       MemberOriginFormComponent,
@@ -89,7 +110,7 @@ export class MemberOriginComponent implements OnInit {
     });
   };
 
-  editMemberOrigin = (memberOrigin: MemberOrigin) => {
+  handleEdit = (memberOrigin: MemberOrigin) => {
     const dialogRef = this.modal.openModal(
       `modal-${Math.random()}`,
       MemberOriginFormComponent,
@@ -106,7 +127,7 @@ export class MemberOriginComponent implements OnInit {
     });
   };
 
-  deleteMemberOrigin = (memberOrigin: MemberOrigin) => {
+  handleDelete = (memberOrigin: MemberOrigin) => {
     const modal = this.confirmService.openConfirm(
       'Atenção',
       `Tem certeza que deseja excluir a Origem de Membros ${memberOrigin.name}?`,

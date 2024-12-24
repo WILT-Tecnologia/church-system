@@ -267,3 +267,23 @@ mat-label {
 mat-error {
   font-size: 0.75rem;
 }
+
+/* Personalizando o scrollbar */
+::-webkit-scrollbar {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+::-webkit-scrollbar-thumb {
+  background: theme.$greyVeryLight;
+  border-radius: 0.5rem;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: theme.$greyLight;
+}
+
+::-webkit-scrollbar-track {
+  background: theme.$hover;
+  border-radius: 0.5rem;
+}

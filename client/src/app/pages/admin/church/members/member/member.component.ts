@@ -55,7 +55,6 @@ import { debounceTime, map, Observable, startWith } from 'rxjs';
 import { ActionsComponent } from '../../../../../components/actions/actions.component';
 import { MembersService } from '../members.service';
 import { FamiliesComponent } from '../shared/families/families.component';
-import { HistoryComponent } from '../shared/history/history.component';
 import { OrdinationsComponent } from '../shared/ordinations/ordinations.component';
 import { StatusMemberComponent } from '../shared/status-member/status-member.component';
 
@@ -90,12 +89,11 @@ import { StatusMemberComponent } from '../shared/status-member/status-member.com
     OrdinationsComponent,
     StatusMemberComponent,
     ActionsComponent,
-    HistoryComponent,
   ],
 })
 export class MemberComponent implements OnInit {
   @ViewChild(MatDatepicker) picker!: MatDatepicker<Date>;
-  memberId: string | null = null;
+
   memberForm: FormGroup;
   isEditMode: boolean = false;
   isInitialStepCompleted = false;
@@ -135,7 +133,6 @@ export class MemberComponent implements OnInit {
     private validationService: ValidationService,
     public navigationService: NavigationService,
     private modalService: ModalService,
-    //private dialog: MatDialog,
     private dialogRef: MatDialogRef<MemberComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { members: Members },
   ) {
@@ -175,8 +172,7 @@ export class MemberComponent implements OnInit {
     this.loadInitialData();
     if (this.data && this.data?.members) {
       this.isEditMode = true;
-      this.memberId = this.data?.members.id;
-      this.handleEdit(this.memberId);
+      this.handleEdit(this.data?.members?.id);
     }
   }
 
@@ -571,7 +567,7 @@ export class MemberComponent implements OnInit {
           },
         });
         this.membersService
-          .getOrdinationByMemberId(this.memberId!)
+          .getOrdinationByMemberId(this.data?.members?.id)
           .subscribe((ordinations) => {
             this.ordinations = ordinations;
           });

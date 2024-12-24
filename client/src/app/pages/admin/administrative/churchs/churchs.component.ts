@@ -4,7 +4,10 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { CrudComponent } from 'app/components/crud/crud.component';
+import {
+  ActionsProps,
+  CrudComponent,
+} from 'app/components/crud/crud.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { ToastService } from 'app/components/toast/toast.service';
@@ -27,6 +30,22 @@ export class ChurchsComponent implements OnInit {
   dataSourceMat = new MatTableDataSource<Church>(this.churchs);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  actions: ActionsProps[] = [
+    {
+      type: 'edit',
+      tooltip: 'Editar',
+      icon: 'edit',
+      label: 'Editar',
+      action: (church: Church) => this.handleEdit(church),
+    },
+    {
+      type: 'delete',
+      tooltip: 'Excluir',
+      icon: 'delete',
+      label: 'Excluir',
+      action: (church: Church) => this.handleDelete(church),
+    },
+  ];
 
   columnDefinitions = [
     { key: 'responsible.name', header: 'Responsável', type: 'string' },
@@ -63,7 +82,7 @@ export class ChurchsComponent implements OnInit {
     });
   };
 
-  addNewChurch = () => {
+  handleCreate = () => {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       ChurchComponent,
@@ -79,7 +98,7 @@ export class ChurchsComponent implements OnInit {
     });
   };
 
-  editChurch = (church: Church) => {
+  handleEdit = (church: Church) => {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       ChurchComponent,
@@ -96,7 +115,7 @@ export class ChurchsComponent implements OnInit {
     });
   };
 
-  deleteChurch = (church: Church) => {
+  handleDelete = (church: Church) => {
     const dialogRef = this.confirmService.openConfirm(
       'Atenção',
       `Você tem certeza que deseja excluir o registro ${church.name}?`,

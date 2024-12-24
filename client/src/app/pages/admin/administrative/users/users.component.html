@@ -3,9 +3,10 @@
     [fields]="users"
     [dataSourceMat]="dataSourceMat"
     [columnDefinitions]="columnDefinitions"
-    [addFn]="addNewUser"
-    [editFn]="editUser"
-    [deleteFn]="deleteUser"
+    [addFn]="handleCreate"
+    [editFn]="handleEdit"
+    [deleteFn]="handleDelete"
+    [actions]="actions"
   ></app-crud>
 </ng-container>
 
@@ -13,6 +14,6 @@
   <app-not-found-register
     [template]="'usuário'"
     [ctaLabel]="'Adicionar'"
-    [addRegisterFn]="addNewUser"
+    [addRegisterFn]="handleCreate"
   ></app-not-found-register>
 </ng-template>

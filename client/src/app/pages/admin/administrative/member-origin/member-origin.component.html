@@ -8,10 +8,11 @@
     [fields]="memberOrigins"
     [dataSourceMat]="dataSourceMat"
     [columnDefinitions]="columnDefinitions"
-    [addFn]="addNewMemberOrigin"
-    [editFn]="editMemberOrigin"
-    [deleteFn]="deleteMemberOrigin"
+    [addFn]="handleCreate"
+    [editFn]="handleEdit"
+    [deleteFn]="handleDelete"
     [toggleFn]="toggleStatus"
+    [actions]="actions"
     [enableToggleStatus]="true"
     [tooltipTextButtonToggleFn]="'Ativa/Desativa a origem do membro'"
   ></app-crud>
@@ -21,6 +22,6 @@
   <app-not-found-register
     [template]="'origem do membro'"
     [ctaLabel]="'Adicionar nova origem'"
-    [addRegisterFn]="addNewMemberOrigin"
+    [addRegisterFn]="handleCreate"
   ></app-not-found-register>
 </ng-template>

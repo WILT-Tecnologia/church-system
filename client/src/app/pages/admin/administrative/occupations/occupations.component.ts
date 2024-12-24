@@ -4,7 +4,10 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { CrudComponent } from 'app/components/crud/crud.component';
+import {
+  ActionsProps,
+  CrudComponent,
+} from 'app/components/crud/crud.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
@@ -27,6 +30,23 @@ export class OccupationsComponent implements OnInit {
   dataSourceMat = new MatTableDataSource<Occupation>(this.occupations);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
+  actions: ActionsProps[] = [
+    {
+      type: 'edit',
+      tooltip: 'Editar',
+      icon: 'edit',
+      label: 'Editar',
+      action: (occupation: Occupation) => this.handleEdit(occupation),
+    },
+    {
+      type: 'delete',
+      tooltip: 'Excluir',
+      icon: 'delete',
+      label: 'Excluir',
+      action: (occupation: Occupation) => this.handleDelete(occupation),
+    },
+  ];
 
   columnDefinitions = [
     { key: 'status', header: 'Situação', type: 'boolean' },
@@ -65,7 +85,7 @@ export class OccupationsComponent implements OnInit {
     });
   };
 
-  addNewOccupation = () => {
+  handleCreate = () => {
     const dialogRef = this.modal.openModal(
       `modal-${Math.random()}`,
       OccupationComponent,
@@ -81,7 +101,7 @@ export class OccupationsComponent implements OnInit {
     });
   };
 
-  editOccupation = (occupation: Occupation) => {
+  handleEdit = (occupation: Occupation) => {
     const dialogRef = this.modal.openModal(
       `modal-${Math.random()}`,
       OccupationComponent,
@@ -98,7 +118,7 @@ export class OccupationsComponent implements OnInit {
     });
   };
 
-  deleteOccupation = (occupation: Occupation) => {
+  handleDelete = (occupation: Occupation) => {
     const modal = this.confirmeService.openConfirm(
       'Atenção',
       `Tem certeza que deseja excluir esta ocupação: ${occupation.name}?`,

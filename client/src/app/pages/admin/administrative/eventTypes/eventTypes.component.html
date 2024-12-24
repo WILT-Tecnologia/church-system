@@ -8,10 +8,11 @@
     [fields]="eventTypes"
     [dataSourceMat]="dataSourceMat"
     [columnDefinitions]="columnDefinitions"
-    [addFn]="addNewEventTypes"
-    [editFn]="editEventTypes"
-    [deleteFn]="deleteEventTypes"
+    [addFn]="handleCreate"
+    [editFn]="handleEdit"
+    [deleteFn]="handleDelete"
     [toggleFn]="toggleStatus"
+    [actions]="actions"
     [enableToggleStatus]="true"
     [tooltipTextButtonToggleFn]="'Ativa/Desativa o tipo de evento'"
   ></app-crud>
@@ -21,6 +22,6 @@
   <app-not-found-register
     [template]="'tipo de evento'"
     [ctaLabel]="'Adicionar'"
-    [addRegisterFn]="addNewEventTypes"
+    [addRegisterFn]="handleCreate"
   ></app-not-found-register>
 </ng-template>

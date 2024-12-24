@@ -3,9 +3,10 @@
     [fields]="churchs"
     [dataSourceMat]="dataSourceMat"
     [columnDefinitions]="columnDefinitions"
-    [addFn]="addNewChurch"
-    [editFn]="editChurch"
-    [deleteFn]="deleteChurch"
+    [addFn]="handleCreate"
+    [editFn]="handleEdit"
+    [deleteFn]="handleDelete"
+    [actions]="actions"
   ></app-crud>
 </ng-container>
 
@@ -13,6 +14,6 @@
   <app-not-found-register
     [template]="'igreja'"
     [ctaLabel]="'Adicionar Nova Igreja'"
-    [addRegisterFn]="addNewChurch"
+    [addRegisterFn]="handleCreate"
   ></app-not-found-register>
 </ng-template>

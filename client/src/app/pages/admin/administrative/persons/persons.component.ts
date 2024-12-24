@@ -10,7 +10,10 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { ToastService } from 'app/components/toast/toast.service';
 import { Person } from 'app/model/Person';
 import { MESSAGES } from 'app/utils/messages';
-import { CrudComponent } from '../../../../components/crud/crud.component';
+import {
+  ActionsProps,
+  CrudComponent,
+} from '../../../../components/crud/crud.component';
 import { PersonComponent } from './person/person.component';
 import { PersonsService } from './persons.service';
 
@@ -27,6 +30,23 @@ export class PersonsComponent implements OnInit {
   dataSourceMat = new MatTableDataSource<Person>(this.persons);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
+  actions: ActionsProps[] = [
+    {
+      type: 'edit',
+      tooltip: 'Editar',
+      icon: 'edit',
+      label: 'Editar',
+      action: (person: Person) => this.handleEdit(person),
+    },
+    {
+      type: 'delete',
+      tooltip: 'Excluir',
+      icon: 'delete',
+      label: 'Excluir',
+      action: (person: Person) => this.handleDelete(person),
+    },
+  ];
 
   columnDefinitions = [
     { key: 'name', header: 'Nome', type: 'string' },
@@ -64,7 +84,7 @@ export class PersonsComponent implements OnInit {
     });
   };
 
-  addNewPerson = () => {
+  handleCreate = () => {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       PersonComponent,
@@ -80,7 +100,7 @@ export class PersonsComponent implements OnInit {
     });
   };
 
-  editPerson = (person: Person) => {
+  handleEdit = (person: Person) => {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       PersonComponent,
@@ -97,7 +117,7 @@ export class PersonsComponent implements OnInit {
     });
   };
 
-  deletePerson = (person: Person) => {
+  handleDelete = (person: Person) => {
     const dialogRef = this.confirmService.openConfirm(
       'Atenção',
       'Você tem certeza que deseja excluir o registro?',

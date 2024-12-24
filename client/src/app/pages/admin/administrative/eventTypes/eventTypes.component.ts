@@ -11,7 +11,10 @@ import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { EventTypes } from 'app/model/EventTypes';
 import { MESSAGES } from 'app/utils/messages';
-import { CrudComponent } from '../../../../components/crud/crud.component';
+import {
+  ActionsProps,
+  CrudComponent,
+} from '../../../../components/crud/crud.component';
 import { EventTypeComponent } from './eventType/eventType.component';
 import { EventTypesService } from './eventTypes.service';
 
@@ -28,6 +31,23 @@ export class EventTypesComponent implements OnInit {
   dataSourceMat = new MatTableDataSource<EventTypes>(this.eventTypes);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
+  actions: ActionsProps[] = [
+    {
+      type: 'edit',
+      tooltip: 'Editar',
+      icon: 'edit',
+      label: 'Editar',
+      action: (eventType: EventTypes) => this.handleEdit(eventType),
+    },
+    {
+      type: 'delete',
+      tooltip: 'Excluir',
+      icon: 'delete',
+      label: 'Excluir',
+      action: (eventType: EventTypes) => this.handleDelete(eventType),
+    },
+  ];
 
   columnDefinitions = [
     { key: 'status', header: 'Status', type: 'boolean' },
@@ -62,7 +82,7 @@ export class EventTypesComponent implements OnInit {
     });
   };
 
-  addNewEventTypes = () => {
+  handleCreate = () => {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       EventTypeComponent,
@@ -78,7 +98,7 @@ export class EventTypesComponent implements OnInit {
     });
   };
 
-  editEventTypes = (eventType: EventTypes) => {
+  handleEdit = (eventType: EventTypes) => {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       EventTypeComponent,
@@ -95,7 +115,7 @@ export class EventTypesComponent implements OnInit {
     });
   };
 
-  deleteEventTypes = (eventType: EventTypes) => {
+  handleDelete = (eventType: EventTypes) => {
     this.confirmService
       .openConfirm(
         'Atenção!',

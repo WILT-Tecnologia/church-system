@@ -5,10 +5,11 @@
     [fields]="profiles"
     [dataSourceMat]="dataSourceMat"
     [columnDefinitions]="columnDefinitions"
-    [addFn]="addNewProfile"
-    [editFn]="editProfile"
-    [deleteFn]="deleteProfile"
+    [addFn]="handleCreate"
+    [editFn]="handleEdit"
+    [deleteFn]="handleDelete"
     [toggleFn]="toggleStatus"
+    [actions]="actions"
     [enableToggleStatus]="true"
     [tooltipTextButtonToggleFn]="'Ativa/Desativa o perfil'"
   ></app-crud>
@@ -18,6 +19,6 @@
   <app-not-found-register
     [template]="'perfil'"
     [ctaLabel]="'Adicionar Novo Perfil'"
-    [addRegisterFn]="addNewProfile"
+    [addRegisterFn]="handleCreate"
   ></app-not-found-register>
 </ng-template>

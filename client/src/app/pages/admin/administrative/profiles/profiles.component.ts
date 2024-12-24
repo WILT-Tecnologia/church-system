@@ -12,7 +12,10 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { ToastService } from 'app/components/toast/toast.service';
 import { Profile } from 'app/model/Profile';
 import { MESSAGES } from 'app/utils/messages';
-import { CrudComponent } from '../../../../components/crud/crud.component';
+import {
+  ActionsProps,
+  CrudComponent,
+} from '../../../../components/crud/crud.component';
 import { ProfileComponent } from './profile/profile.component';
 import { ProfilesService } from './profiles.service';
 
@@ -35,6 +38,23 @@ export class ProfilesComponent implements OnInit {
   dataSourceMat = new MatTableDataSource<Profile>(this.profiles);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
+  actions: ActionsProps[] = [
+    {
+      type: 'edit',
+      tooltip: 'Editar',
+      icon: 'edit',
+      label: 'Editar',
+      action: (profile: Profile) => this.handleEdit(profile),
+    },
+    {
+      type: 'delete',
+      tooltip: 'Excluir',
+      icon: 'delete',
+      label: 'Excluir',
+      action: (profile: Profile) => this.handleDelete(profile),
+    },
+  ];
 
   columnDefinitions = [
     { key: 'status', header: 'Situação', type: 'boolean' },
@@ -72,7 +92,7 @@ export class ProfilesComponent implements OnInit {
     });
   };
 
-  addNewProfile = () => {
+  handleCreate = () => {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       ProfileComponent,
@@ -88,7 +108,7 @@ export class ProfilesComponent implements OnInit {
     });
   };
 
-  editProfile = (profile: Profile) => {
+  handleEdit = (profile: Profile) => {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       ProfileComponent,
@@ -105,7 +125,7 @@ export class ProfilesComponent implements OnInit {
     });
   };
 
-  deleteProfile = (profile: Profile) => {
+  handleDelete = (profile: Profile) => {
     const modal = this.confirmModal.openConfirm(
       'Confirmar exclusão',
       `Tem certeza que deseja excluir o perfil ${profile.name}?`,
