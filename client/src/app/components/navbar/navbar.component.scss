@@ -60,3 +60,30 @@
 .logout {
   color: $redMain
 }
+
+a {
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+  transition: color 0.3s;
+}
+
+a:hover,
+a:focus {
+  color: $greenMain;
+}
+
+a.active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 2rem;
+  width: 100%;
+  height: 1px;
+  background-color: $greenMain;
+  transition: width 0.5s ease-in-out;
+}
+
+button.active {
+  border: 0.1rem dashed $greenMain;
+}

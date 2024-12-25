@@ -33,6 +33,14 @@ export class OccupationsComponent implements OnInit {
 
   actions: ActionsProps[] = [
     {
+      type: 'toggle',
+      tooltip: 'Ativa/Desativa a ocupação',
+      icon: 'toggle_on',
+      activeLabel: 'Ativar',
+      inactiveLabel: 'Desativar',
+      action: (occupation: Occupation) => this.toggleStatus(occupation),
+    },
+    {
       type: 'edit',
       tooltip: 'Editar',
       icon: 'edit',

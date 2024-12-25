@@ -33,6 +33,14 @@ export class UsersComponent implements OnInit {
 
   actions: ActionsProps[] = [
     {
+      type: 'toggle',
+      tooltip: 'Ativa/Desativa o usuário',
+      icon: 'toggle_on',
+      activeLabel: 'Ativar',
+      inactiveLabel: 'Desativar',
+      action: (user: User) => this.toggleStatus(user),
+    },
+    {
       type: 'edit',
       tooltip: 'Editar',
       icon: 'edit',
@@ -138,6 +146,27 @@ export class UsersComponent implements OnInit {
           },
         });
       }
+    });
+  };
+
+  toggleStatus = (user: User) => {
+    const updatedStatus = !user.status;
+    user.status = updatedStatus;
+
+    this.userService.updatedStatus(user.id, updatedStatus).subscribe({
+      next: () => {
+        this.toast.openSuccess(
+          `Usuário ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`,
+        );
+      },
+      error: () => {
+        this.loading.hide();
+        this.toast.openError(MESSAGES.UPDATE_ERROR);
+      },
+      complete: () => {
+        this.loadUsers();
+        this.loading.hide();
+      },
     });
   };
 }

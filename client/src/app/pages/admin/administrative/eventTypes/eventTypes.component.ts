@@ -34,6 +34,14 @@ export class EventTypesComponent implements OnInit {
 
   actions: ActionsProps[] = [
     {
+      type: 'toggle',
+      tooltip: 'Ativa/Desativa o tipo de evento',
+      icon: 'toggle_on',
+      activeLabel: 'Ativar',
+      inactiveLabel: 'Desativar',
+      action: (eventType: EventTypes) => this.toggleStatus(eventType),
+    },
+    {
       type: 'edit',
       tooltip: 'Editar',
       icon: 'edit',

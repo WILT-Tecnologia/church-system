@@ -28,6 +28,11 @@ export class UsersService {
     return this.http.put<User>(`${this.api}/${userId}`, userData);
   }
 
+  updatedStatus(id: string, status: boolean): Observable<User> {
+    const statusData = { status };
+    return this.http.put<User>(`${this.api}/${id}`, statusData);
+  }
+
   deleteUser(userId: string): Observable<any> {
     return this.http.delete(`${this.api}/${userId}`);
   }

@@ -30,16 +30,18 @@ import { LogoComponent } from './logo/logo.component';
   ],
 })
 export class NavbarComponent implements OnInit {
-  constructor(
-    private router: Router,
-    private authService: AuthService,
-    @Inject(PLATFORM_ID) private platformId: any,
-  ) {}
+  currentRoute: string = 'church';
   userMenu: any;
   userName: string | null = null;
   isLoggedIn: boolean = true;
   isMobile: boolean = false;
   windowLength = 768;
+
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    @Inject(PLATFORM_ID) private platformId: any,
+  ) {}
 
   ngOnInit(): void {
     const user = this.authService.getUser();
@@ -58,10 +60,12 @@ export class NavbarComponent implements OnInit {
   }
 
   navigateToChurch() {
+    this.currentRoute = 'church';
     this.router.navigateByUrl('/church');
   }
 
   navigateToAdministrative() {
+    this.currentRoute = 'administrative';
     this.router.navigateByUrl('/administrative');
   }
 

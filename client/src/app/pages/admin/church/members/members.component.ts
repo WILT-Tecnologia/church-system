@@ -37,9 +37,9 @@ export class MembersComponent implements OnInit {
   actions: ActionsProps[] = [
     {
       type: 'history',
-      tooltip: 'Histórico',
+      tooltip: 'Ver histórico',
       icon: 'history',
-      label: 'Histórico',
+      label: 'Histórico de mudanças',
       action: (member: Members) => this.handleHistory(member),
     },
     {

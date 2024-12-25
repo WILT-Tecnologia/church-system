@@ -26,56 +26,7 @@ import { HistoryService } from './history.service';
   ],
 })
 export class HistoryComponent {
-  @Input() history: History[] = [
-    {
-      id: '1',
-      member_id: '9d83e18e-b15b-4c1f-9d41-54c1740b8c09',
-      table_name: 'members',
-      before_situation: 'Ativo',
-      after_situation: 'Inativo',
-      change_date: '2024-12-01 10:30:00',
-    },
-    {
-      id: '2',
-      member_id: '9d83e18e-b15b-4c1f-9d41-54c1740b8c09',
-      table_name: 'families',
-      before_situation: 'Peixola',
-      after_situation: 'Dan Dan',
-      change_date: '2024-12-01 11:00:00',
-    },
-    {
-      id: '3',
-      member_id: '9d83e18e-b15b-4c1f-9d41-54c1740b8c09',
-      table_name: 'members',
-      before_situation: 'Ativo',
-      after_situation: 'Inativo',
-      change_date: '2024-12-01 10:30:00',
-    },
-    {
-      id: '4',
-      member_id: '9d83e18e-b15b-4c1f-9d41-54c1740b8c09',
-      table_name: 'families',
-      before_situation: 'Peixola',
-      after_situation: 'Dan Dan',
-      change_date: '2024-12-01 11:00:00',
-    },
-    {
-      id: '5',
-      member_id: '9d83e18e-b15b-4c1f-9d41-54c1740b8c09',
-      table_name: 'members',
-      before_situation: 'Ativo',
-      after_situation: 'Inativo',
-      change_date: '2024-12-01 10:30:00',
-    },
-    {
-      id: '6',
-      member_id: '9d83e18e-b15b-4c1f-9d41-54c1740b8c09',
-      table_name: 'families',
-      before_situation: 'Peixola',
-      after_situation: 'Dan Dan',
-      change_date: '2024-12-01 11:00:00',
-    },
-  ];
+  @Input() history: History[] = [];
   rendering: boolean = true;
 
   constructor(

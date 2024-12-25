@@ -27,7 +27,7 @@ export type ActionsProps = {
   activeLabel?: string;
   inactiveLabel?: string;
   icon?: string;
-  label: string;
+  label?: string;
   action: (element: any) => void;
 };
 

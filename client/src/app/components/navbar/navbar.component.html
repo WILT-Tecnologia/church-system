@@ -9,12 +9,18 @@
   <span class="spacer"></span>
   <ng-container *ngIf="!!userName || !!isLoggedIn">
     <div class="row row-padding">
-      <button mat-button color="primary" (click)="navigateToChurch()">
+      <button
+        mat-button
+        color="primary"
+        [class.active]="currentRoute === 'church'"
+        (click)="navigateToChurch()"
+      >
         Igreja
       </button>
       <button
         mat-button
         class="spacing-components"
+        [class.active]="currentRoute === 'administrative'"
         color="primary"
         (click)="navigateToAdministrative()"
       >

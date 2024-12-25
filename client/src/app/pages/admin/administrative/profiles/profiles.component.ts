@@ -41,6 +41,14 @@ export class ProfilesComponent implements OnInit {
 
   actions: ActionsProps[] = [
     {
+      type: 'toggle',
+      tooltip: 'Ativa/Desativa o perfil',
+      icon: 'toggle_on',
+      activeLabel: 'Ativar',
+      inactiveLabel: 'Desativar',
+      action: (profile: Profile) => this.toggleStatus(profile),
+    },
+    {
       type: 'edit',
       tooltip: 'Editar',
       icon: 'edit',
