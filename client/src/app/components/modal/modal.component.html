@@ -1,0 +1,42 @@
+<div class="mat-dialog-container" [ngClass]="{ fullscreen: isFullscreen }">
+  <div class="flex flex-col w-full h-full">
+    <!-- HEADER -->
+    <div
+      class="header flex justify-between flex-shrink-1 items-center p-1"
+      *ngIf="data.title && data.isHandleClose"
+    >
+      <span class="px-4 text-lg italic font-semibold">{{ data.title }}</span>
+      <div class="flex flex-row">
+        <button
+          mat-icon-button
+          type="button"
+          (click)="toggleFullscreen()"
+          *ngIf="data.enableFullscreen"
+        >
+          <mat-icon>{{
+            isFullscreen ? 'fullscreen_exit' : 'fullscreen'
+          }}</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          type="button"
+          color="warn"
+          (click)="closeModal()"
+          *ngIf="data.isHandleClose"
+        >
+          <mat-icon color="warn">close</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <mat-divider></mat-divider>
+
+    <!-- Conteúdo -->
+    <div class="content flex-grow overflow-x-auto">
+      <ng-container *ngIf="data.customContent">
+        <ng-container *ngComponentOutlet="data.customContent"></ng-container>
+      </ng-container>
+    </div>
+  </div>
+</div>

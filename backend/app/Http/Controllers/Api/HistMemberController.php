@@ -32,9 +32,18 @@ class HistMemberController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(HistMember $histMember)
+    public function show(Request $request, $memberId)
     {
-        return new HistMemberResource($histMember);
+        // Buscar os históricos baseados no member_id
+        $histories = HistMember::where('member_id', $memberId)->get();
+
+        // Se nenhum histórico for encontrado
+        if ($histories->isEmpty()) {
+            return response()->json(['message' => 'Nenhum histórico encontrado'], 201);
+        }
+
+        // Retornar os dados de histórico com o recurso
+        return HistMemberResource::collection($histories);
     }
 
     /**

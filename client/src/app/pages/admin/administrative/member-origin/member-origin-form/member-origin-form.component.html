@@ -1,0 +1,57 @@
+<form
+  [formGroup]="memberOriginForm"
+  (ngSubmit)="handleSubmit()"
+  class="form-field-group wrapper"
+>
+  <app-column>
+    <mat-slide-toggle formControlName="status" color="primary">
+      {{ memberOriginForm.get('status')?.value ? 'Ativado' : 'Desativado' }}
+    </mat-slide-toggle>
+  </app-column>
+
+  <app-column>
+    <mat-form-field appearance="fill">
+      <mat-label>Nome</mat-label>
+      <input matInput formControlName="name" maxlength="255" required />
+      <mat-error
+        *ngIf="
+          memberOriginForm.get('name')?.invalid &&
+          memberOriginForm.get('name')?.touched
+        "
+        >{{ getErrorMessage('name') }}</mat-error
+      >
+    </mat-form-field>
+  </app-column>
+
+  <app-column>
+    <mat-form-field appearance="fill">
+      <mat-label>Descrição</mat-label>
+      <textarea matInput formControlName="description" rows="5"></textarea>
+      <mat-error
+        *ngIf="
+          memberOriginForm.get('description')?.invalid &&
+          memberOriginForm.get('description')?.touched
+        "
+        >{{ getErrorMessage('description') }}</mat-error
+      >
+    </mat-form-field>
+  </app-column>
+  <mat-divider></mat-divider>
+  <app-actions>
+    <button
+      mat-stroked-button
+      color="warn"
+      type="button"
+      (click)="handleBack()"
+    >
+      Cancelar
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      [disabled]="!memberOriginForm.valid"
+    >
+      {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
+    </button>
+  </app-actions>
+</form>

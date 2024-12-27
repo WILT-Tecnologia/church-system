@@ -1,0 +1,193 @@
+<form
+  [formGroup]="churchForm"
+  (ngSubmit)="handleSubmit()"
+  class="form-field-group wrapper"
+>
+  <app-column>
+    <mat-form-field appearance="fill">
+      <mat-label>Responsável</mat-label>
+      <mat-select formControlName="responsible_id">
+        <mat-select-trigger>
+          {{ getResponsableName() }}
+        </mat-select-trigger>
+        <ng-container *ngIf="filteredResponsables$ | async as responsibles">
+          <mat-form-field appearance="outline" class="search-field">
+            <div class="flex flex-row gap-2">
+              <mat-icon>search</mat-icon>
+              <input
+                matInput
+                placeholder="Pesquisar"
+                [formControl]="searchControl"
+              />
+            </div>
+          </mat-form-field>
+          <mat-option
+            *ngFor="let responsable of responsibles"
+            [value]="responsable.id"
+          >
+            {{ responsable.name }}
+          </mat-option>
+        </ng-container>
+      </mat-select>
+      <mat-error
+        *ngIf="
+          churchForm.get('responsible_id')?.invalid &&
+          churchForm.get('responsible_id')?.touched
+        "
+      >
+        {{ getErrorMessage('responsible_id') }}
+      </mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Nome</mat-label>
+      <input matInput formControlName="name" maxlength="255" required />
+      <mat-error
+        *ngIf="
+          churchForm.get('name')?.invalid && churchForm.get('name')?.touched
+        "
+        >{{ getErrorMessage('name') }}</mat-error
+      >
+    </mat-form-field>
+  </app-column>
+
+  <app-column>
+    <mat-form-field appearance="fill">
+      <mat-label>E-mail</mat-label>
+      <input matInput formControlName="email" maxlength="255" required />
+      <mat-error
+        *ngIf="
+          churchForm.get('email')?.invalid && churchForm.get('email')?.touched
+        "
+        >{{ getErrorMessage('email') }}</mat-error
+      >
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>CNPJ</mat-label>
+      <input
+        matInput
+        formControlName="cnpj"
+        mask="00.000.000/0000-00"
+        required
+      />
+      <mat-error
+        *ngIf="
+          (churchForm.get('cnpj')?.invalid &&
+            churchForm.get('cnpj')?.touched) ||
+          churchForm.get('cnpj')?.hasError('invalidCnpj')
+        "
+        >{{
+          getErrorMessage('cnpj') ||
+            churchForm.get('cnpj')?.getError('invalidCnpj')
+        }}</mat-error
+      >
+    </mat-form-field>
+  </app-column>
+  <span>Endereço</span>
+  <mat-divider></mat-divider>
+  <app-column>
+    <mat-form-field class="reduction" appearance="fill">
+      <mat-label>CEP</mat-label>
+      <input matInput formControlName="cep" mask="00000-000" required />
+      <mat-error
+        *ngIf="churchForm.get('cep')?.invalid && churchForm.get('cep')?.touched"
+        >{{ getErrorMessage('cep') }}</mat-error
+      >
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Rua</mat-label>
+      <input matInput formControlName="street" maxlength="255" required />
+      <mat-error
+        *ngIf="
+          churchForm.get('street')?.invalid && churchForm.get('street')?.touched
+        "
+        >{{ getErrorMessage('street') }}</mat-error
+      >
+    </mat-form-field>
+  </app-column>
+  <app-column>
+    <mat-form-field appearance="fill">
+      <mat-label>Número</mat-label>
+      <input matInput formControlName="number" maxlength="10" required />
+      <mat-error
+        *ngIf="
+          churchForm.get('number')?.invalid && churchForm.get('number')?.touched
+        "
+        >{{ getErrorMessage('number') }}</mat-error
+      >
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Complemento</mat-label>
+      <input matInput formControlName="complement" maxlength="255" />
+      <mat-error
+        *ngIf="
+          churchForm.get('complement')?.invalid &&
+          churchForm.get('complement')?.touched
+        "
+        >{{ getErrorMessage('complement') }}</mat-error
+      >
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Bairro</mat-label>
+      <input matInput formControlName="district" maxlength="255" required />
+      <mat-error
+        *ngIf="
+          churchForm.get('district')?.invalid &&
+          churchForm.get('district')?.touched
+        "
+        >{{ getErrorMessage('district') }}</mat-error
+      >
+    </mat-form-field>
+  </app-column>
+  <app-column class="w-full">
+    <mat-form-field appearance="fill">
+      <mat-label>Cidade</mat-label>
+      <input matInput formControlName="city" maxlength="255" required />
+      <mat-error
+        *ngIf="
+          churchForm.get('city')?.invalid && churchForm.get('city')?.touched
+        "
+        >{{ getErrorMessage('city') }}</mat-error
+      >
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Estado</mat-label>
+      <input matInput formControlName="state" maxlength="255" required />
+      <mat-error
+        *ngIf="
+          churchForm.get('state')?.invalid && churchForm.get('state')?.touched
+        "
+        >{{ getErrorMessage('state') }}</mat-error
+      >
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Pais</mat-label>
+      <input matInput formControlName="country" maxlength="255" required />
+      <mat-error
+        *ngIf="
+          churchForm.get('country')?.invalid &&
+          churchForm.get('country')?.touched
+        "
+        >{{ getErrorMessage('country') }}</mat-error
+      >
+    </mat-form-field>
+  </app-column>
+  <mat-divider></mat-divider>
+  <app-actions>
+    <button
+      mat-stroked-button
+      type="button"
+      color="warn"
+      (click)="handleBack()"
+    >
+      Cancelar
+    </button>
+    <button
+      mat-raised-button
+      type="submit"
+      color="primary"
+      [disabled]="churchForm.invalid"
+    >
+      {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
+    </button>
+  </app-actions>
+</form>

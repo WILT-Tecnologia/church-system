@@ -20,7 +20,7 @@ class MemberResource extends JsonResource
             'church' => new ChurchResource($this->church),
             'family' => FamilyResource::collection($this->families),
             'ordination' => OrdinationResource::collection($this->ordination),
-            'status_member' => StatusMemberResource::collection($this->statusMember),
+            /*'status_member' => StatusMemberResource::collection($this->statusMember) ,*/
             'rg' => $this->rg,
             'issuing_body' => $this->issuing_body,
             'civil_status' => new CivilStatusResource($this->civilStatus),

@@ -1,0 +1,60 @@
+<form
+  [formGroup]="profileForm"
+  (ngSubmit)="handleSubmit()"
+  class="form-field-group"
+>
+  <div class="inputs">
+    <mat-slide-toggle formControlName="status" color="primary">{{
+      profileForm.get('status')?.value ? 'Ativado' : 'Desativado'
+    }}</mat-slide-toggle>
+  </div>
+  <div class="inputs">
+    <mat-form-field appearance="fill">
+      <mat-label>Nome</mat-label>
+      <input matInput formControlName="name" maxlength="255" required />
+      <mat-error
+        *ngIf="
+          profileForm.get('name')?.invalid && profileForm.get('name')?.touched
+        "
+        >{{ getErrorMessage('name') }}</mat-error
+      >
+    </mat-form-field>
+  </div>
+  <div class="inputs">
+    <mat-form-field appearance="fill">
+      <mat-label>Descrição</mat-label>
+      <textarea
+        matInput
+        rows="5"
+        formControlName="description"
+        maxlength="255"
+      ></textarea>
+      <mat-error
+        *ngIf="
+          profileForm.get('description')?.invalid &&
+          profileForm.get('description')?.touched
+        "
+        >{{ getErrorMessage('description') }}</mat-error
+      >
+    </mat-form-field>
+  </div>
+  <mat-divider></mat-divider>
+  <app-actions>
+    <button
+      type="button"
+      mat-stroked-button
+      color="primary"
+      (click)="handleBack()"
+    >
+      Cancelar
+    </button>
+    <button
+      type="submit"
+      mat-raised-button
+      color="primary"
+      [disabled]="!profileForm.valid"
+    >
+      {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
+    </button>
+  </app-actions>
+</form>
