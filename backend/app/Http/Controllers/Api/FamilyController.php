@@ -16,7 +16,9 @@ class FamilyController extends Controller
      */
     public function index()
     {
-        return FamilyResource::collection(Family::all());
+        $families = Family::with('member')->get();
+
+        return FamilyResource::collection($families);
     }
 
     /**
@@ -32,28 +34,29 @@ class FamilyController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Family $family)
+    public function show($id)
     {
-        return new FamilyResource($family);
+        $family = Family::with('member')->findOrFail($id);
+        return new FamilyResource($family );
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateFamilyRequest $request, Family $family)
+    public function update(UpdateFamilyRequest $request, $id)
     {
+        $family = Family::findOrFail($id);
         $family->update($request->validated());
-
         return new FamilyResource($family);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Family $family)
+    public function destroy($id)
     {
+        $family = Family::findOrFail($id);
         $family->delete();
-        
-        return response()->json([], 204);
+        return response()->json(null, 204);
     }
 }

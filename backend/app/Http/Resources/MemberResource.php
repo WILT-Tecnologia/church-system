@@ -18,6 +18,8 @@ class MemberResource extends JsonResource
             'id' => $this->id,
             'person' => new PersonResource($this->person),
             'church' => new ChurchResource($this->church),
+            // 'families' => FamilyResource::collection($this->whenLoaded('families')),
+            'families' => FamilyResource::collection($this->families),
             'rg' => $this->rg,
             'issuing_body' => $this->issuing_body,
             'civil_status' => new CivilStatusResource($this->civilStatus),
@@ -42,6 +44,7 @@ class MemberResource extends JsonResource
             'baptism_holy_spirit_date' => $this->baptism_holy_spirit_date,
             'member_origin' => new MemberOriginResource($this->memberOrigin),
             'receipt_date' => $this->receipt_date,
+            'ordination' => OrdinationResource::collection($this->ordination),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

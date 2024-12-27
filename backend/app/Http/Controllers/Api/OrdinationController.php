@@ -16,7 +16,9 @@ class OrdinationController extends Controller
      */
     public function index()
     {
-        return OrdinationResource::collection(Ordination::all());
+        $ordination = Ordination::with('member')->get();
+
+        return OrdinationResource::collection($ordination);
     }
 
     /**
@@ -32,16 +34,19 @@ class OrdinationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Ordination $ordination)
+    public function show($id)
     {
+        $ordination = Ordination::with('member')->findOrFail($id);
+
         return new OrdinationResource($ordination);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateOrdinationRequest $request, Ordination $ordination)
+    public function update(UpdateOrdinationRequest $request, $id)
     {
+        $ordination = Ordination::findOrFail($id);
         $ordination->update($request->validated());
 
         return new OrdinationResource($ordination);
@@ -50,8 +55,9 @@ class OrdinationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Ordination $ordination)
+    public function destroy($id)
     {
+        $ordination = Ordination::findOrFail($id);
         $ordination->delete();
 
         return response()->json([], 204);

@@ -14,9 +14,11 @@ class FamilyResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+
+        // dd($request);
         return [
             'id' => $this->id,
-            'member' => new MemberResource($this->member),
+            'member' => new MemberResource($this->whenLoaded('member')),
             'is_member' => $this->is_member,
             'person' => new PersonResource($this->person),
             'name' => $this->name,

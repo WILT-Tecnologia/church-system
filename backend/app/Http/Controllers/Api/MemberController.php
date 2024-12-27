@@ -20,78 +20,79 @@ class MemberController extends Controller
      */
     public function index()
     {
-        return MemberResource::collection(Member::all());
+        $members = Member::with(['families', 'ordination'])->get();
+        return MemberResource::collection($members);
     }
 
-    public function findFamilyPerMember(Request $request)
-{
-    $memberId = $request->query('member_id');
+//     public function findFamilyPerMember(Request $request)
+// {
+//     $memberId = $request->query('member_id');
 
-    if (!$memberId || !Uuid::isValid($memberId)) {
-        return response()->json(['error' => 'ID de membro inválido'], 400);
-    }
+//     if (!$memberId || !Uuid::isValid($memberId)) {
+//         return response()->json(['error' => 'ID de membro inválido'], 400);
+//     }
 
-    $member = Member::with(['families', 'person', 'families.kinship'])->find($memberId);
+//     $member = Member::with(['families', 'person', 'families.kinship'])->find($memberId);
 
-    if (!$member) {
-        return response()->json(['error' => 'Membro não encontrado'], 404);
-    }
+//     if (!$member) {
+//         return response()->json(['error' => 'Membro não encontrado'], 404);
+//     }
 
-    return FamilyResource::collection($member->families);
-}
+//     return FamilyResource::collection($member->families);
+// }
 
-    public function findOrdinationPerMember(Request $request)
-{
-    $memberId = $request->query('member_id');
+//     public function findOrdinationPerMember(Request $request)
+// {
+//     $memberId = $request->query('member_id');
 
-    if (!$memberId || !Uuid::isValid($memberId)) {
-        return response()->json(['error' => 'ID de membro inválido'], 400);
-    }
+//     if (!$memberId || !Uuid::isValid($memberId)) {
+//         return response()->json(['error' => 'ID de membro inválido'], 400);
+//     }
 
-    $member = Member::with(['ordination','ordination.member','ordination.occupation'])->find($memberId);
+//     $member = Member::with(['ordination','ordination.member','ordination.occupation'])->find($memberId);
 
-    if (!$member) {
-        return response()->json(['error' => 'Membro não encontrado'], 404);
-    }
+//     if (!$member) {
+//         return response()->json(['error' => 'Membro não encontrado'], 404);
+//     }
 
-    return OrdinationResource::collection($member->ordination);
-}
+//     return OrdinationResource::collection($member->ordination);
+// }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(StoreMemberRequest $request)
     {
-        $member = Member::create($request->validated());
-
+        $member = Member::create($request->all());
         return new MemberResource($member);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Member $member)
+    public function show($id)
     {
+        $member = Member::with('families')->findOrFail($id);
         return new MemberResource($member);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateMemberRequest $request, Member $member)
+    public function update(UpdateMemberRequest $request, Member $id)
     {
+        $member = Member::findOrFail($id);
         $member->update($request->validated());
-
         return new MemberResource($member);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Member $member)
+    public function destroy($id)
     {
+        $member = Member::findOrFail($id);
         $member->delete();
-
-        return response()->json([], 204);
+        return response()->json(null, 204);
     }
 }
