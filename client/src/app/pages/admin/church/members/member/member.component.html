@@ -4,8 +4,7 @@
   class="form-field-group wrapper"
 >
   <mat-tab-group preserveContent dynamicHeight [(selectedIndex)]="currentStep">
-    <mat-tab label="Pessoais" [disabled]="isTabDisabled(0)">
-      <mat-divider></mat-divider>
+    <mat-tab label="Identificação" [disabled]="isTabDisabled(0)">
       <section class="py-4">
         <mat-card appearance="outlined">
           <mat-card-content>
@@ -54,6 +53,7 @@
                     {{ getErrorMessage('stepOne.person_id') }}
                   </mat-error>
                 </mat-form-field>
+
                 <mat-form-field appearance="fill">
                   <mat-label>Igreja</mat-label>
                   <mat-select
@@ -64,13 +64,15 @@
                       {{ getChurchName() }}
                     </mat-select-trigger>
                     <ng-container *ngIf="filteredChurch$ | async as churches">
-                      <mat-form-field appearance="fill" class="search-field">
-                        <mat-label>Pesquisar</mat-label>
-                        <input
-                          matInput
-                          placeholder="Digite para buscar"
-                          [formControl]="searchControlChurch"
-                        />
+                      <mat-form-field appearance="outline" class="search-field">
+                        <div class="flex flex-row gap-2">
+                          <mat-icon>search</mat-icon>
+                          <input
+                            matInput
+                            placeholder="Digite para buscar"
+                            [formControl]="searchControlChurch"
+                          />
+                        </div>
                       </mat-form-field>
                       <mat-option
                         *ngFor="let church of churches"
@@ -96,6 +98,7 @@
                   </mat-error>
                 </mat-form-field>
               </app-column>
+
               <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>RG</mat-label>
@@ -126,6 +129,7 @@
                   </mat-error>
                 </mat-form-field>
               </app-column>
+
               <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>Estado Civil</mat-label>
@@ -136,14 +140,6 @@
                     <ng-container
                       *ngIf="filteredCivilStatus | async as civilStatusList"
                     >
-                      <mat-form-field appearance="fill" class="search-field">
-                        <mat-label>Pesquisar</mat-label>
-                        <input
-                          matInput
-                          placeholder="Digite para buscar"
-                          [formControl]="searchControlCivilStatus"
-                        />
-                      </mat-form-field>
                       <mat-option
                         *ngFor="let civilStatus of civilStatusList"
                         [value]="civilStatus.id"
@@ -170,14 +166,6 @@
                     <ng-container
                       *ngIf="filteredColorRace | async as colorRaces"
                     >
-                      <mat-form-field appearance="fill" class="search-field">
-                        <mat-label>Pesquisar</mat-label>
-                        <input
-                          matInput
-                          placeholder="Digite para buscar"
-                          [formControl]="searchControlColorRace"
-                        />
-                      </mat-form-field>
                       <mat-option
                         *ngFor="let colorRace of colorRaces"
                         [value]="colorRace.id"
@@ -196,6 +184,7 @@
                   </mat-error>
                 </mat-form-field>
               </app-column>
+
               <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>Nacionalidade</mat-label>
@@ -228,8 +217,7 @@
       </section>
     </mat-tab>
 
-    <mat-tab label="Dados complementares" [disabled]="isTabDisabled(1)">
-      <mat-divider></mat-divider>
+    <mat-tab label="Inf. complementares" [disabled]="isTabDisabled(1)">
       <section class="py-4">
         <mat-card appearance="outlined">
           <mat-card-content>
@@ -237,21 +225,18 @@
               <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>Formação</mat-label>
-                  <mat-select formControlName="formation_id">
+                  <mat-select
+                    formControlName="formation_id"
+                    (selectionChange)="
+                      onFormationChange($event.value, formations)
+                    "
+                  >
                     <mat-select-trigger>
                       {{ getFormationsName() }}
                     </mat-select-trigger>
                     <ng-container
                       *ngIf="filteredFormations | async as formationList"
                     >
-                      <mat-form-field appearance="fill" class="search-field">
-                        <mat-label>Pesquisar</mat-label>
-                        <input
-                          matInput
-                          placeholder="Digite para buscar"
-                          [formControl]="searchControlFormations"
-                        />
-                      </mat-form-field>
                       <mat-option
                         *ngFor="let formations of formationList"
                         [value]="formations.id"
@@ -269,7 +254,7 @@
                     {{ getErrorMessage('stepOne.formation_id') }}
                   </mat-error>
                 </mat-form-field>
-                <mat-form-field>
+                <mat-form-field *ngIf="isFormationCourseVisible">
                   <mat-label>Curso de Formação</mat-label>
                   <input matInput formControlName="formation_course" />
                   <mat-error
@@ -355,8 +340,7 @@
       </section>
     </mat-tab>
 
-    <mat-tab label="Dados espirituais" [disabled]="isTabDisabled(2)">
-      <mat-divider></mat-divider>
+    <mat-tab label="Inf. espirituais" [disabled]="isTabDisabled(2)">
       <section class="py-4">
         <mat-card appearance="outlined">
           <mat-card-content>
@@ -377,6 +361,7 @@
                   ></mat-datepicker-toggle>
                   <mat-datepicker #baptismDate></mat-datepicker>
                   <button
+                    type="button"
                     *ngIf="memberForm.get('stepThree.baptism_date')?.value"
                     mat-icon-button
                     matSuffix
@@ -393,19 +378,7 @@
                     {{ getErrorMessage('stepThree.baptism_date') }}
                   </mat-error>
                 </mat-form-field>
-                <mat-form-field appearance="fill">
-                  <mat-label>Local do batismo</mat-label>
-                  <input matInput formControlName="baptism_locale" />
-                  <mat-error
-                    *ngIf="
-                      memberForm.get('stepThree.baptism_locale')?.invalid &&
-                      memberForm.get('stepThree.baptism_locale')?.touched
-                    "
-                    >{{
-                      getErrorMessage('stepThree.baptism_locale')
-                    }}</mat-error
-                  >
-                </mat-form-field>
+
                 <mat-form-field appearance="fill">
                   <mat-label>Oficial do batismo</mat-label>
                   <input matInput formControlName="baptism_official" />
@@ -416,6 +389,21 @@
                     "
                     >{{
                       getErrorMessage('stepThree.baptism_official')
+                    }}</mat-error
+                  >
+                </mat-form-field>
+              </app-column>
+              <app-column>
+                <mat-form-field appearance="fill">
+                  <mat-label>Local do batismo</mat-label>
+                  <input matInput formControlName="baptism_locale" />
+                  <mat-error
+                    *ngIf="
+                      memberForm.get('stepThree.baptism_locale')?.invalid &&
+                      memberForm.get('stepThree.baptism_locale')?.touched
+                    "
+                    >{{
+                      getErrorMessage('stepThree.baptism_locale')
                     }}</mat-error
                   >
                 </mat-form-field>
@@ -437,7 +425,7 @@
                   </mat-checkbox>
                 </div>
                 <mat-form-field
-                  class="w-3/6 lg:w-full"
+                  class="w-6/12 lg:w-full"
                   appearance="fill"
                   *ngIf="memberForm.get('stepThree.baptism_holy_spirit')?.value"
                 >
@@ -458,6 +446,7 @@
                   ></mat-datepicker-toggle>
                   <mat-datepicker #baptismHolySpiritDate></mat-datepicker>
                   <button
+                    type="button"
                     *ngIf="
                       memberForm.get('stepThree.baptism_holy_spirit_date')
                         ?.value
@@ -497,6 +486,7 @@
                   ></mat-datepicker-toggle>
                   <mat-datepicker #receiptDate></mat-datepicker>
                   <button
+                    type="button"
                     *ngIf="memberForm.get('stepThree.receipt_date')?.value"
                     mat-icon-button
                     matSuffix
@@ -521,16 +511,19 @@
                       {{ getMemberOriginName() }}
                     </mat-select-trigger>
                     <mat-form-field
-                      appearance="fill"
+                      appearance="outline"
                       (click)="$event.stopPropagation()"
                     >
-                      <mat-label>Pesquisar</mat-label>
-                      <input
-                        matInput
-                        placeholder="Digite para buscar"
-                        [formControl]="searchControlMemberOrigins"
-                        (click)="$event.stopPropagation()"
-                      />
+                      <div class="flex flex-row gap-2">
+                        <mat-icon>search</mat-icon>
+                        <input
+                          matInput
+                          placeholder="Digite para buscar"
+                          placeholder="Digite para buscar"
+                          [formControl]="searchControlMemberOrigins"
+                          (click)="$event.stopPropagation()"
+                        />
+                      </div>
                     </mat-form-field>
                     <mat-option
                       *ngFor="let memberOrigin of filterMemberOrigins | async"
@@ -557,19 +550,16 @@
 
     <ng-container *ngIf="isEditMode">
       <mat-tab label="Filiação">
-        <mat-divider></mat-divider>
         <div formGroupName="stepFour">
           <app-families [families]="families"></app-families>
         </div>
       </mat-tab>
       <mat-tab label="Ordenação">
-        <mat-divider></mat-divider>
         <div formGroupName="stepFive">
           <app-ordinations [ordination]="ordinations"></app-ordinations>
         </div>
       </mat-tab>
       <mat-tab label="Situação">
-        <mat-divider></mat-divider>
         <div formGroupName="stepSix">
           <app-status-member [statusMember]="statusMember"></app-status-member>
         </div>

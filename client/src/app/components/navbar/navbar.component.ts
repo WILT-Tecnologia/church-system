@@ -9,9 +9,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { filter } from 'rxjs';
 import { AuthService } from '../../services/auth/auth.service';
 import { LogoComponent } from './logo/logo.component';
 
@@ -30,8 +31,7 @@ import { LogoComponent } from './logo/logo.component';
   ],
 })
 export class NavbarComponent implements OnInit {
-  currentRoute: string = 'church';
-  userMenu: any;
+  currentRoute: string | null = null;
   userName: string | null = null;
   isLoggedIn: boolean = true;
   isMobile: boolean = false;
@@ -50,6 +50,19 @@ export class NavbarComponent implements OnInit {
     if (isPlatformBrowser(this.platformId)) {
       this.isMobile = window.innerWidth <= this.windowLength;
     }
+
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        const url = event.urlAfterRedirects;
+        if (url.includes('church')) {
+          this.currentRoute = 'church';
+        } else if (url.includes('administrative')) {
+          this.currentRoute = 'administrative';
+        } else {
+          this.currentRoute = null;
+        }
+      });
   }
 
   @HostListener('window:resize', ['$event'])

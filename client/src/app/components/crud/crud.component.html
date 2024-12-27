@@ -1,5 +1,6 @@
 <div class="add-button">
   <button
+    type="button"
     mat-flat-button
     color="primary"
     (click)="addFn()"
@@ -20,10 +21,11 @@
     </div>
   </mat-form-field>
   <mat-paginator
+    *ngIf="enablePagination"
     color="primary"
     [pageSizeOptions]="pageSizeOptions"
     [pageSize]="pageSize"
-    [length]="fields.length"
+    [length]="dataSourceMat.data.length"
     showFirstLastButtons
   ></mat-paginator>
 </div>
@@ -84,7 +86,12 @@
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let fields" class="actions-cell">
         <div class="actions-container">
-          <button mat-icon-button [matMenuTriggerFor]="menu" matTooltip="Ações">
+          <button
+            type="button"
+            mat-icon-button
+            [matMenuTriggerFor]="menu"
+            matTooltip="Ações"
+          >
             <mat-icon>more_vert</mat-icon>
           </button>
           <mat-menu #menu="matMenu">
@@ -114,38 +121,49 @@
                 <!-- Botão Editar -->
                 <ng-container *ngSwitchCase="'edit'">
                   <button
+                    type="button"
                     mat-menu-item
                     matTooltip="{{ action.tooltip }}"
                     (click)="action.action(fields)"
                   >
-                    <mat-icon>{{ action.icon }}</mat-icon>
-                    <span class="label-button-menu">{{ action.label }}</span>
+                    <mat-icon *ngIf="action.icon">{{ action.icon }}</mat-icon>
+                    <span *ngIf="action.label" class="label-button-menu">{{
+                      action.label
+                    }}</span>
                   </button>
                 </ng-container>
 
                 <!-- Botão Excluir -->
                 <ng-container *ngSwitchCase="'delete'">
                   <button
+                    type="button"
                     mat-menu-item
                     matTooltip="{{ action.tooltip }}"
                     (click)="action.action(fields)"
                   >
-                    <mat-icon color="warn">{{ action.icon }}</mat-icon>
-                    <span class="label-button-menu text-red-600">{{
-                      action.label
-                    }}</span>
+                    <mat-icon *ngIf="action.icon" color="warn">{{
+                      action.icon
+                    }}</mat-icon>
+                    <span
+                      *ngIf="action.label"
+                      class="label-button-menu text-red-600"
+                      >{{ action.label }}</span
+                    >
                   </button>
                 </ng-container>
 
                 <!-- Botão historico -->
                 <ng-container *ngSwitchCase="'history'">
                   <button
+                    type="button"
                     mat-menu-item
                     matTooltip="{{ action.tooltip }}"
                     (click)="action.action(fields)"
                   >
-                    <mat-icon>{{ action.icon }}</mat-icon>
-                    <span class="label-button-menu">{{ action.label }}</span>
+                    <mat-icon *ngIf="action.icon">{{ action.icon }}</mat-icon>
+                    <span *ngIf="action.label" class="label-button-menu">{{
+                      action.label
+                    }}</span>
                   </button>
                 </ng-container>
               </ng-container>

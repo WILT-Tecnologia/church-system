@@ -1,6 +1,10 @@
 <form [formGroup]="familyForm" (ngSubmit)="handleSubmit()" class="wrapper">
   <app-column>
-    <mat-checkbox formControlName="is_member" (change)="onCheckboxChange($event.checked)" color="primary">
+    <mat-checkbox
+      formControlName="is_member"
+      (change)="onCheckboxChange($event.checked)"
+      color="primary"
+    >
       A filiação é membro?
     </mat-checkbox>
   </app-column>
@@ -16,7 +20,11 @@
           <mat-form-field appearance="outline" class="search-field">
             <div class="flex flex-row gap-2">
               <mat-icon>search</mat-icon>
-              <input matInput placeholder="Digite para buscar" [formControl]="searchControlMembers" />
+              <input
+                matInput
+                placeholder="Digite para buscar"
+                [formControl]="searchControlMembers"
+              />
             </div>
           </mat-form-field>
           <mat-option *ngFor="let member of members" [value]="member.id">
@@ -24,7 +32,12 @@
           </mat-option>
         </ng-container>
       </mat-select>
-      <mat-error *ngIf="familyForm.get('member_id')?.invalid && familyForm.get('member_id')?.touched">
+      <mat-error
+        *ngIf="
+          familyForm.get('member_id')?.invalid &&
+          familyForm.get('member_id')?.touched
+        "
+      >
         {{ getErrorMessage('member_id') }}
       </mat-error>
     </mat-form-field>
@@ -41,7 +54,11 @@
           <mat-form-field appearance="outline" class="search-field">
             <div class="flex flex-row gap-2">
               <mat-icon>search</mat-icon>
-              <input matInput placeholder="Digite para buscar" [formControl]="searchControlPersons" />
+              <input
+                matInput
+                placeholder="Digite para buscar"
+                [formControl]="searchControlPersons"
+              />
             </div>
           </mat-form-field>
           <mat-option *ngFor="let person of persons" [value]="person.id">
@@ -49,7 +66,12 @@
           </mat-option>
         </ng-container>
       </mat-select>
-      <mat-error *ngIf="familyForm.get('person_id')?.invalid && familyForm.get('person_id')?.touched">
+      <mat-error
+        *ngIf="
+          familyForm.get('person_id')?.invalid &&
+          familyForm.get('person_id')?.touched
+        "
+      >
         {{ getErrorMessage('person_id') }}
       </mat-error>
     </mat-form-field>
@@ -60,7 +82,11 @@
       <mat-label>Nome</mat-label>
       <input matInput formControlName="name" required />
       <mat-error
-        *ngIf="familyForm.get('name')?.invalid && familyForm.get('name')?.touched">{{ getErrorMessage('name') }}</mat-error>
+        *ngIf="
+          familyForm.get('name')?.invalid && familyForm.get('name')?.touched
+        "
+        >{{ getErrorMessage('name') }}</mat-error
+      >
     </mat-form-field>
   </app-column>
 
@@ -72,18 +98,17 @@
           {{ displayNameKinship() }}
         </mat-select-trigger>
         <ng-container *ngIf="filterKinships$ | async as kinships">
-          <mat-form-field appearance="outline" class="search-field">
-            <div class="flex flex-row gap-2">
-              <mat-icon>search</mat-icon>
-              <input matInput placeholder="Digite para buscar" [formControl]="searchControlKinship" />
-            </div>
-          </mat-form-field>
           <mat-option *ngFor="let kinship of kinships" [value]="kinship.id">
             {{ kinship.name }}
           </mat-option>
         </ng-container>
       </mat-select>
-      <mat-error *ngIf="familyForm.get('kinship_id')?.invalid && familyForm.get('kinship_id')?.touched">
+      <mat-error
+        *ngIf="
+          familyForm.get('kinship_id')?.invalid &&
+          familyForm.get('kinship_id')?.touched
+        "
+      >
         {{ getErrorMessage('kinship_id') }}
       </mat-error>
     </mat-form-field>
@@ -91,10 +116,20 @@
 
   <mat-divider></mat-divider>
   <div class="cta">
-    <button mat-stroked-button color="warn" type="button" (click)="handleBack()">
+    <button
+      mat-stroked-button
+      color="warn"
+      type="button"
+      (click)="handleBack()"
+    >
       Cancelar
     </button>
-    <button mat-raised-button color="primary" type="submit" [disabled]="familyForm.invalid">
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="familyForm.invalid"
+    >
       {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
     </button>
   </div>

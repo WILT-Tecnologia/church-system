@@ -1,27 +1,8 @@
 import { CommonModule } from '@angular/common';
-import {
-  AfterViewInit,
-  Component,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-  ViewChild,
-} from '@angular/core';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
@@ -29,7 +10,10 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { ToastService } from 'app/components/toast/toast.service';
 import { Members, StatusMember } from 'app/model/Members';
 import { MESSAGES } from 'app/utils/messages';
-import { FormatValuesPipe } from 'app/utils/pipes/format-values.pipe';
+import {
+  ActionsProps,
+  CrudComponent,
+} from '../../../../../../components/crud/crud.component';
 import { MembersService } from '../../members.service';
 import { MemberService } from '../member.service';
 import { StatusMemberFormComponent } from './status-member-form/status-member-form.component';
@@ -40,32 +24,32 @@ import { StatusMemberService } from './status-member.service';
   standalone: true,
   templateUrl: './status-member.component.html',
   styleUrl: './status-member.component.scss',
-  imports: [
-    MatBadgeModule,
-    MatCardModule,
-    MatButtonModule,
-    MatTableModule,
-    MatSortModule,
-    MatDividerModule,
-    MatPaginatorModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatDialogModule,
-    MatCheckboxModule,
-    CommonModule,
-    NotFoundRegisterComponent,
-    FormatValuesPipe,
-  ],
+  imports: [CommonModule, NotFoundRegisterComponent, CrudComponent],
 })
-export class StatusMemberComponent implements OnInit, AfterViewInit, OnChanges {
+export class StatusMemberComponent implements OnInit {
   @Input() statusMember: StatusMember[] = [];
   members: Members[] = [];
+  rendering: boolean = true;
   dataSourceMat = new MatTableDataSource<StatusMember>(this.statusMember);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
+  actions: ActionsProps[] = [
+    {
+      type: 'edit',
+      tooltip: 'Editar situação do membro',
+      icon: 'edit',
+      label: 'Editar',
+      action: (statusMember: StatusMember) => this.handleEdit(statusMember),
+    },
+    {
+      type: 'delete',
+      tooltip: 'Excluir situação do membro',
+      icon: 'delete',
+      label: 'Excluir',
+      action: (statusMember: StatusMember) => this.handleDelete(statusMember),
+    },
+  ];
 
   columnDefinitions = [
     { key: 'member.person.name', header: 'Membro', type: 'string' },
@@ -78,10 +62,6 @@ export class StatusMemberComponent implements OnInit, AfterViewInit, OnChanges {
     { key: 'final_period', header: 'Data Final', type: 'date' },
   ];
 
-  displayedColumns = this.columnDefinitions
-    .map((col) => col.key)
-    .concat('actions');
-
   constructor(
     private confirmeService: ConfirmService,
     private loadingService: LoadingService,
@@ -92,20 +72,9 @@ export class StatusMemberComponent implements OnInit, AfterViewInit, OnChanges {
     private membersService: MembersService,
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.loadStatusMember();
   }
-
-  loadMembers = () => {
-    this.loadingService.show();
-    this.membersService.getMembers().subscribe({
-      next: (members) => {
-        this.members = members;
-      },
-      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
-      complete: () => this.loadingService.hide(),
-    });
-  };
 
   loadStatusMember = () => {
     this.loadingService.show();
@@ -116,74 +85,14 @@ export class StatusMemberComponent implements OnInit, AfterViewInit, OnChanges {
         this.dataSourceMat.data = this.statusMember;
         this.dataSourceMat.paginator = this.paginator;
         this.dataSourceMat.sort = this.sort;
+        this.rendering = false;
       },
       error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
       complete: () => this.loadingService.hide(),
     });
   };
 
-  getBadgeClass(status: string): string {
-    switch (status) {
-      case 'Membro ativo':
-        return 'badge-ativo';
-      case 'Frequentador':
-        return 'badge-frequentador';
-      case 'Membro em disciplina':
-        return 'badge-disciplina';
-      case 'Inativo':
-        return 'badge-inativo';
-      case 'Falecido':
-        return 'badge-falecido';
-      default:
-        return 'badge-ativo';
-    }
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['statusMember'] && !changes['statusMember'].firstChange) {
-      this.dataSourceMat.data = this.statusMember;
-    }
-  }
-
-  ngAfterViewInit() {
-    this.dataSourceMat.paginator = this.paginator;
-    this.dataSourceMat.sort = this.sort;
-  }
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value
-      .trim()
-      .toLowerCase();
-
-    this.dataSourceMat.filterPredicate = (data: any, filter: string) => {
-      return this.searchInObject(data, filter);
-    };
-
-    this.dataSourceMat.filter = filterValue;
-
-    if (this.dataSourceMat.paginator) {
-      this.dataSourceMat.paginator.firstPage();
-    }
-  }
-
-  searchInObject(obj: any, searchText: string): boolean {
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        const value = obj[key];
-        if (typeof value === 'object' && value !== null) {
-          if (this.searchInObject(value, searchText)) {
-            return true;
-          }
-        } else {
-          if (String(value).toLowerCase().includes(searchText)) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
-
-  addNewStatusMember = () => {
+  handleCreate = () => {
     const defaultMemberId = this.memberService.getEditingMemberId();
 
     const dialogRef = this.modalService.openModal(
@@ -193,7 +102,6 @@ export class StatusMemberComponent implements OnInit, AfterViewInit, OnChanges {
       true,
       true,
       { statusMember: { member: { id: defaultMemberId } } as StatusMember },
-      'dialog',
     );
 
     dialogRef.afterClosed().subscribe((result: StatusMember) => {
@@ -203,15 +111,14 @@ export class StatusMemberComponent implements OnInit, AfterViewInit, OnChanges {
     });
   };
 
-  editStatusMember = (statusMember: StatusMember) => {
+  handleEdit = (statusMember: StatusMember) => {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       StatusMemberFormComponent,
-      'Editar situação no membro',
+      'Editando situação no membro',
       true,
       true,
       { statusMember: statusMember, id: statusMember.id },
-      'dialog',
     );
 
     dialogRef.afterClosed().subscribe((result: StatusMember) => {
@@ -221,7 +128,7 @@ export class StatusMemberComponent implements OnInit, AfterViewInit, OnChanges {
     });
   };
 
-  deleteStatusMember = (statusMember: StatusMember) => {
+  handleDelete = (statusMember: StatusMember) => {
     const dialogRef = this.confirmeService.openConfirm(
       'Excluir situação do membro',
       'Tem certeza que deseja excluir essa situação do membro?',

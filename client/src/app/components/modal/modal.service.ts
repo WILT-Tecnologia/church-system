@@ -36,9 +36,9 @@ export class ModalService {
     const isMobile = window.innerWidth <= 768;
 
     return this.dialog.open<ModalComponent>(ModalComponent, {
-      minWidth: isMobile ? '95vw' : '50dvw',
-      maxWidth: isMobile ? '95vw' : '50dvw',
-      minHeight: 'auto',
+      minWidth: isMobile ? '95vw' : '60dvw',
+      maxWidth: isMobile ? '95vw' : '60dvw',
+      minHeight: isMobile ? '90vh' : '70dvh',
       maxHeight: isMobile ? '90vh' : '70dvh',
       role: 'dialog',
       autoFocus: false,

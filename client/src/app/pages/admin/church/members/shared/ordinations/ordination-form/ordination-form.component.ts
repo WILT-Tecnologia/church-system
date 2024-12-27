@@ -1,12 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit } from '@angular/core';
 import {
-  AbstractControl,
   FormBuilder,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
-  ValidationErrors,
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -33,10 +31,9 @@ import { Ordination } from 'app/model/Ordination';
 import { OccupationComponent } from 'app/pages/admin/administrative/occupations/occupation/occupation.component';
 import { MESSAGES } from 'app/utils/messages';
 import { ValidationService } from 'app/utils/validation/validation.service';
-import dayjs from 'dayjs';
 import { provideNgxMask } from 'ngx-mask';
 import { debounceTime, forkJoin, map, Observable, startWith } from 'rxjs';
-import { MemberComponent } from '../../../member/member.component';
+import { ActionsComponent } from '../../../../../../../components/actions/actions.component';
 import { OrdinationsService } from '../ordinations.service';
 
 @Component({
@@ -62,6 +59,7 @@ import { OrdinationsService } from '../ordinations.service';
     ReactiveFormsModule,
     CommonModule,
     ColumnComponent,
+    ActionsComponent,
   ],
 })
 export class OrdinationFormComponent implements OnInit {
@@ -113,10 +111,6 @@ export class OrdinationFormComponent implements OnInit {
     });
   }
 
-  private getFieldValue(item: any, field: string): string | undefined {
-    return field.split('.').reduce((acc, part) => acc?.[part], item);
-  }
-
   private setupFilter(
     control: FormControl,
     items: any[],
@@ -127,7 +121,8 @@ export class OrdinationFormComponent implements OnInit {
       startWith(''),
       map((searchTerm) => {
         return items.filter((item) =>
-          this.getFieldValue(item, field)
+          this.validationService
+            .getFieldValue(item, field)
             ?.toLowerCase()
             .includes(searchTerm?.toLowerCase()),
         );
@@ -178,12 +173,6 @@ export class OrdinationFormComponent implements OnInit {
     return control ? this.validationService.getErrorMessage(control) : null;
   }
 
-  validateBirthDate(control: AbstractControl): ValidationErrors | null {
-    const birthDate = control.value;
-    if (!birthDate) return null;
-    return dayjs(birthDate).isBefore(dayjs()) ? null : { invalidDate: true };
-  }
-
   onSuccess(message: string) {
     this.loadingService.hide();
     this.toast.openSuccess(message);
@@ -213,11 +202,10 @@ export class OrdinationFormComponent implements OnInit {
 
     if (this.isEditMode) {
       data.id = this.ordinationId;
+      this.handleUpdate(this.ordinationId!, data);
+    } else {
+      this.handleCreate(data);
     }
-
-    this.isEditMode
-      ? this.handleUpdate(this.ordinationId!, data)
-      : this.handleCreate(data);
   }
 
   handleCreate(data: any) {
@@ -229,11 +217,11 @@ export class OrdinationFormComponent implements OnInit {
     });
   }
 
-  handleUpdate(ordinationId: string, data: any) {
+  handleUpdate(ordinationId: string, data?: any) {
     this.loadingService.show();
     this.ordinationsService.updateOrdination(ordinationId, data).subscribe({
-      next: () => this.onSuccess(MESSAGES.CREATE_SUCCESS),
-      error: () => this.onError(MESSAGES.CREATE_ERROR),
+      next: () => this.onSuccess(MESSAGES.UPDATE_SUCCESS),
+      error: () => this.onError(MESSAGES.UPDATE_ERROR),
       complete: () => this.loadingService.hide(),
     });
   }
@@ -244,8 +232,10 @@ export class OrdinationFormComponent implements OnInit {
       .subscribe((ordination: Ordination) => {
         this.ordinationForm.patchValue({
           id: ordination.id ?? '',
-          member_id: ordination.member_id ?? '',
-          occupation_id: ordination.occupation_id ?? '',
+          member_id: ordination.member ? ordination.member?.person?.name : '',
+          occupation_id: ordination.occupation
+            ? ordination.occupation?.name
+            : '',
           initial_date: ordination.initial_date ?? '',
           end_date: ordination.end_date ?? '',
           status: ordination.status ?? true,
@@ -266,7 +256,7 @@ export class OrdinationFormComponent implements OnInit {
     const selectedMember = this.members.find(
       (member) => member.id === memberId,
     );
-    return selectedMember ? selectedMember.person.name : '';
+    return selectedMember ? selectedMember.person.name : 'Selecione o membro';
   }
 
   displayNameOccupation(): string {
@@ -274,24 +264,14 @@ export class OrdinationFormComponent implements OnInit {
     const occupation = this.occupations.find(
       (occupation) => occupation.id === occupationId,
     );
-    return occupation ? occupation?.name : '';
-  }
-
-  openAddMemberForm() {
-    this.modalService.openModal(
-      `modal-${Math.random()}`,
-      MemberComponent,
-      'Adicionar membro',
-      true,
-      true,
-    );
+    return occupation ? occupation?.name : 'Selecione a ocupação';
   }
 
   openAddOccupationForm() {
     this.modalService.openModal(
       `modal-${Math.random()}`,
       OccupationComponent,
-      'Adicionar ocupação',
+      'Adicionando ocupação',
       true,
       true,
     );

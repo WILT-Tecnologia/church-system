@@ -1,88 +1,25 @@
-<mat-card *ngIf="statusMember && statusMember.length > 0; else noDataTemplate">
-  <div class="align-btn-search">
-    <div>
-      <button mat-raised-button type="button" color="primary" (click)="addNewStatusMember()">
-        Adicionar
-      </button>
-    </div>
-    <div>
-      <mat-form-field appearance="fill" class="search">
-        <input matInput (input)="applyFilter($event)" placeholder="Digite para pesquisar" />
-      </mat-form-field>
-    </div>
-  </div>
-
-  <div class="mat-table-responsive">
-    <table mat-table matSort [dataSource]="dataSourceMat" class="mat-elevation-z1">
-      <ng-container *ngFor="let column of columnDefinitions" [matColumnDef]="column.key">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ column.header }}</th>
-        <td mat-cell [matTooltip]="statusMember | formatValues : column.key : column.type"
-          [matTooltipPositionAtOrigin]="true" *matCellDef="let statusMember">
-          <ng-container *ngIf="column.type === 'date'">
-            {{ statusMember | formatValues : column.key : column.type }}
-          </ng-container>
-          <ng-container *ngIf="column.type === 'string'">
-            {{ statusMember | formatValues : column.key : column.type }}
-          </ng-container>
-          <ng-container *ngIf="column.type === 'cpf'">
-            {{ statusMember | formatValues : column.key : column.type }}
-          </ng-container>
-          <ng-container *ngIf="column.type === 'cnpj'">
-            {{ statusMember | formatValues : column.key : column.type }}
-          </ng-container>
-          <ng-container *ngIf="column.type === 'datetime'">
-            {{ statusMember | formatValues : column.key : column.type }}
-          </ng-container>
-          <ng-container *ngIf="column.type === 'phone'">
-            {{ statusMember | formatValues : column.key : column.type }}
-          </ng-container>
-          <ng-container *ngIf="column.type === 'sex'">
-            {{ statusMember | formatValues : column.key : column.type }}
-          </ng-container>
-          <ng-container *ngIf="column.type === 'number'">
-            {{ statusMember | formatValues : column.key : column.type }}
-          </ng-container>
-          <ng-container *ngIf="column.type === 'switch'">
-            <ng-container *ngSwitch="statusMember[column.key]">
-              <span matBadge="{{ statusMember[column.key] | formatValues : column.key : column.type }}"
-                matBadgeOverlap="false" [ngClass]="getBadgeClass(statusMember[column.key])">
-              </span>
-            </ng-container>
-          </ng-container>
-          <ng-container *ngIf="column.type === 'boolean'">
-            <span [ngClass]="
-                                  statusMember[column.key] ? 'active' : 'inactive'
-                                ">
-              {{ statusMember[column.key] ? 'Ativado' : 'Desativado' }}
-            </span>
-          </ng-container>
-        </td>
-      </ng-container>
-
-
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let statusMember" class="actions-cell">
-          <div class="actions-container">
-            <button mat-icon-button type="button" color="primary" matTooltip="Editar"
-              (click)="editStatusMember(statusMember)">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-icon-button type="button" color="warn" matTooltip="Excluir"
-              (click)="deleteStatusMember(statusMember)">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </div>
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row class="rows" *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
-  </div>
-</mat-card>
+<ng-container
+  *ngIf="
+    (statusMember && statusMember.length > 0) || rendering;
+    else noDataTemplate
+  "
+>
+  <app-crud
+    [enablePagination]="false"
+    [fields]="statusMember"
+    [dataSourceMat]="dataSourceMat"
+    [columnDefinitions]="columnDefinitions"
+    [addFn]="handleCreate"
+    [editFn]="handleEdit"
+    [deleteFn]="handleDelete"
+    [actions]="actions"
+  ></app-crud>
+</ng-container>
 
 <ng-template #noDataTemplate>
-  <app-not-found-register [template]="'status do membro'" [ctaLabel]="'Adicionar'"
-    [addRegisterFn]="addNewStatusMember"></app-not-found-register>
+  <app-not-found-register
+    [template]="'status do membro'"
+    [ctaLabel]="'Adicionar'"
+    [addRegisterFn]="handleCreate"
+  ></app-not-found-register>
 </ng-template>

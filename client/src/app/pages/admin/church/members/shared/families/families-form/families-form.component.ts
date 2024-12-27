@@ -7,7 +7,6 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatOptionModule } from '@angular/material/core';
 import { MatDividerModule } from '@angular/material/divider';
@@ -16,7 +15,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ColumnComponent } from 'app/components/column/column.component';
 
-import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -39,8 +37,6 @@ import { FamiliesService } from '../families.service';
   styleUrl: './families-form.component.scss',
   standalone: true,
   imports: [
-    MatAutocompleteModule,
-    MatCardModule,
     MatIconModule,
     MatButtonModule,
     MatFormFieldModule,
@@ -109,10 +105,6 @@ export class FamiliesFormComponent implements OnInit {
     });
   }
 
-  private getFieldValue(item: any, field: string): string | undefined {
-    return field.split('.').reduce((acc, part) => acc?.[part], item);
-  }
-
   setupFilter(
     control: FormControl,
     items: any[],
@@ -123,7 +115,8 @@ export class FamiliesFormComponent implements OnInit {
       startWith(''),
       map((searchTerm) => {
         return items.filter((item) =>
-          this.getFieldValue(item, field)
+          this.validationService
+            .getFieldValue(item, field)
             ?.toLowerCase()
             .includes(searchTerm?.toLowerCase()),
         );
@@ -237,22 +230,19 @@ export class FamiliesFormComponent implements OnInit {
     return control ? this.validationService.getErrorMessage(control) : null;
   }
 
-  handleBack() {
-    this.dialogRef.close();
+  onSuccess(message: string) {
+    this.loadingService.hide();
+    this.toast.openSuccess(message);
+    this.dialogRef.close(this.familyForm.value);
   }
 
-  handleSubmit() {
-    if (this.familyForm.invalid) return;
+  onError(message: string) {
+    this.loadingService.hide();
+    this.toast.openError(message);
+  }
 
-    const familyData = this.getFormData();
-
-    if (this.isEditMode) {
-      familyData.id = this.familyId;
-    }
-
-    this.isEditMode
-      ? this.updateMember(this.familyId!, familyData)
-      : this.handleCreate(familyData);
+  handleBack() {
+    this.dialogRef.close();
   }
 
   private getFormData(): any {
@@ -266,15 +256,17 @@ export class FamiliesFormComponent implements OnInit {
     };
   }
 
-  onSuccess(message: string) {
-    this.loadingService.hide();
-    this.toast.openSuccess(message);
-    this.dialogRef.close(this.familyForm.value);
-  }
+  handleSubmit() {
+    if (this.familyForm.invalid) return;
 
-  onError(message: string) {
-    this.loadingService.hide();
-    this.toast.openError(message);
+    const familyData = this.getFormData();
+
+    if (this.isEditMode) {
+      familyData.id = this.familyId;
+      this.updateMember(this.familyId!, familyData);
+    } else {
+      this.handleCreate(familyData);
+    }
   }
 
   handleCreate(familyData?: any) {

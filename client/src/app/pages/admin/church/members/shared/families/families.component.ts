@@ -1,25 +1,8 @@
 import { CommonModule } from '@angular/common';
-import {
-  AfterViewInit,
-  Component,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-  ViewChild,
-} from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
@@ -27,7 +10,10 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { ToastService } from 'app/components/toast/toast.service';
 import { Families } from 'app/model/Families';
 import { MESSAGES } from 'app/utils/messages';
-import { FormatValuesPipe } from 'app/utils/pipes/format-values.pipe';
+import {
+  ActionsProps,
+  CrudComponent,
+} from '../../../../../../components/crud/crud.component';
 import { MembersService } from '../../members.service';
 import { MemberService } from '../member.service';
 import { FamiliesFormComponent } from './families-form/families-form.component';
@@ -38,41 +24,38 @@ import { FamiliesService } from './families.service';
   templateUrl: './families.component.html',
   styleUrls: ['./families.component.scss'],
   standalone: true,
-  imports: [
-    MatCardModule,
-    MatButtonModule,
-    MatTableModule,
-    MatSortModule,
-    MatDividerModule,
-    MatPaginatorModule,
-    MatSelectModule,
-    MatInputModule,
-    MatTooltipModule,
-    MatIconModule,
-    MatCheckboxModule,
-    MatFormFieldModule,
-    CommonModule,
-    NotFoundRegisterComponent,
-    FormatValuesPipe,
-  ],
+  imports: [CommonModule, NotFoundRegisterComponent, CrudComponent],
 })
-export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
+export class FamiliesComponent implements OnInit {
   @Input() families: Families[] = [];
+  rendering: boolean = true;
   dataSourceMat = new MatTableDataSource<Families>(this.families);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  columnDefinitions = [
-    { key: 'is_member', header: 'A filiação é membro?', type: 'boolean' },
-    { key: 'member.person.name', header: 'Membro', type: 'string' },
-    { key: 'person.name', header: 'Filiação', type: 'string' },
-    { key: 'kinship.name', header: 'Parentesco', type: 'string' },
-    { key: 'name', header: 'Nome', type: 'string' },
+  actions: ActionsProps[] = [
+    {
+      type: 'edit',
+      tooltip: 'Editar filiação',
+      icon: 'edit',
+      label: 'Editar',
+      action: (family: Families) => this.handleEdit(family),
+    },
+    {
+      type: 'delete',
+      tooltip: 'Excluir filiação',
+      icon: 'delete',
+      label: 'Excluir',
+      action: (family: Families) => this.handleDelete(family),
+    },
   ];
 
-  displayedColumns = this.columnDefinitions
-    .map((col) => col.key)
-    .concat('actions');
+  columnDefinitions = [
+    { key: 'is_member', header: 'A filiação é membro?', type: 'boolean' },
+    { key: 'person.name', header: 'Filiação', type: 'string' },
+    { key: 'name', header: 'Nome', type: 'string' },
+    { key: 'kinship.name', header: 'Parentesco', type: 'string' },
+  ];
 
   constructor(
     private confirmeService: ConfirmService,
@@ -97,6 +80,7 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
         this.dataSourceMat.data = this.families;
         this.dataSourceMat.paginator = this.paginator;
         this.dataSourceMat.sort = this.sort;
+        this.rendering = false;
       },
       error: () => {
         this.loadingService.hide();
@@ -106,51 +90,6 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
     });
   };
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['families'] && !changes['families'].firstChange) {
-      this.dataSourceMat.data = this.families;
-    }
-  }
-
-  ngAfterViewInit() {
-    this.dataSourceMat.paginator = this.paginator;
-    this.dataSourceMat.sort = this.sort;
-  }
-
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value
-      .trim()
-      .toLowerCase();
-
-    this.dataSourceMat.filterPredicate = (data: any, filter: string) => {
-      return this.searchInObject(data, filter);
-    };
-
-    this.dataSourceMat.filter = filterValue;
-
-    if (this.dataSourceMat.paginator) {
-      this.dataSourceMat.paginator.firstPage();
-    }
-  }
-
-  searchInObject(obj: any, searchText: string): boolean {
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        const value = obj[key];
-        if (typeof value === 'object' && value !== null) {
-          if (this.searchInObject(value, searchText)) {
-            return true;
-          }
-        } else {
-          if (String(value).toLowerCase().includes(searchText)) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
-
   openModalAddFamily = () => {
     return this.modalService.openModal(
       `modal-${Math.random()}`,
@@ -158,12 +97,10 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
       'Adicionar filiação',
       true,
       true,
-      {},
-      'dialog',
     );
   };
 
-  addNewFamily = (): void => {
+  handleCreate = (): void => {
     const defaultMemberId = this.memberService.getEditingMemberId();
 
     const dialogRef = this.modalService.openModal(
@@ -175,7 +112,6 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
       {
         families: { member: { id: defaultMemberId } } as Families,
       },
-      'dialog',
     );
 
     dialogRef.afterClosed().subscribe((result: Families) => {
@@ -185,7 +121,7 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
     });
   };
 
-  editFamily = (family: Families): void => {
+  handleEdit = (family: Families): void => {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       FamiliesFormComponent,
@@ -196,7 +132,6 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
         families: family,
         id: family.id,
       },
-      'dialog',
     );
 
     dialogRef.afterClosed().subscribe((result: Families) => {
@@ -206,33 +141,33 @@ export class FamiliesComponent implements OnInit, AfterViewInit, OnChanges {
     });
   };
 
-  deleteFamily(family: Families) {
+  handleDelete(family: Families) {
     const nameFamily = family?.is_member
       ? family?.person?.name + ' | ' + family?.kinship?.name
       : family?.name + ' | ' + family?.kinship?.name;
-    this.confirmeService
-      .openConfirm(
-        'Excluir o parentesco',
-        `Tem certeza que deseja excluir o parentesco: ${nameFamily} ?`,
-        'Confirmar',
-        'Cancelar',
-      )
-      .afterClosed()
-      .subscribe((result) => {
-        if (result) {
-          this.loadingService.show();
-          this.familiesService.deleteFamily(family.id).subscribe({
-            next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
-            error: () => {
-              this.loadingService.hide();
-              this.toast.openError(MESSAGES.DELETE_ERROR);
-            },
-            complete: () => {
-              this.loadFamilies();
-              this.loadingService.hide();
-            },
-          });
-        }
-      });
+
+    const modal = this.confirmeService.openConfirm(
+      'Excluir o parentesco',
+      `Tem certeza que deseja excluir o parentesco: ${nameFamily} ?`,
+      'Confirmar',
+      'Cancelar',
+    );
+
+    modal.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loadingService.show();
+        this.familiesService.deleteFamily(family.id).subscribe({
+          next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
+          error: () => {
+            this.loadingService.hide();
+            this.toast.openError(MESSAGES.DELETE_ERROR);
+          },
+          complete: () => {
+            this.loadFamilies();
+            this.loadingService.hide();
+          },
+        });
+      }
+    });
   }
 }

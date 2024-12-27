@@ -1,12 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import {
-  AbstractControl,
   FormBuilder,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
-  ValidationErrors,
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -55,6 +53,7 @@ import { debounceTime, map, Observable, startWith } from 'rxjs';
 import { ActionsComponent } from '../../../../../components/actions/actions.component';
 import { MembersService } from '../members.service';
 import { FamiliesComponent } from '../shared/families/families.component';
+import { HistoryService } from '../shared/history/history.service';
 import { OrdinationsComponent } from '../shared/ordinations/ordinations.component';
 import { StatusMemberComponent } from '../shared/status-member/status-member.component';
 
@@ -98,6 +97,8 @@ export class MemberComponent implements OnInit {
   isEditMode: boolean = false;
   isInitialStepCompleted = false;
   currentStep = 0;
+  isFormationCourseVisible: boolean = false;
+  formationsRequiringCourse: string[] = ['08', '09', '10', '11', '12'];
 
   searchControlPerson = new FormControl('');
   searchControlChurch = new FormControl('');
@@ -128,6 +129,7 @@ export class MemberComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private toast: ToastService,
+    private historyService: HistoryService,
     private membersService: MembersService,
     private loadingService: LoadingService,
     private validationService: ValidationService,
@@ -273,11 +275,9 @@ export class MemberComponent implements OnInit {
       startWith(''),
       map((searchTerm) => {
         const items = (this as any)[target] || [];
-        return items
-          .filter((item: any) =>
-            item.name.toLowerCase().includes(searchTerm?.toLowerCase()),
-          )
-          .sort((a: any, b: any) => a.name.localeCompare(b.name));
+        return items.filter((item: any) =>
+          item.name.toLowerCase().includes(searchTerm?.toLowerCase()),
+        );
       }),
     );
   }
@@ -337,11 +337,7 @@ export class MemberComponent implements OnInit {
         this.searchControlCivilStatus.valueChanges.pipe(
           debounceTime(300),
           startWith(''),
-          map((searchTerm) =>
-            this.filterCivilStatus(searchTerm ?? '').sort((a, b) =>
-              a.name.localeCompare(b.name),
-            ),
-          ),
+          map((searchTerm) => this.filterCivilStatus(searchTerm ?? '')),
         );
     });
 
@@ -350,11 +346,7 @@ export class MemberComponent implements OnInit {
       this.filteredColorRace = this.searchControlColorRace.valueChanges.pipe(
         debounceTime(300),
         startWith(''),
-        map((searchTerm) =>
-          this.filterColorRace(searchTerm ?? '').sort((a, b) =>
-            a.name.localeCompare(b.name),
-          ),
-        ),
+        map((searchTerm) => this.filterColorRace(searchTerm ?? '')),
       );
     });
 
@@ -363,11 +355,7 @@ export class MemberComponent implements OnInit {
       this.filteredFormations = this.searchControlFormations.valueChanges.pipe(
         debounceTime(300),
         startWith(''),
-        map((searchTerm) =>
-          this.filterFormations(searchTerm ?? '').sort((a, b) =>
-            a.name.localeCompare(b.name),
-          ),
-        ),
+        map((searchTerm) => this.filterFormations(searchTerm ?? '')),
       );
     });
 
@@ -384,15 +372,6 @@ export class MemberComponent implements OnInit {
           ),
         );
     });
-  }
-
-  validateBirthDate(control: AbstractControl): ValidationErrors | null {
-    const selectedDate = control.value;
-    const currentDate = dayjs();
-    if (selectedDate && dayjs(selectedDate).isAfter(currentDate)) {
-      return { futureDate: true };
-    }
-    return null;
   }
 
   clearDate(fieldName: string): void {
@@ -428,7 +407,11 @@ export class MemberComponent implements OnInit {
   }
 
   onBack() {
-    this.currentStep > 0 ? this.currentStep-- : this.handleBack();
+    if (this.currentStep > 0) {
+      this.currentStep--;
+    } else {
+      this.handleBack();
+    }
   }
 
   onNext() {
@@ -540,14 +523,62 @@ export class MemberComponent implements OnInit {
     this.showLoading();
 
     const memberData = this.combineStepData();
-    this.membersService.updateMember(memberId!, memberData).subscribe({
-      next: () => this.onSuccessUpdate(MESSAGES.UPDATE_SUCCESS),
-      error: () => this.onError(MESSAGES.UPDATE_ERROR),
-      complete: () => this.hideLoading(),
+
+    this.membersService.getMemberById(memberId).subscribe({
+      next: (currentMember) => {
+        const beforeData = currentMember;
+        const changes = this.detectChanges(beforeData, memberData);
+
+        if (changes.length > 0) {
+          const historyPromises = changes.map((change) => {
+            console.log({ old: change.oldValue, new: change.newValue });
+            const historyData: Partial<History> = {
+              member_id: memberId,
+              table_name: 'members',
+              before_situation: change.oldValue,
+              after_situation: change.newValue,
+              change_date: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+            };
+
+            return this.historyService.saveHistory(historyData);
+          });
+          Promise.all(historyPromises)
+            .then(() => console.log('Histórico salvo com sucesso'))
+            .catch((error) =>
+              console.error('Erro ao salvar histórico:', error),
+            );
+        }
+
+        this.membersService.updateMember(memberId!, memberData).subscribe({
+          next: () => this.onSuccessUpdate(MESSAGES.UPDATE_SUCCESS),
+          error: () => this.onError(MESSAGES.UPDATE_ERROR),
+          complete: () => this.hideLoading(),
+        });
+      },
+      error: () => {
+        this.onError(MESSAGES.UPDATE_ERROR);
+        this.hideLoading();
+      },
     });
   }
 
-  handleEdit = (memberid: string) => {
+  detectChanges(beforeData: any, afterData: any) {
+    const changes = [];
+
+    for (const key in afterData) {
+      if (afterData[key] !== beforeData[key]) {
+        changes.push({
+          field: key,
+          oldValue: beforeData[key],
+          newValue: afterData[key],
+        });
+      }
+    }
+
+    return changes;
+  }
+
+  handleEdit = (memberid?: string) => {
     if (!memberid) {
       this.toast.openError('Erro: o ID do membro não foi fornecido.');
       return;
@@ -585,7 +616,7 @@ export class MemberComponent implements OnInit {
     this.toast.openSuccess(message);
     this.loadMembers();
     this.isEditMode = true;
-    this.handleEdit;
+    this.handleEdit();
     this.currentStep = 3;
   }
 
@@ -759,5 +790,30 @@ export class MemberComponent implements OnInit {
     if (isOpened && !this.churchs?.length) {
       this.getAllChurchs();
     }
+  }
+
+  onFormationChange(selectedFormationId: string, formations: any[]): void {
+    const selectedFormation = formations.find(
+      (f) => f.id === selectedFormationId,
+    );
+    const formationCourseControl = this.memberForm.get(
+      'stepTwo.formation_course',
+    );
+    console.log(
+      this.formationsRequiringCourse.includes(selectedFormation.codigo),
+    );
+
+    if (
+      selectedFormation &&
+      this.formationsRequiringCourse.includes(selectedFormation.codigo)
+    ) {
+      this.isFormationCourseVisible = true;
+      formationCourseControl?.setValidators(Validators.required);
+    } else {
+      this.isFormationCourseVisible = false;
+      formationCourseControl?.clearValidators();
+    }
+
+    formationCourseControl?.updateValueAndValidity();
   }
 }

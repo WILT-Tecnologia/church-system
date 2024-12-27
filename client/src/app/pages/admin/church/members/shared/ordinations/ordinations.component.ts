@@ -1,26 +1,8 @@
 import { CommonModule } from '@angular/common';
-import {
-  AfterViewInit,
-  Component,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-  ViewChild,
-} from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
@@ -29,7 +11,10 @@ import { ToastService } from 'app/components/toast/toast.service';
 import { Members } from 'app/model/Members';
 import { Ordination } from 'app/model/Ordination';
 import { MESSAGES } from 'app/utils/messages';
-import { FormatValuesPipe } from 'app/utils/pipes/format-values.pipe';
+import {
+  ActionsProps,
+  CrudComponent,
+} from '../../../../../../components/crud/crud.component';
 import { MemberService } from '../member.service';
 import { OrdinationFormComponent } from './ordination-form/ordination-form.component';
 import { OrdinationsService } from './ordinations.service';
@@ -39,43 +24,39 @@ import { OrdinationsService } from './ordinations.service';
   templateUrl: './ordinations.component.html',
   styleUrls: ['./ordinations.component.scss'],
   standalone: true,
-  imports: [
-    MatCardModule,
-    MatButtonModule,
-    MatTableModule,
-    MatSortModule,
-    MatDividerModule,
-    MatPaginatorModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatDialogModule,
-    MatCheckboxModule,
-    CommonModule,
-    NotFoundRegisterComponent,
-    FormatValuesPipe,
-  ],
+  imports: [CommonModule, NotFoundRegisterComponent, CrudComponent],
 })
-export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
+export class OrdinationsComponent implements OnInit {
   @Input() ordination: Ordination[] = [];
   members: Members[] = [];
+  rendering: boolean = true;
   dataSourceMat = new MatTableDataSource<Ordination>(this.ordination);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
+  actions: ActionsProps[] = [
+    {
+      type: 'edit',
+      tooltip: 'Editar ordinação',
+      icon: 'edit',
+      label: 'Editar',
+      action: (ordination: Ordination) => this.handleEdit(ordination),
+    },
+    {
+      type: 'delete',
+      tooltip: 'Excluir ordinação',
+      icon: 'delete',
+      label: 'Excluir',
+      action: (ordination: Ordination) => this.handleDelete(ordination),
+    },
+  ];
+
   columnDefinitions = [
     { key: 'status', header: 'Status', type: 'boolean' },
-    { key: 'member.person.name', header: 'Membro', type: 'string' },
     { key: 'occupation.name', header: 'Ocupação', type: 'string' },
     { key: 'initial_date', header: 'Data Inicial', type: 'date' },
     { key: 'end_date', header: 'Data Final', type: 'date' },
   ];
-
-  displayedColumns = this.columnDefinitions
-    .map((col) => col.key)
-    .concat('actions');
 
   constructor(
     private confirmeService: ConfirmService,
@@ -90,15 +71,6 @@ export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
     this.loadOrdinations();
   }
 
-  loadMembers = () => {
-    this.ordinationService.getMembers().subscribe({
-      next: (members) => {
-        this.members = members;
-      },
-      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
-    });
-  };
-
   loadOrdinations = () => {
     this.loadingService.show();
     const memberId = this.memberService.getEditingMemberId();
@@ -108,6 +80,7 @@ export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
         this.dataSourceMat.data = this.ordination;
         this.dataSourceMat.paginator = this.paginator;
         this.dataSourceMat.sort = this.sort;
+        this.rendering = false;
       },
       error: () => {
         this.loadingService.hide();
@@ -117,51 +90,6 @@ export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
     });
   };
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['ordination'] && !changes['ordination'].firstChange) {
-      this.dataSourceMat.data = this.ordination;
-    }
-  }
-
-  ngAfterViewInit() {
-    this.dataSourceMat.paginator = this.paginator;
-    this.dataSourceMat.sort = this.sort;
-  }
-
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value
-      .trim()
-      .toLowerCase();
-
-    this.dataSourceMat.filterPredicate = (data: any, filter: string) => {
-      return this.searchInObject(data, filter);
-    };
-
-    this.dataSourceMat.filter = filterValue;
-
-    if (this.dataSourceMat.paginator) {
-      this.dataSourceMat.paginator.firstPage();
-    }
-  }
-
-  searchInObject(obj: any, searchText: string): boolean {
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        const value = obj[key];
-        if (typeof value === 'object' && value !== null) {
-          if (this.searchInObject(value, searchText)) {
-            return true;
-          }
-        } else {
-          if (String(value).toLowerCase().includes(searchText)) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
-
   openModalAddOrdination = () => {
     return this.modalService.openModal(
       `modal-${Math.random()}`,
@@ -169,24 +97,21 @@ export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
       'Adicionar ordinação',
       true,
       true,
-      {},
-      'dialog',
     );
   };
 
-  addNewOrdination = (): void => {
+  handleCreate = (): void => {
     const defaultMemberId = this.memberService.getEditingMemberId();
 
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       OrdinationFormComponent,
-      'Adicionar ordinação',
+      'Adicionando ordenação',
       true,
       true,
       {
         ordination: { member: { id: defaultMemberId } } as Ordination,
       },
-      'dialog',
     );
 
     dialogRef.afterClosed().subscribe((result: Ordination) => {
@@ -196,18 +121,18 @@ export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
     });
   };
 
-  editOrdination = (ordination: Ordination): void => {
+  handleEdit = (ordination: Ordination): void => {
+    console.log({ ordination });
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       OrdinationFormComponent,
-      'Editar ordinação',
+      `Editando a ordenação: ${ordination.occupation?.name}`,
       true,
       true,
       {
         ordination: ordination,
         id: ordination.id,
       },
-      'dialog',
     );
 
     dialogRef.afterClosed().subscribe((result: Ordination) => {
@@ -217,11 +142,12 @@ export class OrdinationsComponent implements OnInit, AfterViewInit, OnChanges {
     });
   };
 
-  deleteOrdination = (ordination: Ordination): void => {
+  handleDelete = (ordination: Ordination): void => {
     const nameOrdination =
       ordination?.member?.person?.name + ' | ' + ordination?.occupation?.name;
+
     const dialogRef = this.confirmeService.openConfirm(
-      'Excluir ordinação',
+      'Excluir ordenação',
       `Tem certeza que deseja excluir esta ordinação? ${nameOrdination}`,
       'Confirmar',
       'Cancelar',

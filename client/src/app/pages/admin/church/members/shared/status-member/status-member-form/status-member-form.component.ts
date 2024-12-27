@@ -1,12 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit } from '@angular/core';
 import {
-  AbstractControl,
   FormBuilder,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
-  ValidationErrors,
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -30,9 +28,9 @@ import { MemberSituations } from 'app/model/Auxiliaries';
 import { Members, StatusMember } from 'app/model/Members';
 import { MESSAGES } from 'app/utils/messages';
 import { ValidationService } from 'app/utils/validation/validation.service';
-import dayjs from 'dayjs';
 import { provideNgxMask } from 'ngx-mask';
 import { debounceTime, forkJoin, map, Observable, startWith } from 'rxjs';
+import { ActionsComponent } from '../../../../../../../components/actions/actions.component';
 import { MembersService } from '../../../members.service';
 import { StatusMemberService } from '../status-member.service';
 
@@ -42,9 +40,6 @@ import { StatusMemberService } from '../status-member.service';
   templateUrl: './status-member-form.component.html',
   styleUrl: './status-member-form.component.scss',
   imports: [
-    ReactiveFormsModule,
-    CommonModule,
-    ColumnComponent,
     MatDatepickerModule,
     MatFormFieldModule,
     MatInputModule,
@@ -54,6 +49,10 @@ import { StatusMemberService } from '../status-member.service';
     MatDividerModule,
     MatIconModule,
     MatSlideToggleModule,
+    ReactiveFormsModule,
+    CommonModule,
+    ColumnComponent,
+    ActionsComponent,
   ],
   providers: [
     provideNativeDateAdapter(),
@@ -99,11 +98,11 @@ export class StatusMemberFormComponent implements OnInit {
     return this.fb.group({
       id: [this.data?.statusMember?.id ?? ''],
       member_id: [
-        this.data?.statusMember?.member?.person?.name ?? '',
+        this.data?.statusMember?.member?.id ?? '',
         [Validators.required],
       ],
       member_situation_id: [
-        this.data?.statusMember?.member_situation?.name ?? '',
+        this.data?.statusMember?.member_situation?.id ?? '',
         [Validators.required],
       ],
       initial_period: [
@@ -208,12 +207,6 @@ export class StatusMemberFormComponent implements OnInit {
     return control ? this.validationService.getErrorMessage(control) : null;
   }
 
-  validateDate(control: AbstractControl): ValidationErrors | null {
-    const fielDate = control.value;
-    if (!fielDate) return null;
-    return dayjs(fielDate).isBefore(dayjs()) ? null : { invalidDate: true };
-  }
-
   private getFormData(): any {
     return {
       id: this.statusMemberForm.value.id ?? '',
@@ -232,26 +225,27 @@ export class StatusMemberFormComponent implements OnInit {
 
     if (this.isEditMode) {
       data.id = id;
+      this.handleUpdate(id, data);
+    } else {
+      this.handleCreate(data);
     }
-
-    this.isEditMode ? this.handleUpdate(id, data) : this.handleCreate(data);
   }
 
   handleCreate(data: any) {
-    this.loadingService.show();
+    this.showLoading();
     this.statusMemberService.createStatusMember(data).subscribe({
       next: () => this.onSuccess(MESSAGES.CREATE_SUCCESS),
       error: () => this.onError(MESSAGES.CREATE_ERROR),
-      complete: () => this.loadingService.hide(),
+      complete: () => this.hideLoading(),
     });
   }
 
   handleUpdate(id: string, data: any) {
-    this.loadingService.show();
+    this.showLoading();
     this.statusMemberService.updateStatusMember(id, data).subscribe({
       next: () => this.onSuccess(MESSAGES.UPDATE_SUCCESS),
       error: () => this.onError(MESSAGES.UPDATE_ERROR),
-      complete: () => this.loadingService.hide(),
+      complete: () => this.hideLoading(),
     });
   }
 
@@ -261,8 +255,10 @@ export class StatusMemberFormComponent implements OnInit {
       .subscribe((statusMember: StatusMember) => {
         this.statusMemberForm.patchValue({
           id: statusMember.id ?? '',
-          member_id: statusMember.member_id ?? '',
-          member_situation_id: statusMember.member_situation_id ?? '',
+          member_id: statusMember.member ? statusMember.member_id : '',
+          member_situation_id: statusMember.member_situation
+            ? statusMember.member_situation_id
+            : '',
           initial_period: statusMember.initial_period ?? '',
           final_period: statusMember.final_period,
         });
@@ -274,7 +270,7 @@ export class StatusMemberFormComponent implements OnInit {
     const selectedMember = this.members.find(
       (member) => member.id === memberId,
     );
-    return selectedMember ? selectedMember.person.name : '';
+    return selectedMember ? selectedMember.person.name : 'Selecione o membro';
   }
 
   displayNameSituationMember(): string {
@@ -282,6 +278,8 @@ export class StatusMemberFormComponent implements OnInit {
     const selectedSituationMember = this.membersSituations.find(
       (situation) => situation.id === situationId,
     );
-    return selectedSituationMember ? selectedSituationMember?.name : '';
+    return selectedSituationMember
+      ? selectedSituationMember?.name
+      : 'Selecione a situação';
   }
 }

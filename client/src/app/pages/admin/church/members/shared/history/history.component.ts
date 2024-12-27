@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, Input } from '@angular/core';
+import { Component, Inject, Input, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
@@ -25,7 +25,7 @@ import { HistoryService } from './history.service';
     NoRowComponent,
   ],
 })
-export class HistoryComponent {
+export class HistoryComponent implements OnInit {
   @Input() history: History[] = [];
   rendering: boolean = true;
 
@@ -39,9 +39,7 @@ export class HistoryComponent {
   ) {}
 
   ngOnInit() {
-    this.history;
-    console.log(this.history);
-    //this.loadHistories();
+    this.loadHistories();
   }
 
   showLoading() {
@@ -56,11 +54,13 @@ export class HistoryComponent {
     this.showLoading();
     const memberId = this.memberService.getEditingMemberId();
     this.historyService.getHistoryById(memberId!).subscribe({
-      next: (history: History) => {
-        this.history = [history];
+      next: (history) => {
+        console.log(history);
+        this.history = history;
         this.rendering = false;
       },
       error: () => {
+        this.hideLoading();
         this.toast.openError(MESSAGES.LOADING_ERROR);
       },
       complete: () => this.hideLoading(),

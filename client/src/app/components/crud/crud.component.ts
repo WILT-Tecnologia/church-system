@@ -62,6 +62,7 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() tooltipTextButtonToggleFn: string = '';
   @Input() pageSize: number = 10;
   @Input() pageSizeOptions: number[] = [10, 25, 50, 100];
+  @Input() enablePagination: boolean = true;
   @Input() enableToggleStatus: boolean = false;
   @Input() enableAddButtonAdd: boolean = true;
   @Input() actions!: ActionsProps[];
@@ -71,24 +72,36 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   displayedColumns: string[] = [];
+  currentPageIndex: number = 0;
 
   ngOnInit() {
+    this.dataSourceMat.data = this.fields;
     this.displayedColumns = this.columnDefinitions
       .map((col) => col.key)
       .concat('actions');
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['fields'] && changes['fields'].currentValue) {
+    if (changes['fields']) {
       this.dataSourceMat.data = this.fields;
-      this.resetPagination();
+
+      if (this.paginator) {
+        this.dataSourceMat.paginator = this.paginator;
+        this.paginator.length = this.fields.length;
+      }
     }
   }
 
   ngAfterViewInit() {
-    setTimeout(() => {
-      this.dataSourceMat.paginator = this.paginator;
-      this.dataSourceMat.sort = this.sort;
+    this.dataSourceMat.paginator = this.paginator;
+    this.dataSourceMat.sort = this.sort;
+
+    if (this.paginator) {
+      this.paginator.pageIndex = this.currentPageIndex;
+    }
+
+    this.paginator?.page.subscribe(() => {
+      this.currentPageIndex = this.paginator?.pageIndex;
     });
   }
 
@@ -96,17 +109,14 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
     const filterValue = (event.target as HTMLInputElement).value
       .trim()
       .toLowerCase();
+
     this.dataSourceMat.filterPredicate = (data: any, filter: string) =>
       Object.values(data).some((value) =>
         String(value).toLowerCase().includes(filter),
       );
-    this.dataSourceMat.filter = filterValue;
-    if (this.dataSourceMat.paginator) {
-      this.dataSourceMat.paginator.firstPage();
-    }
-  }
 
-  resetPagination() {
+    this.dataSourceMat.filter = filterValue;
+
     if (this.dataSourceMat.paginator) {
       this.dataSourceMat.paginator.firstPage();
     }

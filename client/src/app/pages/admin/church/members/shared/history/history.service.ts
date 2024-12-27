@@ -8,16 +8,20 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class HistoryService {
+  private apiUrl = `${environment.apiUrl}/church/hist-member`;
+
   constructor(private http: HttpClient) {}
 
-  private apiUrl = `${environment.apiUrl}/church/hist-member`;
+  saveHistory(data: any) {
+    return this.http.post(this.apiUrl, data).toPromise();
+  }
 
   getHistories(): Observable<History[]> {
     return this.http.get<History[]>(this.apiUrl);
   }
 
-  getHistoryById(id: string): Observable<History> {
-    return this.http.get<History>(`${this.apiUrl}/${id}`);
+  getHistoryById(id: string): Observable<History[]> {
+    return this.http.get<History[]>(`${this.apiUrl}/${id}`);
   }
 
   createHistory(history: History): Observable<History> {

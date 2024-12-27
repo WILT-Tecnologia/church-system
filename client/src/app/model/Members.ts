@@ -63,7 +63,7 @@ export type StatusMember = {
 
 export type History = {
   id: string;
-  member?: Members;
+  member: Members;
   member_id: string;
   table_name: string;
   before_situation: string;
