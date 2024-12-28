@@ -1,12 +1,14 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { AbstractControl } from '@angular/forms';
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { catchError, map, Observable, of } from 'rxjs';
 import { messages } from './message';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ValidationService {
-  constructor() {}
+  constructor(private http: HttpClient) {}
 
   getFieldValue(item: any, field: string): string | undefined {
     return field.split('.').reduce((acc, part) => acc?.[part], item);
@@ -28,5 +30,33 @@ export class ValidationService {
       }
     }
     return null;
+  }
+
+  validateEmail(control: AbstractControl): Observable<ValidationErrors | null> {
+    const email = control.value;
+    return this.http
+      .post<{ email?: string[] }>('/admin/users/check-email', { email })
+      .pipe(
+        map((response) => {
+          if (response.email && response.email.length > 0) {
+            return { emailExists: response.email[0] };
+          }
+          return null;
+        }),
+        catchError(() => of(null)),
+      );
+  }
+
+  passwordValidator(): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      if (!control.value) {
+        return null;
+      }
+      const passwordRegex =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      return passwordRegex.test(control.value)
+        ? null
+        : { invalidPassword: true };
+    };
   }
 }

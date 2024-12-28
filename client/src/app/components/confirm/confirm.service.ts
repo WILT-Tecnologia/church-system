@@ -20,57 +20,30 @@ export class ConfirmService {
   public openConfirm(
     title: string,
     message: string,
-    btnOkText: string = 'OK',
+    btnOkText: string = 'Confirmar',
     btnCancelText: string = 'Cancelar',
     reverseBtn: boolean = false,
     disableClose: boolean = true,
     customClassContainer: string = '',
   ) {
-    return this.dialog.open(ConfirmComponent, {
-      maxWidth: '100%',
-      width: 'auto',
-      height: 'auto',
-      minHeight: 'auto',
-      maxHeight: '100dvh',
+    const isMobile = window.innerWidth <= 768;
+
+    return this.dialog.open<ConfirmComponent>(ConfirmComponent, {
+      minWidth: isMobile ? '95dvw' : '30dvw',
+      maxWidth: isMobile ? '95dvw' : '30dvw',
+      role: 'dialog',
       autoFocus: false,
-      panelClass: 'dialog',
+      disableClose: disableClose,
+      panelClass: customClassContainer ? customClassContainer : 'modal',
       data: {
         title,
         message,
         btnOkText,
         btnCancelText,
         reverseBtn,
+        disableClose,
         customClassContainer,
       },
-      disableClose,
-    });
-  }
-
-  /**
-   * Popup de configuracoes pendentes
-   * @param title titulo do confirm
-   * @param message menssagem do confirm
-   * @param btnOkText botão de confirmação
-   */
-  public openSettingsPending(
-    title: string,
-    message: string,
-    btnOkText: string = 'OK',
-  ) {
-    return this.dialog.open(ConfirmComponent, {
-      maxWidth: '100%',
-      width: 'auto',
-      height: 'auto',
-      minHeight: 'auto',
-      maxHeight: '100dvh',
-      autoFocus: false,
-      panelClass: 'dialog',
-      data: {
-        title,
-        message,
-        btnOkText,
-      },
-      disableClose: true,
     });
   }
 }
