@@ -159,6 +159,7 @@ export class ProfilesComponent implements OnInit {
   };
 
   toggleStatus = (profile: Profile) => {
+    this.loading.show();
     const updatedStatus = !profile.status;
     profile.status = updatedStatus;
 

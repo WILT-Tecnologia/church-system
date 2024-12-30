@@ -1,9 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\ProfileRequest;
+use App\Http\Resources\ProfileResource;
 use App\Models\Profile;
-use Illuminate\Http\Request;
 
 class ProfileController extends Controller
 {
@@ -12,23 +14,25 @@ class ProfileController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $profile = Profile::with('permissions')->orderBy('status','desc')->orderBy('name','asc')->get();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return response()->json(ProfileResource::collection($profile));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(ProfileRequest $request)
     {
-        //
+        $data = $request->validated();
+
+        $profile = Profile::create($data);
+
+        $permissions = collect($data['permissions'])->pluck('id');
+
+        $profile->permissions()->sync($permissions);
+
+        return new ProfileResource($profile);
     }
 
     /**
@@ -36,23 +40,23 @@ class ProfileController extends Controller
      */
     public function show(Profile $profile)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Profile $profile)
-    {
-        //
+        return new ProfileResource($profile);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Profile $profile)
+    public function update(ProfileRequest $request, Profile $profile)
     {
-        //
+        $data = $request->validated();
+
+        $profile->update($data);
+
+        $permissions = collect($data['permissions'])->pluck('id');
+
+        $profile->permissions()->sync($permissions);
+
+        return new ProfileResource($profile);
     }
 
     /**
@@ -60,6 +64,8 @@ class ProfileController extends Controller
      */
     public function destroy(Profile $profile)
     {
-        //
+        $profile->delete();
+
+        return response()->json([], 204);
     }
 }

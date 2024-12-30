@@ -35,8 +35,10 @@ class UserRequest extends FormRequest
                 Rule::unique('users', 'email')->ignore($userId),
             ],
             'password' => $isCreating ? 'nullable|string|min:8|max:30|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/' : 'nullable|string|min:8|max:30',
-            'status' => 'nullable|boolean',
-            'change_password' => 'nullable|boolean',
+            'status' => 'sometimes|boolean',
+            'change_password' => 'sometimes|boolean',
+            'profile' => 'array',
+            'profile.*' => 'exists:profile,id',
             /*
                 Esse regex assegura que a senha:
                     1. Tenha pelo menos 8 caracteres;
@@ -59,6 +61,7 @@ class UserRequest extends FormRequest
                 '*.min' => 'O campo :attribute deve ter pelo menos :min caracteres.',
                 '*.unique' => 'O campo :attribute já está sendo usado por outro usuário.',
                 '*.boolean' => 'O campo :attribute deve ser verdadeiro ou falso.',
+                '*.exists' => 'O campo :attribute deve ser um ID de perfil existente.',
             ];
         }
 }

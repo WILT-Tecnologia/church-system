@@ -51,7 +51,7 @@ export class UserFormComponent implements OnInit {
     private fb: FormBuilder,
     private validationService: ValidationService,
     private usersService: UsersService,
-    private snackService: ToastService,
+    private toast: ToastService,
     private loadingService: LoadingService,
     private dialogRef: MatDialogRef<UserFormComponent>,
     @Optional() @Inject(MAT_DIALOG_DATA) public data: { user: User },
@@ -137,13 +137,13 @@ export class UserFormComponent implements OnInit {
 
   onSuccess(message: string) {
     this.loadingService.hide();
-    this.snackService.openSuccess(message);
+    this.toast.openSuccess(message);
     this.dialogRef.close(this.userForm.value);
   }
 
   onError(message: string) {
     this.loadingService.hide();
-    this.snackService.openError(message);
+    this.toast.openError(message);
   }
 
   handleBack() {

@@ -57,4 +57,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Person::class);
     }
+
+     public function profile()
+    {
+        return $this->belongsToMany(Profile::class, 'user_profile');
+    }
 }

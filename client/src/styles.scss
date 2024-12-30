@@ -69,8 +69,8 @@ a:hover {
 }
 
 .ps-nav-separator {
-  width: 2px;
-  height: 30px;
+  width: 0.1rem;
+  height: 2rem;
   background: theme.$separator;
   margin: 0 1.4rem;
 }
@@ -286,4 +286,20 @@ mat-error {
 ::-webkit-scrollbar-track {
   background: theme.$hover;
   border-radius: 0.5rem;
+}
+
+
+/* Charts */
+.item-value,
+.item-label,
+.item-percent {
+  margin-bottom: 0.5rem !important;
+}
+
+.item-value {
+  margin-top: 0 !important;
+}
+
+.total-value {
+  margin-bottom: 1rem !important;
 }

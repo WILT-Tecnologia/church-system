@@ -12,9 +12,13 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::all();
-
-        return response()->json(UserResource::collection($users));
+        $users = [];
+        User::with('profile')->chunk(100, function ($chunk) use (&$users) {
+            foreach ($chunk as $user) {
+                $users[] = new UserResource($user);
+            }
+        });
+        return response()->json($users);
 
     }
 
@@ -22,17 +26,25 @@ class UserController extends Controller
         $data = $request->validated();
         $user = User::create($data);
 
+        if ($request->has('profile')) {
+            $user->profiles()->sync($request->profile);
+        }
+
         return new UserResource($user);
     }
 
     public function show(User $user) {
-        return new UserResource($user);
+        return new UserResource($user->load('profile'));
     }
 
     public function update(UserRequest $request, User $user) {
         $data = $request->validated();
 
         $user->update($data);
+
+        if ($request->has('profile')) {
+            $user->profiles()->sync($request->profile);
+        }
 
         return new UserResource($user);
     }

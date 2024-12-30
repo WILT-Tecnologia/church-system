@@ -20,6 +20,7 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'status' => $this->status,
             'change_password' => $this->change_password,
+            'profile' => ProfileResource::collection($this->whenLoaded('profile')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];

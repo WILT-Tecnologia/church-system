@@ -41,6 +41,8 @@ class DatabaseSeeder extends Seeder
 
         if (env('APP_ENV') == 'local') {
             $this->call([
+                UserSeeder::class,
+                ProfileAndPermissionsSeeder::class,
                 PersonSeeder::class,
                 ChurchSeeder::class,
                 MemberOriginSeeder::class,
