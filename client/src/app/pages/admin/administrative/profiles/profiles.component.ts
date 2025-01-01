@@ -120,7 +120,7 @@ export class ProfilesComponent implements OnInit {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       ProfileComponent,
-      'Editando um perfil',
+      `Você está editando o perfil: ${profile.name}`,
       true,
       true,
       { profile },

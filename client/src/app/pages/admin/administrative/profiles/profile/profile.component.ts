@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   Inject,
   OnInit,
@@ -9,6 +10,7 @@ import {
 import {
   FormBuilder,
   FormGroup,
+  FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -20,7 +22,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ToastService } from 'app/components/toast/toast.service';
-import { Permissions, Profile } from 'app/model/Profile';
+import { Permissions, Profile, ProfilePermissions } from 'app/model/Profile';
 
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -47,6 +49,7 @@ import { ProfilesService } from '../profiles.service';
     MatTableModule,
     ReactiveFormsModule,
     CommonModule,
+    FormsModule,
     ActionsComponent,
     ColumnComponent,
   ],
@@ -56,16 +59,22 @@ export class ProfileComponent implements OnInit {
   profileForm: FormGroup;
   profile: Profile[] = [];
   permissions: Permissions[] = [];
-  isEditMode: boolean = false;
-  rendering: boolean = true;
+  profilePermissions: ProfilePermissions[] = [];
   displayedColumns: string[] = [
     'module',
     'can_read',
     'can_write',
     'can_delete',
   ];
+  availablePermissions = [
+    { id: 'perm1', name: 'Ler' },
+    { id: 'perm2', name: 'Editar' },
+    { id: 'perm3', name: 'Deletar' },
+  ];
+  isEditMode: boolean = false;
 
   constructor(
+    private cdr: ChangeDetectorRef,
     private fb: FormBuilder,
     private validationService: ValidationService,
     private loading: LoadingService,
@@ -78,13 +87,10 @@ export class ProfileComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log();
-    if (this.data?.profile?.permissions) {
-      this.loadPermissions();
-    }
-
+    this.loadPermissions();
     if (this.data?.profile) {
       this.isEditMode = true;
+      this.patchProfile(this.data.profile);
     }
   }
 
@@ -100,47 +106,59 @@ export class ProfileComponent implements OnInit {
         [Validators.maxLength(255)],
       ],
       status: [this.data?.profile?.status ?? true],
-      permissions: [this.data?.profile?.permissions],
+      permissions: this.fb.array([]),
+    });
+  }
+
+  patchProfile(profile: Profile) {
+    this.profileForm.patchValue({
+      id: profile.id,
+      name: profile.name,
+      description: profile.description,
+      status: profile.status,
     });
   }
 
   loadPermissions() {
-    this.loading.show();
     this.profilesService.getPermissions().subscribe({
-      next: (data: Permissions[]) => {
+      next: (data: ProfilePermissions[]) => {
         this.permissions = data;
-
-        if (this.isEditMode && this.data?.profile?.permissions) {
-          this.permissions.forEach((permission) => {
-            const profilePermission = this.data.profile.permissions.find(
-              (p) => p.id === permission.id,
-            );
-            if (profilePermission) {
-              permission.can_read = profilePermission.can_read;
-              permission.can_write = profilePermission.can_write;
-              permission.can_delete = profilePermission.can_delete;
-            }
-          });
-        }
-
-        this.rendering = false;
-        console.log('Permissões carregadas:', this.permissions);
+        this.cdr.detectChanges();
       },
-      error: () => this.loading.hide(),
-      complete: () => this.loading.hide(),
+      error: (err) => {
+        console.error('Erro ao carregar permissões:', err);
+      },
+      complete: () => {
+        this.cdr.detectChanges();
+      },
     });
   }
 
-  updatePermission = (
+  updatePermission(
+    profileId: string,
     permissionId: string,
-    action: 'can_read' | 'can_write' | 'can_delete',
+    field: string,
     value: boolean,
-  ) => {
-    const permission = this.permissions.find((p) => p.id === permissionId);
-    if (permission) {
-      permission[action] = value;
-    }
-  };
+  ): void {
+    const updates = { [field]: value };
+
+    this.profilesService
+      .updatePermission(profileId, permissionId, updates)
+      .subscribe({
+        next: () => {
+          // Atualizar localmente os dados do pop-up sem fechá-lo
+          const permission = this.permissions.find(
+            (p) => p.id === permissionId,
+          );
+          if (permission) {
+            (permission as any)[field] = value;
+          }
+        },
+        error: (err) => {
+          console.error('Erro ao atualizar permissão:', err);
+        },
+      });
+  }
 
   getErrorMessage(controlName: string) {
     const control = this.profileForm.get(controlName);
@@ -164,7 +182,6 @@ export class ProfileComponent implements OnInit {
 
   handleSubmit = () => {
     const profile = this.profileForm.value;
-    profile.permissions = this.permissions;
 
     if (!profile) {
       return;

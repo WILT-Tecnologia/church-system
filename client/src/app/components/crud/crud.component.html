@@ -166,6 +166,21 @@
                     }}</span>
                   </button>
                 </ng-container>
+
+                <!-- Botão permissões -->
+                <ng-container *ngSwitchCase="'security'">
+                  <button
+                    type="button"
+                    mat-menu-item
+                    matTooltip="{{ action.tooltip }}"
+                    (click)="action.action(fields)"
+                  >
+                    <mat-icon *ngIf="action.icon">{{ action.icon }}</mat-icon>
+                    <span *ngIf="action.label" class="label-button-menu">{{
+                      action.label
+                    }}</span>
+                  </button>
+                </ng-container>
               </ng-container>
             </ng-container>
           </mat-menu>

@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../../environments/environment';
-import { Permissions, Profile } from '../../../../model/Profile';
+
+import { Profile } from 'app/model/Profile';
+import { environment } from 'environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -10,14 +11,10 @@ import { Permissions, Profile } from '../../../../model/Profile';
 export class ProfilesService {
   constructor(private http: HttpClient) {}
   private api = `${environment.apiUrl}/admin/profiles`;
-  private apiPermissions = `${environment.apiUrl}/admin/permissions`;
+  private apiUrlPermission = `${environment.apiUrl}/admin/permissions`;
 
   getProfiles(): Observable<Profile[]> {
     return this.http.get<Profile[]>(this.api);
-  }
-
-  getPermissions(): Observable<Permissions[]> {
-    return this.http.get<Permissions[]>(this.apiPermissions);
   }
 
   getProfileById(id: string): Observable<Profile> {
@@ -42,5 +39,20 @@ export class ProfilesService {
 
   deleteProfile(profileId: string): Observable<Profile> {
     return this.http.delete<Profile>(`${this.api}/${profileId}`);
+  }
+
+  getPermissions(): Observable<Permissions[]> {
+    return this.http.get<Permissions[]>(this.apiUrlPermission);
+  }
+
+  updatePermission(
+    profileId: string,
+    permissionId: string,
+    data: any,
+  ): Observable<any> {
+    return this.http.patch(
+      `${this.apiUrlPermission}/profiles/${profileId}/permissions/${permissionId}`,
+      data,
+    );
   }
 }

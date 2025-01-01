@@ -9,9 +9,9 @@ Route::post('teste', [LoginController::class, 'teste']);
 Route::prefix('admin')->group(function () {
     Route::apiResource('users', \App\Http\Controllers\Api\UserController::class);
     Route::apiResource('profiles', \App\Http\Controllers\Api\ProfileController::class);
-    Route::apiResource('permissions', \App\Http\Controllers\Api\PermissionsController::class);
-    Route::get('profile/{profile}/permissions', [\App\Http\Controllers\Api\PermissionsController::class, 'showPermissions']);
-    Route::post('profile/{profile}/permissions', [\App\Http\Controllers\Api\PermissionsController::class, 'assignPermissions']);
+    Route::apiResource('modules', \App\Http\Controllers\Api\ModuleController::class);
+    Route::get('/profiles/{profile}/permissions', [\App\Http\Controllers\Api\ProfilePermissionController::class, 'index']);
+    Route::patch('/profiles/{profile}/permissions/{permission}', [\App\Http\Controllers\Api\ProfilePermissionController::class, 'update']);
     Route::post('/logout/{user}', [loginController::class, 'logout']);
     Route::apiResource('persons', \App\Http\Controllers\Api\PersonController::class);
     Route::apiResource('churches', \App\Http\Controllers\ChurchController::class);

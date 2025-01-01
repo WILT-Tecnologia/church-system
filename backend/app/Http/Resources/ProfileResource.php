@@ -19,9 +19,7 @@ class ProfileResource extends JsonResource
             'name' => $this->name,
             'description' => $this->description,
             'status' => $this->status,
-            'permissions' => PermissionResource::collection($this->whenLoaded('permissions')),
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at
+            'module' => ModuleResource::collection($this->whenLoaded('module')),
         ];
     }
 }

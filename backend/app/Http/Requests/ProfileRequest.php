@@ -26,11 +26,6 @@ class ProfileRequest extends FormRequest
             'name' => $isCreating ? 'required|string|max:255' : 'nullable|string|max:255',
             'description' => $isCreating ? 'required|string|max:255' : 'nullable|string|max:255',
             'status' => 'nullable|boolean',
-            'permissions' => 'array',
-            'permissions.*.id' => 'exists:permissions,id',
-            'permissions.*.can_read' => 'boolean',
-            'permissions.*.can_write' => 'boolean',
-            'permissions.*.can_delete' => 'boolean',
         ];
     }
 

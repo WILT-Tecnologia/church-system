@@ -18,7 +18,6 @@ class Profile extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'id',
         'name',
         'description',
         'status',
@@ -29,14 +28,10 @@ class Profile extends Model
         return $this->belongsToMany(User::class, 'user_profile');
     }
 
-    public function permissions()
+    public function module()
     {
-        return $this->belongsToMany(
-        Permission::class,          // Modelo relacionado
-        'profile_permission',       // Tabela pivot
-        'profile_id',               // Chave estrangeira local
-        'permission_id'             // Chave estrangeira do modelo relacionado
-    )->withTimestamps();
-        //return $this->belongsToMany(Permissions::class);
+        return $this->belongsToMany(Module::class,
+            'profile_modules'
+        )->withPivot(['can_read', 'can_write', 'can_delete'])->withTimestamps();
     }
 }
