@@ -8,7 +8,7 @@ Route::prefix('auth')->group(function () {
     Route::post('/logout/{user}', [loginController::class, 'logout']);
 });
 
-Route::prefix('admin')->group(function () {
+Route::prefix('admin')->middleware(['cors', 'auth:sanctum'])->group(function () {
     Route::apiResource('users', \App\Http\Controllers\Api\UserController::class);
     Route::apiResource('profiles', \App\Http\Controllers\Api\ProfileController::class);
     Route::apiResource('modules', \App\Http\Controllers\Api\ModuleController::class);
@@ -19,7 +19,7 @@ Route::prefix('admin')->group(function () {
     Route::apiResource('member-origins', \App\Http\Controllers\Api\MemberOriginController::class);
 });
 
-Route::prefix('church')->group(function () {
+Route::prefix('church')->middleware(['cors', 'auth:sanctum'])->group(function () {
     Route::apiResource('members', \App\Http\Controllers\Api\MemberController::class);
     Route::apiResource('families', \App\Http\Controllers\Api\FamilyController::class);
     Route::apiResource('ordinations', \App\Http\Controllers\Api\OrdinationController::class);
@@ -29,7 +29,7 @@ Route::prefix('church')->group(function () {
     Route::apiResource('evento', \App\Http\Controllers\Api\EventsController::class);
 });
 
-Route::prefix('aux')->group(function () {
+Route::prefix('aux')->middleware(['cors', 'auth:sanctum'])->group(function () {
     Route::get('civil-status', [\App\Http\Controllers\Api\Auxiliares\CivilStatusController::class, 'index']);
     Route::get('color-race', [\App\Http\Controllers\Api\Auxiliares\ColorRaceController::class, 'index']);
     Route::get('formations', [\App\Http\Controllers\Api\Auxiliares\FormationController::class, 'index']);

@@ -39,18 +39,15 @@ class Church extends Model
         'color',
     ];
 
-    public function responsible(): BelongsTo
-    {
+    public function responsible(): BelongsTo {
         return $this->belongsTo(Person::class, 'responsible_id');
     }
 
-    public function members(): HasMany
-    {
+    public function members(): HasMany {
         return $this->hasMany(Member::class);
     }
 
-    public function evento(): HasMany
-    {
+    public function evento(): HasMany {
         return $this->hasMany(Evento::class);
     }
 }
