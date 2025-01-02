@@ -41,63 +41,38 @@
     </mat-form-field>
   </app-column>
 
-  <table mat-table [dataSource]="permissions">
-    <ng-container matColumnDef="module">
+  <h3>Permissões</h3>
+
+  <table mat-table [dataSource]="module">
+    <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef>Módulo</th>
-      <td mat-cell *matCellDef="let permission">{{ permission.module }}</td>
+      <td mat-cell *matCellDef="let module">{{ module.name }}</td>
     </ng-container>
 
     <ng-container matColumnDef="can_read">
       <th mat-header-cell *matHeaderCellDef>Leitura</th>
-      <td mat-cell *matCellDef="let permission">
+      <td mat-cell *matCellDef="let module">
         <mat-checkbox
-          [(ngModel)]="permission.can_read"
-          (change)="
-            updatePermission(
-              permission.profile_id,
-              permission.id,
-              'can_read',
-              $event.checked
-            )
-          "
-        >
-        </mat-checkbox>
+          [(ngModel)]="module.profilesModule[0].can_read"
+        ></mat-checkbox>
       </td>
     </ng-container>
 
     <ng-container matColumnDef="can_write">
       <th mat-header-cell *matHeaderCellDef>Escrita</th>
-      <td mat-cell *matCellDef="let permission">
+      <td mat-cell *matCellDef="let module">
         <mat-checkbox
-          [(ngModel)]="permission.can_write"
-          (change)="
-            updatePermission(
-              permission.profile_id,
-              permission.id,
-              'can_write',
-              $event.checked
-            )
-          "
-        >
-        </mat-checkbox>
+          [(ngModel)]="module.profilesModule[0].can_write"
+        ></mat-checkbox>
       </td>
     </ng-container>
 
     <ng-container matColumnDef="can_delete">
-      <th mat-header-cell *matHeaderCellDef>Deleção</th>
-      <td mat-cell *matCellDef="let permission">
+      <th mat-header-cell *matHeaderCellDef>Exclusão</th>
+      <td mat-cell *matCellDef="let module">
         <mat-checkbox
-          [(ngModel)]="permission.can_delete"
-          (change)="
-            updatePermission(
-              permission.profile_id,
-              permission.id,
-              'can_delete',
-              $event.checked
-            )
-          "
-        >
-        </mat-checkbox>
+          [(ngModel)]="module.profilesModule[0].can_delete"
+        ></mat-checkbox>
       </td>
     </ng-container>
 

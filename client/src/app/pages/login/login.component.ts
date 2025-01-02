@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import {
-  FormControl,
+  FormBuilder,
   FormGroup,
   ReactiveFormsModule,
   Validators,
@@ -10,61 +10,109 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { LoginService } from './login.service';
-
-type Credentials = {
-  login: string;
-  password: string;
-};
+import { Router } from '@angular/router';
+import { ActionsComponent } from 'app/components/actions/actions.component';
+import { ColumnComponent } from 'app/components/column/column.component';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { ToastService } from 'app/components/toast/toast.service';
+import { AuthService } from 'app/services/auth/auth.service';
+import { MESSAGES } from 'app/utils/messages';
+import { ValidationService } from 'app/utils/validation/validation.service';
 
 @Component({
   selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.scss',
   standalone: true,
   imports: [
+    MatCardModule,
+    MatInputModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatIconModule,
     CommonModule,
     ReactiveFormsModule,
     HttpClientModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatCardModule,
-    MatSnackBarModule,
+    ColumnComponent,
+    ActionsComponent,
   ],
-  //providers: [AuthService],
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit {
-  constructor(private loginService: LoginService) {}
+  loginForm: FormGroup;
+  hide: boolean = true;
+  change_password: boolean = false;
 
-  credentials: Credentials = {
-    login: 'thiagopersch@gmail.com',
-    password: '12345678',
-  };
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private loading: LoadingService,
+    private toast: ToastService,
+    private authService: AuthService,
+    private validationService: ValidationService,
+  ) {
+    this.loginForm = this.createForm();
+  }
 
-  form = new FormGroup({
-    login: new FormControl(this.credentials.login, [
-      Validators.required,
-      Validators.email,
-    ]),
-    password: new FormControl(this.credentials.password, [
-      Validators.required,
-      Validators.minLength(8),
-      Validators.maxLength(20),
-    ]),
-  });
+  ngOnInit() {}
 
-  ngOnInit(): void {}
+  createForm() {
+    return (this.loginForm = this.fb.group({
+      email: [
+        'administrador@gmail.com',
+        [Validators.required, Validators.email],
+      ],
+      password: [
+        '@mpresaPC10',
+        [
+          Validators.required,
+          Validators.minLength(8),
+          Validators.maxLength(30),
+        ],
+      ],
+    }));
+  }
 
   onSubmit() {
-    if (this.form.valid) {
-      const credentials = {
-        login: this.form.get('login')?.value as string,
-        password: this.form.get('password')?.value as string,
-      };
-      return this.loginService.login(credentials);
+    this.showLoading();
+    if (this.loginForm.valid) {
+      const { email, password } = this.loginForm.value;
+      this.authService.login(email, password).subscribe({
+        next: () => this.onSuccess(MESSAGES.LOGIN_SUCCESS),
+        error: () => this.onError(MESSAGES.LOGIN_ERROR),
+        complete: () => this.hideLoading(),
+      });
     }
+  }
+
+  getErrorMessage(controlName: string) {
+    const control = this.loginForm.get(controlName);
+    return control?.errors
+      ? this.validationService.getErrorMessage(control)
+      : null;
+  }
+
+  onSuccess(message: string) {
+    this.hideLoading();
+    this.toast.openSuccess(message);
+    this.router.navigateByUrl('/church');
+  }
+
+  onError(message: string) {
+    this.hideLoading();
+    this.toast.openError(message);
+  }
+
+  showLoading() {
+    this.loading.show();
+  }
+
+  hideLoading() {
+    this.loading.hide();
+  }
+
+  toggleHide(): void {
+    this.hide = !this.hide;
   }
 }

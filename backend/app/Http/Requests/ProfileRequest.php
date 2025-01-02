@@ -36,7 +36,6 @@ class ProfileRequest extends FormRequest
             '*.string' => 'O campo :attribute deve conter somente letras.',
             '*.max' => 'O campo :attribute deve ter no maximo :max caracteres.',
             '*.boolean' => 'O campo :attribute deve ser verdadeiro ou falso.',
-            '*.exists' => 'O campo :attribute não existe.',
         ];
     }
 }

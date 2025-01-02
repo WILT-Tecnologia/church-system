@@ -30,7 +30,6 @@ class ModuleRequest extends FormRequest
     public function messages(): array {
         return [
             '*.required' => 'O campo :attribute é obrigatório.',
-            '*.boolean' => 'O campo :attribute deve ter o seu valor sendo verdadeiro ou falso.',
         ];
     }
 }

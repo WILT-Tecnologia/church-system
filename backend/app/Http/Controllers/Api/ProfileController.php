@@ -29,6 +29,7 @@ class ProfileController extends Controller
 
     public function show(Profile $profile)
     {
+        $profile = Profile::findOrFail($profile->id);
         return new ProfileResource($profile);
     }
 
@@ -45,6 +46,6 @@ class ProfileController extends Controller
     {
         $profile->delete();
 
-        return response()->json([], 204);
+        return response()->json($profile, 201);
     }
 }

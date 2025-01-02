@@ -10,13 +10,13 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-    public function teste(Request $request)
+    public function login(Request $request)
     {
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
 
             $user = Auth::user();
 
-            $token = $request->user()->createToken('api-token')->plainTextToken;
+            $token = $request->user()->createToken('token')->plainTextToken;
 
             return response()->json([
                 'status' => true,

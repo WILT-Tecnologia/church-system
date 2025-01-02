@@ -21,8 +21,8 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('profile_id')->references('id')->on('profile')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreign('module_id')->references('id')->on('module')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('profile_id')->references('id')->on('profile')->cascadeOnDelete();
+            $table->foreign('module_id')->references('id')->on('module')->cascadeOnDelete();
         });
     }
 

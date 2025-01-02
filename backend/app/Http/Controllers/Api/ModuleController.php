@@ -13,16 +13,17 @@ class ModuleController extends Controller
 {
     public function index()
     {
-        return response()->json(Module::all());
+        $modules = Module::all();
+        return response()->json(ModuleResource::collection($modules));
     }
 
     public function store(ModuleRequest $request)
     {
         $data = $request->validated();
 
-        $permission = Module::create($data);
+        $module = Module::create($data);
 
-        return response()->json($permission);
+        return response()->json($module);
     }
 
     public function show(Module $module)
@@ -30,26 +31,19 @@ class ModuleController extends Controller
         return new ModuleResource($module);
     }
 
-    public function update(ModuleRequest $request, Module $permission)
+    public function update(ModuleRequest $request, Module $module)
     {
         $data = $request->validated();
 
-        $permission->update($data);
+        $module->update($data);
 
-        return new ModuleResource($permission);
+        return new ModuleResource($module);
     }
 
-    public function destroy(Module $permissions)
+    public function destroy(Module $module)
     {
-        $permissions->delete();
+        $module->delete();
 
-        return response()->json([], 204);
-    }
-
-    public function showPermissions(Profile $profile)
-    {
-        $permissions = $profile->permissions;
-
-        return response()->json($permissions);
+        return response()->json($module, 201);
     }
 }

@@ -1,30 +1,70 @@
-<div class="container mx-auto flex items-center justify-center min-h-screen">
-  <mat-card class="card p-6 max-w-md w-full">
-    <mat-card-header>
-      <mat-card-title>Acessar sua conta</mat-card-title>
-    </mat-card-header>
-    <mat-card-content class="login-container">
-      <form class="login-form" [formGroup]="form" (ngSubmit)="onSubmit()">
-        <mat-form-field appearance="fill" class="w-full">
+<div class="container">
+  <mat-card class="card" appearance="outlined">
+    <span class="title font-bold text-center text-4xl md:text-2xl mb-4 md:mb-2"
+      >Acessar o sistema</span
+    >
+    <form
+      [formGroup]="loginForm"
+      (ngSubmit)="onSubmit()"
+      class="form-field-group"
+    >
+      <app-column>
+        <mat-form-field appearance="fill">
           <mat-label>E-mail</mat-label>
-          <input type="email" matInput formControlName="login" placeholder="Ex. email@email.com" required />
-          <mat-error *ngIf="form.get('login')?.hasError('required')">E-mail é obrigatório</mat-error>
-          <mat-error *ngIf="form.get('login')?.hasError('email')">E-mail inválido</mat-error>
+          <input
+            matInput
+            formControlName="email"
+            placeholder="Ex. jhondoe@gmail.com"
+            required
+          />
+          <mat-error
+            *ngIf="
+              loginForm.get('email')?.invalid && loginForm.get('email')?.touched
+            "
+            >{{ getErrorMessage('email') }}</mat-error
+          >
         </mat-form-field>
-        <mat-form-field appearance="fill" class="w-full">
+      </app-column>
+
+      <app-column>
+        <mat-form-field appearance="fill">
           <mat-label>Senha</mat-label>
-          <input type="password" formControlName="password" matInput required />
-          <mat-error *ngIf="form.get('password')?.hasError('required')">Senha é obrigatória</mat-error>
-          <mat-error *ngIf="form.get('password')?.hasError('minlength')">Senha deve ter no mínimo 8
-            caracteres</mat-error>
-          <mat-error *ngIf="form.get('password')?.hasError('maxlength')">Senha deve ter no máximo 20
-            caracteres</mat-error>
+          <input
+            type="password"
+            [type]="hide ? 'password' : 'text'"
+            matInput
+            formControlName="password"
+            maxlength="30"
+            minlength="8"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="toggleHide()"
+          >
+            <mat-icon>{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-error
+            *ngIf="
+              loginForm.get('password')?.invalid &&
+              loginForm.get('password')?.touched
+            "
+            >{{ getErrorMessage('password') }}</mat-error
+          >
         </mat-form-field>
-        <div class="actions">
-          <button mat-raised-button color="primary" type="submit" class="button-submit"
-            [disabled]="form.invalid">Entrar</button>
-        </div>
-      </form>
-    </mat-card-content>
+      </app-column>
+
+      <app-actions>
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="loginForm.invalid"
+        >
+          Entrar
+        </button>
+      </app-actions>
+    </form>
   </mat-card>
 </div>

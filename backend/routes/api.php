@@ -3,16 +3,15 @@
 use App\Http\Controllers\Api\LoginController;
 use Illuminate\Support\Facades\Route;
 
-
-Route::post('teste', [LoginController::class, 'teste']);
+Route::prefix('auth')->group(function () {
+    Route::post('login', [LoginController::class, 'login']);
+    Route::post('/logout/{user}', [loginController::class, 'logout']);
+});
 
 Route::prefix('admin')->group(function () {
     Route::apiResource('users', \App\Http\Controllers\Api\UserController::class);
     Route::apiResource('profiles', \App\Http\Controllers\Api\ProfileController::class);
     Route::apiResource('modules', \App\Http\Controllers\Api\ModuleController::class);
-    Route::get('/profiles/{profile}/permissions', [\App\Http\Controllers\Api\ProfilePermissionController::class, 'index']);
-    Route::patch('/profiles/{profile}/permissions/{permission}', [\App\Http\Controllers\Api\ProfilePermissionController::class, 'update']);
-    Route::post('/logout/{user}', [loginController::class, 'logout']);
     Route::apiResource('persons', \App\Http\Controllers\Api\PersonController::class);
     Route::apiResource('churches', \App\Http\Controllers\ChurchController::class);
     Route::apiResource('occupations', \App\Http\Controllers\Api\OccupationController::class);
@@ -22,12 +21,6 @@ Route::prefix('admin')->group(function () {
 
 Route::prefix('church')->group(function () {
     Route::apiResource('members', \App\Http\Controllers\Api\MemberController::class);
-
-    // Rota para buscar famílias de um membro específico
-    Route::get('member', [\App\Http\Controllers\Api\MemberController::class, 'findFamilyPerMember']);
-    // Rota para buscar ordenações de um membro específico
-    Route::get('ordination', [\App\Http\Controllers\Api\MemberController::class, 'findOrdinationPerMember']);
-
     Route::apiResource('families', \App\Http\Controllers\Api\FamilyController::class);
     Route::apiResource('ordinations', \App\Http\Controllers\Api\OrdinationController::class);
     Route::apiResource('status-members', \App\Http\Controllers\Api\StatusMemberController::class);

@@ -24,7 +24,7 @@ class Module extends Model
     public function profile()
     {
         return $this->belongsToMany(Profile::class,
-        'profile_modules'
+        'profile_modules',
         )->withPivot(['can_read', 'can_write', 'can_delete'])->withTimestamps();
     }
 }
