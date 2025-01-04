@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Administrador',
             'email' => 'administrador@gmail.com',
-            'password' => Hash::make('@mpresaPC10'), // Criptografa a senha
+            'password' => Hash::make('@mpresaPC10'),
         ]);
 
         User::factory(10)->create();

@@ -11,8 +11,7 @@ class OccupationSeeder extends Seeder
     /**
      * Run the database seeds.
      */
-    public function run(): void
-    {
+    public function run(): void {
         Occupation::factory(10)->create();
     }
 }

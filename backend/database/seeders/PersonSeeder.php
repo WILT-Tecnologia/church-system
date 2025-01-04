@@ -11,8 +11,7 @@ class PersonSeeder extends Seeder
     /**
      * Run the database seeds.
      */
-    public function run(): void
-    {
+    public function run(): void {
         Person::factory(100)->create();
     }
 }

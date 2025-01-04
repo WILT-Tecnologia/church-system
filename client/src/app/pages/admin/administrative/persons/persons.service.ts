@@ -20,7 +20,7 @@ export class PersonsService {
         return person.map((person) => {
           person.cpf = this.formats.cpfFormat(person.cpf);
           person.birth_date = this.formats.dateFormat(person.birth_date);
-          person.sex = this.formats.SexTransform(person.sex);
+          person.sex = this.formats.SexTransform(person.sex, 'toView');
           person.phone_one = this.formats.phoneFormat(person.phone_one);
           return person;
         });
@@ -40,10 +40,15 @@ export class PersonsService {
     personId: string,
     personData: Partial<Person>,
   ): Observable<Person> {
-    return this.http.put<Person>(`${this.api}/${personId}`, personData);
+    const sanitizedData = {
+      ...personData,
+      sex: this.formats.SexTransform(personData.sex || '', 'toModel'),
+    };
+
+    return this.http.put<Person>(`${this.api}/${personId}`, sanitizedData);
   }
 
-  deletePerson(personId: string): Observable<Person> {
-    return this.http.delete<Person>(`${this.api}/${personId}`);
+  deletePerson(person: Person): Observable<Person> {
+    return this.http.delete<Person>(`${this.api}/${person.id}`);
   }
 }

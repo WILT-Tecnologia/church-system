@@ -4,10 +4,12 @@ import {
   Inject,
   OnDestroy,
   OnInit,
+  Optional,
   ViewChild,
 } from '@angular/core';
 import {
   FormBuilder,
+  FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
@@ -25,27 +27,42 @@ import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 
 import { CommonModule } from '@angular/common';
 import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
+import {
   MAT_DATE_LOCALE,
   provideNativeDateAdapter,
 } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Address } from 'app/model/Address';
 import { Person } from 'app/model/Person';
+import { User } from 'app/model/User';
+import { SanitizeValuesService } from 'app/services/sanitize/sanitize-values.service';
 import { CepService } from 'app/services/search-cep/search-cep.service';
 import { MESSAGES } from 'app/utils/messages';
+import { FormatsPipe } from 'app/utils/pipes/formats.pipe';
 import { ValidationService } from 'app/utils/validation/validation.service';
 import { cpfValidator } from 'app/utils/validators/cpf-validator';
 import { phoneValidator } from 'app/utils/validators/phone-validator';
-import dayjs from 'dayjs';
-import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  map,
+  Observable,
+  startWith,
+  Subject,
+  takeUntil,
+} from 'rxjs';
 import { ActionsComponent } from '../../../../../components/actions/actions.component';
+import { UsersService } from '../../users/users.service';
 import { PersonsService } from '../persons.service';
-
 type Sex = {
   value: string;
   viewValue: string;
@@ -61,12 +78,15 @@ type Sex = {
     provideNativeDateAdapter(),
     { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
     provideNgxMask(),
+    FormatsPipe,
   ],
   imports: [
     MatCardModule,
     MatButtonModule,
     MatInputModule,
     MatFormFieldModule,
+    MatAutocompleteModule,
+    MatTabsModule,
     MatDatepickerModule,
     MatSelectModule,
     MatDividerModule,
@@ -79,10 +99,12 @@ type Sex = {
   ],
 })
 export class PersonComponent implements OnInit, OnDestroy {
-  @ViewChild(MatDatepicker) picker!: MatDatepicker<Date>;
   personForm: FormGroup;
-  personId: string | null = null;
+  user: User[] = [];
+  person: Person[] = [];
   isEditMode: boolean = false;
+  searchUserControl = new FormControl('');
+  filterUsers: Observable<User[]> = new Observable<User[]>();
   sexs: Sex[] = [
     { value: 'M', viewValue: 'Masculino' },
     { value: 'F', viewValue: 'Feminino' },
@@ -90,30 +112,187 @@ export class PersonComponent implements OnInit, OnDestroy {
   private readonly _currentDate = new Date();
   readonly minDate = new Date(1900, 0, 1);
   readonly maxDate = new Date(this._currentDate);
-
   private destroy$ = new Subject<void>();
+  @ViewChild(MatDatepicker) picker!: MatDatepicker<Date>;
+  @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;
 
   constructor(
     private fb: FormBuilder,
     private personService: PersonsService,
+    private usersService: UsersService,
+    private sanitize: SanitizeValuesService,
     private toast: ToastService,
     private cepService: CepService,
     private loadingService: LoadingService,
     private validationService: ValidationService,
+    private formats: FormatsPipe,
     private dialogRef: MatDialogRef<PersonComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { person: Person },
+    @Optional() @Inject(MAT_DIALOG_DATA) public data: { person: Person },
   ) {
     this.personForm = this.createForm();
   }
 
   ngOnInit() {
-    if (this.data && this.data?.person) {
-      this.isEditMode = true;
-      this.personId = this.data?.person?.id;
-      this.personForm.patchValue(this.data.person);
-      this.handleEditMode();
-    }
+    this.checkEditMode();
+    this.loadUsers();
+    this.filterUsers = this.searchUserControl.valueChanges.pipe(
+      startWith(''),
+      map((value: any) => {
+        if (typeof value === 'string') {
+          return value;
+        } else {
+          return value ? value.name : '';
+        }
+      }),
+      map((name) => (name.length >= 1 ? this._filterUsers(name) : this.user)),
+    );
+    this.initialSearchCep();
+  }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  createForm = () => {
+    return this.fb.group({
+      id: [this.data?.person?.id ?? ''],
+      user_id: [
+        this.data?.person?.user?.id ?? '',
+        [Validators.required, Validators.maxLength(255)],
+      ],
+      image: [this.data?.person?.image ?? ''],
+      name: [
+        this.data?.person?.name ?? '',
+        [Validators.required, Validators.maxLength(255)],
+      ],
+      cpf: [
+        this.data?.person?.cpf ?? '',
+        [Validators.required, cpfValidator()],
+      ],
+      birth_date: [this.data?.person?.birth_date ?? '', [Validators.required]],
+      email: [
+        this.data?.person?.email ?? '',
+        [Validators.required, Validators.email],
+      ],
+      phone_one: [
+        this.data?.person?.phone_one ?? '',
+        [Validators.required, phoneValidator()],
+      ],
+      phone_two: [this.data?.person?.phone_two ?? '', [phoneValidator()]],
+      sex: [this.data?.person?.sex ?? '', [Validators.required]],
+      cep: [this.data?.person?.cep ?? '', [Validators.required]],
+      street: [
+        this.data?.person?.street ?? '',
+        [Validators.required, Validators.maxLength(255)],
+      ],
+      number: [
+        this.data?.person?.number ?? '',
+        [Validators.required, Validators.maxLength(10)],
+      ],
+      complement: [
+        this.data?.person?.complement ?? '',
+        [Validators.maxLength(255)],
+      ],
+      district: [
+        this.data?.person?.district ?? '',
+        [Validators.required, Validators.maxLength(255)],
+      ],
+      city: [
+        this.data?.person?.city ?? '',
+        [Validators.required, Validators.maxLength(255)],
+      ],
+      state: [
+        this.data?.person?.state ?? '',
+        [Validators.required, Validators.maxLength(255)],
+      ],
+      country: [
+        this.data?.person?.country ?? '',
+        [Validators.required, Validators.maxLength(255)],
+      ],
+    });
+  };
+
+  checkEditMode() {
+    if (this.data?.person) {
+      this.isEditMode = true;
+
+      if (this.data?.person?.user) {
+        this.searchUserControl.setValue(this.data.person.user.name);
+        this.personForm.get('user_id')?.setValue(this.data.person.user.id);
+      }
+
+      const birthDate = this.data.person.birth_date
+        ? new Date(this.data.person.birth_date)
+        : null;
+
+      const sexValue = this.formats.SexTransform(
+        this.data.person.sex,
+        'toModel',
+      );
+
+      this.personForm.patchValue({
+        birth_date: birthDate,
+        sex: sexValue,
+      });
+    }
+  }
+
+  getErrorMessage(controlName: string): string | null {
+    const control = this.personForm.get(controlName);
+    return control?.errors
+      ? this.validationService.getErrorMessage(control)
+      : null;
+  }
+
+  clearDate() {
+    this.personForm.get('birth_date')?.setValue(null);
+  }
+
+  openCalendar(): void {
+    if (this.picker) {
+      this.picker.open();
+    }
+  }
+
+  showAllUsers() {
+    this.filterUsers = this.searchUserControl.valueChanges.pipe(
+      startWith(this.searchUserControl.value),
+      map((value: any) => {
+        if (typeof value === 'string') {
+          return value;
+        } else {
+          return value ? value.name : '';
+        }
+      }),
+      map((name) => (name.length >= 1 ? this._filterUsers(name) : this.user)),
+    );
+  }
+
+  loadUsers = () => {
+    this.usersService.getUsers().subscribe({
+      next: (data) => {
+        this.user = data;
+      },
+      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
+      complete: () => this.loadingService.hide(),
+    });
+  };
+
+  private _filterUsers(name: string): User[] {
+    const filterValue = name.toLowerCase();
+    return this.user.filter((user) =>
+      user.name.toLowerCase().includes(filterValue),
+    );
+  }
+
+  onUserSelected(event: MatAutocompleteSelectedEvent) {
+    const user = event.option.value;
+    this.searchUserControl.setValue(user.name);
+    this.personForm.get('user_id')?.setValue(user.id);
+  }
+
+  initialSearchCep() {
     let previousCepValue = this.personForm.get('cep')?.value;
 
     this.personForm
@@ -129,139 +308,6 @@ export class PersonComponent implements OnInit, OnDestroy {
         }
         previousCepValue = cep;
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  createForm = () => {
-    return this.fb.group({
-      id: [this.data?.person?.id || ''],
-      user_id: [this.data?.person?.user_id || ''],
-      image: [this.data?.person?.image || ''],
-      name: [
-        this.data?.person?.name || '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
-      cpf: [
-        this.data?.person?.cpf || '',
-        [Validators.required, cpfValidator()],
-      ],
-      birth_date: [this.data?.person?.birth_date || '', [Validators.required]],
-      email: [
-        this.data?.person?.email || '',
-        [Validators.required, Validators.email],
-      ],
-      phone_one: [
-        this.data?.person?.phone_one || '',
-        [Validators.required, phoneValidator()],
-      ],
-      phone_two: [this.data?.person?.phone_two || '', [phoneValidator()]],
-      sex: [this.data?.person?.sex || '', [Validators.required]],
-      cep: [this.data?.person?.cep || '', [Validators.required]],
-      street: [
-        this.data?.person?.street || '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
-      number: [
-        this.data?.person?.number || '',
-        [Validators.required, Validators.maxLength(10)],
-      ],
-      complement: [
-        this.data?.person?.complement || '',
-        [Validators.maxLength(255)],
-      ],
-      district: [
-        this.data?.person?.district || '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
-      city: [
-        this.data?.person?.city || '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
-      state: [
-        this.data?.person?.state || '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
-      country: [
-        this.data?.person?.country || '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
-      updated_at: [this.data?.person?.updated_at || ''],
-    });
-  };
-
-  getErrorMessage(controlName: string): string | null {
-    const control = this.personForm.get(controlName);
-    return control ? this.validationService.getErrorMessage(control) : null;
-  }
-
-  handleSubmit = () => {
-    if (this.personForm.invalid) {
-      return;
-    }
-
-    const personData = this.personForm.value;
-    this.isEditMode ? this.handleUpdate(personData.id) : this.handleCreate();
-  };
-
-  handleBack = () => {
-    this.dialogRef.close();
-  };
-
-  handleCreate = () => {
-    this.loadingService.show();
-    this.personService.createPerson(this.personForm.value).subscribe({
-      next: () => {
-        this.toast.openSuccess(MESSAGES.CREATE_SUCCESS);
-        this.dialogRef.close(this.personForm.value);
-      },
-      error: () => {
-        this.loadingService.hide();
-        this.toast.openError(MESSAGES.CREATE_ERROR);
-      },
-      complete: () => this.loadingService.hide(),
-    });
-  };
-
-  handleUpdate = (personId: string) => {
-    this.loadingService.show();
-    this.personService
-      .updatePerson(personId!, this.personForm.value)
-      .subscribe({
-        next: () => {
-          this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS);
-          this.dialogRef.close(this.personForm.value);
-        },
-        error: () => {
-          this.loadingService.hide();
-          this.toast.openError(MESSAGES.UPDATE_ERROR);
-        },
-        complete: () => this.loadingService.hide(),
-      });
-  };
-
-  handleEditMode = () => {
-    this.personService
-      .getPersonById(this.personId!)
-      .subscribe((person: Person) => {
-        this.personForm.patchValue({
-          ...person,
-          updated_at: dayjs(person.updated_at).format('DD/MM/YYYY [às] HH:mm'),
-        });
-      });
-  };
-
-  clearDate() {
-    this.personForm.get('birth_date')?.setValue(null);
-  }
-
-  openCalendar(): void {
-    if (this.picker) {
-      this.picker.open();
-    }
   }
 
   searchCep(cep: string): void {
@@ -284,4 +330,64 @@ export class PersonComponent implements OnInit, OnDestroy {
       complete: () => this.loadingService.hide(),
     });
   }
+
+  onSuccess(message: string) {
+    this.loadingService.show();
+    this.toast.openSuccess(message);
+    this.dialogRef.close(this.personForm.value);
+  }
+
+  onError(message: string) {
+    this.loadingService.show();
+    this.toast.openError(message);
+  }
+
+  handleNext = () => {
+    this.tabGroup.selectedIndex = 1;
+  };
+
+  handleBack = () => {
+    this.tabGroup.selectedIndex = 0;
+  };
+
+  handleCancel() {
+    this.dialogRef.close();
+  }
+
+  handleSubmit = () => {
+    const person = this.personForm.value;
+
+    if (!person) {
+      return;
+    }
+
+    const personDataSanitized = {
+      ...this.sanitize.sanitizeInput(person),
+      sex: this.personForm.get('sex')?.value,
+    };
+
+    if (this.isEditMode) {
+      this.handleUpdate(personDataSanitized.id, personDataSanitized);
+    } else {
+      this.handleCreate(personDataSanitized);
+    }
+  };
+
+  handleCreate = (data: any) => {
+    this.loadingService.show();
+    this.personService.createPerson(data).subscribe({
+      next: () => this.onSuccess(MESSAGES.CREATE_SUCCESS),
+      error: () => this.onError(MESSAGES.CREATE_ERROR),
+      complete: () => this.loadingService.hide(),
+    });
+  };
+
+  handleUpdate = (personId: string, data: any) => {
+    this.loadingService.show();
+    this.personService.updatePerson(personId, data).subscribe({
+      next: () => this.onSuccess(MESSAGES.UPDATE_SUCCESS),
+      error: () => this.onError(MESSAGES.UPDATE_ERROR),
+      complete: () => this.loadingService.hide(),
+    });
+  };
 }

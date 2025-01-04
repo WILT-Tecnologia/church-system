@@ -12,8 +12,7 @@ class ChurchSeeder extends Seeder
     /**
      * Run the database seeds.
      */
-    public function run(): void
-    {
+    public function run(): void {
         $faker = Faker::create('pt_BR');
 
         $responsibles = Person::all()->pluck('id')->toArray();

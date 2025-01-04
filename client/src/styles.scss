@@ -162,15 +162,14 @@ a:hover {
 /***************** Estilos de Formulário *******************/
 /***********************************************************/
 /***********************************************************/
-.wrapper {
-  display: flex;
-  flex-direction: column;
+.mat-mdc-tab-body-content {
+  overflow: hidden !important;
 }
 
 .form-field-group {
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto;
+  flex: 1 1 100%;
 }
 
 .add-button {
