@@ -10,8 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-    public function login(Request $request)
-    {
+    public function login(Request $request) {
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
 
             $user = Auth::user();
@@ -26,13 +25,12 @@ class LoginController extends Controller
         } else {
             return response()->json([
                 'status' => false,
-                'message' => 'Login or password incorrect'
+                'message' => 'Email ou senha inválidos'
             ], 404);
         }
     }
 
-    public function logout(User $user)
-    {
+    public function logout(User $user) {
         try {
 
             $user->tokens()->delete();
@@ -40,7 +38,7 @@ class LoginController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Deslogado'
-            ],200);
+            ], 200);
         } catch (Exception $e) {
 
             return response()->json([

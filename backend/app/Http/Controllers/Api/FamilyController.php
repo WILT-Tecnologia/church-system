@@ -14,16 +14,14 @@ class FamilyController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
+    public function index() {
         return FamilyResource::collection(Family::all());
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreFamilyRequest $request)
-    {
+    public function store(StoreFamilyRequest $request) {
         $family = Family::create($request->validated());
 
         return new FamilyResource($family);
@@ -32,16 +30,14 @@ class FamilyController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Family $family)
-    {
+    public function show(Family $family) {
         return new FamilyResource($family);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateFamilyRequest $request, Family $family)
-    {
+    public function update(UpdateFamilyRequest $request, Family $family) {
         $family->update($request->validated());
 
         return new FamilyResource($family);
@@ -50,10 +46,9 @@ class FamilyController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Family $family)
-    {
+    public function destroy(Family $family) {
         $family->delete();
-        
+
         return response()->json([], 204);
     }
 }

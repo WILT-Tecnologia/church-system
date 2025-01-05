@@ -91,13 +91,7 @@
             required
             readonly
           />
-          <mat-error
-            *ngIf="
-              personForm.get('birth_date')?.invalid &&
-              personForm.get('birth_date')?.touched
-            "
-            >{{ getErrorMessage('birth_date') }}</mat-error
-          >
+
           @if (personForm.value.birth_date) {
             <button
               mat-icon-button
@@ -113,7 +107,7 @@
                 matIconSuffix
                 [for]="picker"
               ></mat-datepicker-toggle>
-              <mat-datepicker #picker startView="year">
+              <mat-datepicker #picker>
                 <mat-datepicker-actions>
                   <button
                     mat-stroked-button
@@ -135,6 +129,13 @@
               </mat-datepicker>
             </ng-container>
           }
+          <mat-error
+            *ngIf="
+              personForm.get('birth_date')?.invalid &&
+              personForm.get('birth_date')?.touched
+            "
+            >{{ getErrorMessage('birth_date') }}</mat-error
+          >
         </mat-form-field>
       </app-column>
 

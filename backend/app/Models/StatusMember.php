@@ -20,20 +20,17 @@ class StatusMember extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'id',
         'member_id',
         'member_situation_id',
         'initial_period',
         'final_period',
     ];
 
-    public function member(): BelongsTo
-    {
-        return $this->belongsTo(Member::class);
+    public function member(): HasMany {
+        return $this->hasMany(Member::class);
     }
 
-    public function memberSituation(): BelongsTo
-    {
+    public function memberSituation(): BelongsTo {
         return $this->belongsTo(MemberSituation::class);
     }
 }

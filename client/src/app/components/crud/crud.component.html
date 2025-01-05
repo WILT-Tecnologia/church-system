@@ -41,7 +41,12 @@
       *ngFor="let column of columnDefinitions"
       [matColumnDef]="column.key"
     >
-      <th mat-header-cell *matHeaderCellDef mat-sort-header class="font-bold">
+      <th
+        mat-header-cell
+        *matHeaderCellDef
+        mat-sort-header
+        class="mat-header-bold"
+      >
         {{ column.header }}
       </th>
       <td mat-cell *matCellDef="let fields">

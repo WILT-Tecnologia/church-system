@@ -11,14 +11,12 @@ use Illuminate\Http\Request;
 
 class ModuleController extends Controller
 {
-    public function index()
-    {
+    public function index() {
         $modules = Module::all();
         return response()->json(ModuleResource::collection($modules));
     }
 
-    public function store(ModuleRequest $request)
-    {
+    public function store(ModuleRequest $request) {
         $data = $request->validated();
 
         $module = Module::create($data);
@@ -26,13 +24,11 @@ class ModuleController extends Controller
         return response()->json($module);
     }
 
-    public function show(Module $module)
-    {
+    public function show(Module $module) {
         return new ModuleResource($module);
     }
 
-    public function update(ModuleRequest $request, Module $module)
-    {
+    public function update(ModuleRequest $request, Module $module) {
         $data = $request->validated();
 
         $module->update($data);
@@ -40,10 +36,9 @@ class ModuleController extends Controller
         return new ModuleResource($module);
     }
 
-    public function destroy(Module $module)
-    {
+    public function destroy(Module $module) {
         $module->delete();
 
-        return response()->json($module, 201);
+        return response()->json($module, 204);
     }
 }

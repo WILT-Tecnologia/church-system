@@ -1,7 +1,7 @@
 <form
   [formGroup]="memberForm"
   (ngSubmit)="handleSubmit()"
-  class="form-field-group wrapper"
+  class="form-field-group"
 >
   <mat-tab-group preserveContent dynamicHeight [(selectedIndex)]="currentStep">
     <mat-tab label="Identificação" [disabled]="isTabDisabled(0)">
@@ -12,38 +12,26 @@
               <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>Pessoa</mat-label>
-                  <mat-select
-                    formControlName="person_id"
-                    (openedChange)="onPersonSelectOpened($event)"
+                  <input
+                    type="text"
+                    matInput
+                    [matAutocomplete]="autoPerson"
+                    [formControl]="searchControlPerson"
+                    placeholder="Selecione uma pessoa"
+                    (focus)="showAllPerson()"
+                    required
+                  />
+                  <mat-autocomplete
+                    #autoPerson="matAutocomplete"
+                    (optionSelected)="onPersonSelected($event)"
                   >
-                    <mat-select-trigger>
-                      {{ getPersonName() }}
-                    </mat-select-trigger>
-                    <ng-container *ngIf="filteredPerson$ | async as persons">
-                      <mat-form-field appearance="outline" class="search-field">
-                        <div class="flex flex-row gap-2">
-                          <mat-icon>search</mat-icon>
-                          <input
-                            matInput
-                            placeholder="Digite para buscar"
-                            [formControl]="searchControlPerson"
-                          />
-                        </div>
-                      </mat-form-field>
-                      <mat-option
-                        *ngFor="let person of persons"
-                        [value]="person.id"
-                      >
-                        {{ person.name }}
-                      </mat-option>
-                    </ng-container>
                     <mat-option
-                      class="add-option"
-                      (click)="openAddPersonDialog()"
+                      *ngFor="let person of filteredPerson | async as persons"
+                      [value]="person"
                     >
-                      Adicionar nova pessoa
+                      {{ person.name }}
                     </mat-option>
-                  </mat-select>
+                  </mat-autocomplete>
                   <mat-error
                     *ngIf="
                       memberForm.get('stepOne.person_id')?.invalid &&
@@ -56,38 +44,26 @@
 
                 <mat-form-field appearance="fill">
                   <mat-label>Igreja</mat-label>
-                  <mat-select
-                    formControlName="church_id"
-                    (openedChange)="onChurchSelectOpened($event)"
+                  <input
+                    type="text"
+                    matInput
+                    [matAutocomplete]="autoChurch"
+                    [formControl]="searchControlChurch"
+                    placeholder="Selecione uma igreja"
+                    (focus)="showAllChurch()"
+                    required
+                  />
+                  <mat-autocomplete
+                    #autoChurch="matAutocomplete"
+                    (optionSelected)="onChurchSelected($event)"
                   >
-                    <mat-select-trigger>
-                      {{ getChurchName() }}
-                    </mat-select-trigger>
-                    <ng-container *ngIf="filteredChurch$ | async as churches">
-                      <mat-form-field appearance="outline" class="search-field">
-                        <div class="flex flex-row gap-2">
-                          <mat-icon>search</mat-icon>
-                          <input
-                            matInput
-                            placeholder="Digite para buscar"
-                            [formControl]="searchControlChurch"
-                          />
-                        </div>
-                      </mat-form-field>
-                      <mat-option
-                        *ngFor="let church of churches"
-                        [value]="church.id"
-                      >
-                        {{ church.name }}
-                      </mat-option>
-                    </ng-container>
                     <mat-option
-                      class="add-option"
-                      (click)="openAddChurchDialog()"
+                      *ngFor="let church of filteredChurch | async as churches"
+                      [value]="church"
                     >
-                      Adicionar nova igreja
+                      {{ church.name }}
                     </mat-option>
-                  </mat-select>
+                  </mat-autocomplete>
                   <mat-error
                     *ngIf="
                       memberForm.get('stepOne.church_id')?.invalid &&
@@ -133,21 +109,29 @@
               <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>Estado Civil</mat-label>
-                  <mat-select formControlName="civil_status_id">
-                    <mat-select-trigger>
-                      {{ getCivilStatusName() }}
-                    </mat-select-trigger>
-                    <ng-container
-                      *ngIf="filteredCivilStatus | async as civilStatusList"
+                  <input
+                    type="text"
+                    matInput
+                    [matAutocomplete]="autoCivilStatus"
+                    [formControl]="searchControlCivilStatus"
+                    placeholder="Selecione um estado civil"
+                    (focus)="showAllCivilStatus()"
+                    required
+                  />
+                  <mat-autocomplete
+                    #autoCivilStatus="matAutocomplete"
+                    (optionSelected)="onCivilStatusSelected($event)"
+                  >
+                    <mat-option
+                      *ngFor="
+                        let civilStatus of filteredCivilStatus | async;
+                        civilStatus
+                      "
+                      [value]="civilStatus"
                     >
-                      <mat-option
-                        *ngFor="let civilStatus of civilStatusList"
-                        [value]="civilStatus.id"
-                      >
-                        {{ civilStatus.name }}
-                      </mat-option>
-                    </ng-container>
-                  </mat-select>
+                      {{ civilStatus.name }}
+                    </mat-option>
+                  </mat-autocomplete>
                   <mat-error
                     *ngIf="
                       memberForm.get('stepOne.civil_status_id')?.invalid &&
@@ -157,23 +141,32 @@
                     {{ getErrorMessage('stepOne.civil_status_id') }}
                   </mat-error>
                 </mat-form-field>
+
                 <mat-form-field appearance="fill">
-                  <mat-label>Cor/Raça</mat-label>
-                  <mat-select formControlName="color_race_id">
-                    <mat-select-trigger>
-                      {{ getColorRaceName() }}
-                    </mat-select-trigger>
-                    <ng-container
-                      *ngIf="filteredColorRace | async as colorRaces"
+                  <mat-label>Cor/raça</mat-label>
+                  <input
+                    type="text"
+                    matInput
+                    [matAutocomplete]="autoColorRace"
+                    [formControl]="searchControlColorRace"
+                    placeholder="Selecione um Cor/raça"
+                    (focus)="showAllColorRace()"
+                    required
+                  />
+                  <mat-autocomplete
+                    #autoColorRace="matAutocomplete"
+                    (optionSelected)="onColorRaceSelected($event)"
+                  >
+                    <mat-option
+                      *ngFor="
+                        let colorRace of filteredColorRace | async;
+                        colorRace
+                      "
+                      [value]="colorRace"
                     >
-                      <mat-option
-                        *ngFor="let colorRace of colorRaces"
-                        [value]="colorRace.id"
-                      >
-                        {{ colorRace.name }}
-                      </mat-option>
-                    </ng-container>
-                  </mat-select>
+                      {{ colorRace.name }}
+                    </mat-option>
+                  </mat-autocomplete>
                   <mat-error
                     *ngIf="
                       memberForm.get('stepOne.color_race_id')?.invalid &&
@@ -225,33 +218,36 @@
               <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>Formação</mat-label>
-                  <mat-select
-                    formControlName="formation_id"
-                    (selectionChange)="
-                      onFormationChange($event.value, formations)
-                    "
+                  <input
+                    type="text"
+                    matInput
+                    [matAutocomplete]="autoFormation"
+                    [formControl]="searchControlFormations"
+                    placeholder="Selecione uma formação"
+                    (focus)="showAllFormations()"
+                    required
+                  />
+                  <mat-autocomplete
+                    #autoFormation="matAutocomplete"
+                    (optionSelected)="onFormationsSelected($event)"
                   >
-                    <mat-select-trigger>
-                      {{ getFormationsName() }}
-                    </mat-select-trigger>
-                    <ng-container
-                      *ngIf="filteredFormations | async as formationList"
+                    <mat-option
+                      *ngFor="
+                        let formation of filteredFormations | async;
+                        formations
+                      "
+                      [value]="formation"
                     >
-                      <mat-option
-                        *ngFor="let formations of formationList"
-                        [value]="formations.id"
-                      >
-                        {{ formations.name }}
-                      </mat-option>
-                    </ng-container>
-                  </mat-select>
+                      {{ formation.name }}
+                    </mat-option>
+                  </mat-autocomplete>
                   <mat-error
                     *ngIf="
-                      memberForm.get('stepOne.formation_id')?.invalid &&
-                      memberForm.get('stepOne.formation_id')?.touched
+                      memberForm.get('stepTwo.formation_id')?.invalid &&
+                      memberForm.get('stepTwo.formation_id')?.touched
                     "
                   >
-                    {{ getErrorMessage('stepOne.formation_id') }}
+                    {{ getErrorMessage('stepTwo.formation_id') }}
                   </mat-error>
                 </mat-form-field>
                 <mat-form-field *ngIf="isFormationCourseVisible">
@@ -267,6 +263,7 @@
                   </mat-error>
                 </mat-form-field>
               </app-column>
+
               <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>Profissão</mat-label>
@@ -281,6 +278,7 @@
                   </mat-error>
                 </mat-form-field>
               </app-column>
+
               <div class="inputs checkbox-column" style="max-width: 30rem">
                 <mat-label>Deficiências</mat-label>
                 <div class="checkbox-group">
@@ -350,25 +348,53 @@
                   <mat-label>Data do batismo</mat-label>
                   <input
                     matInput
-                    [matDatepicker]="baptismDate"
+                    [matDatepicker]="baptismPicker"
+                    name="birth_date"
+                    [min]="minDate"
+                    [max]="maxDate"
+                    placeholder="Selecione uma data"
                     formControlName="baptism_date"
+                    (focus)="openCalendarBaptismDate()"
+                    required
                     readonly
                   />
-                  <mat-datepicker-toggle
-                    *ngIf="!memberForm.get('stepThree.baptism_date')?.value"
-                    matSuffix
-                    [for]="baptismDate"
-                  ></mat-datepicker-toggle>
-                  <mat-datepicker #baptismDate></mat-datepicker>
-                  <button
-                    type="button"
-                    *ngIf="memberForm.get('stepThree.baptism_date')?.value"
-                    mat-icon-button
-                    matSuffix
-                    (click)="clearDate('stepThree.baptism_date')"
-                  >
-                    <mat-icon>close</mat-icon>
-                  </button>
+                  @if (memberForm.value.stepThree.baptism_date) {
+                    <button
+                      type="button"
+                      mat-icon-button
+                      matSuffix
+                      (click)="clearDate('stepThree.baptism_date')"
+                    >
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  } @else {
+                    <ng-container>
+                      <mat-datepicker-toggle
+                        matSuffix
+                        [for]="baptism_date"
+                      ></mat-datepicker-toggle>
+                      <mat-datepicker #baptism_date>
+                        <mat-datepicker-actions>
+                          <button
+                            mat-stroked-button
+                            type="button"
+                            color="warn"
+                            matDatepickerCancel
+                          >
+                            Cancelar
+                          </button>
+                          <button
+                            mat-raised-button
+                            type="button"
+                            color="primary"
+                            matDatepickerApply
+                          >
+                            Confirmar
+                          </button>
+                        </mat-datepicker-actions>
+                      </mat-datepicker>
+                    </ng-container>
+                  }
                   <mat-error
                     *ngIf="
                       memberForm.get('stepThree.baptism_date')?.invalid &&
@@ -424,50 +450,73 @@
                     Batizado pelo Espírito Santo?
                   </mat-checkbox>
                 </div>
-                <mat-form-field
-                  class="w-6/12 lg:w-full"
-                  appearance="fill"
-                  *ngIf="memberForm.get('stepThree.baptism_holy_spirit')?.value"
-                >
-                  <mat-label>Data do batismo do Espírito Santo</mat-label>
-                  <input
-                    matInput
-                    [matDatepicker]="baptismHolySpiritDate"
-                    formControlName="baptism_holy_spirit_date"
-                    readonly
-                  />
-                  <mat-datepicker-toggle
-                    matSuffix
-                    *ngIf="
-                      !memberForm.get('stepThree.baptism_holy_spirit_date')
-                        ?.value
-                    "
-                    [for]="baptismHolySpiritDate"
-                  ></mat-datepicker-toggle>
-                  <mat-datepicker #baptismHolySpiritDate></mat-datepicker>
-                  <button
-                    type="button"
-                    *ngIf="
-                      memberForm.get('stepThree.baptism_holy_spirit_date')
-                        ?.value
-                    "
-                    mat-icon-button
-                    matSuffix
-                    (click)="clearDate('stepThree.baptism_holy_spirit_date')"
-                  >
-                    <mat-icon>close</mat-icon>
-                  </button>
-                  <mat-error
-                    *ngIf="
+                @if (memberForm.get('stepThree.baptism_holy_spirit')?.value) {
+                  <mat-form-field class="w-6/12 lg:w-full" appearance="fill">
+                    <mat-label>Data do batismo do Espírito Santo</mat-label>
+                    <input
+                      matInput
+                      [matDatepicker]="baptismHolySpiritPicker"
+                      [min]="minDate"
+                      [max]="maxDate"
+                      name="baptism_holy_spirit_date"
+                      placeholder="Selecione uma data"
+                      formControlName="baptism_holy_spirit_date"
+                      (focus)="openCalendarBaptismHolySpiritDate()"
+                      readonly
+                    />
+                    @if (memberForm.value.stepThree.baptism_holy_spirit_date) {
+                      <button
+                        type="button"
+                        mat-icon-button
+                        matSuffix
+                        (click)="
+                          clearDate('stepThree.baptism_holy_spirit_date')
+                        "
+                      >
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    } @else {
+                      <ng-container>
+                        <mat-datepicker-toggle
+                          matSuffix
+                          [for]="baptism_holy_spirit_date"
+                        ></mat-datepicker-toggle>
+                        <mat-datepicker #baptism_holy_spirit_date>
+                          <mat-datepicker-actions>
+                            <button
+                              mat-stroked-button
+                              type="button"
+                              color="warn"
+                              matDatepickerCancel
+                            >
+                              Cancelar
+                            </button>
+                            <button
+                              mat-raised-button
+                              type="button"
+                              color="primary"
+                              matDatepickerApply
+                            >
+                              Confirmar
+                            </button>
+                          </mat-datepicker-actions>
+                        </mat-datepicker>
+                      </ng-container>
+                    }
+                    @if (
                       memberForm.get('stepThree.baptism_holy_spirit_date')
                         ?.invalid &&
                       memberForm.get('stepThree.baptism_holy_spirit_date')
                         ?.touched
-                    "
-                  >
-                    {{ getErrorMessage('stepThree.baptism_holy_spirit_date') }}
-                  </mat-error>
-                </mat-form-field>
+                    ) {
+                      <mat-error>
+                        {{
+                          getErrorMessage('stepThree.baptism_holy_spirit_date')
+                        }}
+                      </mat-error>
+                    }
+                  </mat-form-field>
+                }
               </app-column>
 
               <app-column>
@@ -475,63 +524,87 @@
                   <mat-label>Data da recepção</mat-label>
                   <input
                     matInput
-                    [matDatepicker]="receiptDate"
+                    name="receipt_date"
+                    [min]="minDate"
+                    [max]="maxDate"
+                    placeholder="Selecione uma data"
+                    [matDatepicker]="receiptDatePicker"
                     formControlName="receipt_date"
+                    (focus)="openCalendarReceiptDate()"
                     readonly
                   />
-                  <mat-datepicker-toggle
-                    *ngIf="!memberForm.get('stepThree.receipt_date')?.value"
-                    matSuffix
-                    [for]="receiptDate"
-                  ></mat-datepicker-toggle>
-                  <mat-datepicker #receiptDate></mat-datepicker>
-                  <button
-                    type="button"
-                    *ngIf="memberForm.get('stepThree.receipt_date')?.value"
-                    mat-icon-button
-                    matSuffix
-                    (click)="clearDate('stepThree.receipt_date')"
-                  >
-                    <mat-icon>close</mat-icon>
-                  </button>
-                  <mat-error
-                    *ngIf="
-                      memberForm.get('stepThree.receipt_date')?.invalid &&
-                      memberForm.get('stepThree.receipt_date')?.touched
-                    "
-                  >
-                    {{ getErrorMessage('stepThree.receipt_date') }}
-                  </mat-error>
+                  @if (memberForm.value.stepThree.receipt_date) {
+                    <button
+                      type="button"
+                      mat-icon-button
+                      matSuffix
+                      (click)="clearDate('stepThree.receipt_date')"
+                    >
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  } @else {
+                    <ng-container>
+                      <mat-datepicker-toggle
+                        matSuffix
+                        [for]="receipt_date"
+                      ></mat-datepicker-toggle>
+                      <mat-datepicker #receipt_date>
+                        <mat-datepicker-actions>
+                          <button
+                            mat-stroked-button
+                            type="button"
+                            color="warn"
+                            matDatepickerCancel
+                          >
+                            Cancelar
+                          </button>
+                          <button
+                            mat-raised-button
+                            type="button"
+                            color="primary"
+                            matDatepickerApply
+                          >
+                            Confirmar
+                          </button>
+                        </mat-datepicker-actions>
+                      </mat-datepicker>
+                    </ng-container>
+                  }
+                  @if (
+                    memberForm.get('stepThree.receipt_date')?.invalid &&
+                    memberForm.get('stepThree.receipt_date')?.touched
+                  ) {
+                    <mat-error>
+                      {{ getErrorMessage('stepThree.receipt_date') }}
+                    </mat-error>
+                  }
                 </mat-form-field>
 
-                <mat-form-field>
+                <mat-form-field appearance="fill">
                   <mat-label>Origem do membro</mat-label>
-                  <mat-select formControlName="member_origin_id">
-                    <mat-select-trigger>
-                      {{ getMemberOriginName() }}
-                    </mat-select-trigger>
-                    <mat-form-field
-                      appearance="outline"
-                      (click)="$event.stopPropagation()"
-                    >
-                      <div class="flex flex-row gap-2">
-                        <mat-icon>search</mat-icon>
-                        <input
-                          matInput
-                          placeholder="Digite para buscar"
-                          placeholder="Digite para buscar"
-                          [formControl]="searchControlMemberOrigins"
-                          (click)="$event.stopPropagation()"
-                        />
-                      </div>
-                    </mat-form-field>
+                  <input
+                    type="text"
+                    matInput
+                    [matAutocomplete]="autoMemberOrigin"
+                    [formControl]="searchControlMemberOrigins"
+                    placeholder="Selecione uma origem do membro"
+                    (focus)="showAllMemberOrigins()"
+                    required
+                  />
+                  <mat-autocomplete
+                    #autoMemberOrigin="matAutocomplete"
+                    (optionSelected)="onMemberOriginSelected($event)"
+                  >
                     <mat-option
-                      *ngFor="let memberOrigin of filterMemberOrigins | async"
-                      [value]="memberOrigin.id"
+                      *ngFor="
+                        let memberOrigin of filterMemberOrigins | async;
+                        memberOrigin
+                      "
+                      [value]="memberOrigin"
                     >
                       {{ memberOrigin.name }}
                     </mat-option>
-                  </mat-select>
+                  </mat-autocomplete>
                   <mat-error
                     *ngIf="
                       memberForm.get('stepThree.member_origin_id')?.invalid &&
@@ -592,6 +665,17 @@
       >
         {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
       </button>
+      @if (currentStep !== 5) {
+        <button
+          mat-stroked-button
+          color="primary"
+          type="submit"
+          (click)="handleUpdateWithoutClosing()"
+          [disabled]="memberForm.invalid"
+        >
+          Atualizar
+        </button>
+      }
     </ng-container>
     <ng-container *ngIf="!isEditMode">
       <button

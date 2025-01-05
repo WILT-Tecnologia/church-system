@@ -14,6 +14,10 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import {
@@ -26,20 +30,23 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Address } from 'app/model/Address';
 import { Church } from 'app/model/Church';
-import { Person as Responsible } from 'app/model/Person';
+import { Person } from 'app/model/Person';
+import { NotificationService } from 'app/services/notification/notification.service';
+import { SanitizeValuesService } from 'app/services/sanitize/sanitize-values.service';
 import { CepService } from 'app/services/search-cep/search-cep.service';
 import { MESSAGES } from 'app/utils/messages';
 import { ValidationService } from 'app/utils/validation/validation.service';
 import { cnpjValidator } from 'app/utils/validators/cnpj-validator';
-import dayjs from 'dayjs';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import {
   debounceTime,
+  distinctUntilChanged,
   map,
   Observable,
   startWith,
@@ -47,6 +54,7 @@ import {
   takeUntil,
 } from 'rxjs';
 import { ActionsComponent } from '../../../../../components/actions/actions.component';
+import { PersonsService } from '../../persons/persons.service';
 import { ChurchsService } from '../churchs.service';
 
 @Component({
@@ -56,6 +64,7 @@ import { ChurchsService } from '../churchs.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
+    MatTabsModule,
     MatCardModule,
     MatButtonModule,
     MatInputModule,
@@ -63,6 +72,7 @@ import { ChurchsService } from '../churchs.service';
     MatDatepickerModule,
     MatSelectModule,
     MatDividerModule,
+    MatAutocompleteModule,
     MatIconModule,
     NgxMaskDirective,
     ReactiveFormsModule,
@@ -73,59 +83,39 @@ import { ChurchsService } from '../churchs.service';
   providers: [provideNgxMask()],
 })
 export class ChurchComponent implements OnInit, OnDestroy {
-  @ViewChild(MatDatepicker) picker!: MatDatepicker<Date>;
   churchForm: FormGroup;
-  churchId: string | null = null;
+  church: Church[] = [];
+  responsible: Person[] = [];
   isEditMode: boolean = false;
 
-  searchControl = new FormControl('');
-  filteredResponsables$!: Observable<Responsible[]>;
-
-  responsible: Responsible[] = [];
+  searchResponsibleControl = new FormControl('');
+  filterResponsable: Observable<Person[]> = new Observable<Person[]>();
 
   private destroy$ = new Subject<void>();
+  @ViewChild(MatDatepicker) picker!: MatDatepicker<Date>;
+  @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;
 
   constructor(
-    private fb: FormBuilder,
+    private personService: PersonsService,
     private churchsService: ChurchsService,
+    private fb: FormBuilder,
     private toast: ToastService,
     private cepService: CepService,
     private loading: LoadingService,
     private validationService: ValidationService,
+    private sanitize: SanitizeValuesService,
+    private notificationService: NotificationService,
     private dialogRef: MatDialogRef<ChurchComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { church: Church },
   ) {
     this.churchForm = this.createForm();
-
-    this.filteredResponsables$ = this.setupSearchObservable('responsible');
   }
 
   ngOnInit() {
-    this.fetchResponsables();
-
-    if (this.data && this.data?.church) {
-      this.isEditMode = true;
-      this.churchId = this.data?.church?.id;
-      this.churchForm.patchValue({
-        ...this.data.church,
-        responsible_id: this.data.church.responsible?.id,
-      });
-      this.handleEditMode();
-    }
-
-    this.churchForm.get('responsible_id')?.valueChanges.subscribe((id) => {
-      const responsable = this.responsible.find((resp) => resp.id === id);
-      return responsable ? responsable?.name : 'Selecione o responsável';
-    });
-
-    this.churchForm
-      .get('cep')
-      ?.valueChanges.pipe(takeUntil(this.destroy$))
-      .subscribe((cep: string) => {
-        if (cep.length === 8) {
-          this.searchCep(cep);
-        }
-      });
+    this.checkEditMode();
+    this.loadResponsibles();
+    this.initialSearchCep();
+    this.initialFilterResponsibles();
   }
 
   ngOnDestroy(): void {
@@ -133,76 +123,137 @@ export class ChurchComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  setupSearchObservable(target: string): Observable<any[]> {
-    return this.searchControl.valueChanges.pipe(
-      debounceTime(300),
-      startWith(''),
-      map((searchTerm) => {
-        const items = (this as any)[target] || [];
-        return items
-          .filter((item: any) =>
-            item.name.toLowerCase().includes(searchTerm?.toLowerCase()),
-          )
-          .sort((a: any, b: any) => a.name.localeCompare(b.name));
-      }),
-    );
+  private loadResponsibles() {
+    this.personService.getPersons().subscribe({
+      next: (res) => {
+        this.responsible = res;
+      },
+      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
+      complete: () => this.loading.hide(),
+    });
+  }
+
+  private checkEditMode() {
+    if (this.data?.church) {
+      this.isEditMode = true;
+
+      if (this.data?.church?.responsible) {
+        this.searchResponsibleControl.setValue(
+          this.data.church.responsible.name,
+        );
+        this.churchForm
+          .get('responsible_id')
+          ?.setValue(this.data.church.responsible.id);
+      }
+
+      this.churchForm.patchValue({
+        ...this.data.church,
+        responsible_id: this.data.church.responsible?.id,
+      });
+    }
   }
 
   createForm = () => {
     return this.fb.group({
-      id: [this.data?.church?.id || ''],
+      id: [this.data?.church?.id ?? ''],
       responsible_id: [
-        this.data?.church?.responsible?.id || '',
+        this.data?.church?.responsible?.id ?? '',
         [Validators.required],
       ],
       name: [
-        this.data?.church?.name || '',
+        this.data?.church?.name ?? '',
         [Validators.required, Validators.maxLength(255)],
       ],
       email: [
-        this.data?.church?.email || '',
+        this.data?.church?.email ?? '',
         [Validators.required, Validators.email],
       ],
       cnpj: [
-        this.data?.church?.cnpj || '',
+        this.data?.church?.cnpj ?? '',
         [Validators.required, cnpjValidator],
       ],
-      cep: [this.data?.church?.cep || '', [Validators.required]],
+      cep: [this.data?.church?.cep ?? '', [Validators.required]],
       street: [
-        this.data?.church?.street || '',
+        this.data?.church?.street ?? '',
         [Validators.required, Validators.maxLength(255)],
       ],
       number: [
-        this.data?.church?.number || '',
+        this.data?.church?.number ?? '',
         [Validators.required, Validators.maxLength(10)],
       ],
       complement: [
-        this.data?.church?.complement || '',
+        this.data?.church?.complement ?? '',
         [Validators.maxLength(255)],
       ],
       district: [
-        this.data?.church?.district || '',
+        this.data?.church?.district ?? '',
         [Validators.required, Validators.maxLength(255)],
       ],
       city: [
-        this.data?.church?.city || '',
+        this.data?.church?.city ?? '',
         [Validators.required, Validators.maxLength(255)],
       ],
       state: [
-        this.data?.church?.state || '',
+        this.data?.church?.state ?? '',
         [Validators.required, Validators.maxLength(255)],
       ],
       country: [
-        this.data?.church?.country || '',
+        this.data?.church?.country ?? '',
         [Validators.required, Validators.maxLength(255)],
       ],
-      logo: [this.data?.church?.logo || ''],
-      favicon: [this.data?.church?.favicon || ''],
-      background: [this.data?.church?.background || ''],
-      color: [this.data?.church?.color || ''],
-      updated_at: [this.data?.church?.updated_at || ''],
+      logo: [this.data?.church?.logo ?? ''],
+      favicon: [this.data?.church?.favicon ?? ''],
+      background: [this.data?.church?.background ?? ''],
+      color: [this.data?.church?.color ?? ''],
     });
   };
+
+  showAllResponsibles = () => {
+    this.filterResponsable = this.searchResponsibleControl.valueChanges.pipe(
+      debounceTime(300),
+      startWith(this.searchResponsibleControl.value),
+      map((value: any) => {
+        if (typeof value === 'string') {
+          return value;
+        } else {
+          return value ? value.name : '';
+        }
+      }),
+      map((name) =>
+        name.length >= 1 ? this._filterResponsables(name) : this.responsible,
+      ),
+    );
+  };
+
+  private initialFilterResponsibles() {
+    this.filterResponsable = this.searchResponsibleControl.valueChanges.pipe(
+      debounceTime(300),
+      startWith(this.searchResponsibleControl.value),
+      map((value: any) => {
+        if (typeof value === 'string') {
+          return value;
+        } else {
+          return value ? value.name : '';
+        }
+      }),
+      map((name) =>
+        name.length >= 1 ? this._filterResponsables(name) : this.responsible,
+      ),
+    );
+  }
+
+  private _filterResponsables(name: string): Person[] {
+    const filterValue = name.toLowerCase();
+    return this.responsible.filter((responsible) =>
+      responsible.name.toLowerCase().includes(filterValue),
+    );
+  }
+
+  onResponsibleSelected(event: MatAutocompleteSelectedEvent) {
+    const responsible = event.option.value;
+    this.searchResponsibleControl.setValue(responsible.name);
+    this.churchForm.get('responsible_id')?.setValue(responsible.id);
+  }
 
   getErrorMessage(controlName: string): string | null {
     const control = this.churchForm.get(controlName);
@@ -210,91 +261,84 @@ export class ChurchComponent implements OnInit, OnDestroy {
   }
 
   handleSubmit = () => {
-    if (this.churchForm.invalid) {
+    const church = this.churchForm.value;
+
+    if (!church) {
       return;
     }
 
-    const churchData = this.churchForm.value;
-    this.isEditMode ? this.handleUpdate(churchData.id) : this.handleCreate();
+    const sanitizeChurchValues = this.sanitize.sanitizeInput(church);
+
+    if (this.isEditMode) {
+      this.handleUpdate(sanitizeChurchValues.id, sanitizeChurchValues);
+    } else {
+      this.handleCreate(sanitizeChurchValues);
+    }
+  };
+
+  handleNext = () => {
+    this.tabGroup.selectedIndex = 1;
   };
 
   handleBack = () => {
-    this.dialogRef.close();
+    this.tabGroup.selectedIndex = 0;
   };
 
-  handleCreate = () => {
+  handleCancel() {
+    this.dialogRef.close();
+  }
+
+  handleCreate = (data: any) => {
     this.loading.show();
-    this.churchsService.createChurch(this.churchForm.value).subscribe({
+    this.churchsService.createChurch(data).subscribe({
       next: () => {
-        this.toast.openSuccess(MESSAGES.CREATE_SUCCESS);
-        this.dialogRef.close(this.churchForm.value);
+        this.notificationService.onSuccess(
+          MESSAGES.CREATE_SUCCESS,
+          this.dialogRef,
+          this.churchForm.value,
+        );
       },
       error: () => {
-        this.loading.hide();
-        this.toast.openError(MESSAGES.CREATE_ERROR);
+        this.notificationService.onError(MESSAGES.CREATE_ERROR);
       },
       complete: () => this.loading.hide(),
     });
   };
 
-  handleUpdate = (churchId: string) => {
+  handleUpdate = (churchId: string, data: any) => {
     this.loading.show();
-    this.churchsService
-      .updateChurch(churchId!, this.churchForm.value)
-      .subscribe({
-        next: () => {
-          this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS);
-          this.dialogRef.close(this.churchForm.value);
-        },
-        error: () => {
-          this.loading.hide();
-          this.toast.openError(MESSAGES.UPDATE_ERROR);
-        },
-        complete: () => this.loading.hide(),
-      });
-  };
-
-  handleEditMode = () => {
-    this.churchsService
-      .getChurchById(this.churchId!)
-      .subscribe((church: Church) => {
-        this.churchForm.patchValue({
-          ...church,
-          updated_at: dayjs(church.updated_at).format('DD/MM/YYYY [às] HH:mm'),
-        });
-        this.responsible = church.responsible ? [church.responsible] : [];
-      });
-  };
-
-  fetchResponsables() {
-    this.churchsService.getResponsables().subscribe((responsables) => {
-      this.responsible = responsables;
-      this.filteredResponsables$ = this.searchControl.valueChanges.pipe(
-        debounceTime(300),
-        startWith(''),
-        map((searchTerm) =>
-          this.filterResponsables(searchTerm ?? '').sort((a, b) =>
-            a.name.localeCompare(b.name),
-          ),
-        ),
-      );
+    this.churchsService.updateChurch(churchId, data).subscribe({
+      next: () => {
+        this.notificationService.onSuccess(
+          MESSAGES.CREATE_SUCCESS,
+          this.dialogRef,
+          this.churchForm.value,
+        );
+      },
+      error: () => {
+        this.notificationService.onError(MESSAGES.CREATE_ERROR);
+      },
+      complete: () => this.loading.hide(),
     });
-  }
+  };
 
-  filterResponsables(searchTerm: string): Responsible[] {
-    return this.responsible.filter((responsable) =>
-      responsable.name.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
-  }
+  initialSearchCep() {
+    let previousCepValue = this.churchForm.get('cep')?.value;
 
-  getResponsableName(): string {
-    const responsibleId = this.churchForm.get('responsible_id')?.value;
-    const responsible = this.responsible.find(
-      (resp) => resp.id === responsibleId,
-    );
-    return responsible ? responsible.name : 'Selecione o responsável';
+    this.churchForm
+      .get('cep')
+      ?.valueChanges.pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((cep: string) => {
+        if (cep.length === 8 && cep !== previousCepValue) {
+          this.searchCep(cep);
+        }
+        previousCepValue = cep;
+      });
   }
-
   searchCep(cep: string): void {
     if (this.churchForm.get('cep')?.value?.length === '') {
       return;

@@ -12,11 +12,10 @@ class StatusMemberResource extends JsonResource
      *
      * @return array<string, mixed>
      */
-    public function toArray(Request $request): array
-    {
+    public function toArray(Request $request): array {
         return [
             'id' => $this->id,
-            'member' => new MemberResource($this->member),
+            'member_id' => new MemberResource($this->member),
             'member_situation' => new MemberSituationResource($this->memberSituation),
             'initial_period' => $this->initial_period,
             'final_period' => $this->final_period,

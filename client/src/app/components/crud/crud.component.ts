@@ -20,6 +20,7 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormatValuesPipe } from 'app/utils/pipes/format-values.pipe';
+import { FormatsPipe } from 'app/utils/pipes/formats.pipe';
 
 export type ActionsProps = {
   type: string;
@@ -73,6 +74,7 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
   displayedColumns: string[] = [];
   currentPageIndex: number = 0;
+  format = new FormatsPipe();
 
   ngOnInit() {
     this.dataSourceMat.data = this.fields;
@@ -103,17 +105,55 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
     this.paginator?.page.subscribe(() => {
       this.currentPageIndex = this.paginator?.pageIndex;
     });
+
+    this.dataSourceMat.sortingDataAccessor = (item, property) => {
+      const keys = property.split('.');
+      let value = item;
+      keys.forEach((key) => {
+        value = value ? value[key] : null;
+      });
+      if (value === null || value === undefined) {
+        return '';
+      }
+      if (typeof value === 'string') {
+        return value
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '');
+      }
+      if (typeof value === 'number' || typeof value === 'boolean') {
+        return value;
+      }
+      if (value instanceof Date) {
+        return value.getTime();
+      }
+      return value;
+    };
+
+    this.dataSourceMat.filterPredicate = (data: any, filter: string) => {
+      const normalizedFilter = filter
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+
+      return this.columnDefinitions.some((column) => {
+        const value = this.format.getNestedValue(data, column.key);
+        if (value !== null && value !== undefined) {
+          const normalizedValue = String(value)
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+          return normalizedValue.includes(normalizedFilter);
+        }
+        return false;
+      });
+    };
   }
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value
       .trim()
       .toLowerCase();
-
-    this.dataSourceMat.filterPredicate = (data: any, filter: string) =>
-      Object.values(data).some((value) =>
-        String(value).toLowerCase().includes(filter),
-      );
 
     this.dataSourceMat.filter = filterValue;
 

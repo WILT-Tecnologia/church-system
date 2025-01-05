@@ -41,6 +41,6 @@ class ProfileController extends Controller
     public function destroy(Profile $profile) {
         $profile->delete();
 
-        return response()->json($profile, 201);
+        return response()->json($profile, 204);
     }
 }

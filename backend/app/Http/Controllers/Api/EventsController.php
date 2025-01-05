@@ -15,16 +15,14 @@ class EventsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
+    public function index() {
         return EventsResource::collection(Evento::all());
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreEventsRequest $request)
-    {
+    public function store(StoreEventsRequest $request) {
         $evento = Evento::create($request->validated());
 
         return new EventsResource($evento);
@@ -33,16 +31,14 @@ class EventsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Evento $evento)
-    {
+    public function show(Evento $evento) {
         return new EventsResource($evento);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateEventsRequest $request, Evento $evento)
-    {
+    public function update(UpdateEventsRequest $request, Evento $evento) {
         $evento->update($request->validated());
 
         return new EventsResource($evento);
@@ -51,8 +47,7 @@ class EventsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Evento $evento)
-    {
+    public function destroy(Evento $evento) {
         $evento->delete();
 
         return response()->json([], 204);

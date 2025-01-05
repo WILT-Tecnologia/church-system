@@ -68,7 +68,7 @@ export class ProfilesComponent implements OnInit {
     { key: 'status', header: 'Situação', type: 'boolean' },
     { key: 'name', header: 'Cargo', type: 'string' },
     { key: 'description', header: 'Descrição', type: 'string' },
-    { key: 'updated_at', header: 'Última atalização', type: 'datetime' },
+    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
   ];
 
   constructor(

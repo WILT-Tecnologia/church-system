@@ -18,50 +18,27 @@ class MemberController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        return MemberResource::collection(Member::all());
+    public function index() {
+        $members = Member::with([
+            'person',
+            'church',
+            'church.responsible',
+            'civilStatus',
+            'colorRace',
+            'formation',
+            'statusMember',
+            'families',
+            'ordination',
+            'memberOrigin'
+        ])->get();
+
+        return response()->json($members); //MemberResource::collection(Member::all());
     }
-
-    public function findFamilyPerMember(Request $request)
-{
-    $memberId = $request->query('member_id');
-
-    if (!$memberId || !Uuid::isValid($memberId)) {
-        return response()->json(['error' => 'ID de membro inválido'], 400);
-    }
-
-    $member = Member::with(['families', 'person', 'families.kinship'])->find($memberId);
-
-    if (!$member) {
-        return response()->json(['error' => 'Membro não encontrado'], 404);
-    }
-
-    return FamilyResource::collection($member->families);
-}
-
-    public function findOrdinationPerMember(Request $request)
-{
-    $memberId = $request->query('member_id');
-
-    if (!$memberId || !Uuid::isValid($memberId)) {
-        return response()->json(['error' => 'ID de membro inválido'], 400);
-    }
-
-    $member = Member::with(['ordination','ordination.member','ordination.occupation'])->find($memberId);
-
-    if (!$member) {
-        return response()->json(['error' => 'Membro não encontrado'], 404);
-    }
-
-    return OrdinationResource::collection($member->ordination);
-}
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreMemberRequest $request)
-    {
+    public function store(StoreMemberRequest $request) {
         $member = Member::create($request->validated());
 
         return new MemberResource($member);
@@ -70,16 +47,14 @@ class MemberController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Member $member)
-    {
+    public function show(Member $member) {
         return new MemberResource($member);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateMemberRequest $request, Member $member)
-    {
+    public function update(UpdateMemberRequest $request, Member $member) {
         $member->update($request->validated());
 
         return new MemberResource($member);
@@ -88,8 +63,7 @@ class MemberController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Member $member)
-    {
+    public function destroy(Member $member) {
         $member->delete();
 
         return response()->json([], 204);

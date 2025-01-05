@@ -46,7 +46,7 @@ export class FormatsPipe implements PipeTransform {
       return dateFormated;
     }
 
-    const parts = value.split(/[-\/]/);
+    const parts = value.split(/[-/]/);
     if (parts.length === 3) {
       const [day, month, year] = parts;
       const reformattedValue = `${year}-${month}-${day}`;

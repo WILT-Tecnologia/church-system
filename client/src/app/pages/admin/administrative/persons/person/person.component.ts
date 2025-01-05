@@ -44,6 +44,7 @@ import { ToastService } from 'app/components/toast/toast.service';
 import { Address } from 'app/model/Address';
 import { Person } from 'app/model/Person';
 import { User } from 'app/model/User';
+import { NotificationService } from 'app/services/notification/notification.service';
 import { SanitizeValuesService } from 'app/services/sanitize/sanitize-values.service';
 import { CepService } from 'app/services/search-cep/search-cep.service';
 import { MESSAGES } from 'app/utils/messages';
@@ -123,8 +124,9 @@ export class PersonComponent implements OnInit, OnDestroy {
     private sanitize: SanitizeValuesService,
     private toast: ToastService,
     private cepService: CepService,
-    private loadingService: LoadingService,
+    private loading: LoadingService,
     private validationService: ValidationService,
+    private notification: NotificationService,
     private formats: FormatsPipe,
     private dialogRef: MatDialogRef<PersonComponent>,
     @Optional() @Inject(MAT_DIALOG_DATA) public data: { person: Person },
@@ -136,6 +138,7 @@ export class PersonComponent implements OnInit, OnDestroy {
     this.checkEditMode();
     this.loadUsers();
     this.filterUsers = this.searchUserControl.valueChanges.pipe(
+      debounceTime(300),
       startWith(''),
       map((value: any) => {
         if (typeof value === 'string') {
@@ -257,6 +260,7 @@ export class PersonComponent implements OnInit, OnDestroy {
 
   showAllUsers() {
     this.filterUsers = this.searchUserControl.valueChanges.pipe(
+      debounceTime(300),
       startWith(this.searchUserControl.value),
       map((value: any) => {
         if (typeof value === 'string') {
@@ -275,7 +279,7 @@ export class PersonComponent implements OnInit, OnDestroy {
         this.user = data;
       },
       error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
-      complete: () => this.loadingService.hide(),
+      complete: () => this.loading.hide(),
     });
   };
 
@@ -326,20 +330,9 @@ export class PersonComponent implements OnInit, OnDestroy {
           });
         }
       },
-      error: () => this.loadingService.hide(),
-      complete: () => this.loadingService.hide(),
+      error: () => this.loading.hide(),
+      complete: () => this.loading.hide(),
     });
-  }
-
-  onSuccess(message: string) {
-    this.loadingService.show();
-    this.toast.openSuccess(message);
-    this.dialogRef.close(this.personForm.value);
-  }
-
-  onError(message: string) {
-    this.loadingService.show();
-    this.toast.openError(message);
   }
 
   handleNext = () => {
@@ -374,20 +367,32 @@ export class PersonComponent implements OnInit, OnDestroy {
   };
 
   handleCreate = (data: any) => {
-    this.loadingService.show();
+    this.loading.show();
     this.personService.createPerson(data).subscribe({
-      next: () => this.onSuccess(MESSAGES.CREATE_SUCCESS),
-      error: () => this.onError(MESSAGES.CREATE_ERROR),
-      complete: () => this.loadingService.hide(),
+      next: () =>
+        this.notification.onSuccess(
+          MESSAGES.CREATE_SUCCESS,
+          this.dialogRef,
+          this.personForm.value,
+        ),
+      error: (error) =>
+        this.notification.onError(error.error.message ?? MESSAGES.CREATE_ERROR),
+      complete: () => this.loading.hide(),
     });
   };
 
   handleUpdate = (personId: string, data: any) => {
-    this.loadingService.show();
+    this.loading.show();
     this.personService.updatePerson(personId, data).subscribe({
-      next: () => this.onSuccess(MESSAGES.UPDATE_SUCCESS),
-      error: () => this.onError(MESSAGES.UPDATE_ERROR),
-      complete: () => this.loadingService.hide(),
+      next: () =>
+        this.notification.onSuccess(
+          MESSAGES.UPDATE_SUCCESS,
+          this.dialogRef,
+          this.personForm.value,
+        ),
+      error: (error) =>
+        this.notification.onError(error.error.message ?? MESSAGES.UPDATE_ERROR),
+      complete: () => this.loading.hide(),
     });
   };
 }
