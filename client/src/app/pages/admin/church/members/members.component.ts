@@ -72,6 +72,7 @@ export class MembersComponent implements OnInit {
       type: 'string',
     },
     { key: 'baptism_date', header: 'Data do batismo', type: 'date' },
+    { key: 'updated_at', header: 'Última atualização', type: 'datetime' },
   ];
 
   constructor(

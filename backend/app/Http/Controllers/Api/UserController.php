@@ -10,15 +10,9 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function index()
-    {
-        $users = [];
-        User::with('profile')->chunk(100, function ($chunk) use (&$users) {
-            foreach ($chunk as $user) {
-                $users[] = new UserResource($user);
-            }
-        });
-        return response()->json($users);
+    public function index() {
+        $users = User::all()->sortBy('name');
+        return response()->json(UserResource::collection($users));
 
     }
 

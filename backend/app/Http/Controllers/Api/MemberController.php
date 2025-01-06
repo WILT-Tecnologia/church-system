@@ -6,12 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreMemberRequest;
 use App\Http\Requests\UpdateMemberRequest;
 use App\Http\Resources\MemberResource;
-use App\Http\Resources\OccupationResource;
-use App\Http\Resources\OrdinationResource;
 use App\Models\Member;
-use App\Http\Resources\FamilyResource;
-use Illuminate\Http\Request;
-use Ramsey\Uuid\Uuid;
 
 class MemberController extends Controller
 {
@@ -30,16 +25,23 @@ class MemberController extends Controller
             'families',
             'ordination',
             'memberOrigin'
-        ])->get();
+        ])->get()->sortBy('person.name');
 
-        return response()->json($members); //MemberResource::collection(Member::all());
+        return response()->json(MemberResource::collection($members));
     }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(StoreMemberRequest $request) {
+        // Cria o membro com os dados validados
         $member = Member::create($request->validated());
+
+        // Verifica se o campo church_ids existe na requisição
+        if ($request->has('church_id')) {
+            // Associa as igrejas ao membro
+            $member->churches()->attach($request->church_id);
+        }
 
         return new MemberResource($member);
     }
@@ -55,7 +57,14 @@ class MemberController extends Controller
      * Update the specified resource in storage.
      */
     public function update(UpdateMemberRequest $request, Member $member) {
+        // Atualiza os dados do membro
         $member->update($request->validated());
+
+        // Verifica se o campo church_ids existe na requisição
+        if ($request->has('church_id')) {
+            // Associa ou remove as igrejas associadas ao membro
+            $member->churches()->sync($request->church_id);
+        }
 
         return new MemberResource($member);
     }

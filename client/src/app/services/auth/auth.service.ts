@@ -41,6 +41,7 @@ export class AuthService {
           this.setValues(response.token, response.user);
           this.isLoggedInSubject.next(true);
           this.route.navigate(['/backups']);
+          console.log(response);
         }),
       );
   }

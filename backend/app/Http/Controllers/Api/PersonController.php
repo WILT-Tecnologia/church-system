@@ -11,9 +11,8 @@ use Illuminate\Http\Request;
 
 class PersonController extends Controller
 {
-    public function index()
-    {
-        $persons = Person::all();
+    public function index() {
+        $persons = Person::all()->sortBy('name');
 
         return response()->json(PersonResource::collection($persons));
     }
@@ -21,8 +20,7 @@ class PersonController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorePersonRequest $request)
-    {
+    public function store(StorePersonRequest $request) {
         $data = $request->validated();
 
         $person = Person::create($data);
@@ -33,16 +31,14 @@ class PersonController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Person $person)
-    {
+    public function show(Person $person) {
         return new PersonResource($person);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePersonRequest $request, Person $person)
-    {
+    public function update(UpdatePersonRequest $request, Person $person) {
         $data = $request->validated();
 
         $person->update($data);
@@ -53,8 +49,7 @@ class PersonController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Person $person)
-    {
+    public function destroy(Person $person) {
         $person->delete();
 
         return response()->json([], 204);

@@ -49,10 +49,10 @@ export class ChurchsComponent implements OnInit {
   ];
 
   columnDefinitions = [
-    { key: 'responsible.name', header: 'Responsável', type: 'string' },
     { key: 'name', header: 'Nome', type: 'string' },
     { key: 'email', header: 'Email', type: 'string' },
     { key: 'cnpj', header: 'CNPJ', type: 'cnpj' },
+    { key: 'responsible.name', header: 'Responsável', type: 'string' },
     { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
   ];
 
