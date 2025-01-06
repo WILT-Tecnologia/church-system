@@ -2,6 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
+import { Church } from 'app/model/Church';
 import { User } from 'app/model/User';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -30,18 +31,23 @@ export class AuthService {
     }
   }
 
-  login(email: string, password: string): Observable<{ token: string }> {
+  login(
+    email: string,
+    password: string,
+  ): Observable<{ token: string; user: User; churches: Church[] }> {
     return this.http
-      .post<{ token: string; user: User }>(`${this.apiUrl}/auth/login`, {
-        email,
-        password,
-      })
+      .post<{ token: string; user: User; churches: Church[] }>(
+        `${this.apiUrl}/auth/login`,
+        {
+          email,
+          password,
+        },
+      )
       .pipe(
         tap((response) => {
           this.setValues(response.token, response.user);
           this.isLoggedInSubject.next(true);
-          this.route.navigate(['/backups']);
-          console.log(response);
+          this.route.navigate(['/church']);
         }),
       );
   }

@@ -87,6 +87,10 @@ export class NavbarComponent implements OnInit {
       });
   };
 
+  isChurchSelected(): boolean {
+    return !!localStorage.getItem('selectedChurch');
+  }
+
   navigateToChurch() {
     this.currentRoute = 'church';
     this.router.navigateByUrl('/church');

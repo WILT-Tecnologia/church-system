@@ -2,6 +2,7 @@ import { Person } from './Person';
 
 export type Church = {
   id: string;
+  person: Person;
   responsible: Person;
   responsible_id: string;
   name: string;

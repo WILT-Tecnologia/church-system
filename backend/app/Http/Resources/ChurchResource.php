@@ -29,7 +29,7 @@ class ChurchResource extends JsonResource
             'country' => $this->country,
             'logo' => $this->logo,
             'favicon' => $this->favicon,
-            'backgroud' => $this->backgroud,
+            'background' => $this->background,
             'color' => $this->color,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at

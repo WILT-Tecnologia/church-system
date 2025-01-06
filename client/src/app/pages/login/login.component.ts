@@ -16,7 +16,9 @@ import { Router } from '@angular/router';
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalService } from 'app/components/modal/modal.service';
 import { ToastService } from 'app/components/toast/toast.service';
+import { Church } from 'app/model/Church';
 import { AuthService } from 'app/services/auth/auth.service';
 import { MESSAGES } from 'app/utils/messages';
 import { ValidationService } from 'app/utils/validation/validation.service';
@@ -51,6 +53,7 @@ export class LoginComponent implements OnInit {
     private toast: ToastService,
     private authService: AuthService,
     private validationService: ValidationService,
+    private modal: ModalService,
   ) {
     this.loginForm = this.createForm();
   }
@@ -79,11 +82,28 @@ export class LoginComponent implements OnInit {
     if (this.loginForm.valid) {
       const { email, password } = this.loginForm.value;
       this.authService.login(email, password).subscribe({
-        next: () => this.onSuccess(MESSAGES.LOGIN_SUCCESS),
+        next: (response) => this.handleLoginResponse(response),
         error: () => this.onError(MESSAGES.LOGIN_ERROR),
         complete: () => this.hideLoading(),
       });
     }
+  }
+
+  handleLoginResponse(response: any): void {
+    const { churches } = response;
+
+    localStorage.setItem('churches', JSON.stringify(churches));
+
+    if (churches.length === 1) {
+      this.navigateToChurch(churches[0]);
+    } else if (churches.length > 1) {
+      this.router.navigate(['/select-church']);
+    }
+  }
+
+  navigateToChurch(church: Church): void {
+    localStorage.setItem('selectedChurch', church?.id);
+    this.router.navigate(['/church']);
   }
 
   getErrorMessage(controlName: string) {
