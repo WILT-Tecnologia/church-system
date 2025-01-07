@@ -3,7 +3,8 @@
 const config = {
   content: [
     './src/**/*.{html,js,jsx,ts,tsx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{html,js,ts,jsx,tsx,mdx}',
+    './src/app/components/**/*.{html,js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {},

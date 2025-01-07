@@ -1,31 +1,36 @@
 <mat-toolbar class="navbar">
   <div class="container-section-one-nav p-4">
-    <app-logo></app-logo>
-    <ng-container *ngIf="!isMobile">
-      <span class="ps-nav-separator"></span>
-      <span class="text-default">Church System</span>
-    </ng-container>
+    @if (isChurchSelected()) {
+      <app-logo></app-logo>
+      @if (!isMobile) {
+        <span class="ps-nav-separator"></span>
+        <span class="text-default">Church System</span>
+      }
+    }
   </div>
   <span class="spacer"></span>
   <ng-container *ngIf="!!userName || !!isLoggedIn">
     <div class="row row-padding">
-      <button
-        mat-button
-        color="primary"
-        [class.active]="currentRoute === 'church'"
-        (click)="navigateToChurch()"
-      >
-        Igreja
-      </button>
-      <button
-        mat-button
-        class="spacing-components"
-        [class.active]="currentRoute === 'administrative'"
-        color="primary"
-        (click)="navigateToAdministrative()"
-      >
-        Administrativo
-      </button>
+      @if (isChurchSelected()) {
+        <button
+          mat-button
+          color="primary"
+          [class.active]="currentRoute === 'church'"
+          (click)="navigateToChurch()"
+        >
+          Igreja
+        </button>
+        <button
+          mat-button
+          class="spacing-components"
+          [class.active]="currentRoute === 'administrative'"
+          color="primary"
+          (click)="navigateToAdministrative()"
+        >
+          Administrativo
+        </button>
+      }
+
       <button mat-button class="user-button" [matMenuTriggerFor]="userMenu">
         <ng-container *ngIf="!isMobile">
           <span class="button-text text-default">{{
@@ -45,7 +50,7 @@
   <ng-container *ngIf="!isLoggedIn">
     <div class="row-padding">
       <button mat-raised-button color="primary" (click)="navigateToLogin()">
-        Login
+        Acessar o sistema
       </button>
     </div>
   </ng-container>

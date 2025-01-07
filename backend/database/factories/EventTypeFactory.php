@@ -34,7 +34,7 @@ class EventTypeFactory extends Factory
         ];
 
         return [
-            'name'        => $this->faker->randomElement($eventTypes),
+            'name'        => $this->faker->unique()->randomElement($eventTypes),
             'description' => $this->faker->sentence(),
             'status'      => $this->faker->boolean(),
         ];

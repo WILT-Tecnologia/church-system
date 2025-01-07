@@ -6,63 +6,42 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreMemberRequest;
 use App\Http\Requests\UpdateMemberRequest;
 use App\Http\Resources\MemberResource;
-use App\Http\Resources\OccupationResource;
-use App\Http\Resources\OrdinationResource;
 use App\Models\Member;
-use App\Http\Resources\FamilyResource;
-use Illuminate\Http\Request;
-use Ramsey\Uuid\Uuid;
 
 class MemberController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        return MemberResource::collection(Member::all());
+    public function index() {
+        $members = Member::with([
+            'person',
+            'church',
+            'church.responsible',
+            'civilStatus',
+            'colorRace',
+            'formation',
+            'statusMember',
+            'families',
+            'ordination',
+            'memberOrigin'
+        ])->get()->sortBy('person.name');
+
+        return MemberResource::collection($members);
     }
-
-    public function findFamilyPerMember(Request $request)
-{
-    $memberId = $request->query('member_id');
-
-    if (!$memberId || !Uuid::isValid($memberId)) {
-        return response()->json(['error' => 'ID de membro inválido'], 400);
-    }
-
-    $member = Member::with(['families', 'person', 'families.kinship'])->find($memberId);
-
-    if (!$member) {
-        return response()->json(['error' => 'Membro não encontrado'], 404);
-    }
-
-    return FamilyResource::collection($member->families);
-}
-
-    public function findOrdinationPerMember(Request $request)
-{
-    $memberId = $request->query('member_id');
-
-    if (!$memberId || !Uuid::isValid($memberId)) {
-        return response()->json(['error' => 'ID de membro inválido'], 400);
-    }
-
-    $member = Member::with(['ordination','ordination.member','ordination.occupation'])->find($memberId);
-
-    if (!$member) {
-        return response()->json(['error' => 'Membro não encontrado'], 404);
-    }
-
-    return OrdinationResource::collection($member->ordination);
-}
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreMemberRequest $request)
-    {
+    public function store(StoreMemberRequest $request) {
+        // Cria o membro com os dados validados
         $member = Member::create($request->validated());
+
+        // Verifica se o campo church_ids existe na requisição
+        if ($request->has('church_id')) {
+            // Associa as igrejas ao membro
+            $member->churches()->attach($request->church_id);
+        }
 
         return new MemberResource($member);
     }
@@ -70,17 +49,22 @@ class MemberController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Member $member)
-    {
+    public function show(Member $member) {
         return new MemberResource($member);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateMemberRequest $request, Member $member)
-    {
+    public function update(UpdateMemberRequest $request, Member $member) {
+        // Atualiza os dados do membro
         $member->update($request->validated());
+
+        // Verifica se o campo church_ids existe na requisição
+        if ($request->has('church_id')) {
+            // Associa ou remove as igrejas associadas ao membro
+            $member->churches()->sync($request->church_id);
+        }
 
         return new MemberResource($member);
     }
@@ -88,8 +72,7 @@ class MemberController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Member $member)
-    {
+    public function destroy(Member $member) {
         $member->delete();
 
         return response()->json([], 204);

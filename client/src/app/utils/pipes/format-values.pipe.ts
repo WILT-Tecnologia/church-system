@@ -23,7 +23,7 @@ export class FormatValuesPipe implements PipeTransform {
       case 'phone':
         return this.formats.phoneFormat(value);
       case 'sex':
-        return this.formats.SexTransform(value);
+        return this.formats.SexTransform(value, 'toView');
       case 'boolean':
         return value ? 'Ativado' : 'Desativado';
       case 'string':

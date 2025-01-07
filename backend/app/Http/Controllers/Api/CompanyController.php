@@ -11,13 +11,11 @@ use App\Models\Company;
 
 class CompanyController extends Controller
 {
-    public function index()
-    {
+    public function index() {
         return CompanyResource::collection(Company::all());
     }
 
-    public function store(StoreCompanyRequest $request)
-    {
+    public function store(StoreCompanyRequest $request) {
         $data = $request->validated();
 
         $company = Company::create($data);
@@ -25,13 +23,11 @@ class CompanyController extends Controller
         return new CompanyResource($company);
     }
 
-    public function show(Company $company)
-    {
+    public function show(Company $company) {
         return new CompanyResource($company);
     }
 
-    public function update(UpdateCompanyRequest $request, Company $company)
-    {
+    public function update(UpdateCompanyRequest $request, Company $company) {
         $data = $request->validated();
 
         $company->update($data);
@@ -39,8 +35,7 @@ class CompanyController extends Controller
         return new CompanyResource($company);
     }
 
-    public function destroy(Company $company)
-    {
+    public function destroy(Company $company) {
         $company->delete();
 
         return response()->json([], 204);

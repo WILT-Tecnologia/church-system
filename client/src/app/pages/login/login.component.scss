@@ -1,87 +1,44 @@
 @import "../../../styles/theme.scss";
 
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100dvh;
+  overflow: hidden !important;
+  padding: 1rem;
+  background-image: linear-gradient(to right top,
+      #3dd5d6,
+      #36cccd,
+      #2ec3c4,
+      #26bbbb,
+      #1db2b2,
+      #17a5a5,
+      #109999,
+      #088d8d,
+      #057b7b,
+      #036969,
+      #015858,
+      #004747);
+
+}
+
 .card {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  padding: 2rem;
-  max-width: 40rem;
-  margin: 0 auto;
-  width: 100%;
-  box-shadow: 0 0 0.2rem rgba(0, 0, 0, 0.2);
-}
-
-mat-card-title {
-  color: $greenMain;
-  font-size: 2rem;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 1rem;
-}
-
-.login-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
-}
-
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  width: 100%;
-}
-
-h1 {
-  color: $greenMain;
-}
-
-mat-form-field {
-  width: 100%;
-}
-
-mat-error {
-  font-size: 0.75rem;
-  color: red;
-}
-
-.custom-snackbar-action .mat-simple-snackbar-action {
-  color: $greenMain;
-}
-
-.actions {
-  display: flex;
-  flex-direction: column;
   justify-content: space-between;
-  align-items: stretch;
+  width: 100%;
+  max-width: calc(100dvw - 60dvw);
+  padding: 2.5rem;
+  border-radius: 1rem;
 
-}
-
-.button-submit {
-  height: 3rem;
-  font-size: 1.2rem;
-}
-
-@media screen and (max-width: 768px) {
-  .card {
-    margin: 1rem;
+  @media screen and (max-width: 768px) {
     max-width: 100%;
     padding: 1rem;
   }
+}
 
-  mat-card-title {
-    font-size: 1.5rem;
-  }
-
-  .actions {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    width: 100%;
-  }
+.title {
+  color: $greenMain;
 }

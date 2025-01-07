@@ -6,7 +6,7 @@ use App\Models\MemberOrigin;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Model>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\MemberOrigin>
  */
 class MemberOriginFactory extends Factory
 {
@@ -20,7 +20,7 @@ class MemberOriginFactory extends Factory
     public function definition(): array
     {
         return [
-            'name'        => $this->faker->company(),
+            'name'        => $this->faker->unique()->company(),
             'description' => $this->faker->sentence(),
             'status'      => $this->faker->boolean(),
         ];

@@ -3,12 +3,13 @@
   (ngSubmit)="handleSubmit()"
   class="form-field-group"
 >
-  <div class="inputs">
+  <app-column>
     <mat-slide-toggle formControlName="status" color="primary">{{
       profileForm.get('status')?.value ? 'Ativado' : 'Desativado'
     }}</mat-slide-toggle>
-  </div>
-  <div class="inputs">
+  </app-column>
+
+  <app-column>
     <mat-form-field appearance="fill">
       <mat-label>Nome</mat-label>
       <input matInput formControlName="name" maxlength="255" required />
@@ -19,8 +20,9 @@
         >{{ getErrorMessage('name') }}</mat-error
       >
     </mat-form-field>
-  </div>
-  <div class="inputs">
+  </app-column>
+
+  <app-column>
     <mat-form-field appearance="fill">
       <mat-label>Descrição</mat-label>
       <textarea
@@ -37,13 +39,54 @@
         >{{ getErrorMessage('description') }}</mat-error
       >
     </mat-form-field>
-  </div>
+  </app-column>
+
+  <h3>Permissões</h3>
+
+  <table mat-table [dataSource]="module">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Módulo</th>
+      <td mat-cell *matCellDef="let module">{{ module.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="can_read">
+      <th mat-header-cell *matHeaderCellDef>Leitura</th>
+      <td mat-cell *matCellDef="let module">
+        <mat-checkbox
+          [(ngModel)]="module.profilesModule[0].can_read"
+        ></mat-checkbox>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="can_write">
+      <th mat-header-cell *matHeaderCellDef>Escrita</th>
+      <td mat-cell *matCellDef="let module">
+        <mat-checkbox
+          [(ngModel)]="module.profilesModule[0].can_write"
+        ></mat-checkbox>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="can_delete">
+      <th mat-header-cell *matHeaderCellDef>Exclusão</th>
+      <td mat-cell *matCellDef="let module">
+        <mat-checkbox
+          [(ngModel)]="module.profilesModule[0].can_delete"
+        ></mat-checkbox>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+
   <mat-divider></mat-divider>
+
   <app-actions>
     <button
       type="button"
       mat-stroked-button
-      color="primary"
+      color="warn"
       (click)="handleBack()"
     >
       Cancelar
@@ -52,7 +95,7 @@
       type="submit"
       mat-raised-button
       color="primary"
-      [disabled]="!profileForm.valid"
+      [disabled]="profileForm.invalid"
     >
       {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
     </button>

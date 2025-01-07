@@ -41,7 +41,12 @@
       *ngFor="let column of columnDefinitions"
       [matColumnDef]="column.key"
     >
-      <th mat-header-cell *matHeaderCellDef mat-sort-header class="font-bold">
+      <th
+        mat-header-cell
+        *matHeaderCellDef
+        mat-sort-header
+        class="mat-header-bold"
+      >
         {{ column.header }}
       </th>
       <td mat-cell *matCellDef="let fields">
@@ -154,6 +159,21 @@
 
                 <!-- Botão historico -->
                 <ng-container *ngSwitchCase="'history'">
+                  <button
+                    type="button"
+                    mat-menu-item
+                    matTooltip="{{ action.tooltip }}"
+                    (click)="action.action(fields)"
+                  >
+                    <mat-icon *ngIf="action.icon">{{ action.icon }}</mat-icon>
+                    <span *ngIf="action.label" class="label-button-menu">{{
+                      action.label
+                    }}</span>
+                  </button>
+                </ng-container>
+
+                <!-- Botão permissões -->
+                <ng-container *ngSwitchCase="'security'">
                   <button
                     type="button"
                     mat-menu-item

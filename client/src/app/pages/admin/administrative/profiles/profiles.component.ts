@@ -68,7 +68,7 @@ export class ProfilesComponent implements OnInit {
     { key: 'status', header: 'Situação', type: 'boolean' },
     { key: 'name', header: 'Cargo', type: 'string' },
     { key: 'description', header: 'Descrição', type: 'string' },
-    { key: 'updated_at', header: 'Última atalização', type: 'datetime' },
+    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
   ];
 
   constructor(
@@ -120,7 +120,7 @@ export class ProfilesComponent implements OnInit {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       ProfileComponent,
-      'Editando um perfil',
+      `Você está editando o perfil: ${profile.name}`,
       true,
       true,
       { profile },
@@ -159,6 +159,7 @@ export class ProfilesComponent implements OnInit {
   };
 
   toggleStatus = (profile: Profile) => {
+    this.loading.show();
     const updatedStatus = !profile.status;
     profile.status = updatedStatus;
 

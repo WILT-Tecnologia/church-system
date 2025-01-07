@@ -46,7 +46,7 @@ export class FormatsPipe implements PipeTransform {
       return dateFormated;
     }
 
-    const parts = value.split(/[-\/]/);
+    const parts = value.split(/[-/]/);
     if (parts.length === 3) {
       const [day, month, year] = parts;
       const reformattedValue = `${year}-${month}-${day}`;
@@ -61,7 +61,7 @@ export class FormatsPipe implements PipeTransform {
   }
 
   phoneFormat(value: string | number): string {
-    let phone = value.toString().replace(/\D/g, '');
+    const phone = value.toString().replace(/\D/g, '');
 
     // Telefone com DDD (Brasil)
     if (phone.length === 11) {
@@ -82,10 +82,12 @@ export class FormatsPipe implements PipeTransform {
     return value.toString();
   }
 
-  SexTransform(value: string): string {
-    if (!value) return '';
-    if (value.toUpperCase() === 'M') return 'Masculino';
-    if (value.toUpperCase() === 'F') return 'Feminino';
-    return value;
+  SexTransform(sex: string, direction: 'toView' | 'toModel'): string {
+    if (direction === 'toView') {
+      return sex === 'M' ? 'Masculino' : sex === 'F' ? 'Feminino' : sex;
+    } else if (direction === 'toModel') {
+      return sex === 'Masculino' ? 'M' : sex === 'Feminino' ? 'F' : sex;
+    }
+    return sex;
   }
 }

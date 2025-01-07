@@ -14,6 +14,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { filter } from 'rxjs';
 import { AuthService } from '../../services/auth/auth.service';
+import { LoadingService } from '../loading/loading.service';
 import { LogoComponent } from './logo/logo.component';
 
 @Component({
@@ -39,18 +40,39 @@ export class NavbarComponent implements OnInit {
 
   constructor(
     private router: Router,
+    private loading: LoadingService,
     private authService: AuthService,
     @Inject(PLATFORM_ID) private platformId: any,
   ) {}
 
   ngOnInit(): void {
-    const user = this.authService.getUser();
-    this.userName = user ? user.name : this.userName;
+    this.getData();
 
     if (isPlatformBrowser(this.platformId)) {
       this.isMobile = window.innerWidth <= this.windowLength;
     }
 
+    this.activeUrl();
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    if (isPlatformBrowser(this.platformId)) {
+      this.isMobile = event.target.innerWidth <= this.windowLength;
+    }
+  }
+
+  getData() {
+    this.authService.isLoggedIn$.subscribe((isLoggedIn) => {
+      if (isLoggedIn) {
+        const user = this.authService.getUser();
+        this.userName = user ? user.name : null;
+        this.isLoggedIn = true;
+      }
+    });
+  }
+
+  activeUrl = () => {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: any) => {
@@ -60,16 +82,13 @@ export class NavbarComponent implements OnInit {
         } else if (url.includes('administrative')) {
           this.currentRoute = 'administrative';
         } else {
-          this.currentRoute = null;
+          this.currentRoute = 'church';
         }
       });
-  }
+  };
 
-  @HostListener('window:resize', ['$event'])
-  onResize(event: any) {
-    if (isPlatformBrowser(this.platformId)) {
-      this.isMobile = event.target.innerWidth <= this.windowLength;
-    }
+  isChurchSelected(): boolean {
+    return !!localStorage.getItem('selectedChurch');
   }
 
   navigateToChurch() {
@@ -90,7 +109,23 @@ export class NavbarComponent implements OnInit {
     this.router.navigateByUrl('/login');
   }
 
-  logout() {
-    this.authService.logout();
+  async logout() {
+    try {
+      this.showLoading();
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      await this.authService.logout();
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+    } finally {
+      this.hideLoading();
+    }
+  }
+
+  showLoading() {
+    this.loading.show();
+  }
+
+  hideLoading() {
+    this.loading.hide();
   }
 }

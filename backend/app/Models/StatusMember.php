@@ -27,13 +27,11 @@ class StatusMember extends Model
         'final_period',
     ];
 
-    public function member(): BelongsTo
-    {
+    public function member(): BelongsTo {
         return $this->belongsTo(Member::class);
     }
 
-    public function memberSituation(): BelongsTo
-    {
+    public function memberSituation(): BelongsTo {
         return $this->belongsTo(MemberSituation::class);
     }
 }

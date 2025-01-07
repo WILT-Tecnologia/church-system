@@ -11,6 +11,7 @@ import {
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { ToastService } from 'app/components/toast/toast.service';
+import { NotificationService } from 'app/services/notification/notification.service';
 import { MESSAGES } from 'app/utils/messages';
 import { NotFoundRegisterComponent } from '../../../../components/not-found-register/not-found-register.component';
 import { Church } from '../../../../model/Church';
@@ -48,10 +49,10 @@ export class ChurchsComponent implements OnInit {
   ];
 
   columnDefinitions = [
-    { key: 'responsible.name', header: 'Responsável', type: 'string' },
     { key: 'name', header: 'Nome', type: 'string' },
     { key: 'email', header: 'Email', type: 'string' },
     { key: 'cnpj', header: 'CNPJ', type: 'cnpj' },
+    { key: 'responsible.name', header: 'Responsável', type: 'string' },
     { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
   ];
 
@@ -61,6 +62,7 @@ export class ChurchsComponent implements OnInit {
     private loading: LoadingService,
     private confirmService: ConfirmService,
     private modalService: ModalService,
+    private notification: NotificationService,
   ) {}
 
   ngOnInit() {
@@ -102,7 +104,7 @@ export class ChurchsComponent implements OnInit {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       ChurchComponent,
-      `Editando a igreja ${church.name}`,
+      `Editando a igreja: ${church.name}`,
       true,
       true,
       { church },
@@ -118,20 +120,19 @@ export class ChurchsComponent implements OnInit {
   handleDelete = (church: Church) => {
     const dialogRef = this.confirmService.openConfirm(
       'Atenção',
-      `Você tem certeza que deseja excluir o registro ${church.name}?`,
+      `Você tem certeza que deseja excluir a igreja: ${church.name}?`,
       'Confirmar',
       'Cancelar',
     );
 
-    dialogRef.afterClosed().subscribe((church: Church) => {
-      if (church) {
-        this.churchsService.deleteChurch(church.id).subscribe({
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.churchsService.deleteChurch(church).subscribe({
           next: () => {
-            this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
+            this.notification.onSuccess(MESSAGES.DELETE_SUCCESS);
           },
           error: () => {
-            this.loading.hide();
-            this.toast.openError(MESSAGES.DELETE_ERROR);
+            this.notification.onError(MESSAGES.DELETE_ERROR);
           },
           complete: () => {
             this.loadChurch();

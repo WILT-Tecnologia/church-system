@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
+            'cors' => App\Http\Middleware\CorsDomainMiddleware::class,
         ]);
 
         $middleware->validateCsrfTokens([

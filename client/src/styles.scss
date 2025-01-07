@@ -53,6 +53,10 @@ a:hover {
 /* Estilos gerais */
 
 /* Estilos específicos */
+.spacings {
+  margin: 1rem;
+}
+
 .row {
   display: flex;
   flex-direction: row;
@@ -69,8 +73,8 @@ a:hover {
 }
 
 .ps-nav-separator {
-  width: 2px;
-  height: 30px;
+  width: 0.1rem;
+  height: 2rem;
   background: theme.$separator;
   margin: 0 1.4rem;
 }
@@ -158,15 +162,14 @@ a:hover {
 /***************** Estilos de Formulário *******************/
 /***********************************************************/
 /***********************************************************/
-.wrapper {
-  display: flex;
-  flex-direction: column;
+.mat-mdc-tab-body-content {
+  overflow: hidden !important;
 }
 
 .form-field-group {
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto;
+  flex: 1 1 100%;
 }
 
 .add-button {
@@ -286,4 +289,20 @@ mat-error {
 ::-webkit-scrollbar-track {
   background: theme.$hover;
   border-radius: 0.5rem;
+}
+
+
+/* Charts */
+.item-value,
+.item-label,
+.item-percent {
+  margin-bottom: 0.5rem !important;
+}
+
+.item-value {
+  margin-top: 0 !important;
+}
+
+.total-value {
+  margin-bottom: 1rem !important;
 }

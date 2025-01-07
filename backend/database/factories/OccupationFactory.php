@@ -33,7 +33,7 @@ class OccupationFactory extends Factory
         ];
 
         return [
-            'name'        => $this->faker->randomElement($occupations),
+            'name'        => $this->faker->unique()->randomElement($occupations),
             'description' => $this->faker->sentence(),
             'status'      => $this->faker->boolean(),
         ];

@@ -1,0 +1,13 @@
+mat-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+mat-list-item:hover {
+  background: rgba(0, 0, 0, 0.1);
+}

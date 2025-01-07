@@ -59,11 +59,11 @@ export class PersonsComponent implements OnInit {
   ];
 
   constructor(
-    private personsService: PersonsService,
     private toast: ToastService,
     private loading: LoadingService,
     private confirmService: ConfirmService,
     private modalService: ModalService,
+    private personsService: PersonsService,
   ) {}
 
   ngOnInit() {
@@ -72,9 +72,8 @@ export class PersonsComponent implements OnInit {
 
   loadPersons = () => {
     this.personsService.getPersons().subscribe({
-      next: (response) => {
-        this.persons = response;
-        this.dataSourceMat.data = this.persons;
+      next: (data) => {
+        this.persons = data;
         this.dataSourceMat.paginator = this.paginator;
         this.dataSourceMat.sort = this.sort;
         this.rendering = false;
@@ -118,30 +117,29 @@ export class PersonsComponent implements OnInit {
   };
 
   handleDelete = (person: Person) => {
-    const dialogRef = this.confirmService.openConfirm(
-      'Atenção',
-      'Você tem certeza que deseja excluir o registro?',
-      'Confirmar',
-      'Cancelar',
-    );
-
-    dialogRef.afterClosed().subscribe((person: Person) => {
-      if (person) {
-        this.loading.show();
-        this.personsService.deletePerson(person.id).subscribe({
-          next: () => {
-            this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
-          },
-          error: () => {
-            this.loading.hide();
-            this.toast.openError(MESSAGES.DELETE_ERROR);
-          },
-          complete: () => {
-            this.loadPersons();
-            this.loading.hide();
-          },
-        });
-      }
-    });
+    this.confirmService
+      .openConfirm(
+        'Atenção',
+        `Você tem certeza que deseja excluir o registro da pessoa ${person.name}?`,
+        'Confirmar',
+        'Cancelar',
+      )
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) {
+          this.loading.show();
+          this.personsService.deletePerson(person).subscribe({
+            next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
+            error: () => {
+              this.loading.hide();
+              this.toast.openError(MESSAGES.DELETE_ERROR);
+            },
+            complete: () => {
+              this.loadPersons();
+              this.loading.hide();
+            },
+          });
+        }
+      });
   };
 }

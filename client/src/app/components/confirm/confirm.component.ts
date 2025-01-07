@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
+import { ActionsComponent } from '../actions/actions.component';
 
 @Component({
   selector: 'app-confirm',
@@ -16,6 +17,7 @@ import { MatDividerModule } from '@angular/material/divider';
     MatDividerModule,
     MatDialogModule,
     CommonModule,
+    ActionsComponent,
   ],
 })
 export class ConfirmComponent implements OnInit {

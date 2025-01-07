@@ -1,33 +1,40 @@
-<mat-card appearance="outlined">
-  <div class="flex justify-between items-center mx-2 my-3">
-    <mat-card-header class="mb-3">
-      <mat-card-title class="text-xl font-semibold">{{
-        data.title
-      }}</mat-card-title>
-    </mat-card-header>
+<div class="mat-dialog-container">
+  <div class="flex flex-col w-full h-full">
+    <!-- Header -->
+    <div class="header flex flex-shrink-1 justify-between items-center p-4">
+      <span class="px-4 text-lg italic font-semibold">{{ data.title }}</span>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Content -->
+    <div class="content flex-grow overflow-x-auto my-5 p-5">
+      <p class="text-base text-gray-700">{{ data.message }}</p>
+    </div>
+
+    <!-- Divider -->
+    <mat-divider></mat-divider>
+
+    <!-- Actions -->
+    <div class="p-5">
+      <app-actions>
+        <button
+          mat-stroked-button
+          class="w-full order-2 md:order-none"
+          color="warn"
+          [mat-dialog-close]="false"
+        >
+          {{ data.btnCancelText }}
+        </button>
+        <button
+          mat-raised-button
+          class="w-full order-1"
+          color="primary"
+          [mat-dialog-close]="true"
+        >
+          {{ data.btnOkText }}
+        </button>
+      </app-actions>
+    </div>
   </div>
-  <mat-divider></mat-divider>
-  <mat-card-content class="my-10">
-    <p class="text-base text-gray-700">{{ data.message }}</p>
-  </mat-card-content>
-  <mat-card-footer class="flex flex-col md:w-full gap-4 my-5 justify-between">
-    <mat-card-actions class="flex flex-row md:w-full gap-4 justify-between">
-      <button
-        mat-stroked-button
-        class="w-full md:w-full order-2 md:order-none"
-        color="warn"
-        [mat-dialog-close]="false"
-      >
-        {{ data.btnCancelText }}
-      </button>
-      <button
-        mat-raised-button
-        class="w-full md:w-full order-1"
-        color="primary"
-        [mat-dialog-close]="true"
-      >
-        {{ data.btnOkText }}
-      </button>
-    </mat-card-actions>
-  </mat-card-footer>
-</mat-card>
+</div>

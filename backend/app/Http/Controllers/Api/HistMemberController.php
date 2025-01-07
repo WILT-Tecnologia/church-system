@@ -14,16 +14,14 @@ class HistMemberController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
+    public function index() {
         return HistMemberResource::collection(HistMember::all());
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreHistMemberRequest $request)
-    {
+    public function store(StoreHistMemberRequest $request) {
         $histMember = HistMember::create($request->validated());
 
         return new HistMemberResource($histMember);
@@ -32,8 +30,7 @@ class HistMemberController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, $memberId)
-    {
+    public function show(Request $request, $memberId) {
         // Buscar os históricos baseados no member_id
         $histories = HistMember::where('member_id', $memberId)->get();
 
@@ -49,8 +46,7 @@ class HistMemberController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateHistMemberRequest $request, HistMember $histMember)
-    {
+    public function update(UpdateHistMemberRequest $request, HistMember $histMember) {
         $histMember->update($request->validated());
 
         return new HistMemberResource($histMember);
@@ -59,8 +55,7 @@ class HistMemberController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(HistMember $histMember)
-    {
+    public function destroy(HistMember $histMember) {
         $histMember->delete();
 
         return response()->json([], 204);
