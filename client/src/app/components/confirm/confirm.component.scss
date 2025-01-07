@@ -1,5 +1,10 @@
 @import '../../../styles/theme.scss';
 
+::ng-deep .cdk-global-overlay-wrapper {
+  backdrop-filter: blur(3px);
+  background: rgba(0, 0, 0, 0.3);
+}
+
 .mat-dialog-container {
   width: 100%;
   max-width: 100%;

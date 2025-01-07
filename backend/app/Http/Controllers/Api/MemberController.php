@@ -27,7 +27,7 @@ class MemberController extends Controller
             'memberOrigin'
         ])->get()->sortBy('person.name');
 
-        return response()->json(MemberResource::collection($members));
+        return MemberResource::collection($members);
     }
 
     /**

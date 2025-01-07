@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -22,6 +22,7 @@ import { Church } from 'app/model/Church';
 import { AuthService } from 'app/services/auth/auth.service';
 import { MESSAGES } from 'app/utils/messages';
 import { ValidationService } from 'app/utils/validation/validation.service';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -41,10 +42,12 @@ import { ValidationService } from 'app/utils/validation/validation.service';
     ActionsComponent,
   ],
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   loginForm: FormGroup;
   hide: boolean = true;
   change_password: boolean = false;
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
@@ -59,6 +62,11 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit() {}
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   createForm() {
     return (this.loginForm = this.fb.group({

@@ -14,16 +14,16 @@ class StatusMemberController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        return StatusMemberResource::collection(StatusMember::all());
+    public function index() {
+        $statusMembers = StatusMember::with('member')->get();
+
+        return StatusMemberResource::collection($statusMembers);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreStatusMemberRequest $request)
-    {
+    public function store(StoreStatusMemberRequest $request) {
         $statusMember = StatusMember::create($request->validated());
 
         return new StatusMemberResource($statusMember);
@@ -32,16 +32,15 @@ class StatusMemberController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(StatusMember $statusMember)
-    {
+    public function show(StatusMember $statusMember) {
         return new StatusMemberResource($statusMember);
+        //return new StatusMemberResource($statusMember);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateStatusMemberRequest $request, StatusMember $statusMember)
-    {
+    public function update(UpdateStatusMemberRequest $request, StatusMember $statusMember) {
         $statusMember->update($request->validated());
 
         return new StatusMemberResource($statusMember);
@@ -50,10 +49,9 @@ class StatusMemberController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(StatusMember $statusMember)
-    {
+    public function destroy(StatusMember $statusMember) {
         $statusMember->delete();
-        
+
         return response()->json([], 204);
     }
 }

@@ -15,7 +15,11 @@ class StatusMemberResource extends JsonResource
     public function toArray(Request $request): array {
         return [
             'id' => $this->id,
-            'member_id' => new MemberResource($this->member),
+            'member' => $this->when(
+                $this->resource instanceof \App\Models\StatusMember && $this->relationLoaded('member'),
+                fn() => new MemberResource($this->member),
+                $this->member_id
+            ),
             'member_situation' => new MemberSituationResource($this->memberSituation),
             'initial_period' => $this->initial_period,
             'final_period' => $this->final_period,

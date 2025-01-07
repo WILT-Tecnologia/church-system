@@ -23,7 +23,6 @@ export class AuthInterceptor implements HttpInterceptor {
     try {
       const token = this.authService.getToken();
 
-      // Clonar a requisição para adicionar cabeçalhos, se necessário
       let clonedRequest = req;
       if (token) {
         clonedRequest = req.clone({
@@ -38,14 +37,14 @@ export class AuthInterceptor implements HttpInterceptor {
       return next.handle(clonedRequest).pipe(
         catchError((error: HttpErrorResponse) => {
           if (error.status === 401) {
-            // Redirecionar para a página de login em caso de erro 401
-            this.router.navigate(['login']);
+            this.authService.logout();
+            this.router.navigate(['/login']);
           }
           return throwError(() => error);
         }),
       );
     } catch (error) {
-      console.error('Erro no AuthInterceptor:', error);
+      console.error('Erro no login:', error);
       return next.handle(req);
     }
   }

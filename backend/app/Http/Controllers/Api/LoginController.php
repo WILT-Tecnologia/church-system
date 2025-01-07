@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ChurchResource;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;

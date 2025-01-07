@@ -31,23 +31,28 @@ export class AuthService {
     }
   }
 
+  initializeAuthState(): Promise<boolean> {
+    return new Promise((resolve) => {
+      const isLoggedIn = this.isAuthenticated();
+      this.isLoggedInSubject.next(isLoggedIn);
+      resolve(isLoggedIn);
+    });
+  }
+
   login(
     email: string,
     password: string,
   ): Observable<{ token: string; user: User; churches: Church[] }> {
     return this.http
-      .post<{ token: string; user: User; churches: Church[] }>(
-        `${this.apiUrl}/auth/login`,
-        {
-          email,
-          password,
-        },
-      )
+      .post<{
+        token: string;
+        user: User;
+        churches: Church[];
+      }>(`${this.apiUrl}/auth/login`, { email, password })
       .pipe(
         tap((response) => {
           this.setValues(response.token, response.user);
           this.isLoggedInSubject.next(true);
-          this.route.navigate(['/church']);
         }),
       );
   }

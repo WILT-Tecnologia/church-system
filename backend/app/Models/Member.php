@@ -90,7 +90,7 @@ class Member extends Model
     }
 
     public function statusMember(): HasMany {
-        return $this->HasMany(StatusMember::class);
+        return $this->hasMany(StatusMember::class);
     }
 
     public function histMember(): HasMany {

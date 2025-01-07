@@ -30,7 +30,7 @@ export class StatusMemberService {
   }
 
   getStatusMembers(): Observable<StatusMember[]> {
-    return this.http.get<StatusMember[]>(this.api);
+    return this.http.get<StatusMember[]>(this.memberApi);
   }
 
   createStatusMember(statusMember: StatusMember): Observable<StatusMember> {

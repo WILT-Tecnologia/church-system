@@ -52,14 +52,17 @@ export class StatusMemberComponent implements OnInit {
   ];
 
   columnDefinitions = [
-    { key: 'member.person.name', header: 'Membro', type: 'string' },
     {
-      key: 'member_situation.name',
+      key: 'statusMember.member_situation.name',
       header: 'Situação do membro',
       type: 'string',
     },
-    { key: 'initial_period', header: 'Data Inicial', type: 'date' },
-    { key: 'final_period', header: 'Data Final', type: 'date' },
+    {
+      key: 'statusMember.initial_period',
+      header: 'Data Inicial',
+      type: 'date',
+    },
+    { key: 'statusMember.final_period', header: 'Data Final', type: 'date' },
   ];
 
   constructor(
@@ -78,8 +81,7 @@ export class StatusMemberComponent implements OnInit {
 
   loadStatusMember = () => {
     this.loadingService.show();
-    const memberId = this.memberService.getEditingMemberId();
-    this.statusMemberService.getStatusMemberFromMembers(memberId!).subscribe({
+    this.statusMemberService.getStatusMembers().subscribe({
       next: (statusMember) => {
         this.statusMember = statusMember;
         this.dataSourceMat.data = this.statusMember;

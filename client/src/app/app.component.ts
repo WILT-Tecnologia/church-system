@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { Observable } from 'rxjs';
 import { LoadingComponent } from './components/loading/loading.component';
 import { LoadingService } from './components/loading/loading.service';
@@ -19,13 +19,22 @@ export class AppComponent implements OnInit {
   isLoggedIn$!: Observable<boolean>;
 
   constructor(
-    private loadingService: LoadingService,
+    public loadingService: LoadingService,
     private authService: AuthService,
+    private router: Router,
   ) {}
 
   ngOnInit() {
-    setTimeout(() => this.loadingService.show());
-    this.isLoggedIn$ = this.authService.isLoggedIn;
-    setTimeout(() => this.loadingService.hide());
+    this.loadingService.show();
+    this.isLoggedIn$ = this.authService.isLoggedIn$;
+
+    this.authService.initializeAuthState().then((isLoggedIn) => {
+      if (isLoggedIn) {
+        this.router.navigate(['/church']);
+      } else {
+        this.router.navigate(['/login']);
+      }
+      this.loadingService.hide();
+    });
   }
 }
