@@ -100,7 +100,7 @@ export class FamiliesComponent implements OnInit {
     );
   };
 
-  handleCreate = (): void => {
+  handleCreate = () => {
     const defaultMemberId = this.memberService.getEditingMemberId();
 
     const dialogRef = this.modalService.openModal(
@@ -121,7 +121,7 @@ export class FamiliesComponent implements OnInit {
     });
   };
 
-  handleEdit = (family: Families): void => {
+  handleEdit = (family: Families) => {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       FamiliesFormComponent,
@@ -156,7 +156,7 @@ export class FamiliesComponent implements OnInit {
     modal.afterClosed().subscribe((result) => {
       if (result) {
         this.loadingService.show();
-        this.familiesService.deleteFamily(family.id).subscribe({
+        this.familiesService.deleteFamily(family).subscribe({
           next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
           error: () => {
             this.loadingService.hide();

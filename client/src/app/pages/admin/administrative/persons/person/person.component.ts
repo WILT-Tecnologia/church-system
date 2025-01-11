@@ -157,7 +157,7 @@ export class PersonComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  createForm = () => {
+  createForm = (): FormGroup => {
     return this.fb.group({
       id: [this.data?.person?.id ?? ''],
       user_id: [

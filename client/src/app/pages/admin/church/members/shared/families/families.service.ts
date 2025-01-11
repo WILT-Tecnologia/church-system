@@ -6,48 +6,47 @@ import { Members } from 'app/model/Members';
 import { Person } from 'app/model/Person';
 import { environment } from 'environments/environment';
 import { Observable } from 'rxjs';
-import { MembersService } from '../../members.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FamiliesService {
-  constructor(
-    private http: HttpClient,
-    private membersService: MembersService,
-  ) {}
+  constructor(private http: HttpClient) {}
 
-  private api = `${environment.apiUrl}/church/families`;
+  private families = `${environment.apiUrl}/church/families`;
+  private members = `${environment.apiUrl}/church/members`;
+  private persons = `${environment.apiUrl}/admin/persons`;
+  private kinships = `${environment.apiUrl}/aux/kinships`;
 
   getKinships(): Observable<Kinships[]> {
-    return this.http.get<Kinships[]>(`${environment.apiUrl}/aux/kinships`);
+    return this.http.get<Kinships[]>(this.kinships);
   }
 
   getPersons(): Observable<Person[]> {
-    return this.http.get<Person[]>(`${environment.apiUrl}/admin/persons`);
+    return this.http.get<Person[]>(this.persons);
   }
 
   getMembers(): Observable<Members[]> {
-    return this.http.get<Members[]>(`${environment.apiUrl}/church/members`);
+    return this.http.get<Members[]>(this.members);
   }
 
   getFamilies(): Observable<Families[]> {
-    return this.http.get<Families[]>(this.api);
+    return this.http.get<Families[]>(this.families);
   }
 
   getFamily(id: string): Observable<Families> {
-    return this.http.get<Families>(`${this.api}/${id}`);
+    return this.http.get<Families>(`${this.families}/${id}`);
   }
 
   createFamily(family: Families): Observable<Families> {
-    return this.http.post<Families>(this.api, family);
+    return this.http.post<Families>(this.families, family);
   }
 
   updateFamily(id: string, family: Partial<Families>): Observable<Families> {
-    return this.http.patch<Families>(`${this.api}/${id}`, family);
+    return this.http.patch<Families>(`${this.families}/${id}`, family);
   }
 
-  deleteFamily(id: string): Observable<Families> {
-    return this.http.delete<Families>(`${this.api}/${id}`);
+  deleteFamily(data: Families): Observable<Families> {
+    return this.http.delete<Families>(`${this.families}/${data.id}`);
   }
 }

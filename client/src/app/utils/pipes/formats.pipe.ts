@@ -32,9 +32,11 @@ export class FormatsPipe implements PipeTransform {
   dateTimeFormat(value: string): string {
     if (!value) return '';
 
-    const dateFormated = dayjs(value).format('DD/MM/YYYY [às] HH:mm:ss');
+    const dateFormatted = dayjs(value).format('DD/MM/YYYY [às] HH:mm:ss');
 
-    return dayjs(value).isValid() ? dateFormated : 'Data inválida';
+    return dateFormatted && dayjs(value).isValid()
+      ? dateFormatted
+      : 'Data inválida';
   }
 
   dateFormat(value: string): string {

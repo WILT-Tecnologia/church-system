@@ -64,7 +64,9 @@
             {{ fields | formatValues: column.key : column.type }}
           </ng-container>
           <ng-container *ngSwitchCase="'datetime'">
-            {{ fields | formatValues: column.key : column.type }}
+            {{
+              fields | formatValues: column.key : column.type : column.userName
+            }}
           </ng-container>
           <ng-container *ngSwitchCase="'phone'">
             {{ fields | formatValues: column.key : column.type }}

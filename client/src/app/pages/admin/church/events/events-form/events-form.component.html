@@ -1,0 +1,115 @@
+<form
+  [formGroup]="eventForm"
+  (ngSubmit)="handleSubmit()"
+  class="form-field-group"
+>
+  <app-column>
+    <mat-form-field appearance="fill">
+      <mat-label>Igreja</mat-label>
+      <input
+        type="text"
+        placeholder="Selecione uma igreja"
+        matInput
+        required
+        [matAutocomplete]="autoChurch"
+        [formControl]="searchChurchControl"
+        (focus)="showAllChurchs()"
+      />
+      <mat-autocomplete
+        #autoChurch="matAutocomplete"
+        (optionSelected)="onSelectedChurch($event)"
+      >
+        @for (church of filterChurch | async; track $index) {
+          <mat-option [value]="church">
+            {{ church.name }}
+          </mat-option>
+        } @empty {
+          <mat-option disabled>Nenhuma igreja encontrada.</mat-option>
+        }
+      </mat-autocomplete>
+      @if (
+        eventForm.get('church_id')?.invalid &&
+        eventForm.get('church_id')?.touched
+      ) {
+        <mat-error>{{ getErrorMessage('church_id') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Tipo do evento</mat-label>
+      <input
+        type="text"
+        placeholder="Selecione o tipo do evento"
+        matInput
+        required
+        [matAutocomplete]="autoEventType"
+        [formControl]="searchEventTypeControl"
+        (focus)="showAllEventTypes()"
+      />
+      <mat-autocomplete
+        #autoEventType="matAutocomplete"
+        (optionSelected)="onSelectedEventType($event)"
+      >
+        @for (eventTypes of filterEventTypes | async; track $index) {
+          <mat-option [value]="eventTypes">
+            {{ eventTypes.name }}
+          </mat-option>
+        } @empty {
+          <mat-option disabled>Nenhum tipo de evento encontrado.</mat-option>
+        }
+      </mat-autocomplete>
+      @if (
+        eventForm.get('event_type_id')?.invalid &&
+        eventForm.get('event_type_id')?.touched
+      ) {
+        <mat-error>{{ getErrorMessage('event_type_id') }}</mat-error>
+      }
+    </mat-form-field>
+  </app-column>
+
+  <app-column>
+    <mat-form-field appearance="fill">
+      <mat-label>Nome</mat-label>
+      <input matInput formControlName="name" maxlength="255" required />
+      <mat-error
+        *ngIf="eventForm.get('name')?.invalid && eventForm.get('name')?.touched"
+        >{{ getErrorMessage('name') }}</mat-error
+      >
+    </mat-form-field>
+  </app-column>
+
+  <app-column>
+    <mat-form-field appearance="fill">
+      <mat-label>Observação</mat-label>
+      <textarea
+        matInput
+        rows="3"
+        formControlName="obs"
+        maxlength="255"
+      ></textarea>
+      @if (eventForm.get('obs')?.invalid && eventForm.get('obs')?.touched) {
+        <mat-error>{{ getErrorMessage('obs') }}</mat-error>
+      }
+    </mat-form-field>
+  </app-column>
+
+  <mat-divider></mat-divider>
+  <app-actions>
+    <button
+      mat-stroked-button
+      type="button"
+      color="warn"
+      (click)="handleCancel()"
+    >
+      Cancelar
+    </button>
+    <button
+      mat-raised-button
+      type="submit"
+      color="primary"
+      [disabled]="eventForm.invalid"
+    >
+      {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
+    </button>
+  </app-actions>
+</form>

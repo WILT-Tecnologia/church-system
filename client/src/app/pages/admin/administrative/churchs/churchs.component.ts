@@ -13,6 +13,7 @@ import { ModalService } from 'app/components/modal/modal.service';
 import { ToastService } from 'app/components/toast/toast.service';
 import { NotificationService } from 'app/services/notification/notification.service';
 import { MESSAGES } from 'app/utils/messages';
+import { FormatsPipe } from 'app/utils/pipes/formats.pipe';
 import { NotFoundRegisterComponent } from '../../../../components/not-found-register/not-found-register.component';
 import { Church } from '../../../../model/Church';
 import { ChurchComponent } from './church/church.component';
@@ -24,6 +25,7 @@ import { ChurchsService } from './churchs.service';
   styleUrls: ['./churchs.component.scss'],
   standalone: true,
   imports: [NotFoundRegisterComponent, CrudComponent, CommonModule],
+  providers: [FormatsPipe],
 })
 export class ChurchsComponent implements OnInit {
   churchs: Church[] = [];

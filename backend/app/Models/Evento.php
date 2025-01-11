@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Auth;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,15 +25,35 @@ class Evento extends Model
         'event_type_id',
         'name',
         'obs',
+        'created_by',
+        'updated_by',
     ];
 
-    public function church(): BelongsTo
-    {
+    protected static function boot() {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->created_by = Auth::id();
+        });
+
+        static::updating(function ($model) {
+            $model->updated_by = Auth::id();
+        });
+    }
+
+    public function church(): BelongsTo {
         return $this->belongsTo(Church::class);
     }
 
-    public function eventType(): BelongsTo
-    {
+    public function eventType(): BelongsTo {
         return $this->belongsTo(EventType::class);
+    }
+
+    public function createdBy(): BelongsTo {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedBy(): BelongsTo {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

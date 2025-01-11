@@ -1,4 +1,8 @@
-<form [formGroup]="familyForm" (ngSubmit)="handleSubmit()" class="wrapper">
+<form
+  [formGroup]="familyForm"
+  (ngSubmit)="handleSubmit()"
+  class="form-field-group"
+>
   <app-column>
     <mat-checkbox
       formControlName="is_member"
@@ -12,26 +16,26 @@
   <app-column>
     <mat-form-field appearance="fill">
       <mat-label>Membro</mat-label>
-      <mat-select formControlName="member_id">
-        <mat-select-trigger>
-          {{ displayNameMember() }}
-        </mat-select-trigger>
-        <ng-container *ngIf="filterMembers$ | async as members">
-          <mat-form-field appearance="outline" class="search-field">
-            <div class="flex flex-row gap-2">
-              <mat-icon>search</mat-icon>
-              <input
-                matInput
-                placeholder="Digite para buscar"
-                [formControl]="searchControlMembers"
-              />
-            </div>
-          </mat-form-field>
-          <mat-option *ngFor="let member of members" [value]="member.id">
-            {{ member.person.name }}
-          </mat-option>
-        </ng-container>
-      </mat-select>
+      <input
+        type="text"
+        matInput
+        [matAutocomplete]="member_id"
+        [formControl]="searchControlMembers"
+        placeholder="Selecione um membro"
+        (focus)="showAllMembers()"
+        required
+      />
+      <mat-autocomplete
+        #member_id="matAutocomplete"
+        (optionSelected)="onMemberSelected($event)"
+      >
+        <mat-option
+          *ngFor="let members of filterMembers | async as member"
+          [value]="members"
+        >
+          {{ members.person.name }}
+        </mat-option>
+      </mat-autocomplete>
       <mat-error
         *ngIf="
           familyForm.get('member_id')?.invalid &&
@@ -46,26 +50,26 @@
   <app-column *ngIf="handleIsMemberChange()">
     <mat-form-field appearance="fill">
       <mat-label>Filiação</mat-label>
-      <mat-select formControlName="person_id">
-        <mat-select-trigger>
-          {{ displayNamePerson() }}
-        </mat-select-trigger>
-        <ng-container *ngIf="filterPersons$ | async as persons">
-          <mat-form-field appearance="outline" class="search-field">
-            <div class="flex flex-row gap-2">
-              <mat-icon>search</mat-icon>
-              <input
-                matInput
-                placeholder="Digite para buscar"
-                [formControl]="searchControlPersons"
-              />
-            </div>
-          </mat-form-field>
-          <mat-option *ngFor="let person of persons" [value]="person.id">
-            {{ person.name }}
-          </mat-option>
-        </ng-container>
-      </mat-select>
+      <input
+        type="text"
+        matInput
+        [matAutocomplete]="person_id"
+        [formControl]="searchControlPersons"
+        placeholder="Selecione uma pessoa"
+        (focus)="showAllPersons()"
+        required
+      />
+      <mat-autocomplete
+        #person_id="matAutocomplete"
+        (optionSelected)="onPersonSelected($event)"
+      >
+        <mat-option
+          *ngFor="let person of filterPersons | async as persons"
+          [value]="person"
+        >
+          {{ person.name }}
+        </mat-option>
+      </mat-autocomplete>
       <mat-error
         *ngIf="
           familyForm.get('person_id')?.invalid &&
@@ -93,16 +97,26 @@
   <app-column>
     <mat-form-field appearance="fill">
       <mat-label>Parentesco</mat-label>
-      <mat-select formControlName="kinship_id">
-        <mat-select-trigger>
-          {{ displayNameKinship() }}
-        </mat-select-trigger>
-        <ng-container *ngIf="filterKinships$ | async as kinships">
-          <mat-option *ngFor="let kinship of kinships" [value]="kinship.id">
-            {{ kinship.name }}
-          </mat-option>
-        </ng-container>
-      </mat-select>
+      <input
+        type="text"
+        matInput
+        [matAutocomplete]="kinship_id"
+        [formControl]="searchControlKinship"
+        placeholder="Selecione um parentesco"
+        (focus)="showAllKinships()"
+        required
+      />
+      <mat-autocomplete
+        #kinship_id="matAutocomplete"
+        (optionSelected)="onKinshipsSelected($event)"
+      >
+        <mat-option
+          *ngFor="let kinships of filterKinships | async as kinship"
+          [value]="kinships"
+        >
+          {{ kinships.name }}
+        </mat-option>
+      </mat-autocomplete>
       <mat-error
         *ngIf="
           familyForm.get('kinship_id')?.invalid &&
@@ -115,7 +129,7 @@
   </app-column>
 
   <mat-divider></mat-divider>
-  <div class="cta">
+  <app-actions>
     <button
       mat-stroked-button
       color="warn"
@@ -132,5 +146,5 @@
     >
       {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
     </button>
-  </div>
+  </app-actions>
 </form>

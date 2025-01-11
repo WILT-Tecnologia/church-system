@@ -10,6 +10,7 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { ToastService } from 'app/components/toast/toast.service';
 import { Person } from 'app/model/Person';
 import { MESSAGES } from 'app/utils/messages';
+import { FormatsPipe } from 'app/utils/pipes/formats.pipe';
 import {
   ActionsProps,
   CrudComponent,
@@ -23,6 +24,7 @@ import { PersonsService } from './persons.service';
   templateUrl: './persons.component.html',
   styleUrls: ['./persons.component.scss'],
   imports: [NotFoundRegisterComponent, CommonModule, CrudComponent],
+  providers: [FormatsPipe],
 })
 export class PersonsComponent implements OnInit {
   persons: Person[] = [];
