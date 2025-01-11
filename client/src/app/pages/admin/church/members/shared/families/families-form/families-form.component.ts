@@ -30,14 +30,7 @@ import { Person } from 'app/model/Person';
 import { PersonComponent } from 'app/pages/admin/administrative/persons/person/person.component';
 import { MESSAGES } from 'app/utils/messages';
 import { ValidationService } from 'app/utils/validation/validation.service';
-import {
-  debounceTime,
-  forkJoin,
-  map,
-  Observable,
-  startWith,
-  Subject,
-} from 'rxjs';
+import { forkJoin, map, Observable, startWith, Subject } from 'rxjs';
 import { ActionsComponent } from '../../../../../../../components/actions/actions.component';
 import { FamiliesService } from '../families.service';
 
@@ -90,6 +83,7 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
     public data: { families: Families },
   ) {
     this.familyForm = this.createForm();
+    console.log(this.data);
   }
 
   ngOnInit() {
@@ -123,8 +117,7 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
 
   showAllMembers() {
     this.filterMembers = this.searchControlMembers.valueChanges.pipe(
-      debounceTime(300),
-      startWith(''),
+      startWith(this.familyForm.value),
       map((value: any) => {
         if (typeof value === 'string') {
           return value;
@@ -133,15 +126,14 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
         }
       }),
       map((name) =>
-        name.length >= 1 ? this._filterMembers(name) : this.members,
+        name?.length >= 1 ? this._filterMembers(name) : this.members,
       ),
     );
   }
 
   showAllPersons() {
     this.filterPersons = this.searchControlPersons.valueChanges.pipe(
-      debounceTime(300),
-      startWith(''),
+      startWith(this.familyForm.value),
       map((value: any) => {
         if (typeof value === 'string') {
           return value;
@@ -150,15 +142,14 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
         }
       }),
       map((name) =>
-        name.length >= 1 ? this._filterPerson(name) : this.persons,
+        name?.length >= 1 ? this._filterPerson(name) : this.persons,
       ),
     );
   }
 
   showAllKinships() {
     this.filterKinships = this.searchControlKinship.valueChanges.pipe(
-      debounceTime(300),
-      startWith(''),
+      startWith(this.familyForm.value),
       map((value: any) => {
         if (typeof value === 'string') {
           return value;
@@ -167,7 +158,7 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
         }
       }),
       map((name) =>
-        name.length >= 1 ? this._filterKinships(name) : this.kinships,
+        name?.length >= 1 ? this._filterKinships(name) : this.kinships,
       ),
     );
   }
@@ -195,7 +186,7 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
   private _filterMembers(name: string): Members[] {
     const filterValue = name.toLowerCase();
     return this.members.filter((member) =>
-      member.person.name.toLowerCase().includes(filterValue),
+      member?.person?.name.toLowerCase().includes(filterValue),
     );
   }
 
@@ -236,9 +227,9 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
   }
 
   checkEditMode() {
-    if (this.data?.families) {
+    if (this.data?.families?.id) {
       this.isEditMode = true;
-      this.onCheckboxChange(this.data.families.is_member);
+      this.onCheckboxChange(this.data.families?.is_member);
 
       if (this.data?.families.member) {
         this.searchControlMembers.setValue(
@@ -310,6 +301,7 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
     this.loadingService.hide();
     this.toast.openSuccess(message);
     this.dialogRef.close(this.familyForm.value);
+    this.loadInitialData();
   }
 
   onError(message: string) {
@@ -321,7 +313,7 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
     this.dialogRef.close();
   }
 
-  private getFormData(): any {
+  private getFormData() {
     return {
       id: this.data?.families?.id ?? '',
       is_member: this.handleIsMemberChange(),
@@ -345,7 +337,7 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleCreate(data?: any) {
+  handleCreate(data: any) {
     this.loadingService.show();
     this.familiesService.createFamily(data).subscribe({
       next: () => this.onSuccess(MESSAGES.CREATE_SUCCESS),

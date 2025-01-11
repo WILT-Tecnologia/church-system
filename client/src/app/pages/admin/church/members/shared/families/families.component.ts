@@ -52,8 +52,7 @@ export class FamiliesComponent implements OnInit {
 
   columnDefinitions = [
     { key: 'is_member', header: 'A filiação é membro?', type: 'boolean' },
-    { key: 'person.name', header: 'Filiação', type: 'string' },
-    { key: 'name', header: 'Nome', type: 'string' },
+    { key: 'combinedName', header: 'Nome', type: 'string' },
     { key: 'kinship.name', header: 'Parentesco', type: 'string' },
   ];
 
@@ -74,9 +73,13 @@ export class FamiliesComponent implements OnInit {
   loadFamilies = () => {
     this.loadingService.show();
     const memberId = this.memberService.getEditingMemberId();
+    console.log(memberId);
     this.membersService.getFamilyOfMemberId(memberId!).subscribe({
       next: (families) => {
-        this.families = families;
+        this.families = families.map((family) => ({
+          ...family,
+          combinedName: family?.person ? family.person?.name : family.name,
+        }));
         this.dataSourceMat.data = this.families;
         this.dataSourceMat.paginator = this.paginator;
         this.dataSourceMat.sort = this.sort;
