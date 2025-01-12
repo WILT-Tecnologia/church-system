@@ -14,87 +14,52 @@
   </app-column>
 
   <app-column>
-    <mat-form-field appearance="fill">
-      <mat-label>Membro</mat-label>
-      <input
-        type="text"
-        matInput
-        [matAutocomplete]="member_id"
-        [formControl]="searchControlMembers"
-        placeholder="Selecione um membro"
-        (focus)="showAllMembers()"
-        required
-      />
-      <mat-autocomplete
-        #member_id="matAutocomplete"
-        (optionSelected)="onMemberSelected($event)"
-      >
-        <mat-option
-          *ngFor="let members of filterMembers | async as member"
-          [value]="members"
+    @if (handleIsMemberChange()) {
+      <mat-form-field appearance="fill">
+        <mat-label>Filiação</mat-label>
+        <input
+          type="text"
+          matInput
+          [matAutocomplete]="person_id"
+          [formControl]="searchControlPersons"
+          placeholder="Selecione uma pessoa"
+          (focus)="showAllPersons()"
+          required
+        />
+        <mat-autocomplete
+          #person_id="matAutocomplete"
+          (optionSelected)="onPersonSelected($event)"
         >
-          {{ members.person.name }}
-        </mat-option>
-      </mat-autocomplete>
-      <mat-error
-        *ngIf="
-          familyForm.get('member_id')?.invalid &&
-          familyForm.get('member_id')?.touched
-        "
-      >
-        {{ getErrorMessage('member_id') }}
-      </mat-error>
-    </mat-form-field>
-  </app-column>
-
-  <app-column *ngIf="handleIsMemberChange()">
-    <mat-form-field appearance="fill">
-      <mat-label>Filiação</mat-label>
-      <input
-        type="text"
-        matInput
-        [matAutocomplete]="person_id"
-        [formControl]="searchControlPersons"
-        placeholder="Selecione uma pessoa"
-        (focus)="showAllPersons()"
-        required
-      />
-      <mat-autocomplete
-        #person_id="matAutocomplete"
-        (optionSelected)="onPersonSelected($event)"
-      >
-        <mat-option
-          *ngFor="let person of filterPersons | async as persons"
-          [value]="person"
-        >
-          {{ person.name }}
-        </mat-option>
-      </mat-autocomplete>
-      <mat-error
-        *ngIf="
+          @for (persons of filterPersons | async; track $index) {
+            <mat-option [value]="persons">
+              {{ persons.name }}
+            </mat-option>
+          } @empty {
+            <mat-option class="add-option" (click)="openAddPersonDialog()">
+              Adicionar nova pessoa
+            </mat-option>
+          }
+        </mat-autocomplete>
+        @if (
           familyForm.get('person_id')?.invalid &&
           familyForm.get('person_id')?.touched
-        "
-      >
-        {{ getErrorMessage('person_id') }}
-      </mat-error>
-    </mat-form-field>
-  </app-column>
-
-  <app-column *ngIf="!handleIsMemberChange()">
-    <mat-form-field appearance="fill">
-      <mat-label>Nome</mat-label>
-      <input matInput formControlName="name" required />
-      <mat-error
-        *ngIf="
+        ) {
+          <mat-error>
+            {{ getErrorMessage('person_id') }}
+          </mat-error>
+        }
+      </mat-form-field>
+    } @else {
+      <mat-form-field appearance="fill">
+        <mat-label>Nome</mat-label>
+        <input matInput formControlName="name" required />
+        @if (
           familyForm.get('name')?.invalid && familyForm.get('name')?.touched
-        "
-        >{{ getErrorMessage('name') }}</mat-error
-      >
-    </mat-form-field>
-  </app-column>
-
-  <app-column>
+        ) {
+          <mat-error>{{ getErrorMessage('name') }}</mat-error>
+        }
+      </mat-form-field>
+    }
     <mat-form-field appearance="fill">
       <mat-label>Parentesco</mat-label>
       <input
@@ -110,21 +75,20 @@
         #kinship_id="matAutocomplete"
         (optionSelected)="onKinshipsSelected($event)"
       >
-        <mat-option
-          *ngFor="let kinships of filterKinships | async as kinship"
-          [value]="kinships"
-        >
-          {{ kinships.name }}
-        </mat-option>
+        @for (kinships of filterKinships | async; track $index) {
+          <mat-option [value]="kinships">
+            {{ kinships.name }}
+          </mat-option>
+        }
       </mat-autocomplete>
-      <mat-error
-        *ngIf="
-          familyForm.get('kinship_id')?.invalid &&
-          familyForm.get('kinship_id')?.touched
-        "
-      >
-        {{ getErrorMessage('kinship_id') }}
-      </mat-error>
+      @if (
+        familyForm.get('kinship_id')?.invalid &&
+        familyForm.get('kinship_id')?.touched
+      ) {
+        <mat-error>
+          {{ getErrorMessage('kinship_id') }}
+        </mat-error>
+      }
     </mat-form-field>
   </app-column>
 

@@ -12,8 +12,8 @@ export class HistoryService {
 
   constructor(private http: HttpClient) {}
 
-  saveHistory(data: any) {
-    return this.http.post(this.apiUrl, data).toPromise();
+  saveHistory(data: Partial<History>) {
+    return this.http.post<History>(this.apiUrl, data).toPromise();
   }
 
   getHistories(): Observable<History[]> {

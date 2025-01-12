@@ -62,7 +62,6 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
   searchControlKinship = new FormControl('');
 
   families: Families[] = [];
-  members: Members[] = [];
   persons: Person[] = [];
   kinships: Kinships[] = [];
 
@@ -115,25 +114,9 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  showAllMembers() {
-    this.filterMembers = this.searchControlMembers.valueChanges.pipe(
-      startWith(this.familyForm.value),
-      map((value: any) => {
-        if (typeof value === 'string') {
-          return value;
-        } else {
-          return value ? value.name : '';
-        }
-      }),
-      map((name) =>
-        name?.length >= 1 ? this._filterMembers(name) : this.members,
-      ),
-    );
-  }
-
   showAllPersons() {
     this.filterPersons = this.searchControlPersons.valueChanges.pipe(
-      startWith(this.familyForm.value),
+      startWith(''),
       map((value: any) => {
         if (typeof value === 'string') {
           return value;
@@ -149,7 +132,7 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
 
   showAllKinships() {
     this.filterKinships = this.searchControlKinship.valueChanges.pipe(
-      startWith(this.familyForm.value),
+      startWith(''),
       map((value: any) => {
         if (typeof value === 'string') {
           return value;
@@ -166,12 +149,10 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
   loadInitialData() {
     this.loadingService.show();
     forkJoin({
-      members: this.familiesService.getMembers(),
       persons: this.familiesService.getPersons(),
       kinships: this.familiesService.getKinships(),
     }).subscribe({
-      next: ({ members, persons, kinships }) => {
-        this.members = members;
+      next: ({ persons, kinships }) => {
         this.persons = persons;
         this.kinships = kinships;
       },
@@ -181,13 +162,6 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
       },
       complete: () => this.loadingService.hide(),
     });
-  }
-
-  private _filterMembers(name: string): Members[] {
-    const filterValue = name.toLowerCase();
-    return this.members.filter((member) =>
-      member?.person?.name.toLowerCase().includes(filterValue),
-    );
   }
 
   private _filterPerson(name: string): Person[] {
@@ -202,12 +176,6 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
     return this.kinships.filter((kinship) =>
       kinship.name.toLowerCase().includes(filterValue),
     );
-  }
-
-  onMemberSelected(event: MatAutocompleteSelectedEvent) {
-    const member = event.option.value;
-    this.searchControlMembers.setValue(member?.person?.name);
-    this.familyForm.get('member_id')?.setValue(member.id);
   }
 
   onPersonSelected(event: MatAutocompleteSelectedEvent) {
@@ -226,19 +194,10 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
     this.dialogRef.close();
   }
 
-  checkEditMode() {
+  private checkEditMode() {
     if (this.data?.families?.id) {
       this.isEditMode = true;
       this.onCheckboxChange(this.data.families?.is_member);
-
-      if (this.data?.families.member) {
-        this.searchControlMembers.setValue(
-          this.data?.families?.member?.person?.name,
-        );
-        this.familyForm
-          .get('member_id')
-          ?.setValue(this.data?.families?.member?.id);
-      }
     }
 
     if (this.data.families.person) {
@@ -254,6 +213,10 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
         .get('kinship_id')
         ?.setValue(this.data?.families?.kinship?.id);
     }
+
+    this.familyForm.patchValue({
+      member_id: this.data?.families?.member?.id,
+    });
   }
 
   onCheckboxChange(event: boolean) {
@@ -301,7 +264,6 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
     this.loadingService.hide();
     this.toast.openSuccess(message);
     this.dialogRef.close(this.familyForm.value);
-    this.loadInitialData();
   }
 
   onError(message: string) {
@@ -313,27 +275,14 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
     this.dialogRef.close();
   }
 
-  private getFormData() {
-    return {
-      id: this.data?.families?.id ?? '',
-      is_member: this.handleIsMemberChange(),
-      name: this.familyForm.value.is_member ? '' : this.familyForm.value.name,
-      member_id: this.familyForm.value.member_id,
-      person_id: this.familyForm.value.person_id,
-      kinship_id: this.familyForm.value.kinship_id,
-    };
-  }
-
   handleSubmit() {
     const family = this.familyForm.value;
     if (!family) return;
 
-    const familyData = this.getFormData();
-
     if (this.isEditMode) {
-      this.updateMember(familyData.id, familyData);
+      this.updateMember(family.id, family);
     } else {
-      this.handleCreate(familyData);
+      this.handleCreate(family);
     }
   }
 

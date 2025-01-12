@@ -1,9 +1,4 @@
-<ng-container
-  *ngIf="
-    (ordination && ordination.length > 0) || rendering;
-    else noDataTemplate
-  "
->
+@if ((ordination && ordination.length > 0) || rendering) {
   <app-crud
     [enablePagination]="false"
     [fields]="ordination"
@@ -14,12 +9,10 @@
     [deleteFn]="handleDelete"
     [actions]="actions"
   ></app-crud>
-</ng-container>
-
-<ng-template #noDataTemplate>
+} @else {
   <app-not-found-register
     [template]="'ordenação'"
     [ctaLabel]="'Adicionar'"
     [addRegisterFn]="handleCreate"
   ></app-not-found-register>
-</ng-template>
+}

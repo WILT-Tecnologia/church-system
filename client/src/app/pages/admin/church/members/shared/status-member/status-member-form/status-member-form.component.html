@@ -1,64 +1,40 @@
 <form
   [formGroup]="statusMemberForm"
   (ngSubmit)="handleSubmit()"
-  class="form-field-group wrapper"
+  class="form-field-group"
 >
   <app-column>
     <mat-form-field appearance="fill">
-      <mat-label>Membro</mat-label>
-      <mat-select formControlName="member_id">
-        <mat-select-trigger>
-          {{ displayNameMember() }}
-        </mat-select-trigger>
-        <ng-container *ngIf="filterMembers | async as members">
-          <mat-form-field appearance="outline" class="search-field">
-            <div class="flex flex-row gap-2">
-              <mat-icon>search</mat-icon>
-              <input
-                matInput
-                placeholder="Digite para buscar"
-                [formControl]="searchControlMembers"
-              />
-            </div>
-          </mat-form-field>
-          <mat-option *ngFor="let member of members" [value]="member.id">
-            {{ member.person.name }}
-          </mat-option>
-        </ng-container>
-      </mat-select>
-      <mat-error
-        *ngIf="
-          statusMemberForm.get('member_id')?.invalid &&
-          statusMemberForm.get('member_id')?.touched
-        "
-      >
-        {{ getErrorMessage('member_id') }}
-      </mat-error>
-    </mat-form-field>
-
-    <mat-form-field appearance="fill">
       <mat-label>Situação do membro</mat-label>
-      <mat-select formControlName="member_situation_id">
-        <mat-select-trigger>
-          {{ displayNameSituationMember() }}
-        </mat-select-trigger>
-        <ng-container *ngIf="filterStatusMember | async">
-          <mat-option
-            *ngFor="let memberSituation of membersSituations"
-            [value]="memberSituation.id"
-          >
-            {{ memberSituation.name }}
-          </mat-option>
-        </ng-container>
-      </mat-select>
-      <mat-error
-        *ngIf="
-          statusMemberForm.get('member_situation_id')?.invalid &&
-          statusMemberForm.get('member_situation_id')?.touched
-        "
+      <input
+        type="text"
+        matInput
+        [matAutocomplete]="member_situation_id"
+        [formControl]="searchMemberSituationControl"
+        placeholder="Selecione uma situação do membro"
+        (focus)="showAllMembersSituations()"
+        required
+      />
+      <mat-autocomplete
+        #member_situation_id="matAutocomplete"
+        (optionSelected)="onSelectedMemberSituations($event)"
       >
-        {{ getErrorMessage('member_situation_id') }}
-      </mat-error>
+        @for (memberSituations of filterMemberSituation | async; track $index) {
+          <mat-option [value]="memberSituations">
+            {{ memberSituations.name }}
+          </mat-option>
+        } @empty {
+          <!-- <mat-option class="add-option" (click)="openAddMemberSituationForm()">
+            Adicionar nova situação do membro
+          </mat-option> -->
+        }
+      </mat-autocomplete>
+      @if (
+        statusMemberForm.get('member_situation_id')?.invalid &&
+        statusMemberForm.get('member_situation_id')?.touched
+      ) {
+        <mat-error>{{ getErrorMessage('member_situation_id') }}</mat-error>
+      }
     </mat-form-field>
   </app-column>
 

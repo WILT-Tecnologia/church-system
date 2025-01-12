@@ -8,13 +8,12 @@ import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { ToastService } from 'app/components/toast/toast.service';
-import { Members, StatusMember } from 'app/model/Members';
+import { StatusMember } from 'app/model/Members';
 import { MESSAGES } from 'app/utils/messages';
 import {
   ActionsProps,
   CrudComponent,
 } from '../../../../../../components/crud/crud.component';
-import { MembersService } from '../../members.service';
 import { MemberService } from '../member.service';
 import { StatusMemberFormComponent } from './status-member-form/status-member-form.component';
 import { StatusMemberService } from './status-member.service';
@@ -28,7 +27,6 @@ import { StatusMemberService } from './status-member.service';
 })
 export class StatusMemberComponent implements OnInit {
   @Input() statusMember: StatusMember[] = [];
-  members: Members[] = [];
   rendering: boolean = true;
   dataSourceMat = new MatTableDataSource<StatusMember>(this.statusMember);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -53,16 +51,12 @@ export class StatusMemberComponent implements OnInit {
 
   columnDefinitions = [
     {
-      key: 'statusMember.member_situation.name',
+      key: 'member_situation_name',
       header: 'Situação do membro',
       type: 'string',
     },
-    {
-      key: 'statusMember.initial_period',
-      header: 'Data Inicial',
-      type: 'date',
-    },
-    { key: 'statusMember.final_period', header: 'Data Final', type: 'date' },
+    { key: 'initial_period', header: 'Data Inicial', type: 'date' },
+    { key: 'final_period', header: 'Data Final', type: 'date' },
   ];
 
   constructor(
@@ -72,7 +66,6 @@ export class StatusMemberComponent implements OnInit {
     private modalService: ModalService,
     private statusMemberService: StatusMemberService,
     private memberService: MemberService,
-    private membersService: MembersService,
   ) {}
 
   ngOnInit() {
@@ -81,7 +74,8 @@ export class StatusMemberComponent implements OnInit {
 
   loadStatusMember = () => {
     this.loadingService.show();
-    this.statusMemberService.getStatusMembers().subscribe({
+    const memberId = this.memberService.getEditingMemberId();
+    this.statusMemberService.getStatusMemberFromMembers(memberId!).subscribe({
       next: (statusMember) => {
         this.statusMember = statusMember;
         this.dataSourceMat.data = this.statusMember;
@@ -100,7 +94,7 @@ export class StatusMemberComponent implements OnInit {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       StatusMemberFormComponent,
-      'Adicionar situação no membro',
+      'Adicionando situação do membro',
       true,
       true,
       { statusMember: { member: { id: defaultMemberId } } as StatusMember },
@@ -117,7 +111,7 @@ export class StatusMemberComponent implements OnInit {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       StatusMemberFormComponent,
-      'Editando situação no membro',
+      `Editando situação do membro`,
       true,
       true,
       { statusMember: statusMember, id: statusMember.id },

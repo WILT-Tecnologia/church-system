@@ -47,7 +47,7 @@ export type Members = {
   updated_at: string;
   family: Families[];
   ordination: Ordination[];
-  status_member: StatusMember[];
+  statusMember: StatusMember[];
 };
 
 export type StatusMember = {

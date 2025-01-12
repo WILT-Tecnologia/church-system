@@ -57,11 +57,11 @@ export class FamiliesComponent implements OnInit {
   ];
 
   constructor(
-    private confirmeService: ConfirmService,
-    private loadingService: LoadingService,
+    private confirmService: ConfirmService,
+    private loading: LoadingService,
     private toast: ToastService,
     private familiesService: FamiliesService,
-    private modalService: ModalService,
+    private modal: ModalService,
     private membersService: MembersService,
     private memberService: MemberService,
   ) {}
@@ -71,9 +71,8 @@ export class FamiliesComponent implements OnInit {
   }
 
   loadFamilies = () => {
-    this.loadingService.show();
+    this.loading.show();
     const memberId = this.memberService.getEditingMemberId();
-    console.log(memberId);
     this.membersService.getFamilyOfMemberId(memberId!).subscribe({
       next: (families) => {
         this.families = families.map((family) => ({
@@ -86,30 +85,20 @@ export class FamiliesComponent implements OnInit {
         this.rendering = false;
       },
       error: () => {
-        this.loadingService.hide();
+        this.loading.hide();
         this.toast.openError(MESSAGES.LOADING_ERROR);
       },
-      complete: () => this.loadingService.hide(),
+      complete: () => this.loading.hide(),
     });
-  };
-
-  openModalAddFamily = () => {
-    return this.modalService.openModal(
-      `modal-${Math.random()}`,
-      FamiliesFormComponent,
-      'Adicionar filiação',
-      true,
-      true,
-    );
   };
 
   handleCreate = () => {
     const defaultMemberId = this.memberService.getEditingMemberId();
 
-    const dialogRef = this.modalService.openModal(
+    const dialogRef = this.modal.openModal(
       `modal-${Math.random()}`,
       FamiliesFormComponent,
-      'Adicionar filiação',
+      'Adicionando filiação',
       true,
       true,
       {
@@ -125,10 +114,12 @@ export class FamiliesComponent implements OnInit {
   };
 
   handleEdit = (family: Families) => {
-    const dialogRef = this.modalService.openModal(
+    const existFamily = family.person ? family?.person?.name : family.name;
+
+    const dialogRef = this.modal.openModal(
       `modal-${Math.random()}`,
       FamiliesFormComponent,
-      'Editar filiação',
+      `Editando a filiação ${existFamily}`,
       true,
       true,
       {
@@ -146,10 +137,10 @@ export class FamiliesComponent implements OnInit {
 
   handleDelete(family: Families) {
     const nameFamily = family?.is_member
-      ? family?.person?.name + ' | ' + family?.kinship?.name
-      : family?.name + ' | ' + family?.kinship?.name;
+      ? `${family?.person?.name} | ${family?.kinship?.name}`
+      : `${family?.name} | ${family?.kinship?.name}`;
 
-    const modal = this.confirmeService.openConfirm(
+    const modal = this.confirmService.openConfirm(
       'Excluir o parentesco',
       `Tem certeza que deseja excluir o parentesco: ${nameFamily} ?`,
       'Confirmar',
@@ -158,16 +149,16 @@ export class FamiliesComponent implements OnInit {
 
     modal.afterClosed().subscribe((result) => {
       if (result) {
-        this.loadingService.show();
+        this.loading.show();
         this.familiesService.deleteFamily(family).subscribe({
           next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
           error: () => {
-            this.loadingService.hide();
+            this.loading.hide();
             this.toast.openError(MESSAGES.DELETE_ERROR);
           },
           complete: () => {
             this.loadFamilies();
-            this.loadingService.hide();
+            this.loading.hide();
           },
         });
       }
