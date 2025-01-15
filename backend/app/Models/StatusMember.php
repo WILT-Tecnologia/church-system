@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class StatusMember extends Model
@@ -27,9 +28,9 @@ class StatusMember extends Model
         'final_period',
     ];
 
-    public function member(): BelongsTo
+    public function member(): HasOne
     {
-        return $this->belongsTo(Member::class);
+        return $this->hasOne(Member::class, 'id', 'member_id');
     }
 
     public function memberSituation(): BelongsTo

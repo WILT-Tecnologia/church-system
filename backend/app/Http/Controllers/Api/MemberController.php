@@ -20,7 +20,7 @@ class MemberController extends Controller
      */
     public function index()
     {
-        $members = Member::with(['families', 'ordination'])->get();
+        $members = Member::with(['families', 'ordination', 'statusMember', 'histMembers'])->get();
         return MemberResource::collection($members);
     }
 
@@ -72,7 +72,7 @@ class MemberController extends Controller
      */
     public function show($id)
     {
-        $member = Member::with('families')->findOrFail($id);
+        $member = Member::with(['families', 'ordination', 'statusMember', 'histMembers'])->findOrFail($id);
         return new MemberResource($member);
     }
 

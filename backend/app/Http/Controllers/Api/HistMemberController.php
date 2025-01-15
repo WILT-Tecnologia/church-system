@@ -16,7 +16,9 @@ class HistMemberController extends Controller
      */
     public function index()
     {
-        return HistMemberResource::collection(HistMember::all());
+        $histMember = HistMember::with('member')->get();
+
+        return HistMemberResource::collection($histMember);
     }
 
     /**
@@ -32,16 +34,19 @@ class HistMemberController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(HistMember $histMember)
+    public function show($id)
     {
+        $histMember = HistMember::with('member')->findOrFail($id);
+
         return new HistMemberResource($histMember);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateHistMemberRequest $request, HistMember $histMember)
+    public function update(UpdateHistMemberRequest $request, $id)
     {
+        $histMember = HistMember::findOrFail($id);
         $histMember->update($request->validated());
 
         return new HistMemberResource($histMember);
@@ -50,8 +55,9 @@ class HistMemberController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(HistMember $histMember)
+    public function destroy($id)
     {
+        $histMember = HistMember::findOrFail($id);
         $histMember->delete();
 
         return response()->json([], 204);

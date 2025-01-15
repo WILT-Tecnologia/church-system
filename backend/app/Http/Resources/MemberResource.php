@@ -14,6 +14,8 @@ class MemberResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+
+        // dd($this);
         return [
             'id' => $this->id,
             'person' => new PersonResource($this->person),
@@ -45,6 +47,8 @@ class MemberResource extends JsonResource
             'member_origin' => new MemberOriginResource($this->memberOrigin),
             'receipt_date' => $this->receipt_date,
             'ordination' => OrdinationResource::collection($this->ordination),
+            'status_member' => new StatusMemberResource($this->whenLoaded('statusMember')),
+            'history_member' => HistMemberResource::collection($this->histMembers),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
