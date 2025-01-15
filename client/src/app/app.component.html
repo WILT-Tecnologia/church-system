@@ -1,5 +1,7 @@
 <app-loading></app-loading>
-<app-navbar *ngIf="isLoggedIn$ | async"></app-navbar>
+@if (isLoggedIn$ | async) {
+  <app-navbar></app-navbar>
+}
 <main>
   <router-outlet />
 </main>

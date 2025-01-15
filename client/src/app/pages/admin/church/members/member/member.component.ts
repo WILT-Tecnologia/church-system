@@ -443,12 +443,12 @@ export class MemberComponent implements OnInit, OnDestroy {
     );
   }
 
-  filterChurch(name: string): Church[] {
+  filterChurch = (name: string): Church[] => {
     const value = name.toLowerCase();
     return this.churchs.filter((church) =>
       church.name.toLowerCase().includes(value),
     );
-  }
+  };
 
   filterMemberOrigin(name: string): MemberOrigin[] {
     const value = name.toLowerCase();

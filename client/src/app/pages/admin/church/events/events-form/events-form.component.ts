@@ -96,7 +96,7 @@ export class EventsFormComponent implements OnInit {
     });
   };
 
-  checkEditMode() {
+  checkEditMode = () => {
     if (this.data?.event) {
       this.isEditMode = true;
 
@@ -112,16 +112,16 @@ export class EventsFormComponent implements OnInit {
           ?.setValue(this.data.event?.event_type?.id);
       }
     }
-  }
+  };
 
-  getErrorMessage(controlName: string): string | null {
+  getErrorMessage = (controlName: string): string | null => {
     const control = this.eventForm.get(controlName);
     return control?.errors
       ? this.validationService.getErrorMessage(control)
       : null;
-  }
+  };
 
-  findAllChurchs() {
+  findAllChurchs = () => {
     this.churchsService.getChurch().subscribe({
       next: (data) => {
         this.church = data;
@@ -133,9 +133,9 @@ export class EventsFormComponent implements OnInit {
       },
       complete: () => this.loading.hide(),
     });
-  }
+  };
 
-  findAllEventTypes() {
+  findAllEventTypes = () => {
     this.eventTypesService.getEventTypes().subscribe({
       next: (data) => {
         this.eventType = data;
@@ -147,9 +147,9 @@ export class EventsFormComponent implements OnInit {
       },
       complete: () => this.loading.hide(),
     });
-  }
+  };
 
-  showAllChurchs() {
+  showAllChurchs = () => {
     this.filterChurch = this.searchChurchControl.valueChanges.pipe(
       startWith(this.searchChurchControl.value),
       map((value: any) => {
@@ -163,9 +163,9 @@ export class EventsFormComponent implements OnInit {
         name.length >= 1 ? this._filterChurch(name) : this.church,
       ),
     );
-  }
+  };
 
-  showAllEventTypes() {
+  showAllEventTypes = () => {
     this.filterEventTypes = this.searchEventTypeControl.valueChanges.pipe(
       startWith(this.searchEventTypeControl.value),
       map((value: any) => {
@@ -179,39 +179,39 @@ export class EventsFormComponent implements OnInit {
         name.length >= 1 ? this._filterEventType(name) : this.eventType,
       ),
     );
-  }
+  };
 
-  private _filterChurch(name: string): Church[] {
+  private _filterChurch = (name: string): Church[] => {
     const filterValue = name.toLowerCase();
     return this.church.filter((church) =>
       church.name.toLowerCase().includes(filterValue),
     );
-  }
+  };
 
-  private _filterEventType(name: string): EventTypes[] {
+  private _filterEventType = (name: string): EventTypes[] => {
     const filterValue = name.toLowerCase();
     return this.eventType.filter((eventType) =>
       eventType.name.toLowerCase().includes(filterValue),
     );
-  }
+  };
 
-  onSelectedChurch(event: MatAutocompleteSelectedEvent) {
+  onSelectedChurch = (event: MatAutocompleteSelectedEvent) => {
     const church = event.option.value;
     this.searchChurchControl.setValue(church.name);
     this.eventForm.get('church_id')?.setValue(church.id);
-  }
+  };
 
-  onSelectedEventType(event: MatAutocompleteSelectedEvent) {
+  onSelectedEventType = (event: MatAutocompleteSelectedEvent) => {
     const eventType = event.option.value;
     this.searchEventTypeControl.setValue(eventType.name);
     this.eventForm.get('event_type_id')?.setValue(eventType.id);
-  }
+  };
 
-  handleCancel() {
+  handleCancel = () => {
     this.dialogRef.close();
-  }
+  };
 
-  handleSubmit() {
+  handleSubmit = () => {
     const event = this.eventForm.value;
 
     if (!event) {
@@ -223,9 +223,9 @@ export class EventsFormComponent implements OnInit {
     } else {
       this.handleCreate(event);
     }
-  }
+  };
 
-  handleCreate(event: Events) {
+  handleCreate = (event: Events) => {
     this.loading.show();
     this.eventsService.create(event).subscribe({
       next: () => {
@@ -238,9 +238,9 @@ export class EventsFormComponent implements OnInit {
         this.notification.onError(MESSAGES.CREATE_ERROR);
       },
     });
-  }
+  };
 
-  handleUpdate(id: string, event: Events) {
+  handleUpdate = (id: string, event: Events) => {
     this.loading.show();
     this.eventsService.update(id, event).subscribe({
       next: () => {
@@ -253,5 +253,5 @@ export class EventsFormComponent implements OnInit {
         this.notification.onError(MESSAGES.UPDATE_ERROR);
       },
     });
-  }
+  };
 }
