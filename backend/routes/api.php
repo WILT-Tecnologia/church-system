@@ -30,6 +30,7 @@ Route::prefix('church')->group(function () {
     Route::apiResource('status-members', \App\Http\Controllers\Api\StatusMemberController::class);
     Route::apiResource('hist-member', \App\Http\Controllers\Api\HistMemberController::class);
     Route::apiResource('evento', \App\Http\Controllers\Api\EventsController::class);
+    Route::apiResource('events-participant', \App\Http\Controllers\Api\EventParticipantController::class);
 });
 
 Route::prefix('aux')->group(function () {
