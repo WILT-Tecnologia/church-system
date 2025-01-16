@@ -14,8 +14,11 @@ class HistMemberController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index() {
-        return HistMemberResource::collection(HistMember::all());
+    public function index()
+    {
+        $histMember = HistMember::with('member')->get();
+
+        return HistMemberResource::collection($histMember);
     }
 
     /**
@@ -30,23 +33,18 @@ class HistMemberController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, $memberId) {
-        // Buscar os históricos baseados no member_id
-        $histories = HistMember::where('member_id', $memberId)->get();
+    public function show($id)
+    {
+        $histMember = HistMember::with('member')->findOrFail($id);
 
-        // Se nenhum histórico for encontrado
-        if ($histories->isEmpty()) {
-            return response()->json(['message' => 'Nenhum histórico encontrado'], 201);
-        }
-
-        // Retornar os dados de histórico com o recurso
-        return HistMemberResource::collection($histories);
+        return new HistMemberResource($histMember);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateHistMemberRequest $request, HistMember $histMember) {
+    public function update(UpdateHistMemberRequest $request, $id)
+    {
         $histMember->update($request->validated());
 
         return new HistMemberResource($histMember);
@@ -55,7 +53,11 @@ class HistMemberController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(HistMember $histMember) {
+
+    public function destroy($id)
+    {
+        $histMember = HistMember::findOrFail($id);
+
         $histMember->delete();
 
         return response()->json([], 204);

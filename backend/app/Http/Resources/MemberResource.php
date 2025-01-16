@@ -12,12 +12,13 @@ class MemberResource extends JsonResource
      *
      * @return array<string, mixed>
      */
-    public function toArray(Request $request): array {
+    public function toArray(Request $request): array
+    {
         return [
             'id' => $this->id,
             'person' => new PersonResource($this->person),
             'church' => new ChurchResource($this->church),
-            'family' => FamilyResource::collection($this->families),
+            'families' => FamilyResource::collection($this->families),
             'ordination' => OrdinationResource::collection($this->ordination),
             'statusMember' => StatusMemberResource::collection($this->statusMember),
             'rg' => $this->rg,
@@ -44,6 +45,9 @@ class MemberResource extends JsonResource
             'baptism_holy_spirit_date' => $this->baptism_holy_spirit_date,
             'member_origin' => new MemberOriginResource($this->memberOrigin),
             'receipt_date' => $this->receipt_date,
+            'ordination' => OrdinationResource::collection($this->ordination),
+            'status_member' => new StatusMemberResource($this->whenLoaded('statusMember')),
+            'history_member' => HistMemberResource::collection($this->histMembers),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

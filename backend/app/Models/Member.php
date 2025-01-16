@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Hash;
 
 class Member extends Model
 {
@@ -89,11 +90,14 @@ class Member extends Model
         return $this->HasMany(Ordination::class);
     }
 
-    public function statusMember(): HasMany {
-        return $this->hasMany(StatusMember::class);
+    public function statusMember(): BelongsTo
+    {
+        return $this->belongsTo(StatusMember::class, 'id', 'member_id');
     }
 
-    public function histMember(): HasMany {
-        return $this->HasMany(HistMember::class);
+    public function histMembers(): HasMany
+    {
+        return $this->hasMany(HistMember::class);
+
     }
 }
