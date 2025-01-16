@@ -32,16 +32,18 @@ class EventParticipantController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(EventParticipant $eventoParticipant)
+    public function show($id)
     {
-        return new EventParticipantResource($eventoParticipant);
+        $eventParticipant = EventParticipant::findOrFail($id);
+        return new EventParticipantResource($eventParticipant);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateEventParticipanteRequest $request, EventParticipant $eventParticipant)
+    public function update(UpdateEventParticipanteRequest $request, $id)
     {
+        $eventParticipant = EventParticipant::findOrFail($id);
         $eventParticipant->update($request->validated());
 
         return new EventParticipantResource($eventParticipant);
@@ -50,8 +52,9 @@ class EventParticipantController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(EventParticipant $eventParticipant)
+    public function destroy($id)
     {
+        $eventParticipant = EventParticipant::findOrFail($id);
         $eventParticipant->delete();
 
         return response()->json([], 204);

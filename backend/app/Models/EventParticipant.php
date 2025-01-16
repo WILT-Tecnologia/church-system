@@ -20,8 +20,8 @@ class EventParticipant extends Model
 
     protected $fillable = [
         'id',
-        'member_id',
         'event_id',
+        'member_id',
     ];
 
     public function member(): BelongsTo

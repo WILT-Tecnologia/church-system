@@ -23,7 +23,7 @@ class StoreEventParticipanteRequest extends FormRequest
     {
         return [
             'event_id' => ['required', 'exists:events,id'],
-            'member_id' => ['requerid', 'exists:members,id'],
+            'member_id' => ['required', 'exists:members,id'],
         ];
     }
 }
