@@ -13,68 +13,48 @@ class MemberController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index() {
-        $members = Member::with([
-            'person',
-            'church',
-            'church.responsible',
-            'civilStatus',
-            'colorRace',
-            'formation',
-            'statusMember',
-            'families',
-            'ordination',
-            'memberOrigin'
-        ])->get()->sortBy('person.name');
 
+    public function index()
+    {
+        $members = Member::with(['families', 'ordination', 'statusMember', 'histMembers'])->get();
         return MemberResource::collection($members);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreMemberRequest $request) {
-        // Cria o membro com os dados validados
-        $member = Member::create($request->validated());
-
-        // Verifica se o campo church_ids existe na requisição
-        if ($request->has('church_id')) {
-            // Associa as igrejas ao membro
-            $member->churches()->attach($request->church_id);
-        }
-
+    public function store(StoreMemberRequest $request)
+    {
+        $member = Member::create($request->all());
         return new MemberResource($member);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Member $member) {
+    public function show($id)
+    {
+        $member = Member::with(['families', 'ordination', 'statusMember', 'histMembers'])->findOrFail($id);
         return new MemberResource($member);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateMemberRequest $request, Member $member) {
-        // Atualiza os dados do membro
+    public function update(UpdateMemberRequest $request, Member $id)
+    {
+        $member = Member::findOrFail($id);
         $member->update($request->validated());
-
-        // Verifica se o campo church_ids existe na requisição
-        if ($request->has('church_id')) {
-            // Associa ou remove as igrejas associadas ao membro
-            $member->churches()->sync($request->church_id);
-        }
-
         return new MemberResource($member);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Member $member) {
+    public function destroy($id)
+    {
+        $member = Member::findOrFail($id);
         $member->delete();
-
-        return response()->json([], 204);
+        return response()->json(null, 204);
     }
 }

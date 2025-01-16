@@ -16,8 +16,7 @@ class OrdinationResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'member' => $this->member->id,
-            //'member' => new MemberResource($this->member),
+            'member' => new MemberResource($this->whenLoaded('member')),
             'occupation' => new OccupationResource($this->occupation),
             'status' => $this->status,
             'initial_date' => $this->initial_date,

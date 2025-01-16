@@ -12,10 +12,13 @@ class FamilyResource extends JsonResource
      *
      * @return array<string, mixed>
      */
-    public function toArray(Request $request): array {
+    public function toArray(Request $request): array
+    {
+
+        // dd($request);
         return [
             'id' => $this->id,
-            'member' => $this->member->id,
+            'member' => new MemberResource($this->whenLoaded('member')),
             'is_member' => $this->is_member,
             'person' => new PersonResource($this->person),
             'name' => $this->name,
