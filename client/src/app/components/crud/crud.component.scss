@@ -21,10 +21,8 @@
   width: 20rem;
 
   @media screen and (max-width: 768px) {
-    .search {
-      width: 100%;
-      max-width: 100%;
-    }
+    width: 100%;
+    max-width: 100%;
   }
 }
 
@@ -87,7 +85,7 @@
 .mat-cell,
 .rows,
 td {
-  max-width: 13dvw;
+  max-width: 10dvw;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -126,9 +124,7 @@ td {
   transition: opacity 0.3s ease;
 
   @media screen and (max-width: 768px) {
-    .actions-container {
-      display: flex !important;
-    }
+    display: block !important;
   }
 }
 

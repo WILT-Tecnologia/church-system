@@ -1,0 +1,406 @@
+table user {
+  id uuid pk
+  login varchar
+  password varchar
+  change_password boolean
+  status boolean
+  profile varchar
+  is_view_admin boolean
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+Table person {
+  id uuid pk
+  user_id uuid // nulo
+  image varchar
+  name varchar // obrigatório
+  cpf varchar
+  birth_date timestamp
+  email varchar
+  phone_one varchar
+  phone_two varchar
+  sex varchar
+  cep varchar
+  street varchar
+  number varchar
+  district varchar
+  complement varchar
+  city varchar
+  state varchar
+  country varchar
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+table church {
+  id uuid pk
+  responsible_id uuid // person_id | nulo
+  name varchar
+  email varchar
+  cnpj varchar
+  cep varchar
+  street varchar
+  number varchar
+  complement varchar // nulo
+  district varchar
+  city varchar
+  state varchar
+  country varchar
+  logo varchar
+  favicon varchar
+  background varchar
+  color varchar
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+
+Table occupation {
+  id uuid pk
+  name varchar
+  description varchar
+  status boolean
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+// tipo do evento
+table event_type {
+  id uuid pk
+  name varchar
+  description text
+  status bool
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+
+
+
+
+table member {
+  id uuid pk
+  person_id uuid
+  church_id uuid
+  rg varchar
+  issuing_body varchar // ORGAO EMISSOR
+  civil_status enum // Obrigatório
+  nationality varchar // Obrigatório /*CAMPO SELECT*/
+  naturalness varchar // Obrigatório
+  color_race enum
+  formation enum // grua instrução
+  formation_course varchar // curso
+  profission varchar
+  def_physics boolean
+  def_visual  boolean
+  def_hearing  boolean
+  def_intellectual boolean
+  def_mental  boolean
+  def_multiple boolean
+  def_other boolean
+  def_other_description text
+  data_batismo timestamp
+  local_batismo varchar
+  oficializante_batismo varchar
+  batizado_espirito_santo boolean
+  data_batismo_espirito_santo timestamp
+  origem_membro enum
+  data_recebimento timestamp
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+table family {
+  id uuid pk
+  member_id uuid
+  person_id uuid // null
+  name varchar  // null
+  kinship varchar // null
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+
+table ordinations{
+  id uuid pk
+  member_id uuid
+  occupation_id uuid
+  status boolean
+  initial_date date
+  end_date date
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+table status_member {
+  id uuid pk
+  member_id uuid
+  situation enum /*'Membro ativo', 'Frequentador', 'Membro em disciplina', 'Inativo', 'Falecido'*/
+  initial_period timestamp
+  final_period timestamp
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+table historico_membro {
+  id uuid pk,
+  member_id,
+  'table_name',
+  'before_situation',
+  'after_situation',
+  'change_date'
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+// evento
+table event {
+  id uuid pk
+  church_id uuid
+  event_type_id uuid
+  name varchar
+  obs text
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+// participantes do evento
+table event_participants {
+  id uuid pk
+  member_id uuid
+  event_id uuid
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+table guest {
+  id uuid pk
+  name string
+  phone_one string
+  phone_two string?
+  member_id uuid?
+  cep string?
+  street string?
+  number string?
+  complement string?
+  district string?
+  city string?
+  state string?
+  country string?
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+// convidados do evento
+table event_guest {
+  id uuid pk
+  guest_id uuid
+  event_id uuid
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+// chamada
+table event_call {
+  id uuid pk
+  event_id uuid
+  initial_date timestamp
+  final_date timestamp
+  theme varchar
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+table patrimonio {
+  id uuid
+  church_id uuid
+  codigo varchar
+  nome varchar
+  data_cadastro timestamp
+  descricao text
+  tipo_entrada enum
+  valor decimal
+  person_id uuid
+  doador varchar
+}
+
+// fornecedor
+table supplier {
+  id uuid pk
+  church_id uuid
+  name varchar
+  cpf_cnpj varchar
+  status boolean
+  cep varchar
+  street varchar
+  number varchar
+  district varchar
+  state varchar
+  uf varchar
+  country varchar
+  phone_one varchar
+  phone_two varchar
+  phone_three varchar
+  email varchar
+  contact_name varchar
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+ // centro de custo
+table cost_center {
+  id uuid pk
+  code varchar
+  name varchar
+  description text
+  type varchar
+  status boolean
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+// entradas
+table entry {
+  id uuid pk
+  church_id uuid
+  member_id uuid
+  cost_center_id uuid
+  name varchar
+  description text
+  value varchar
+  situation varchar
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+// saida
+table exit {
+  id uuid pk
+  church_id uuid
+  supplier_id uuid
+  cost_center_id uuid
+  name varchar
+  description text
+  value varchar
+  situation varchar
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+// balancete
+table balancete {
+  id uuid pk
+  month varchar
+  date timestamp
+  user_id uuid
+  entry varchar
+  exit varchar
+  opening_balance varchar
+  closing_balance varchar
+  total varchar
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+// BACKLOG
+
+table company {
+  id uuid pk
+  logo varchar
+  name varchar
+  email varchar
+  cnpj varchar
+  cep varchar
+  street varchar
+  number varchar
+  complement varchar
+  district varchar
+  city varchar
+  state varchar
+  country varchar
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+
+table profile {
+  id uuid pk
+  user_id uuid
+  name varchar
+  description text
+  status boolean
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+table permission {
+  id uuid pk
+  profile_id uuid
+  name varchar
+  type enum // 'CREATE', 'READ', 'UPDATE', 'DELETE'
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+table profile_permissions {
+  id uuid pk
+  profile_id uuid
+  permission_id uuid
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+table event_leader {
+  id uuid pk
+  member_id uuid
+  event_id uuid
+  created_at timestamp
+  update_at timestamp
+  deleted_at timestamp
+}
+
+Ref: "user"."id" < "profile"."user_id"
+Ref: "profile"."user_id" < "profile_permissions"."profile_id"
+Ref: "permission"."profile_id" < "profile_permissions"."permission_id"
+Ref: "company"."id" < "member"."church_id"
+Ref: "member"."id" < "status_member"."member_id"
+Ref: "event_type"."id" < "event"."event_type_id"
+Ref: "company"."id" < "event"."church_id"
+Ref: "event"."id" < "event_guest"."event_id"
+Ref: "event"."id" < "event_call"."event_id"
+Ref: "church"."id" < "event_type"."church_id"
+Ref: "event"."id" < "event_participants"."event_id"
+Ref: "member"."id" < "event_participants"."member_id"
+Ref: "member"."id" < "event_leader"."member_id"
+Ref: "event"."id" < "event_leader"."event_id"
+Ref: "church"."id" < "supplier"."church_id"
+Ref: "cost_center"."id" < "entry"."cost_center_id"
+Ref: "member"."id" < "entry"."member_id"
+Ref: "church"."id" < "entry"."church_id"
+Ref: "supplier"."id" < "exit"."supplier_id"
+Ref: "cost_center"."id" < "exit"."cost_center_id"
+Ref: "church"."id" < "exit"."church_id"
+Ref: "user"."id" < "balancete"."user_id"

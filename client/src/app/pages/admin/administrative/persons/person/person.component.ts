@@ -64,6 +64,7 @@ import {
 import { ActionsComponent } from '../../../../../components/actions/actions.component';
 import { UsersService } from '../../users/users.service';
 import { PersonsService } from '../persons.service';
+
 type Sex = {
   value: string;
   viewValue: string;
@@ -217,7 +218,7 @@ export class PersonComponent implements OnInit, OnDestroy {
   };
 
   checkEditMode() {
-    if (this.data?.person) {
+    if (this.data?.person?.id) {
       this.isEditMode = true;
 
       if (this.data?.person?.user) {

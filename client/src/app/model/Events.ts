@@ -1,6 +1,6 @@
 import { Church } from './Church';
 import { EventTypes } from './EventTypes';
-import { User } from './User';
+import { Members } from './Members';
 
 export type Events = {
   id: string;
@@ -10,9 +10,21 @@ export type Events = {
   event_type_id: string;
   name: string;
   obs: string;
-  user: User;
-  created_at: Date;
-  updated_at: Date;
-  created_by: User;
-  updated_by: User;
+};
+
+export type Guest = {
+  id: string;
+  name: string;
+  phone_one: string;
+  phone_two: string;
+  member: Members;
+  member_id: string;
+  cep: string;
+  street: string;
+  number: string;
+  complement: string;
+  district: string;
+  city: string;
+  state: string;
+  country: string;
 };

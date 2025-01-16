@@ -14,9 +14,9 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { ToastService } from 'app/components/toast/toast.service';
 import { Events } from 'app/model/Events';
 import { MESSAGES } from 'app/utils/messages';
-import { UsersService } from '../../administrative/users/users.service';
 import { EventsFormComponent } from './events-form/events-form.component';
 import { EventsService } from './events.service';
+import { GuestsComponent } from './shared/guests/guests.component';
 
 @Component({
   selector: 'app-events',
@@ -26,7 +26,6 @@ import { EventsService } from './events.service';
   imports: [NotFoundRegisterComponent, CommonModule, CrudComponent],
 })
 export class EventsComponent implements OnInit {
-  userName: string | null = null;
   events: Events[] = [];
   rendering: boolean = true;
   dataSourceMat = new MatTableDataSource<Events>(this.events);
@@ -34,6 +33,13 @@ export class EventsComponent implements OnInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   actions: ActionsProps[] = [
+    {
+      type: 'person',
+      tooltip: 'Convidados',
+      icon: 'groups',
+      label: 'Convidados',
+      action: (events: Events) => this.handleGuest(events),
+    },
     {
       type: 'edit',
       tooltip: 'Editar',
@@ -63,7 +69,6 @@ export class EventsComponent implements OnInit {
     private confirmService: ConfirmService,
     private modal: ModalService,
     private eventsService: EventsService,
-    private usersService: UsersService,
   ) {}
 
   ngOnInit() {
@@ -94,6 +99,17 @@ export class EventsComponent implements OnInit {
       },
       complete: () => this.hideLoading(),
     });
+  };
+
+  handleGuest = (event: Events) => {
+    this.modal.openModal(
+      `modal-${Math.random()}`,
+      GuestsComponent,
+      `Convidados do evento ${event.event_type?.name}`,
+      true,
+      true,
+      { event },
+    );
   };
 
   handleCreate = () => {

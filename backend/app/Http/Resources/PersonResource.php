@@ -23,7 +23,7 @@ class PersonResource extends JsonResource
             'email' => $this->email,
             'phone_one' => $this->phone_one,
             'phone_two' => $this->phone_two,
-            'sex' => $this->sex->value,
+            'sex' => $this->sex,
             'cep' => $this->cep,
             'street' => $this->street,
             'number' => $this->number,

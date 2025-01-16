@@ -6,4 +6,5 @@ export const messages = {
   invalidPassword:
     'A senha deve ter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial (@,$,!,%,*,?,&).',
   emailExists: 'O e-mail já existe e pertence a um usuário.',
+  invalidPhone: 'O telefone informado é inválido.',
 };
