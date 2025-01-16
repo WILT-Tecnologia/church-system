@@ -24,8 +24,7 @@ class HistMemberController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreHistMemberRequest $request)
-    {
+    public function store(StoreHistMemberRequest $request) {
         $histMember = HistMember::create($request->validated());
 
         return new HistMemberResource($histMember);
@@ -46,7 +45,6 @@ class HistMemberController extends Controller
      */
     public function update(UpdateHistMemberRequest $request, $id)
     {
-        $histMember = HistMember::findOrFail($id);
         $histMember->update($request->validated());
 
         return new HistMemberResource($histMember);
@@ -55,9 +53,11 @@ class HistMemberController extends Controller
     /**
      * Remove the specified resource from storage.
      */
+
     public function destroy($id)
     {
         $histMember = HistMember::findOrFail($id);
+
         $histMember->delete();
 
         return response()->json([], 204);

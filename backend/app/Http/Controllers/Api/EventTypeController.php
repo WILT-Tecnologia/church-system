@@ -14,16 +14,14 @@ class EventTypeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
+    public function index() {
         return EventTypeResource::collection(EventType::all());
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreEventTypeRequest $request)
-    {
+    public function store(StoreEventTypeRequest $request) {
         $eventType = EventType::create($request->validated());
 
         return new EventTypeResource($eventType);
@@ -32,16 +30,14 @@ class EventTypeController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(EventType $eventType)
-    {
+    public function show(EventType $eventType) {
         return new EventTypeResource($eventType);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateEventTypeRequest $request, EventType $eventType)
-    {
+    public function update(UpdateEventTypeRequest $request, EventType $eventType) {
         $eventType->update($request->validated());
 
         return new EventTypeResource($eventType);
@@ -50,8 +46,7 @@ class EventTypeController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(EventType $eventType)
-    {
+    public function destroy(EventType $eventType) {
         $eventType->delete();
 
         return response()->json([], 204);

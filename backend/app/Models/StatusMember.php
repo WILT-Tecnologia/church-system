@@ -31,10 +31,10 @@ class StatusMember extends Model
     public function member(): HasOne
     {
         return $this->hasOne(Member::class, 'id', 'member_id');
+
     }
 
-    public function memberSituation(): BelongsTo
-    {
+    public function memberSituation(): BelongsTo {
         return $this->belongsTo(MemberSituation::class);
     }
 }

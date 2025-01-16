@@ -1,0 +1,24 @@
+<ng-container
+  *ngIf="(profiles && profiles.length > 0) || rendering; else noDataTemplate"
+>
+  <app-crud
+    [fields]="profiles"
+    [dataSourceMat]="dataSourceMat"
+    [columnDefinitions]="columnDefinitions"
+    [addFn]="handleCreate"
+    [editFn]="handleEdit"
+    [deleteFn]="handleDelete"
+    [toggleFn]="toggleStatus"
+    [actions]="actions"
+    [enableToggleStatus]="true"
+    [tooltipTextButtonToggleFn]="'Ativa/Desativa o perfil'"
+  ></app-crud>
+</ng-container>
+
+<ng-template #noDataTemplate>
+  <app-not-found-register
+    [template]="'perfil'"
+    [ctaLabel]="'Adicionar Novo Perfil'"
+    [addRegisterFn]="handleCreate"
+  ></app-not-found-register>
+</ng-template>

@@ -10,39 +10,52 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-    public function teste(Request $request)
-    {
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+    public function login(Request $request) {
+        $credentials = $request->only('email', 'password');
 
+        if (Auth::attempt($credentials)) {
             $user = Auth::user();
 
-            $token = $request->user()->createToken('api-token')->plainTextToken;
+            if ($user->person) {
+                $members = $user->person->member()->with('churches')->get();
+
+                $churches = $members->flatMap(function ($member) {
+                    return $member->churches;
+                })->unique('id');
+
+                $churchesArray = $churches->toArray();
+            } else {
+                $churchesArray = [];
+            }
+
+            $token = $request->user()->createToken('token')->plainTextToken;
 
             return response()->json([
                 'status' => true,
                 'token' => $token,
-                'user' => $user
+                'user' => $user,
+                'churches' => $churchesArray,
             ], 201);
         } else {
             return response()->json([
                 'status' => false,
-                'message' => 'Login or password incorrect'
+                'message' => 'Email ou senha inválidos'
             ], 404);
         }
     }
 
-    public function logout(User $user)
-    {
+    public function logout(User $user) {
         try {
 
-            $user->tokens()->delete();
+            if ($user->tokens()->count() > 0) {
+                $user->tokens()->delete();
+            }
 
             return response()->json([
                 'status' => true,
                 'message' => 'Deslogado'
-            ],200);
+            ], 200);
         } catch (Exception $e) {
-
             return response()->json([
                 'status' => false,
                 'message' => 'Não deslogado'

@@ -11,13 +11,13 @@ use Illuminate\Http\Request;
 class ChurchController extends Controller
 {
 
-    public function index()
-    {
-        return ChurchResource::collection(Church::all());
+    public function index() {
+        $church = Church::with('responsible')->get()->sortBy('name');
+
+        return response()->json(ChurchResource::collection($church));
     }
 
-    public function store(StoreChurchRequest $request)
-    {
+    public function store(StoreChurchRequest $request) {
         $data = $request->validated();
 
         $church = Church::create($data);
@@ -25,13 +25,11 @@ class ChurchController extends Controller
         return new ChurchResource($church);
     }
 
-    public function show(Church $church)
-    {
+    public function show(Church $church) {
         return new ChurchResource($church);
     }
 
-    public function update(UpdateChurchRequest $request, Church $church)
-    {
+    public function update(UpdateChurchRequest $request, Church $church) {
         $data = $request->validated();
 
         $church->update($data);
@@ -39,8 +37,7 @@ class ChurchController extends Controller
         return new ChurchResource($church);
     }
 
-    public function destroy(Church $church)
-    {
+    public function destroy(Church $church) {
         $church->delete();
 
         return response()->json([], 204);

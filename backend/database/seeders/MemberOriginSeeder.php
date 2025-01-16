@@ -11,8 +11,7 @@ class MemberOriginSeeder extends Seeder
     /**
      * Run the database seeds.
      */
-    public function run(): void
-    {
-        MemberOrigin::factory(100)->create();
+    public function run(): void {
+        MemberOrigin::factory(10)->create();
     }
 }

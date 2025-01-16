@@ -11,8 +11,7 @@ class EventTypeSeeder extends Seeder
     /**
      * Run the database seeds.
      */
-    public function run(): void
-    {
+    public function run(): void {
         EventType::factory(11)->create();
     }
 }
