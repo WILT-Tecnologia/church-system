@@ -1,7 +1,7 @@
-@if ((statusMember && statusMember.length > 0) || rendering) {
+@if ((status_member && status_member.length > 0) || rendering) {
   <app-crud
     [enablePagination]="false"
-    [fields]="statusMember"
+    [fields]="status_member"
     [dataSourceMat]="dataSourceMat"
     [columnDefinitions]="columnDefinitions"
     [addFn]="handleCreate"

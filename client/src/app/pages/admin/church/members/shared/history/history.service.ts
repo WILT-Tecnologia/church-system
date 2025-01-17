@@ -24,12 +24,15 @@ export class HistoryService {
     return this.http.get<History[]>(`${this.apiUrl}/${id}`);
   }
 
-  createHistory(history: History): Observable<History> {
-    return this.http.post<History>(this.apiUrl, history);
+  createHistory(history_member: History): Observable<History> {
+    return this.http.post<History>(this.apiUrl, history_member);
   }
 
-  updateHistory(history: History): Observable<History> {
-    return this.http.put<History>(`${this.apiUrl}/${history.id}`, history);
+  updateHistory(history_member: History): Observable<History> {
+    return this.http.put<History>(
+      `${this.apiUrl}/${history_member.id}`,
+      history_member,
+    );
   }
 
   deleteHistory(id: string): Observable<History> {

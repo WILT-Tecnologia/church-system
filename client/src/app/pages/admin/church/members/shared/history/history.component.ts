@@ -26,7 +26,7 @@ import { HistoryService } from './history.service';
   ],
 })
 export class HistoryComponent implements OnInit {
-  @Input() history: History[] = [];
+  @Input() history_member: History[] = [];
   rendering: boolean = true;
 
   constructor(
@@ -54,9 +54,9 @@ export class HistoryComponent implements OnInit {
     this.showLoading();
     const memberId = this.memberService.getEditingMemberId();
     this.historyService.getHistoryById(memberId!).subscribe({
-      next: (history) => {
-        console.log(history);
-        this.history = history;
+      next: (history_member) => {
+        console.log(history_member);
+        this.history_member = history_member;
         this.rendering = false;
       },
       error: () => {

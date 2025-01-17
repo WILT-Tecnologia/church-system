@@ -1,5 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  OnDestroy,
+  OnInit,
+  Optional,
+  ViewChild,
+} from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -16,7 +25,10 @@ import {
   MAT_DATE_LOCALE,
   provideNativeDateAdapter,
 } from '@angular/material/core';
-import { MatDatepickerModule } from '@angular/material/datepicker';
+import {
+  MatDatepicker,
+  MatDatepickerModule,
+} from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -30,8 +42,9 @@ import { MemberSituations } from 'app/model/Auxiliaries';
 import { StatusMember } from 'app/model/Members';
 import { MESSAGES } from 'app/utils/messages';
 import { ValidationService } from 'app/utils/validation/validation.service';
+import dayjs from 'dayjs';
 import { provideNgxMask } from 'ngx-mask';
-import { forkJoin, map, Observable, startWith } from 'rxjs';
+import { forkJoin, map, Observable, startWith, Subject } from 'rxjs';
 import { ActionsComponent } from '../../../../../../../components/actions/actions.component';
 import { StatusMemberService } from '../status-member.service';
 
@@ -40,6 +53,7 @@ import { StatusMemberService } from '../status-member.service';
   standalone: true,
   templateUrl: './status-member-form.component.html',
   styleUrl: './status-member-form.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatAutocompleteModule,
     MatDatepickerModule,
@@ -55,12 +69,12 @@ import { StatusMemberService } from '../status-member.service';
     ActionsComponent,
   ],
   providers: [
+    provideNgxMask(),
     provideNativeDateAdapter(),
     { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
-    provideNgxMask(),
   ],
 })
-export class StatusMemberFormComponent implements OnInit {
+export class StatusMemberFormComponent implements OnInit, OnDestroy {
   statusMemberForm: FormGroup;
   membersSituations: MemberSituations[] = [];
   isEditMode: boolean = false;
@@ -71,16 +85,26 @@ export class StatusMemberFormComponent implements OnInit {
     MemberSituations[]
   >();
 
+  readonly minDate = new Date(1900, 0, 1);
+  readonly maxDate = new Date(new Date().getFullYear() + 1, 12, 31);
+  private destroy$ = new Subject<void>();
+  @ViewChild('initial_period') initial_period!: MatDatepicker<Date>;
+  @ViewChild('final_period') final_period!: MatDatepicker<Date>;
+
   constructor(
     private fb: FormBuilder,
     private toast: ToastService,
     private loading: LoadingService,
     private statusMemberService: StatusMemberService,
     private validationService: ValidationService,
+    private cdr: ChangeDetectorRef,
     private dialogRef: MatDialogRef<StatusMemberFormComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { statusMember: StatusMember },
+    @Optional()
+    @Inject(MAT_DIALOG_DATA)
+    public data: { status_member: StatusMember },
   ) {
     this.statusMemberForm = this.createForm();
+    console.log(this.data.status_member);
   }
 
   ngOnInit() {
@@ -88,8 +112,13 @@ export class StatusMemberFormComponent implements OnInit {
     this.checkEditMode();
   }
 
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   private checkEditMode() {
-    if (this.data?.statusMember?.id) {
+    if (this.data?.status_member?.id) {
       this.isEditMode = true;
       this.handleEdit();
     }
@@ -97,21 +126,21 @@ export class StatusMemberFormComponent implements OnInit {
 
   createForm = (): FormGroup => {
     return this.fb.group({
-      id: [this.data?.statusMember?.id ?? ''],
+      id: [this.data?.status_member?.id ?? ''],
       member_id: [
-        this.data?.statusMember?.member?.id ?? '',
+        this.data?.status_member?.member ?? '',
         [Validators.required],
       ],
       member_situation_id: [
-        this.data?.statusMember?.member_situation?.id ?? '',
+        this.data?.status_member?.member_situation?.id ?? '',
         [Validators.required],
       ],
       initial_period: [
-        this.data?.statusMember?.initial_period ?? '',
+        this.data?.status_member?.initial_period ?? '',
         [Validators.required],
       ],
       final_period: [
-        this.data?.statusMember?.final_period ?? '',
+        this.data?.status_member?.final_period ?? '',
         [Validators.required],
       ],
     });
@@ -220,7 +249,7 @@ export class StatusMemberFormComponent implements OnInit {
   }
 
   handleEdit = () => {
-    const statusMember = this.data.statusMember;
+    const statusMember = this.data.status_member;
 
     if (!statusMember.id) return;
 
@@ -233,9 +262,21 @@ export class StatusMemberFormComponent implements OnInit {
         ?.setValue(statusMember?.member_situation?.id);
     }
 
+    const initialPeriod = this.data.status_member.initial_period
+      ? dayjs(statusMember?.initial_period).toDate()
+      : null;
+
+    const finalPeriod = this.data.status_member.final_period
+      ? dayjs(statusMember?.final_period).toDate()
+      : null;
+
     this.statusMemberForm.patchValue({
-      member_id: statusMember?.member?.id,
+      member_id: statusMember?.member,
+      initial_period: initialPeriod,
+      final_period: finalPeriod,
     });
+
+    this.cdr.detectChanges();
   };
 
   clearDate(fieldName: string): void {

@@ -16,6 +16,10 @@ export type Members = {
   person: Person;
   church: Church;
   church_id: string;
+  families: Families[];
+  ordination: Ordination[];
+  status_member: StatusMember;
+  history_member: History[];
   rg: string;
   issuing_body: string;
   civil_status: CivilStatus;
@@ -45,15 +49,11 @@ export type Members = {
   member_origin_id: string;
   receipt_date: string;
   updated_at: string;
-  family: Families[];
-  ordination: Ordination[];
-  statusMember: StatusMember[];
 };
 
 export type StatusMember = {
   id: string;
-  member: Members;
-  member_id: string;
+  member: string;
   member_situation: MemberSituations;
   member_situation_id: string;
   initial_period: string;

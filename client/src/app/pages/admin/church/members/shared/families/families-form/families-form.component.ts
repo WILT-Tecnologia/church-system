@@ -82,7 +82,6 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
     public data: { families: Families },
   ) {
     this.familyForm = this.createForm();
-    console.log(this.data);
   }
 
   ngOnInit() {

@@ -139,7 +139,7 @@ export class MemberComponent implements OnInit, OnDestroy {
   formations: Formations[] = [];
   families: Families[] = [];
   ordinations: Ordination[] = [];
-  statusMember: StatusMember[] = [];
+  status_member: StatusMember[] = [];
   memberOrigins: MemberOrigin[] = [];
   history: History[] = [];
 
@@ -641,7 +641,7 @@ export class MemberComponent implements OnInit, OnDestroy {
 
       const familyData = this.families;
       const ordinationData = this.ordinations;
-      const statusMemberdata = this.statusMember;
+      const statusMemberdata = this.status_member;
       const status = this.memberForm.valid ? 'valid' : 'invalid';
 
       const finalData = {
