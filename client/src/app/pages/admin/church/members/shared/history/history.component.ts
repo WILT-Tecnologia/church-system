@@ -35,7 +35,7 @@ export class HistoryComponent implements OnInit {
     private historyService: HistoryService,
     private memberService: MemberService,
     private dialogRef: MatDialogRef<HistoryComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { members: History },
+    @Inject(MAT_DIALOG_DATA) public data: { history_member: History },
   ) {}
 
   ngOnInit() {
@@ -53,9 +53,8 @@ export class HistoryComponent implements OnInit {
   loadHistories() {
     this.showLoading();
     const memberId = this.memberService.getEditingMemberId();
-    this.historyService.getHistoryById(memberId!).subscribe({
+    this.historyService.findAll(memberId!).subscribe({
       next: (history_member) => {
-        console.log(history_member);
         this.history_member = history_member;
         this.rendering = false;
       },

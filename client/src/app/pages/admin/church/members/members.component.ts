@@ -146,7 +146,7 @@ export class MembersComponent implements OnInit {
       `Histórico do membro: ${member.person.name}`,
       true,
       true,
-      { members: member, id: memberId },
+      { history_member: member, id: memberId },
     );
 
     dialogRef.afterClosed().subscribe((result: Members) => {

@@ -1,14 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { History } from 'app/model/Members';
+import { History, Members } from 'app/model/Members';
 import { environment } from 'environments/environment';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class HistoryService {
-  private apiUrl = `${environment.apiUrl}/church/hist-member`;
+  private apiUrl = `${environment.apiUrl}/church/members`;
 
   constructor(private http: HttpClient) {}
 
@@ -16,8 +16,10 @@ export class HistoryService {
     return this.http.post<History>(this.apiUrl, data).toPromise();
   }
 
-  getHistories(): Observable<History[]> {
-    return this.http.get<History[]>(this.apiUrl);
+  findAll(id: string): Observable<History[]> {
+    return this.http
+      .get<Members>(`${this.apiUrl}/${id}`)
+      .pipe(map((member) => member.history_member));
   }
 
   getHistoryById(id: string): Observable<History[]> {
