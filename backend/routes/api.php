@@ -25,7 +25,6 @@ Route::prefix('church')->middleware(['cors', 'auth:sanctum'])->group(function ()
     Route::apiResource('ordinations', \App\Http\Controllers\Api\OrdinationController::class);
     Route::apiResource('status-members', \App\Http\Controllers\Api\StatusMemberController::class);
     Route::apiResource('hist-member', \App\Http\Controllers\Api\HistMemberController::class);
-    Route::get('hist-member/{memberId}', [\App\Http\Controllers\Api\HistMemberController::class, 'show']);
     Route::apiResource('evento', \App\Http\Controllers\Api\EventsController::class);
     Route::apiResource('events-participant', \App\Http\Controllers\Api\EventParticipantController::class);
 });

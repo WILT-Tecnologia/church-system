@@ -7,6 +7,7 @@ use App\Http\Requests\StoreHistMemberRequest;
 use App\Http\Requests\UpdateHistMemberRequest;
 use App\Http\Resources\HistMemberResource;
 use App\Models\HistMember;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class HistMemberController extends Controller
@@ -34,6 +35,11 @@ class HistMemberController extends Controller
      */
     public function show($id) {
         $histMember = HistMember::with('member')->findOrFail($id);
+
+        /*         if ($histMember->isEmpty()) {
+                    return response()->json(['message' => 'Histórico não encontrado'], 201);
+                } */
+
         return new HistMemberResource($histMember);
     }
 
