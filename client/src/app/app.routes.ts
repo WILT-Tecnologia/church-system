@@ -10,9 +10,12 @@ import { selectChurchGuard } from './services/guards/select-church.guard';
 export const routes: Routes = [
   { path: '', redirectTo: '/church', pathMatch: 'full' },
   {
+    path: 'login',
+    component: LoginComponent,
+  },
+  {
     path: 'select-church',
     component: SelectChurchComponent,
-    pathMatch: 'full',
     canActivate: [selectChurchGuard],
   },
   {
@@ -26,11 +29,6 @@ export const routes: Routes = [
     component: ChurchComponent,
     pathMatch: 'full',
     canActivate: [AuthGuard],
-  },
-  {
-    path: 'login',
-    component: LoginComponent,
-    pathMatch: 'full',
   },
   { path: '**', component: PageNotFoundComponent },
 ];

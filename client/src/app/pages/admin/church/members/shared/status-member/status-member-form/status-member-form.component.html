@@ -1,64 +1,36 @@
 <form
   [formGroup]="statusMemberForm"
   (ngSubmit)="handleSubmit()"
-  class="form-field-group wrapper"
+  class="form-field-group"
 >
   <app-column>
     <mat-form-field appearance="fill">
-      <mat-label>Membro</mat-label>
-      <mat-select formControlName="member_id">
-        <mat-select-trigger>
-          {{ displayNameMember() }}
-        </mat-select-trigger>
-        <ng-container *ngIf="filterMembers | async as members">
-          <mat-form-field appearance="outline" class="search-field">
-            <div class="flex flex-row gap-2">
-              <mat-icon>search</mat-icon>
-              <input
-                matInput
-                placeholder="Digite para buscar"
-                [formControl]="searchControlMembers"
-              />
-            </div>
-          </mat-form-field>
-          <mat-option *ngFor="let member of members" [value]="member.id">
-            {{ member.person.name }}
-          </mat-option>
-        </ng-container>
-      </mat-select>
-      <mat-error
-        *ngIf="
-          statusMemberForm.get('member_id')?.invalid &&
-          statusMemberForm.get('member_id')?.touched
-        "
-      >
-        {{ getErrorMessage('member_id') }}
-      </mat-error>
-    </mat-form-field>
-
-    <mat-form-field appearance="fill">
       <mat-label>Situação do membro</mat-label>
-      <mat-select formControlName="member_situation_id">
-        <mat-select-trigger>
-          {{ displayNameSituationMember() }}
-        </mat-select-trigger>
-        <ng-container *ngIf="filterStatusMember | async">
-          <mat-option
-            *ngFor="let memberSituation of membersSituations"
-            [value]="memberSituation.id"
-          >
-            {{ memberSituation.name }}
-          </mat-option>
-        </ng-container>
-      </mat-select>
-      <mat-error
-        *ngIf="
-          statusMemberForm.get('member_situation_id')?.invalid &&
-          statusMemberForm.get('member_situation_id')?.touched
-        "
+      <input
+        type="text"
+        matInput
+        [matAutocomplete]="member_situation_id"
+        [formControl]="searchMemberSituationControl"
+        placeholder="Selecione uma situação do membro"
+        (focus)="showAllMembersSituations()"
+        required
+      />
+      <mat-autocomplete
+        #member_situation_id="matAutocomplete"
+        (optionSelected)="onSelectedMemberSituations($event)"
       >
-        {{ getErrorMessage('member_situation_id') }}
-      </mat-error>
+        @for (memberSituations of filterMemberSituation | async; track $index) {
+          <mat-option [value]="memberSituations">
+            {{ memberSituations.name }}
+          </mat-option>
+        }
+      </mat-autocomplete>
+      @if (
+        statusMemberForm.get('member_situation_id')?.invalid &&
+        statusMemberForm.get('member_situation_id')?.touched
+      ) {
+        <mat-error>{{ getErrorMessage('member_situation_id') }}</mat-error>
+      }
     </mat-form-field>
   </app-column>
 
@@ -67,45 +39,119 @@
       <mat-label>Data Inicial</mat-label>
       <input
         matInput
+        name="initial_period"
+        [min]="minDate"
+        [max]="maxDate"
         [matDatepicker]="initial_period"
         formControlName="initial_period"
+        placeholder="Selecione uma data"
         readonly
+        required
       />
-      <mat-datepicker-toggle
-        matSuffix
-        [for]="initial_period"
-      ></mat-datepicker-toggle>
-      <mat-datepicker #initial_period></mat-datepicker>
-      <mat-error
-        *ngIf="
-          statusMemberForm.get('initial_period')?.invalid &&
-          statusMemberForm.get('initial_period')?.touched
-        "
-      >
-        {{ getErrorMessage('initial_period') }}
-      </mat-error>
+      @if (statusMemberForm.value.initial_period) {
+        <button
+          mat-icon-button
+          type="button"
+          matSuffix
+          (click)="clearDate('initial_period')"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      } @else {
+        <ng-container>
+          <mat-datepicker-toggle
+            matSuffix
+            [for]="initial_period"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #initial_period>
+            <mat-datepicker-actions>
+              <button
+                mat-stroked-button
+                type="button"
+                color="warn"
+                matDatepickerCancel
+              >
+                Cancelar
+              </button>
+              <button
+                mat-raised-button
+                type="button"
+                color="primary"
+                matDatepickerApply
+              >
+                Confirmar
+              </button>
+            </mat-datepicker-actions>
+          </mat-datepicker>
+        </ng-container>
+      }
+      @if (
+        statusMemberForm.get('initial_period')?.invalid &&
+        statusMemberForm.get('initial_period')?.touched
+      ) {
+        <mat-error>
+          {{ getErrorMessage('initial_period') }}
+        </mat-error>
+      }
     </mat-form-field>
     <mat-form-field appearance="fill">
       <mat-label>Data Final</mat-label>
       <input
         matInput
+        name="final_period"
+        [min]="minDate"
+        [max]="maxDate"
         [matDatepicker]="final_period"
         formControlName="final_period"
+        placeholder="Selecione uma data"
         readonly
+        required
       />
-      <mat-datepicker-toggle
-        matSuffix
-        [for]="final_period"
-      ></mat-datepicker-toggle>
-      <mat-datepicker #final_period></mat-datepicker>
-      <mat-error
-        *ngIf="
-          statusMemberForm.get('final_period')?.invalid &&
-          statusMemberForm.get('final_period')?.touched
-        "
-      >
-        {{ getErrorMessage('final_period') }}
-      </mat-error>
+      @if (statusMemberForm.value.final_period) {
+        <button
+          mat-icon-button
+          type="button"
+          matSuffix
+          (click)="clearDate('final_period')"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      } @else {
+        <ng-container>
+          <mat-datepicker-toggle
+            matIconSuffix
+            [for]="final_period"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #final_period>
+            <mat-datepicker-actions>
+              <button
+                mat-stroked-button
+                type="button"
+                color="warn"
+                matDatepickerCancel
+              >
+                Cancelar
+              </button>
+              <button
+                mat-raised-button
+                type="button"
+                color="primary"
+                matDatepickerApply
+              >
+                Confirmar
+              </button>
+            </mat-datepicker-actions>
+          </mat-datepicker>
+        </ng-container>
+      }
+      @if (
+        statusMemberForm.get('final_period')?.invalid &&
+        statusMemberForm.get('final_period')?.touched
+      ) {
+        <mat-error>
+          {{ getErrorMessage('final_period') }}
+        </mat-error>
+      }
     </mat-form-field>
   </app-column>
 

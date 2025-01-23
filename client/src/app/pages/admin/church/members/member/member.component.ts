@@ -139,7 +139,7 @@ export class MemberComponent implements OnInit, OnDestroy {
   formations: Formations[] = [];
   families: Families[] = [];
   ordinations: Ordination[] = [];
-  statusMember: StatusMember[] = [];
+  status_member: StatusMember[] = [];
   memberOrigins: MemberOrigin[] = [];
   history: History[] = [];
 
@@ -443,12 +443,12 @@ export class MemberComponent implements OnInit, OnDestroy {
     );
   }
 
-  filterChurch(name: string): Church[] {
+  filterChurch = (name: string): Church[] => {
     const value = name.toLowerCase();
     return this.churchs.filter((church) =>
       church.name.toLowerCase().includes(value),
     );
-  }
+  };
 
   filterMemberOrigin(name: string): MemberOrigin[] {
     const value = name.toLowerCase();
@@ -641,7 +641,7 @@ export class MemberComponent implements OnInit, OnDestroy {
 
       const familyData = this.families;
       const ordinationData = this.ordinations;
-      const statusMemberdata = this.statusMember;
+      const statusMemberdata = this.status_member;
       const status = this.memberForm.valid ? 'valid' : 'invalid';
 
       const finalData = {
@@ -683,23 +683,36 @@ export class MemberComponent implements OnInit, OnDestroy {
             const historyData: Partial<History> = {
               member_id: memberId,
               table_name: 'members',
-              before_situation: change.oldValue,
-              after_situation: change.newValue,
+              before_situation: change.oldValue || 'N/A',
+              after_situation: change.newValue || 'N/A',
               change_date: dayjs().format('YYYY-MM-DD HH:mm:ss'),
             };
 
             return this.historyService.saveHistory(historyData);
           });
-          Promise.all(historyPromises).catch((error) =>
-            this.notification.onError(`Erro ao salvar no histórico: ${error}`),
-          );
-        }
 
-        this.membersService.updateMember(memberId!, memberData).subscribe({
-          next: () => this.onSuccessUpdate(MESSAGES.UPDATE_SUCCESS),
-          error: () => this.onError(MESSAGES.UPDATE_ERROR),
-          complete: () => this.hideLoading(),
-        });
+          Promise.all(historyPromises)
+            .then(() => {
+              this.membersService
+                .updateMember(memberId!, memberData)
+                .subscribe({
+                  next: () => this.onSuccessUpdate(MESSAGES.UPDATE_SUCCESS),
+                  error: () => this.onError(MESSAGES.UPDATE_ERROR),
+                  complete: () => this.hideLoading(),
+                });
+            })
+            .catch((error) =>
+              this.notification.onError(
+                `Erro ao salvar no histórico: ${error}`,
+              ),
+            );
+        } else {
+          this.membersService.updateMember(memberId!, memberData).subscribe({
+            next: () => this.onSuccessUpdate(MESSAGES.UPDATE_SUCCESS),
+            error: () => this.onError(MESSAGES.UPDATE_ERROR),
+            complete: () => this.hideLoading(),
+          });
+        }
       },
       error: () => {
         this.onError(MESSAGES.UPDATE_ERROR);
@@ -713,11 +726,17 @@ export class MemberComponent implements OnInit, OnDestroy {
 
     for (const key in afterData) {
       if (afterData[key] !== beforeData[key]) {
-        changes.push({
-          field: key,
-          oldValue: beforeData[key],
-          newValue: afterData[key],
-        });
+        // Comparação mais robusta para evitar falsos positivos
+        if (
+          (afterData[key] != null || beforeData[key] != null) && // Considerar null e undefined
+          JSON.stringify(afterData[key]) !== JSON.stringify(beforeData[key]) // Considerar objetos ou arrays
+        ) {
+          changes.push({
+            field: key,
+            oldValue: beforeData[key] ?? 'N/A',
+            newValue: afterData[key] ?? 'N/A',
+          });
+        }
       }
     }
 

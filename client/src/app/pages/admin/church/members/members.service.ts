@@ -35,7 +35,7 @@ export class MembersService {
   getFamilyOfMemberId(memberId: string): Observable<Families[]> {
     return this.http
       .get<Members>(`${this.api}/${memberId}`)
-      .pipe(map((member) => member.family));
+      .pipe(map((member) => member.families));
   }
 
   getCivilStatus(): Observable<CivilStatus[]> {

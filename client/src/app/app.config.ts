@@ -14,6 +14,7 @@ import { routes } from './app.routes';
 
 import { getPtBrPaginatorIntl } from './components/crud/paginator-pt-br';
 import { LoadingInterceptor } from './components/loading/loading.interceptor';
+import { AuthInterceptorService } from './services/auth/auth-interceptor.service';
 import { AuthInterceptor } from './services/auth/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
@@ -26,6 +27,11 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptorsFromDi()),
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptorService,
+      multi: true,
+    },
     { provide: MatPaginatorIntl, useValue: getPtBrPaginatorIntl() },
   ],
 };

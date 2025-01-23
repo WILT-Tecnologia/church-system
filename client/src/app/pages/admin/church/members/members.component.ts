@@ -138,14 +138,15 @@ export class MembersComponent implements OnInit {
   };
 
   handleHistory = (member: Members) => {
-    this.memberService.setEditingMemberId(member.id);
+    const memberId = this.memberService.setEditingMemberId(member.id);
+
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       HistoryComponent,
       `Histórico do membro: ${member.person.name}`,
       true,
       true,
-      { members: member, id: member.id },
+      { history_member: member, id: memberId },
     );
 
     dialogRef.afterClosed().subscribe((result: Members) => {

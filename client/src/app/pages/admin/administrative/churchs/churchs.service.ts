@@ -12,13 +12,13 @@ export class ChurchsService {
   constructor(private http: HttpClient) {}
 
   private api = `${environment.apiUrl}/admin/churches`;
-  private format = new FormatsPipe();
+  private formats = new FormatsPipe();
 
   getChurch(): Observable<Church[]> {
     return this.http.get<Church[]>(this.api).pipe(
       map((church: Church[]) => {
         return church.map((church: Church) => {
-          church.cnpj = this.format.cnpjFormat(church.cnpj);
+          church.cnpj = this.formats.cnpjFormat(church.cnpj);
           return church;
         });
       }),

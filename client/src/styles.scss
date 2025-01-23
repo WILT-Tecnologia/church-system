@@ -46,9 +46,6 @@ body {
   color: theme.$textColor;
 }
 
-a:hover {
-  text-decoration: none;
-}
 
 /* Estilos gerais */
 
@@ -250,7 +247,6 @@ mat-form-field {
   }
 }
 
-
 .checkbox-group {
   display: flex;
   justify-content: space-between;
@@ -259,16 +255,6 @@ mat-form-field {
 .checkbox-column {
   display: flex;
   flex-direction: column;
-}
-
-mat-label {
-  @media screen and (max-width: 768px) {
-    font-size: 0.8rem;
-  }
-}
-
-mat-error {
-  font-size: 0.75rem;
 }
 
 /* Personalizando o scrollbar */
@@ -291,6 +277,8 @@ mat-error {
   border-radius: 0.5rem;
 }
 
+/* Personalizando o scrollbar */
+
 
 /* Charts */
 .item-value,
@@ -305,4 +293,21 @@ mat-error {
 
 .total-value {
   margin-bottom: 1rem !important;
+}
+
+@media screen and (max-width: 768px) {
+    .mat-mdc-paginator-container {
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.mat-mdc-paginator-range-actions {
+  display: flex;
+  align-items: center;
+  flex-direction: row !important;
+}
+
+.mat-mdc-paginator-range-label {
+  margin: 0px 10px 0 0 !important;
+}
 }

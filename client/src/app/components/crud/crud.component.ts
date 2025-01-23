@@ -32,6 +32,13 @@ export type ActionsProps = {
   action: (element: any) => void;
 };
 
+export type ColumnDefinitionsProps = {
+  key: string;
+  header: string;
+  type: string;
+  userName?: string;
+};
+
 @Component({
   selector: 'app-crud',
   standalone: true,
@@ -52,6 +59,7 @@ export type ActionsProps = {
     CommonModule,
     FormatValuesPipe,
   ],
+  providers: [FormatsPipe],
 })
 export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() fields: any[] = [];
@@ -68,13 +76,13 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() enableAddButtonAdd: boolean = true;
   @Input() actions!: ActionsProps[];
   @Input() dataSourceMat = new MatTableDataSource<any>([]);
-  @Input() columnDefinitions: { key: string; header: string; type: string }[] =
-    [];
+  @Input() columnDefinitions: ColumnDefinitionsProps[] = [];
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   displayedColumns: string[] = [];
   currentPageIndex: number = 0;
-  format = new FormatsPipe();
+
+  constructor(private format: FormatsPipe) {}
 
   ngOnInit() {
     this.dataSourceMat.data = this.fields;

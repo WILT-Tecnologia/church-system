@@ -23,7 +23,6 @@ export class AuthService {
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: any,
   ) {
-    // Sincroniza o estado ao inicializar o serviço
     if (this.isAuthenticated()) {
       this.isLoggedInSubject.next(true);
     } else {

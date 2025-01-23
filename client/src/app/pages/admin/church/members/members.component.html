@@ -1,6 +1,4 @@
-<ng-container
-  *ngIf="(member && member.length > 0) || rendering; else noDataTemplate"
->
+@if ((member && member.length > 0) || rendering) {
   <app-crud
     [fields]="member"
     [dataSourceMat]="dataSourceMat"
@@ -10,12 +8,10 @@
     [deleteFn]="deleteMembers"
     [actions]="actions"
   ></app-crud>
-</ng-container>
-
-<ng-template #noDataTemplate>
+} @else {
   <app-not-found-register
     [template]="'membro'"
     [ctaLabel]="'Adicionar'"
     [addRegisterFn]="addNewMembers"
   ></app-not-found-register>
-</ng-template>
+}

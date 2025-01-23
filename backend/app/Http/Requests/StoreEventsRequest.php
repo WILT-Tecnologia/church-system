@@ -9,8 +9,7 @@ class StoreEventsRequest extends FormRequest
     /**
      * Determine if the user is authorized to make this request.
      */
-    public function authorize(): bool
-    {
+    public function authorize(): bool {
         return true;
     }
 
@@ -19,13 +18,14 @@ class StoreEventsRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
-    {
+    public function rules(): array {
         return [
             'church_id' => ['required', 'exists:churches,id'],
             'event_type_id' => ['required', 'exists:event_types,id'],
             'name' => ['required'],
             'obs' => ['nullable'],
+            'created_by' => ['nullable', 'exists:users,id'],
+            'updated_by' => ['nullable', 'exists:users,id']
         ];
     }
 }

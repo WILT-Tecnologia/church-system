@@ -5,10 +5,9 @@ import {
   HttpInterceptor,
   HttpRequest,
 } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, Observable, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 
 @Injectable()
@@ -16,10 +15,10 @@ export class AuthInterceptor implements HttpInterceptor {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  intercept(
+  intercept = (
     req: HttpRequest<any>,
     next: HttpHandler,
-  ): Observable<HttpEvent<any>> {
+  ): Observable<HttpEvent<any>> => {
     try {
       const token = this.authService.getToken();
 
@@ -47,5 +46,5 @@ export class AuthInterceptor implements HttpInterceptor {
       console.error('Erro no login:', error);
       return next.handle(req);
     }
-  }
+  };
 }

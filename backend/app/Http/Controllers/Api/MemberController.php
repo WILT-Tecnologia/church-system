@@ -14,8 +14,7 @@ class MemberController extends Controller
      * Display a listing of the resource.
      */
 
-    public function index()
-    {
+    public function index() {
         $members = Member::with(['families', 'ordination', 'statusMember', 'histMembers'])->get();
         return MemberResource::collection($members);
     }
@@ -23,8 +22,7 @@ class MemberController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreMemberRequest $request)
-    {
+    public function store(StoreMemberRequest $request) {
         $member = Member::create($request->all());
         return new MemberResource($member);
     }
@@ -32,8 +30,7 @@ class MemberController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
-    {
+    public function show($id) {
         $member = Member::with(['families', 'ordination', 'statusMember', 'histMembers'])->findOrFail($id);
         return new MemberResource($member);
     }
@@ -41,8 +38,7 @@ class MemberController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateMemberRequest $request, Member $id)
-    {
+    public function update(UpdateMemberRequest $request, $id) {
         $member = Member::findOrFail($id);
         $member->update($request->validated());
         return new MemberResource($member);
@@ -51,8 +47,7 @@ class MemberController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
-    {
+    public function destroy($id) {
         $member = Member::findOrFail($id);
         $member->delete();
         return response()->json(null, 204);

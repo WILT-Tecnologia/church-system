@@ -6,7 +6,7 @@ import { FormatsPipe } from './formats.pipe';
   standalone: true,
 })
 export class FormatValuesPipe implements PipeTransform {
-  formats = new FormatsPipe();
+  constructor(private formats: FormatsPipe) {}
 
   transform(data: any, key: string, type: string): string {
     const value = this.formats.getNestedValue(data, key);

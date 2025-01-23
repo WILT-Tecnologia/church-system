@@ -19,25 +19,25 @@ export class StatusMemberService {
     return this.http.get<MemberSituations[]>(`${this.apiAux}/member-situation`);
   }
 
-  getStatusMemberFromMembers(memberId: string): Observable<StatusMember[]> {
+  getStatusMemberFromMembers(memberId: string): Observable<StatusMember> {
     return this.http
       .get<Members>(`${this.memberApi}/${memberId}`)
       .pipe(map((member) => member.status_member));
   }
 
-  getStatusMemberById(id: string): Observable<StatusMember> {
+  findById(id: string): Observable<StatusMember> {
     return this.http.get<StatusMember>(`${this.api}/${id}`);
   }
 
-  getStatusMembers(): Observable<StatusMember[]> {
+  findAll(): Observable<StatusMember[]> {
     return this.http.get<StatusMember[]>(this.memberApi);
   }
 
-  createStatusMember(statusMember: StatusMember): Observable<StatusMember> {
+  create(statusMember: StatusMember): Observable<StatusMember> {
     return this.http.post<StatusMember>(`${this.api}`, statusMember);
   }
 
-  updateStatusMember(
+  update(
     statusMemberId: string,
     statusMemberData: Partial<StatusMember>,
   ): Observable<StatusMember> {

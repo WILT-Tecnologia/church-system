@@ -1,6 +1,4 @@
-<ng-container
-  *ngIf="(families && families.length > 0) || rendering; else noDataTemplate"
->
+@if ((families && families.length > 0) || rendering) {
   <app-crud
     [enablePagination]="false"
     [fields]="families"
@@ -11,12 +9,10 @@
     [deleteFn]="handleDelete"
     [actions]="actions"
   ></app-crud>
-</ng-container>
-
-<ng-template #noDataTemplate>
+} @else {
   <app-not-found-register
     [template]="'parentesco'"
     [ctaLabel]="'Adicionar'"
     [addRegisterFn]="handleCreate"
   ></app-not-found-register>
-</ng-template>
+}

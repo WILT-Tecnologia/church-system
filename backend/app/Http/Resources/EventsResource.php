@@ -12,14 +12,17 @@ class EventsResource extends JsonResource
      *
      * @return array<string, mixed>
      */
-    public function toArray(Request $request): array
-    {
+    public function toArray(Request $request): array {
         return [
             'id' => $this->id,
             'church' => new ChurchResource($this->church),
-            'event_type' => new EventTypeResource($this-> eventType),
+            'event_type' => new EventTypeResource($this->eventType),
             'name' => $this->name,
             'obs' => $this->obs,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            'created_by' => new UserResource($this->createdBy),
+            'updated_by' => new UserResource($this->updatedBy),
         ];
     }
 }

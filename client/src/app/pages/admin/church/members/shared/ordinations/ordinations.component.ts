@@ -8,7 +8,6 @@ import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { ToastService } from 'app/components/toast/toast.service';
-import { Members } from 'app/model/Members';
 import { Ordination } from 'app/model/Ordination';
 import { MESSAGES } from 'app/utils/messages';
 import {
@@ -28,7 +27,6 @@ import { OrdinationsService } from './ordinations.service';
 })
 export class OrdinationsComponent implements OnInit {
   @Input() ordination: Ordination[] = [];
-  members: Members[] = [];
   rendering: boolean = true;
   dataSourceMat = new MatTableDataSource<Ordination>(this.ordination);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -59,10 +57,10 @@ export class OrdinationsComponent implements OnInit {
   ];
 
   constructor(
-    private confirmeService: ConfirmService,
-    private loadingService: LoadingService,
+    private confirmService: ConfirmService,
+    private loading: LoadingService,
     private toast: ToastService,
-    private modalService: ModalService,
+    private modal: ModalService,
     private ordinationService: OrdinationsService,
     private memberService: MemberService,
   ) {}
@@ -72,7 +70,7 @@ export class OrdinationsComponent implements OnInit {
   }
 
   loadOrdinations = () => {
-    this.loadingService.show();
+    this.loading.show();
     const memberId = this.memberService.getEditingMemberId();
     this.ordinationService.getOrdinationByMemberId(memberId!).subscribe({
       next: (ordination) => {
@@ -83,27 +81,17 @@ export class OrdinationsComponent implements OnInit {
         this.rendering = false;
       },
       error: () => {
-        this.loadingService.hide();
+        this.loading.hide();
         this.toast.openError(MESSAGES.LOADING_ERROR);
       },
-      complete: () => this.loadingService.hide(),
+      complete: () => this.loading.hide(),
     });
   };
 
-  openModalAddOrdination = () => {
-    return this.modalService.openModal(
-      `modal-${Math.random()}`,
-      OrdinationFormComponent,
-      'Adicionar ordinação',
-      true,
-      true,
-    );
-  };
-
-  handleCreate = (): void => {
+  handleCreate = () => {
     const defaultMemberId = this.memberService.getEditingMemberId();
 
-    const dialogRef = this.modalService.openModal(
+    const dialogRef = this.modal.openModal(
       `modal-${Math.random()}`,
       OrdinationFormComponent,
       'Adicionando ordenação',
@@ -121,9 +109,8 @@ export class OrdinationsComponent implements OnInit {
     });
   };
 
-  handleEdit = (ordination: Ordination): void => {
-    console.log({ ordination });
-    const dialogRef = this.modalService.openModal(
+  handleEdit = (ordination: Ordination) => {
+    const dialogRef = this.modal.openModal(
       `modal-${Math.random()}`,
       OrdinationFormComponent,
       `Editando a ordenação: ${ordination.occupation?.name}`,
@@ -142,29 +129,28 @@ export class OrdinationsComponent implements OnInit {
     });
   };
 
-  handleDelete = (ordination: Ordination): void => {
-    const nameOrdination =
-      ordination?.member?.person?.name + ' | ' + ordination?.occupation?.name;
+  handleDelete = (ordination: Ordination) => {
+    const nameOrdination = `${ordination?.member?.person?.name} | ${ordination?.occupation?.name}`;
 
-    const dialogRef = this.confirmeService.openConfirm(
+    const dialogRef = this.confirmService.openConfirm(
       'Excluir ordenação',
-      `Tem certeza que deseja excluir esta ordinação? ${nameOrdination}`,
+      `Tem certeza que deseja excluir a ordenação: ${nameOrdination}? `,
       'Confirmar',
       'Cancelar',
     );
 
     dialogRef.afterClosed().subscribe((result: Ordination) => {
       if (result) {
-        this.loadingService.show();
+        this.loading.show();
         this.ordinationService.deleteOrdination(ordination.id).subscribe({
           next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
           error: () => {
-            this.loadingService.hide();
+            this.loading.hide();
             this.toast.openError(MESSAGES.DELETE_ERROR);
           },
           complete: () => {
             this.loadOrdinations();
-            this.loadingService.hide();
+            this.loading.hide();
           },
         });
       }
