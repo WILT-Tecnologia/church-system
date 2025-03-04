@@ -4,6 +4,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
+        user: "1000:1000"
         restart: unless-stopped
         working_dir: /var/www
         volumes:
@@ -23,6 +24,8 @@ services:
         volumes:
             - ./:/var/www
             - ./docker/nginx/:/etc/nginx/conf.d/
+        depends_on:
+            - app
         networks:
             - laravel
 
@@ -31,13 +34,19 @@ services:
         image: postgres:15
         restart: unless-stopped
         environment:
-            POSTGRES_DB: ${DB_DATABASE:-laravel}
-            POSTGRES_USER: ${DB_USERNAME:-username}
-            POSTGRES_PASSWORD: ${DB_PASSWORD:-userpass}
+            POSTGRES_DB: ${DB_DATABASE:-holy}
+            POSTGRES_USER: ${DB_USERNAME:-postgres}
+            POSTGRES_PASSWORD: ${DB_PASSWORD:-holy}
+            PGDATA: /var/lib/postgresql/data/pgdata
         volumes:
             - ./.docker/postgres/dbdata:/var/lib/postgresql/data
         ports:
             - "5432:5432"
+        healthcheck:
+            test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME:-holy} -d ${DB_DATABASE:-holy}" ]
+            interval: 5s
+            timeout: 5s
+            retries: 5
         networks:
             - laravel
 

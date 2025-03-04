@@ -1,0 +1,89 @@
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav #sidenav [disableClose]="false" mode="push" position="end">
+    <div class="sidebar-header">
+      <button class="user-button" color="primary" mat-button type="button">
+        <mat-icon>person</mat-icon>
+        <span class="button-text">{{ userName }}</span>
+      </button>
+    </div>
+    <mat-nav-list class="mat-nav-list-options">
+      @for (route of routesGlobal; track $index) {
+        <button
+          mat-list-item class="mat-button-options" (click)="navigateTo(route.path)"
+          [ngClass]="{'active-route': isActiveRoute(route.path)}"
+        >
+          {{ route.label }}
+        </button>
+      }
+    </mat-nav-list>
+    <mat-divider></mat-divider>
+    <mat-nav-list>
+      @for (route of routesUser; track $index) {
+        <button
+          mat-list-item class="mat-button-options" (click)="route.path !== 'logout' ?
+        navigateTo(route.path) : logout()"
+        >
+        <span [ngClass]="{'text-red-800': route.path === 'logout'}">
+          {{ route.title }}
+        </span>
+        </button>
+      }
+
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="sidenav-content">
+    <mat-toolbar class="navbar">
+      <div class="container-section-one-nav p-4">
+        @if (isChurchSelected()) {
+          <app-logo></app-logo>
+          <span class="separator"></span>
+          <span class="text-default">Church System</span>
+        }
+      </div>
+      <span class="spacer"></span>
+      @if (isMobile) {
+        <button (click)="sidenav.toggle()" mat-icon-button color="primary" class="mr-2">
+          <mat-icon>menu</mat-icon>
+        </button>
+      }
+      @if (isLoggedIn && !isMobile) {
+        <div class="wrapper-buttons">
+          @if (isChurchSelected()) {
+            @for (route of routesGlobal; track $index) {
+              <button
+                (click)="navigateTo(route.path)" color="primary" mat-button class="nav-button"
+                [ngClass]="{'active-route': isActiveRoute(route.path)}"
+              >
+                {{ route.label }}
+              </button>
+            }
+          }
+          <button
+            color="primary" type="button" [matMenuTriggerFor]="userMenu" class="user-button nav-button" mat-button
+          >
+            <mat-icon>person</mat-icon>
+            <span class="button-text">{{ userName }}</span>
+          </button>
+        </div>
+      }
+    </mat-toolbar>
+
+    <div class="main-content">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
+
+<mat-menu #userMenu="matMenu" xPosition="before">
+  @for (route of routesUser; track $index) {
+    <button
+      (click)="route.path !== 'logout' ? navigateTo(route.path) : logout()"
+      mat-menu-item
+    >
+    <span [ngClass]="{'text-red-800': route.path === 'logout'}">
+      {{ route.title }}
+    </span>
+    </button>
+  }
+</mat-menu>

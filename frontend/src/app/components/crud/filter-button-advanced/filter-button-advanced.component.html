@@ -1,0 +1,61 @@
+<div class="container">
+  <form [formGroup]="filterForm" class="filter-form">
+    @for (field of fields; track $index) {
+      <div class="field" [ngClass]="{ 'single-field': fields.length === 1 }">
+        @if (field.type === 'select') {
+          <mat-form-field class="select" appearance="fill">
+            <mat-label>{{ field.label }}</mat-label>
+            <mat-select [placeholder]="field.placeholder ?? ''" [formControlName]="field.controlName" multiple>
+              <mat-option>
+                <ngx-mat-select-search
+                  [formControl]="field.searchCtrl!"
+                  placeholderLabel="Pesquisar..."
+                  noEntriesFoundLabel="Nenhum registro encontrado"
+                >
+                </ngx-mat-select-search>
+              </mat-option>
+              <mat-checkbox
+                color="primary"
+                [indeterminate]="isIndeterminate(field.controlName)"
+                (click)="$event.stopPropagation()"
+                [checked]="isAllSelected(field.controlName)"
+                (change)="toggleAllSelection(field.controlName)"
+              >
+                Selecionar Todos
+              </mat-checkbox>
+
+              @for (option of (field.filteredOptions | async); track $index) {
+                <mat-option [value]="option.value">
+                  {{ option.label }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
+        @if (field.type === 'dateRange') {
+          <mat-form-field class="date-range" appearance="fill">
+            <mat-label>{{ field.label }}</mat-label>
+            <input matInput [matDatepicker]="picker" [formControlName]="field.controlName" />
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+        }
+        @if (field.type === 'range') {
+          <mat-slider
+            color="primary"
+            [min]="0"
+            [max]="30"
+            [step]="1"
+            [displayWith]="formatLabel"
+            discrete
+            showTickMarks
+            (input)="onSliderChange($event)"
+            class="slider"
+          >
+            <input matSliderThumb />
+          </mat-slider>
+        }
+      </div>
+    }
+  </form>
+</div>

@@ -1,0 +1,326 @@
+@use 'app/styles/theme.scss'as theme;
+@use '@angular/material'as mat;
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+$church-system-primary: mat.define-palette(theme.$primaryColors);
+$church-system-accent: mat.define-palette(mat.$amber-palette, A200, A100, A400);
+$church-system-warn: mat.define-palette(mat.$red-palette);
+
+$church-system-theme: mat.define-light-theme((color: (primary: $church-system-primary,
+  accent: $church-system-accent,
+  warn: $church-system-warn,
+),
+  typography: mat.define-typography-config(safelist),
+  density: 0,
+));
+
+@include mat.core();
+
+:root {
+  @include mat.core();
+  @include mat.core-color($church-system-theme);
+  @include mat.all-component-themes($church-system-theme);
+  //@include mat.system-level-colors($church-system-theme);
+  //@include mat.system-level-typography($church-system-theme);
+  @include mat.all-component-typographies($church-system-theme);
+  //@include mat.color-variants-backwards-compatibility($church-system-theme);
+}
+
+*:not(mat-icon) {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  outline: none;
+  scroll-behavior: smooth;
+  font-family: 'Geist', 'Roboto', 'Poppins', sans-serif !important;
+}
+
+::selection {
+  background-color: theme.$primaryDark;
+  color: theme.$white;
+}
+
+html,
+body,
+app-root {
+  background-color: theme.$backgroundColor;
+  color: theme.$textColor;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+}
+
+.title {
+  color: theme.$primary;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 1rem 0;
+}
+
+.text-default {
+  color: theme.$textColor;
+  font-size: 1rem;
+}
+
+.active {
+  color: theme.$success;
+}
+
+.inactive {
+  color: theme.$errorMain;
+}
+
+.white {
+  color: theme.$white;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.custom-snackbar {
+  .mat-mdc-snack-bar-container .mdc-snackbar__surface {
+    border-radius: 0.8rem !important;
+  }
+
+  .mat-mdc-button.mat-mdc-snack-bar-action {
+    color: theme.$white !important;
+  }
+}
+
+.snackbar-success {
+  .mdc-snackbar__surface {
+    background-color: theme.$secondary !important;
+  }
+
+  .mdc-snackbar__label {
+    color: theme.$white !important;
+  }
+}
+
+.snackbar-error {
+  .mdc-snackbar__surface {
+    background-color: theme.$errorLight !important;
+  }
+
+  .mdc-snackbar__label {
+    color: theme.$white !important;
+  }
+}
+
+.snackbar-warning {
+  .mdc-snackbar__surface {
+    background-color: theme.$warning !important;
+  }
+
+  .mdc-snackbar__label {
+    color: theme.$white !important;
+  }
+}
+
+.mat-mdc-tab-body-content {
+  overflow: hidden !important;
+}
+
+.form-field-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 100%;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.reduction {
+  max-width: 13.3rem !important;
+
+  @media screen and (max-width: 768px) {
+    max-width: 100% !important;
+  }
+}
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  padding: 0.5rem;
+
+  @media screen and (max-width: 768px) {
+    .dialog {
+      max-width: 100dvw;
+    }
+  }
+}
+
+::-webkit-scrollbar {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+::-webkit-scrollbar-thumb {
+  background: theme.$greyVeryLight;
+  border-radius: 0.5rem;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: theme.$greyLight;
+}
+
+::-webkit-scrollbar-track {
+  background: theme.$hover;
+  border-radius: 0.5rem;
+}
+
+/* Charts */
+.item-value,
+.item-label,
+.item-percent {
+  margin-bottom: 0.5rem !important;
+}
+
+.item-value {
+  margin-top: 0 !important;
+}
+
+.total-value {
+  margin-bottom: 1rem !important;
+}
+
+@media screen and (max-width: 768px) {
+  .mat-mdc-paginator-container {
+    display: flex !important;
+    justify-content: center !important;
+  }
+
+  .mat-mdc-paginator-range-actions {
+    display: flex;
+    align-items: center;
+    flex-direction: row !important;
+  }
+
+  .mat-mdc-paginator-range-label {
+    margin: 0 1rem 0 0 !important;
+  }
+}
+
+.full-calendar-container {
+  height: 100%;
+  padding: 1rem;
+  margin: 1rem;
+  border-radius: 0.3rem;
+  background-color: theme.$white;
+
+  @media screen and (max-width: 768px) {
+    height: auto;
+  }
+
+  .fc {
+    height: 100%;
+    width: 100%;
+
+    & .fc-toolbar {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+
+      @media screen and (max-width: 768px) {
+        flex-direction: column !important;
+        gap: 1rem;
+      }
+    }
+
+    & .fc-h-event {
+      background-color: transparent !important;
+      border: none !important;
+      min-width: 100% !important;
+    }
+
+    & .fc-popover-body {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      width: 15rem !important;
+      min-width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    & .fc-button {
+      border: none !important;
+      padding: 8px 16px !important;
+      border-radius: 4px !important;
+      transition: all 0.1s ease-in-out !important;
+      background-color: theme.$primary !important;
+      color: theme.$white;
+      box-shadow: 0 1px 1px -1px rgba(0, 0, 0, 0.1), 0 1px 1px 0 rgba(0, 0, 0, 0.1), 0 1px 5px 0 rgba(0, 0, 0, 0.1);
+      text-transform: uppercase;
+
+      .fc-icon {
+        vertical-align: middle;
+      }
+
+      &:hover {
+        @include mat.elevation(2);
+        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+      }
+
+      &:active {
+        @include mat.elevation(2);
+        border: 0 !important;
+        box-shadow: none !important;
+
+      }
+
+      &:focus {
+        border: 0 !important;
+        box-shadow: none !important;
+      }
+
+      /* Botão primário (today) */
+      &.fc-button-primary {
+        background-color: theme.$primary !important;
+        color: theme.$white !important;
+        border: 0 !important;
+
+        &:hover {
+          @include mat.elevation(2);
+          background-color: theme.$primaryDark !important;
+          color: theme.$white !important;
+        }
+
+        &:active {
+          background-color: theme.$primary !important;
+          color: theme.$white !important;
+          border: 0 !important;
+        }
+      }
+
+      /* Botões ativos (view selecionada) */
+      &.fc-button-active {
+        background-color: theme.$primary !important;
+        color: theme.$white !important;
+        border: 0 !important;
+      }
+    }
+
+    /* Ajuste de layout para a barra de ferramentas */
+    &.fc-header-toolbar {
+      gap: 8px;
+      margin-bottom: 16px !important;
+
+      &.fc-toolbar-chunk {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+    }
+  }
+}

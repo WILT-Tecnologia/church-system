@@ -1,0 +1,185 @@
+@use '../../styles/theme.scss' as theme;
+
+.add-button {
+  display: flex;
+  justify-content: flex-start;
+  padding: 1rem;
+
+  & > button {
+    min-width: 20rem;
+
+    @media screen and (max-width: 768px) {
+      margin: 1rem 0;
+      min-width: 20rem;
+      width: 100%;
+    }
+  }
+}
+
+.filter-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  max-width: 100%;
+  width: 100%;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.filter-container-content {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.search-container {
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.search {
+  margin-right: 1rem;
+  width: 20rem;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+  }
+}
+
+.search-icon-input {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
+.action-button {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  margin: 1rem;
+}
+
+
+.actived {
+  background-color: theme.$success;
+}
+
+.inactived {
+  background-color: theme.$errorMain;
+}
+
+.mat-table-responsive {
+  display: block;
+  overflow: auto;
+  width: 100%;
+}
+
+.mat-table-responsive table {
+  width: 100%;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+
+.mat-header-bold {
+  font-weight: bold;
+  color: theme.$primaryDark;
+}
+
+.mat-header-cell,
+.mat-cell,
+.rows,
+td,
+th {
+  max-width: 5dvw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+
+  @media screen and (max-width: 1280px) {
+    font-size: 0.8rem;
+    max-width: 100%;
+    padding: 0.5rem;
+  }
+}
+
+.rows:hover {
+  background-color: theme.$hover;
+}
+
+.mat-header-cell {
+  font-weight: bold;
+  background-color: theme.$backgroundColor;
+}
+
+.mat-header-row,
+.mat-row {
+  display: table-row;
+  max-width: 100%;
+  position: relative;
+}
+
+.actions-cell {
+  position: relative;
+  width: 5dvw;
+  overflow: hidden;
+}
+
+.rows:hover .actions-cell {
+  width: 5dvw;
+}
+
+.actions-container {
+  display: none;
+  gap: 1rem;
+  justify-content: flex-end;
+  transition: opacity 0.3s ease-in-out;
+
+  & > button > mat-icon {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+  }
+
+  @media screen and (max-width: 1280px) {
+    display: block;
+  }
+}
+
+.rows:hover .actions-container {
+  display: flex;
+}
+
+.paginator {
+  padding: 1rem 0;
+}
+
+.toggle {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.delete {
+  color: theme.$errorDark;
+}
+
+.mat-mdc-row {
+  color: theme.$textColor !important;
+}

@@ -1,0 +1,32 @@
+@use '../../styles/theme.scss' as theme;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 10rem;
+
+  @media screen and (max-width: 768px) {
+    padding: 2rem;
+  }
+}
+
+.image {
+  color: theme.$primary;
+}
+
+.title {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
+  color: theme.$primary;
+}
+
+.description {
+  font-size: 0.8rem;
+  margin-bottom: 2rem;
+  color: theme.$textColor;
+  font-style: italic;
+}

@@ -1,0 +1,65 @@
+<form
+  [formGroup]="eventTypeForm"
+  (ngSubmit)="handleSubmit()"
+  class="form-field-group wrapper"
+>
+  <app-column>
+    <mat-slide-toggle formControlName="status" color="primary">{{
+        eventTypeForm.get('status')?.value ? 'Ativado' : 'Desativado'
+      }}
+    </mat-slide-toggle>
+  </app-column>
+  <app-column>
+    <mat-form-field appearance="fill">
+      <mat-label>Nome</mat-label>
+      <input matInput formControlName="name" maxlength="255" required />
+      <mat-error
+        *ngIf="
+          eventTypeForm.get('name')?.invalid &&
+          eventTypeForm.get('name')?.touched
+        "
+      >{{ getErrorMessage('name') }}
+      </mat-error
+      >
+    </mat-form-field>
+  </app-column>
+  <app-column>
+    <mat-form-field appearance="fill">
+      <mat-label>Descrição</mat-label>
+      <textarea
+        matInput
+        rows="3"
+        formControlName="description"
+        maxlength="255"
+      ></textarea>
+      <mat-error
+        *ngIf="
+          eventTypeForm.get('description')?.invalid &&
+          eventTypeForm.get('description')?.touched
+        "
+      >{{ getErrorMessage('description') }}
+      </mat-error
+      >
+    </mat-form-field>
+  </app-column>
+
+  <mat-divider></mat-divider>
+  <app-actions>
+    <button
+      type="button"
+      mat-stroked-button
+      color="warn"
+      (click)="handleBack()"
+    >
+      Cancelar
+    </button>
+    <button
+      type="submit"
+      mat-raised-button
+      color="primary"
+      [disabled]="eventTypeForm.invalid"
+    >
+      {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
+    </button>
+  </app-actions>
+</form>

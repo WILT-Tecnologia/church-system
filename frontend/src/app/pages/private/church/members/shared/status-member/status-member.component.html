@@ -1,0 +1,14 @@
+@if (status_member && status_member.length > 0) {
+  <app-crud
+    [enablePagination]="false"
+    [fields]="status_member"
+    [dataSourceMat]="dataSourceMat"
+    [columnDefinitions]="columnDefinitions"
+    [addFn]="handleCreate"
+    [editFn]="handleEdit"
+    [deleteFn]="handleDelete"
+    [actions]="actions"
+  ></app-crud>
+} @else {
+  <app-not-found-register [addRegisterFn]="handleCreate"></app-not-found-register>
+}

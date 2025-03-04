@@ -8,7 +8,7 @@ Route::prefix('auth')->group(function () {
     Route::post('/logout/{user}', [loginController::class, 'logout']);
 });
 
-Route::prefix('admin')->middleware(['cors', 'auth:sanctum'])->group(function () {
+Route::prefix('admin')->middleware(['cors'])->group(function () {
     Route::apiResource('users', \App\Http\Controllers\Api\UserController::class);
     Route::apiResource('profiles', \App\Http\Controllers\Api\ProfileController::class);
     Route::apiResource('modules', \App\Http\Controllers\Api\ModuleController::class);

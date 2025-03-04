@@ -1,0 +1,58 @@
+<div class="wrapper">
+  <div class="calendar-actions">
+    @if (calendarVisible()) {
+      <button mat-raised-button color="primary" (click)="handleCreate()">
+        <mat-icon>add</mat-icon>
+        Novo Evento
+      </button>
+    }
+    <button mat-stroked-button color="primary" (click)="handleEnableCalendar()">
+      <mat-icon>{{ calendarVisible() ? 'view_list' : 'calendar_month' }}</mat-icon>
+      {{ calendarVisible() ? 'Ver na Lista' : 'Ver no Calendário' }}
+    </button>
+  </div>
+
+  <div class="container" [class.expanded]="calendarVisible()">
+    @if (calendarVisible()) {
+      <app-column>
+        <div class="full-calendar-container mat-elevation-z3">
+          <full-calendar #calendar [options]="calendarOptions()">
+            <ng-template #eventContent let-arg>
+              <button
+                class="full-calendar-event"
+                mat-raised-button
+                type="button"
+                color="primary"
+              >
+                {{ arg.event.title }}
+              </button>
+            </ng-template>
+          </full-calendar>
+        </div>
+      </app-column>
+    }
+  </div>
+
+  <div class="container" [class.expanded]="!calendarVisible()">
+    @if (!calendarVisible()) {
+      @if ((events && events.length > 0) || rendering) {
+        <app-crud
+          [fields]="events"
+          [dataSourceMat]="dataSourceMat"
+          [columnDefinitions]="columnDefinitions"
+          [actions]="actions"
+          [addFn]="handleCreate"
+          [editFn]="handleEdit"
+          [deleteFn]="handleDelete"
+        ></app-crud>
+      } @else {
+        <app-column>
+          <app-not-found-register
+            [addRegisterFn]="handleCreate"
+          ></app-not-found-register>
+        </app-column>
+      }
+    }
+  </div>
+
+</div>

@@ -1,0 +1,48 @@
+@use 'app/styles/theme.scss'as theme;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.container {
+  max-height: 0;
+  transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out, padding 0.5s ease-in-out;
+  padding: 0 0.5rem;
+
+  // Opcional: ajuste de opacidade ou padding também pode ser animado
+  opacity: 0;
+  transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out, padding 0.5s ease-in-out;
+
+  &.expanded {
+    max-height: 100%;
+    opacity: 1;
+    padding: 0 1rem;
+  }
+}
+
+.calendar-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  padding: 1rem;
+  margin-left: 1rem;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    gap: 1rem;
+    margin-left: 0;
+  }
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.full-calendar-event {
+  color: #FFFFFF;
+  width: 100%;
+}

@@ -1,0 +1,81 @@
+@use 'app/styles/theme.scss' as theme;
+
+.container {
+  animation: scale-in-see-top .3s cubic-bezier(.25, .46, .45, .94) backwards;
+  background-color: theme.$white;
+  box-shadow: inset 0.4rem 0.4rem 5rem 0.4rem rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 1rem;
+  min-height: 5rem;
+  padding: 2rem 1.5rem;
+  transition: all 0.4s ease-in-out;
+  width: 100%;
+}
+
+@keyframes scale-in-see-top {
+  0% {
+    transform: scaleY(0);
+    transform-origin: 100% 0;
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scaleY(1);
+    transform-origin: 100% 0;
+    opacity: 1;
+  }
+}
+
+.field {
+  flex: 1 1 auto;
+
+  @media screen and (max-width: 768px) {
+    flex: 1 1 100%;
+  }
+}
+
+.filter-form {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  & > .field {
+    flex: 1 1 calc(25% - 1rem);
+
+    @media screen and (max-width: 768px) {
+      flex: 1 1 100%;
+    }
+  }
+}
+
+.single-field {
+  flex: 0 0 33%;
+  max-width: 33%;
+
+  @media screen and (max-width: 768px) {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+.slider {
+  width: 50%;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+  }
+}
+
+.mat-mdc-slider {
+  margin: 0 !important;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 16px;
+}

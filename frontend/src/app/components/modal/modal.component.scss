@@ -1,0 +1,110 @@
+@use '../../styles/theme.scss'as theme;
+
+::ng-deep .cdk-overlay-container {
+  backdrop-filter: blur(0.1rem);
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.mat-dialog-container {
+  border-radius: 8px;
+  height: 100dvh;
+  max-height: 100dvh;
+  max-width: 100%;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+  width: 100%;
+
+  &.fullscreen {
+    border-radius: 0;
+    height: 100dvh;
+    left: 0;
+    margin: 0;
+    position: fixed;
+    top: 0;
+    width: 100dvw;
+    z-index: 9999;
+  }
+
+  &.responsive-modal {
+    @media (max-width: 768px) {
+      border-radius: 0;
+      height: 100% !important;
+      margin: 0;
+      max-width: 100% !important;
+      width: 100% !important;
+    }
+  }
+
+  .content {
+    @media (max-width: 480px) {
+      font-size: 0.9em;
+      padding: 0.5rem;
+    }
+  }
+
+  .title {
+    @media (max-width: 480px) {
+      font-size: 1rem;
+    }
+  }
+}
+
+.fullscreen {
+  @media (min-width: 769px) {
+    max-width: 100vw !important;
+    width: 100vw !important;
+  }
+}
+
+.header {
+  @media (max-width: 480px) {
+    gap: 0.5rem;
+    padding: 0.25rem;
+
+    button {
+      transform: scale(0.8);
+    }
+  }
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.header {
+  align-items: center;
+  background-color: theme.$backgroundColor;
+  display: flex;
+  flex-shrink: 0;
+  justify-content: space-between;
+  padding: 0.5rem;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+}
+
+.actions-header {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.title {
+  font-size: 1rem;
+  font-style: italic;
+  font-weight: 700;
+  padding: 0 0.5rem;
+}
+
+.content {
+  background-color: theme.$white;
+  flex-grow: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 1rem;
+
+}

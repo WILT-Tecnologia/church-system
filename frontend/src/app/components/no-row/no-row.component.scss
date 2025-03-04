@@ -1,0 +1,40 @@
+@import '../../styles/theme.scss';
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 5rem;
+}
+
+.container .ant-empty-img-1 {
+  fill: #AEB8C2;
+}
+
+.container .ant-empty-img-2 {
+  fill: #F5F5F7;
+}
+
+.container .ant-empty-img-3 {
+  fill: #DCE0E6;
+}
+
+.container .ant-empty-img-4 {
+  fill: #FFFFFF;
+}
+
+.container .ant-empty-img-5 {
+  fill-opacity: 0.8;
+  fill: #F5F5F5;
+}
+
+.container .ant-empty-description {
+  color: $textColor;
+  font-size: 1rem;
+  font-weight: bold;
+  margin-top: 1rem;
+  line-height: 1.5rem;
+  text-align: center;
+}

@@ -1,0 +1,31 @@
+@use "../../../styles/theme" as theme;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100dvh;
+  width: 100dvw;
+  overflow: hidden !important;
+  background-image: linear-gradient(to right, #03D0FD, #03C4F1, #03B9E6, #03ADDA, #03A2CE, #039AC6, #0393BD, #038BB5, #0385AE, #0380A8, #037AA1, #03759B);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  max-width: calc(100dvw - 60dvw);
+  padding: 2.5rem;
+  border-radius: 1rem;
+
+  @media screen and (max-width: 768px) {
+    max-width: 100%;
+    padding: 1rem;
+  }
+}
+
+.title {
+  color: theme.$primary;
+}

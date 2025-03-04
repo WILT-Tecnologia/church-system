@@ -1,0 +1,53 @@
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { map, Observable } from 'rxjs';
+import { environment } from '../../../../../../../environments/environment';
+import { MemberSituations } from '../../../../../../model/Auxiliaries';
+import { Members, StatusMember } from '../../../../../../model/Members';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class StatusMemberService {
+  constructor(private http: HttpClient) {}
+
+  private api = `${environment.apiUrl}/church/status-members`;
+  private memberApi = `${environment.apiUrl}/church/members`;
+  private apiAux = `${environment.apiUrl}/aux`;
+
+  getMemberSituations(): Observable<MemberSituations[]> {
+    return this.http.get<MemberSituations[]>(`${this.apiAux}/member-situation`);
+  }
+
+  getStatusMemberFromMembers(memberId: string): Observable<StatusMember> {
+    return this.http
+      .get<Members>(`${this.memberApi}/${memberId}`)
+      .pipe(map((member) => member.status_member));
+  }
+
+  findById(id: string): Observable<StatusMember> {
+    return this.http.get<StatusMember>(`${this.api}/${id}`);
+  }
+
+  findAll(): Observable<StatusMember[]> {
+    return this.http.get<StatusMember[]>(this.memberApi);
+  }
+
+  create(statusMember: StatusMember): Observable<StatusMember> {
+    return this.http.post<StatusMember>(`${this.api}`, statusMember);
+  }
+
+  update(
+    statusMemberId: string,
+    statusMemberData: Partial<StatusMember>,
+  ): Observable<StatusMember> {
+    return this.http.put<StatusMember>(
+      `${this.api}/${statusMemberId}`,
+      statusMemberData,
+    );
+  }
+
+  deleteStatusMember(statusMemberId: string): Observable<StatusMember> {
+    return this.http.delete<StatusMember>(`${this.api}/${statusMemberId}`);
+  }
+}

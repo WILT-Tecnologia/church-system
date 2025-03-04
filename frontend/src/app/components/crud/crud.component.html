@@ -1,0 +1,249 @@
+@if (enableAddButtonAdd) {
+  <div class="add-button">
+    <button type="button" mat-raised-button color="primary" (click)="addFn()">
+      {{ ctaLabel || 'Adicionar' }}
+    </button>
+  </div>
+}
+<div class="filter-container">
+  <div class="filter-container-content">
+    <div class="search-container">
+      <mat-form-field class="search" appearance="fill">
+        <div class="search-icon-input">
+          <mat-icon>search</mat-icon>
+          <input
+            matInput
+            (input)="applyFilter($event)"
+            placeholder="Digite para pesquisar"
+          />
+        </div>
+      </mat-form-field>
+      @if (enableFilterAdvanced) {
+        <button (click)="toggleFilter()" aria-label="Botão de filtro" mat-icon-button matTooltip="Filtro" type="button">
+          <mat-icon>filter_alt</mat-icon>
+        </button>
+      }
+    </div>
+    @if (enablePagination) {
+      <mat-paginator
+        color="primary"
+        [pageSizeOptions]="pageSizeOptions"
+        [pageSize]="pageSize"
+        [length]="dataSourceMat.data.length"
+        showFirstLastButtons
+      ></mat-paginator>
+    }
+  </div>
+  @if (enableFilterAdvanced) {
+    <app-filter-button-advanced
+      [fields]="filterFields"
+      [applyFilter]="applyFilterFn"
+      (filterChange)="applyAdvancedFilter($event)"
+    ></app-filter-button-advanced>
+  }
+</div>
+
+<div class="mat-table-responsive">
+  <table
+    [dataSource]="dataSourceMat"
+    class="mat-elevation-z1"
+    mat-table
+    matSort
+  >
+    <ng-container
+      *ngFor="let column of columnDefinitions"
+      [matColumnDef]="column.key"
+    >
+      <th
+        mat-header-cell
+        *matHeaderCellDef
+        mat-sort-header
+        class="mat-header-bold"
+      >
+        {{ column.header }}
+      </th>
+      <td
+        *matCellDef="let fields"
+        [title]="fields | formatValues: column.key : column.type"
+        mat-cell
+      >
+        <ng-container [ngSwitch]="column.type">
+          <ng-container *ngSwitchCase="'date'">
+            {{ fields | formatValues: column.key : column.type }}
+          </ng-container>
+          <ng-container *ngSwitchCase="'string'">
+            {{ fields | formatValues: column.key : column.type }}
+          </ng-container>
+          <ng-container *ngSwitchCase="'cpf'">
+            {{ fields | formatValues: column.key : column.type }}
+          </ng-container>
+          <ng-container *ngSwitchCase="'cnpj'">
+            {{ fields | formatValues: column.key : column.type }}
+          </ng-container>
+          <ng-container *ngSwitchCase="'datetime'">
+            {{ fields | formatValues: column.key : column.type }}
+          </ng-container>
+          <ng-container *ngSwitchCase="'phone'">
+            {{ fields | formatValues: column.key : column.type }}
+          </ng-container>
+          <ng-container *ngSwitchCase="'sex'">
+            {{ fields | formatValues: column.key : column.type }}
+          </ng-container>
+          <ng-container *ngSwitchCase="'number'">
+            {{ fields | formatValues: column.key : column.type }}
+          </ng-container>
+          <ng-container *ngSwitchCase="'boolean'">
+            <span [ngClass]="fields[column.key] ? 'active' : 'inactive'">
+              {{ fields[column.key] ? 'Ativado' : 'Desativado' }}
+            </span>
+          </ng-container>
+          <ng-container *ngSwitchDefault>
+            {{ fields[column.key] }}
+          </ng-container>
+        </ng-container>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let fields" class="actions-cell">
+        <div class="actions-container">
+          <button
+            type="button"
+            mat-icon-button
+            [matMenuTriggerFor]="menu"
+            matTooltip="Ações"
+          >
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <!-- Itera sobre as ações definidas dinamicamente -->
+            <ng-container *ngFor="let action of actions">
+              <ng-container [ngSwitch]="action.type">
+                <!-- Botão Toggle (Ativar/Desativar) -->
+                <ng-container *ngSwitchCase="'toggle'">
+                  <div class="m-4 flex flex-col items-center justify-center">
+                    <button
+                      mat-raised-button
+                      type="button"
+                      [matTooltip]="action.tooltip ?? ''"
+                      [color]="fields.status ? 'warn' : 'primary'"
+                      (click)="action.action(fields)"
+                    >
+                      {{
+                        fields.status
+                        ? action.inactiveLabel
+                        : action.activeLabel
+                      }}
+                    </button>
+                  </div>
+                  <mat-divider></mat-divider>
+                </ng-container>
+
+                <!-- Botão Editar -->
+                <ng-container *ngSwitchCase="'edit'">
+                  <button
+                    type="button"
+                    mat-menu-item
+                    matTooltip="{{ action.tooltip }}"
+                    (click)="action.action(fields)"
+                  >
+                    <mat-icon *ngIf="action.icon">{{ action.icon }}</mat-icon>
+                    <span *ngIf="action.label" class="label-button-menu">{{
+                        action.label
+                      }}</span>
+                  </button>
+                </ng-container>
+
+                <!-- Botão Excluir -->
+                <ng-container *ngSwitchCase="'delete'">
+                  <button
+                    (click)="action.action(fields)"
+                    color="warn"
+                    mat-menu-item
+                    matTooltip="{{ action.tooltip }}"
+                    type="button"
+                  >
+                    <mat-icon *ngIf="action.icon" color="warn">
+                      {{ action.icon }}
+                    </mat-icon>
+                    <span *ngIf="action.label" class="label-button-menu delete">
+                      {{ action.label }}
+                    </span>
+                  </button>
+                </ng-container>
+
+                <!-- Botão historico -->
+                <ng-container *ngSwitchCase="'history'">
+                  <button
+                    type="button"
+                    mat-menu-item
+                    matTooltip="{{ action.tooltip }}"
+                    (click)="action.action(fields)"
+                  >
+                    <mat-icon *ngIf="action.icon">{{ action.icon }}</mat-icon>
+                    <span *ngIf="action.label" class="label-button-menu">{{
+                        action.label
+                      }}</span>
+                  </button>
+                </ng-container>
+
+                <!-- Botão permissões -->
+                <ng-container *ngSwitchCase="'security'">
+                  <button
+                    type="button"
+                    mat-menu-item
+                    matTooltip="{{ action.tooltip }}"
+                    (click)="action.action(fields)"
+                  >
+                    <mat-icon *ngIf="action.icon">{{ action.icon }}</mat-icon>
+                    <span *ngIf="action.label" class="label-button-menu">{{
+                        action.label
+                      }}</span>
+                  </button>
+                </ng-container>
+
+                <!-- Botão person -->
+                <ng-container *ngSwitchCase="'person'">
+                  <button
+                    type="button"
+                    mat-menu-item
+                    matTooltip="{{ action.tooltip }}"
+                    (click)="action.action(fields)"
+                  >
+                    <mat-icon *ngIf="action.icon">{{ action.icon }}</mat-icon>
+                    <span *ngIf="action.label" class="label-button-menu">{{
+                        action.label
+                      }}</span>
+                  </button>
+                </ng-container>
+
+                <!-- Botão fazer visualizar -->
+                <ng-container *ngSwitchCase="'view'">
+                  <button
+                    (click)="action.action(fields)"
+                    mat-menu-item
+                    matTooltip="{{ action.tooltip }}"
+                    type="button"
+                  >
+                    <mat-icon *ngIf="action.icon">{{ action.icon }}</mat-icon>
+                    <span *ngIf="action.label" class="label-button-menu">
+                      {{ action.label }}
+                    </span>
+                  </button>
+                </ng-container>
+              </ng-container>
+            </ng-container>
+          </mat-menu>
+        </div>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr
+      mat-row
+      class="rows"
+      *matRowDef="let row; columns: displayedColumns"
+    ></tr>
+  </table>
+</div>
