@@ -20,12 +20,11 @@ import { ChurchComponent } from './church/church.component';
 import { ChurchsService } from './churchs.service';
 
 @Component({
-  selector: 'app-churchs',
-  templateUrl: './churchs.component.html',
-  styleUrls: ['./churchs.component.scss'],
-  standalone: true,
-  imports: [NotFoundRegisterComponent, CrudComponent, CommonModule],
-  providers: [FormatsPipe],
+    selector: 'app-churchs',
+    templateUrl: './churchs.component.html',
+    styleUrls: ['./churchs.component.scss'],
+    imports: [NotFoundRegisterComponent, CrudComponent, CommonModule],
+    providers: [FormatsPipe]
 })
 export class ChurchsComponent implements OnInit {
   churchs: Church[] = [];

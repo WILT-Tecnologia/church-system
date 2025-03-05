@@ -13,17 +13,16 @@ import { MemberService } from '../member.service';
 import { HistoryService } from './history.service';
 
 @Component({
-  selector: 'app-history',
-  standalone: true,
-  templateUrl: './history.component.html',
-  styleUrl: './history.component.scss',
-  imports: [
-    CommonModule,
-    MatIconModule,
-    MatDividerModule,
-    MatButtonModule,
-    NoRowComponent,
-  ],
+    selector: 'app-history',
+    templateUrl: './history.component.html',
+    styleUrl: './history.component.scss',
+    imports: [
+        CommonModule,
+        MatIconModule,
+        MatDividerModule,
+        MatButtonModule,
+        NoRowComponent,
+    ]
 })
 export class HistoryComponent implements OnInit {
   @Input() history_member: History[] = [];

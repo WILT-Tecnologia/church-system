@@ -34,26 +34,25 @@ import { ValidationService } from '../../../../../services/validation/validation
 import { ProfilesService } from '../profiles.service';
 
 @Component({
-  selector: 'app-profile',
-  standalone: true,
-  templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.scss'],
-  imports: [
-    MatButtonModule,
-    MatInputModule,
-    MatSlideToggleModule,
-    MatFormFieldModule,
-    MatDividerModule,
-    MatIconModule,
-    MatCheckboxModule,
-    MatTableModule,
-    ReactiveFormsModule,
-    CommonModule,
-    FormsModule,
-    ActionsComponent,
-    ColumnComponent,
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-profile',
+    templateUrl: './profile.component.html',
+    styleUrls: ['./profile.component.scss'],
+    imports: [
+        MatButtonModule,
+        MatInputModule,
+        MatSlideToggleModule,
+        MatFormFieldModule,
+        MatDividerModule,
+        MatIconModule,
+        MatCheckboxModule,
+        MatTableModule,
+        ReactiveFormsModule,
+        CommonModule,
+        FormsModule,
+        ActionsComponent,
+        ColumnComponent,
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProfileComponent implements OnInit {
   profileForm: FormGroup;

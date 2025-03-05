@@ -20,17 +20,16 @@ import { ProfileComponent } from './profile/profile.component';
 import { ProfilesService } from './profiles.service';
 
 @Component({
-  selector: 'app-profiles',
-  standalone: true,
-  templateUrl: './profiles.component.html',
-  styleUrls: ['./profiles.component.scss'],
-  imports: [
-    MatCardModule,
-    MatButtonModule,
-    NotFoundRegisterComponent,
-    CommonModule,
-    CrudComponent,
-  ],
+    selector: 'app-profiles',
+    templateUrl: './profiles.component.html',
+    styleUrls: ['./profiles.component.scss'],
+    imports: [
+        MatCardModule,
+        MatButtonModule,
+        NotFoundRegisterComponent,
+        CommonModule,
+        CrudComponent,
+    ]
 })
 export class ProfilesComponent implements OnInit {
   profiles: Profile[] = [];

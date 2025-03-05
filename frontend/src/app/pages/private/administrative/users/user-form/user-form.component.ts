@@ -23,22 +23,21 @@ import { ValidationService } from '../../../../../services/validation/validation
 import { UsersService } from '../users.service';
 
 @Component({
-  selector: 'app-user-form',
-  standalone: true,
-  templateUrl: './user-form.component.html',
-  styleUrl: './user-form.component.scss',
-  imports: [
-    MatButtonModule,
-    MatInputModule,
-    MatSlideToggleModule,
-    MatFormFieldModule,
-    MatDividerModule,
-    MatIconModule,
-    ReactiveFormsModule,
-    CommonModule,
-    ActionsComponent,
-    ColumnComponent,
-  ],
+    selector: 'app-user-form',
+    templateUrl: './user-form.component.html',
+    styleUrl: './user-form.component.scss',
+    imports: [
+        MatButtonModule,
+        MatInputModule,
+        MatSlideToggleModule,
+        MatFormFieldModule,
+        MatDividerModule,
+        MatIconModule,
+        ReactiveFormsModule,
+        CommonModule,
+        ActionsComponent,
+        ColumnComponent,
+    ]
 })
 export class UserFormComponent implements OnInit {
   userForm: FormGroup;

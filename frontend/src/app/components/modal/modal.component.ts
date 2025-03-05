@@ -12,19 +12,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
-  selector: 'app-modal',
-  templateUrl: './modal.component.html',
-  styleUrl: './modal.component.scss',
-  standalone: true,
-  imports: [
-    MatCardModule,
-    MatTooltipModule,
-    MatButtonModule,
-    MatDividerModule,
-    MatDialogModule,
-    MatIconModule,
-    CommonModule,
-  ],
+    selector: 'app-modal',
+    templateUrl: './modal.component.html',
+    styleUrl: './modal.component.scss',
+    imports: [
+        MatCardModule,
+        MatTooltipModule,
+        MatButtonModule,
+        MatDividerModule,
+        MatDialogModule,
+        MatIconModule,
+        CommonModule,
+    ]
 })
 export class ModalComponent implements OnInit {
   isFullscreen: boolean = false;

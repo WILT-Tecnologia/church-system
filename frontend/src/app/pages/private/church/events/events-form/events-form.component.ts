@@ -50,30 +50,29 @@ import { EventTypesService } from '../../../administrative/eventTypes/eventTypes
 import { EventsService } from '../events.service';
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    MatButtonModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatAutocompleteModule,
-    MatDividerModule,
-    MatDatepickerModule,
-    ReactiveFormsModule,
-    CommonModule,
-    ColumnComponent,
-    ActionsComponent,
-    MatIconModule,
-    TimePickerComponent,
-    FormsModule,
-  ],
-  providers: [
-    provideNativeDateAdapter(),
-    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
-  ],
-  selector: 'app-events-form',
-  standalone: true,
-  styleUrl: './events-form.component.scss',
-  templateUrl: './events-form.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [
+        MatButtonModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatAutocompleteModule,
+        MatDividerModule,
+        MatDatepickerModule,
+        ReactiveFormsModule,
+        CommonModule,
+        ColumnComponent,
+        ActionsComponent,
+        MatIconModule,
+        TimePickerComponent,
+        FormsModule,
+    ],
+    providers: [
+        provideNativeDateAdapter(),
+        { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+    ],
+    selector: 'app-events-form',
+    styleUrl: './events-form.component.scss',
+    templateUrl: './events-form.component.html'
 })
 export class EventsFormComponent implements OnInit, OnDestroy {
   eventForm: FormGroup;

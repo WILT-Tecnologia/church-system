@@ -24,23 +24,22 @@ import { ValidationService } from '../../../../../services/validation/validation
 import { OccupationsService } from '../occupations.service';
 
 @Component({
-  selector: 'app-occupation',
-  templateUrl: './occupation.component.html',
-  styleUrls: ['./occupation.component.scss'],
-  standalone: true,
-  imports: [
-    MatCardModule,
-    MatButtonModule,
-    MatInputModule,
-    MatSlideToggleModule,
-    MatFormFieldModule,
-    MatDividerModule,
-    MatIconModule,
-    ColumnComponent,
-    ReactiveFormsModule,
-    CommonModule,
-    ActionsComponent,
-  ],
+    selector: 'app-occupation',
+    templateUrl: './occupation.component.html',
+    styleUrls: ['./occupation.component.scss'],
+    imports: [
+        MatCardModule,
+        MatButtonModule,
+        MatInputModule,
+        MatSlideToggleModule,
+        MatFormFieldModule,
+        MatDividerModule,
+        MatIconModule,
+        ColumnComponent,
+        ReactiveFormsModule,
+        CommonModule,
+        ActionsComponent,
+    ]
 })
 export class OccupationComponent implements OnInit {
   occupationForm: FormGroup;

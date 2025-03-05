@@ -45,31 +45,30 @@ import { phoneValidator } from '../../../../../../../services/validators/phone-v
 import { GuestsService } from '../guests.service';
 
 @Component({
-  selector: 'app-guests-form',
-  standalone: true,
-  templateUrl: './guests-form.component.html',
-  styleUrl: './guests-form.component.scss',
-  imports: [
-    MatButtonModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatAutocompleteModule,
-    MatTabsModule,
-    MatDatepickerModule,
-    MatDividerModule,
-    MatIconModule,
-    NgxMaskDirective,
-    ReactiveFormsModule,
-    CommonModule,
-    ColumnComponent,
-    ActionsComponent,
-  ],
-  providers: [
-    provideNativeDateAdapter(),
-    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
-    provideNgxMask(),
-    FormatsPipe,
-  ],
+    selector: 'app-guests-form',
+    templateUrl: './guests-form.component.html',
+    styleUrl: './guests-form.component.scss',
+    imports: [
+        MatButtonModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatAutocompleteModule,
+        MatTabsModule,
+        MatDatepickerModule,
+        MatDividerModule,
+        MatIconModule,
+        NgxMaskDirective,
+        ReactiveFormsModule,
+        CommonModule,
+        ColumnComponent,
+        ActionsComponent,
+    ],
+    providers: [
+        provideNativeDateAdapter(),
+        { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+        provideNgxMask(),
+        FormatsPipe,
+    ]
 })
 export class GuestsFormComponent implements OnInit, OnDestroy {
   guestForm: FormGroup;

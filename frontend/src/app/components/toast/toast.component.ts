@@ -7,11 +7,10 @@ import {
 } from '@angular/material/snack-bar';
 
 @Component({
-  selector: 'app-toast',
-  standalone: true,
-  templateUrl: './toast.component.html',
-  styleUrl: './toast.component.scss',
-  imports: [MatIconModule, MatButtonModule],
+    selector: 'app-toast',
+    templateUrl: './toast.component.html',
+    styleUrl: './toast.component.scss',
+    imports: [MatIconModule, MatButtonModule]
 })
 export class ToastComponent {
   constructor(

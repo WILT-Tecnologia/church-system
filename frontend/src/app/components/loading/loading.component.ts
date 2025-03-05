@@ -4,11 +4,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Observable } from 'rxjs';
 import { LoadingService } from './loading.service';
 @Component({
-  selector: 'app-loading',
-  templateUrl: './loading.component.html',
-  styleUrls: ['./loading.component.scss'],
-  standalone: true,
-  imports: [MatProgressSpinnerModule, CommonModule],
+    selector: 'app-loading',
+    templateUrl: './loading.component.html',
+    styleUrls: ['./loading.component.scss'],
+    imports: [MatProgressSpinnerModule, CommonModule]
 })
 export class LoadingComponent implements OnInit {
   loading$!: Observable<boolean>;

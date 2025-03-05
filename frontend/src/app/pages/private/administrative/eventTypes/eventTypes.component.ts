@@ -19,11 +19,10 @@ import { EventTypeComponent } from './eventType/eventType.component';
 import { EventTypesService } from './eventTypes.service';
 
 @Component({
-  selector: 'app-eventTypes',
-  templateUrl: './eventTypes.component.html',
-  styleUrls: ['./eventTypes.component.scss'],
-  standalone: true,
-  imports: [NotFoundRegisterComponent, CommonModule, CrudComponent],
+    selector: 'app-eventTypes',
+    templateUrl: './eventTypes.component.html',
+    styleUrls: ['./eventTypes.component.scss'],
+    imports: [NotFoundRegisterComponent, CommonModule, CrudComponent]
 })
 export class EventTypesComponent implements OnInit {
   eventTypes: EventTypes[] = [];

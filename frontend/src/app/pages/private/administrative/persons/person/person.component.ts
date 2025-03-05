@@ -70,34 +70,33 @@ type Sex = {
 };
 
 @Component({
-  selector: 'app-person',
-  standalone: true,
-  templateUrl: './person.component.html',
-  styleUrls: ['./person.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    provideNativeDateAdapter(),
-    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
-    provideNgxMask(),
-    FormatsPipe,
-  ],
-  imports: [
-    MatCardModule,
-    MatButtonModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatAutocompleteModule,
-    MatTabsModule,
-    MatDatepickerModule,
-    MatSelectModule,
-    MatDividerModule,
-    MatIconModule,
-    NgxMaskDirective,
-    ReactiveFormsModule,
-    CommonModule,
-    ColumnComponent,
-    ActionsComponent,
-  ],
+    selector: 'app-person',
+    templateUrl: './person.component.html',
+    styleUrls: ['./person.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    providers: [
+        provideNativeDateAdapter(),
+        { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+        provideNgxMask(),
+        FormatsPipe,
+    ],
+    imports: [
+        MatCardModule,
+        MatButtonModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatAutocompleteModule,
+        MatTabsModule,
+        MatDatepickerModule,
+        MatSelectModule,
+        MatDividerModule,
+        MatIconModule,
+        NgxMaskDirective,
+        ReactiveFormsModule,
+        CommonModule,
+        ColumnComponent,
+        ActionsComponent,
+    ]
 })
 export class PersonComponent implements OnInit, OnDestroy {
   personForm: FormGroup;

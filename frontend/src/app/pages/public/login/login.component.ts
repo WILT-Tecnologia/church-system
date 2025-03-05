@@ -25,21 +25,20 @@ import { AuthService } from '../../../services/auth/auth.service';
 import { ValidationService } from '../../../services/validation/validation.service';
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.scss',
-  standalone: true,
-  imports: [
-    MatCardModule,
-    MatInputModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    CommonModule,
-    ReactiveFormsModule,
-    ColumnComponent,
-    ActionsComponent,
-  ],
+    selector: 'app-login',
+    templateUrl: './login.component.html',
+    styleUrl: './login.component.scss',
+    imports: [
+        MatCardModule,
+        MatInputModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatIconModule,
+        CommonModule,
+        ReactiveFormsModule,
+        ColumnComponent,
+        ActionsComponent,
+    ]
 })
 export class LoginComponent implements OnInit, OnDestroy {
   loginForm: FormGroup;

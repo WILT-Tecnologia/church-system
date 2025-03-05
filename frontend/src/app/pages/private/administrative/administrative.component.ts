@@ -11,22 +11,21 @@ import { ProfilesComponent } from './profiles/profiles.component';
 import { UsersComponent } from './users/users.component';
 
 @Component({
-  selector: 'app-administrative',
-  standalone: true,
-  templateUrl: './administrative.component.html',
-  styleUrls: ['./administrative.component.scss'],
-  imports: [
-    MatTabsModule,
-    MatCardModule,
-    PersonsComponent,
-    UsersComponent,
-    ChurchsComponent,
-    EventTypesComponent,
-    OccupationsComponent,
-    ProfilesComponent,
-    MemberOriginComponent,
-    DashboardComponent,
-  ],
+    selector: 'app-administrative',
+    templateUrl: './administrative.component.html',
+    styleUrls: ['./administrative.component.scss'],
+    imports: [
+        MatTabsModule,
+        MatCardModule,
+        PersonsComponent,
+        UsersComponent,
+        ChurchsComponent,
+        EventTypesComponent,
+        OccupationsComponent,
+        ProfilesComponent,
+        MemberOriginComponent,
+        DashboardComponent,
+    ]
 })
 export class AdministrativeComponent implements OnInit {
   constructor() {}

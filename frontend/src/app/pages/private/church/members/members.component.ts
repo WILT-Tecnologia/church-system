@@ -21,11 +21,10 @@ import { HistoryComponent } from './shared/history/history.component';
 import { MemberService } from './shared/member.service';
 
 @Component({
-  selector: 'app-members',
-  templateUrl: './members.component.html',
-  styleUrls: ['./members.component.scss'],
-  standalone: true,
-  imports: [CommonModule, NotFoundRegisterComponent, CrudComponent],
+    selector: 'app-members',
+    templateUrl: './members.component.html',
+    styleUrls: ['./members.component.scss'],
+    imports: [CommonModule, NotFoundRegisterComponent, CrudComponent]
 })
 export class MembersComponent implements OnInit {
   families!: Families[];

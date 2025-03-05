@@ -35,23 +35,22 @@ import { PersonComponent } from '../../../../../administrative/persons/person/pe
 import { FamiliesService } from '../families.service';
 
 @Component({
-  selector: 'app-families-form',
-  templateUrl: './families-form.component.html',
-  styleUrl: './families-form.component.scss',
-  standalone: true,
-  imports: [
-    MatIconModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatDividerModule,
-    MatAutocompleteModule,
-    MatInputModule,
-    MatCheckboxModule,
-    CommonModule,
-    ReactiveFormsModule,
-    ColumnComponent,
-    ActionsComponent,
-  ],
+    selector: 'app-families-form',
+    templateUrl: './families-form.component.html',
+    styleUrl: './families-form.component.scss',
+    imports: [
+        MatIconModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatDividerModule,
+        MatAutocompleteModule,
+        MatInputModule,
+        MatCheckboxModule,
+        CommonModule,
+        ReactiveFormsModule,
+        ColumnComponent,
+        ActionsComponent,
+    ]
 })
 export class FamiliesFormComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

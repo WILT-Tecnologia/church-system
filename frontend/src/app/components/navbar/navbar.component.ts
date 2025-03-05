@@ -25,25 +25,24 @@ import { LogoComponent } from './logo/logo.component';
 import { GLOBAL, USER } from './routes';
 
 @Component({
-  selector: 'app-navbar',
-  standalone: true,
-  templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.scss',
-  imports: [
-    MatToolbarModule,
-    MatButtonModule,
-    MatMenuModule,
-    MatIconModule,
-    CommonModule,
-    MatDividerModule,
-    LogoComponent,
-    MatSidenavContainer,
-    MatSidenavContent,
-    MatSidenav,
-    MatNavList,
-    MatListItem,
-    RouterOutlet,
-  ],
+    selector: 'app-navbar',
+    templateUrl: './navbar.component.html',
+    styleUrl: './navbar.component.scss',
+    imports: [
+        MatToolbarModule,
+        MatButtonModule,
+        MatMenuModule,
+        MatIconModule,
+        CommonModule,
+        MatDividerModule,
+        LogoComponent,
+        MatSidenavContainer,
+        MatSidenavContent,
+        MatSidenav,
+        MatNavList,
+        MatListItem,
+        RouterOutlet,
+    ]
 })
 export class NavbarComponent implements OnInit {
   @ViewChild('sidenav') sidenav!: MatSidenav;

@@ -20,17 +20,16 @@ import { MemberOriginFormComponent } from './member-origin-form/member-origin-fo
 import { MemberOriginService } from './member-origin.service';
 
 @Component({
-  selector: 'app-member-origin',
-  templateUrl: './member-origin.component.html',
-  styleUrls: ['./member-origin.component.scss'],
-  standalone: true,
-  imports: [
-    NotFoundRegisterComponent,
-    MatCardModule,
-    MatIconModule,
-    CommonModule,
-    CrudComponent,
-  ],
+    selector: 'app-member-origin',
+    templateUrl: './member-origin.component.html',
+    styleUrls: ['./member-origin.component.scss'],
+    imports: [
+        NotFoundRegisterComponent,
+        MatCardModule,
+        MatIconModule,
+        CommonModule,
+        CrudComponent,
+    ]
 })
 export class MemberOriginComponent implements OnInit {
   memberOrigins: MemberOrigin[] = [];

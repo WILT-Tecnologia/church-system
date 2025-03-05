@@ -18,11 +18,10 @@ import { GuestsFormComponent } from './guests-form/guests-form.component';
 import { GuestsService } from './guests.service';
 
 @Component({
-  selector: 'app-guests',
-  standalone: true,
-  templateUrl: './guests.component.html',
-  styleUrl: './guests.component.scss',
-  imports: [NotFoundRegisterComponent, CommonModule, CrudComponent],
+    selector: 'app-guests',
+    templateUrl: './guests.component.html',
+    styleUrl: './guests.component.scss',
+    imports: [NotFoundRegisterComponent, CommonModule, CrudComponent]
 })
 export class GuestsComponent implements OnInit {
   guest: Guest[] = [];

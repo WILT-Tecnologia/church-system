@@ -24,23 +24,22 @@ import { ValidationService } from '../../../../../services/validation/validation
 import { MemberOriginService } from '../member-origin.service';
 
 @Component({
-  selector: 'app-member-origin-form',
-  templateUrl: './member-origin-form.component.html',
-  styleUrls: ['./member-origin-form.component.scss'],
-  standalone: true,
-  imports: [
-    MatIconModule,
-    MatCardModule,
-    MatButtonModule,
-    MatInputModule,
-    MatSlideToggleModule,
-    MatDividerModule,
-    MatFormFieldModule,
-    ReactiveFormsModule,
-    CommonModule,
-    ColumnComponent,
-    ActionsComponent,
-  ],
+    selector: 'app-member-origin-form',
+    templateUrl: './member-origin-form.component.html',
+    styleUrls: ['./member-origin-form.component.scss'],
+    imports: [
+        MatIconModule,
+        MatCardModule,
+        MatButtonModule,
+        MatInputModule,
+        MatSlideToggleModule,
+        MatDividerModule,
+        MatFormFieldModule,
+        ReactiveFormsModule,
+        CommonModule,
+        ColumnComponent,
+        ActionsComponent,
+    ]
 })
 export class MemberOriginFormComponent implements OnInit {
   memberOriginForm: FormGroup;

@@ -4,11 +4,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-logo',
-  templateUrl: './logo.component.html',
-  styleUrls: ['./logo.component.scss'],
-  standalone: true,
-  imports: [MatButtonModule, NgOptimizedImage],
+    selector: 'app-logo',
+    templateUrl: './logo.component.html',
+    styleUrls: ['./logo.component.scss'],
+    imports: [MatButtonModule, NgOptimizedImage]
 })
 export class LogoComponent implements OnInit {
   constructor(private router: Router) {}

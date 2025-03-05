@@ -48,27 +48,26 @@ export type ColumnDefinitionsProps = {
 };
 
 @Component({
-  selector: 'app-crud',
-  standalone: true,
-  templateUrl: './crud.component.html',
-  styleUrl: './crud.component.scss',
-  imports: [
-    MatCardModule,
-    MatTableModule,
-    MatSortModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatPaginatorModule,
-    MatTooltipModule,
-    MatDividerModule,
-    MatIconModule,
-    MatMenuModule,
-    CommonModule,
-    FormatValuesPipe,
-    FilterButtonAdvancedComponent,
-  ],
-  providers: [FormatsPipe],
+    selector: 'app-crud',
+    templateUrl: './crud.component.html',
+    styleUrl: './crud.component.scss',
+    imports: [
+        MatCardModule,
+        MatTableModule,
+        MatSortModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatPaginatorModule,
+        MatTooltipModule,
+        MatDividerModule,
+        MatIconModule,
+        MatMenuModule,
+        CommonModule,
+        FormatValuesPipe,
+        FilterButtonAdvancedComponent,
+    ],
+    providers: [FormatsPipe]
 })
 export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() fields: TableField[] = [];

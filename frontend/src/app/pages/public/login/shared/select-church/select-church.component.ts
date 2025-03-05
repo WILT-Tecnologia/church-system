@@ -8,11 +8,10 @@ import { Router } from '@angular/router';
 import { Church } from '../../../../../model/Church';
 
 @Component({
-  selector: 'app-select-church',
-  standalone: true,
-  templateUrl: './select-church.component.html',
-  styleUrl: './select-church.component.scss',
-  imports: [MatDialogModule, MatListModule, MatButtonModule, MatDividerModule],
+    selector: 'app-select-church',
+    templateUrl: './select-church.component.html',
+    styleUrl: './select-church.component.scss',
+    imports: [MatDialogModule, MatListModule, MatButtonModule, MatDividerModule]
 })
 export class SelectChurchComponent implements OnInit {
   churches: Church[] = [];

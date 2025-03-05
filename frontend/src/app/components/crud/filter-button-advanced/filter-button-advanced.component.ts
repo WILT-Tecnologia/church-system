@@ -38,27 +38,26 @@ export interface FilterField {
 }
 
 @Component({
-  selector: 'app-filter-button-advanced',
-  standalone: true,
-  templateUrl: './filter-button-advanced.component.html',
-  styleUrl: './filter-button-advanced.component.scss',
-  imports: [
-    CommonModule,
-    MatIconModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatOptionModule,
-    MatTooltipModule,
-    MatCheckboxModule,
-    ReactiveFormsModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatInputModule,
-    MatSliderModule,
-    FormsModule,
-    NgxMatSelectSearchModule,
-  ],
+    selector: 'app-filter-button-advanced',
+    templateUrl: './filter-button-advanced.component.html',
+    styleUrl: './filter-button-advanced.component.scss',
+    imports: [
+        CommonModule,
+        MatIconModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatOptionModule,
+        MatTooltipModule,
+        MatCheckboxModule,
+        ReactiveFormsModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatInputModule,
+        MatSliderModule,
+        FormsModule,
+        NgxMatSelectSearchModule,
+    ]
 })
 export class FilterButtonAdvancedComponent implements OnInit, OnChanges {
   @Input() fields: FilterField[] = [];

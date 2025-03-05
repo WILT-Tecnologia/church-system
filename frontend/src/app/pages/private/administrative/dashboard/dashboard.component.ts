@@ -8,11 +8,10 @@ type SimpleProps = {
 }[];
 
 @Component({
-  selector: 'app-dashboard',
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss'],
-  standalone: true,
-  imports: [CommonModule, PieChartModule],
+    selector: 'app-dashboard',
+    templateUrl: './dashboard.component.html',
+    styleUrls: ['./dashboard.component.scss'],
+    imports: [CommonModule, PieChartModule]
 })
 export class DashboardComponent implements OnInit {
   scaleType: ScaleType = ScaleType.Ordinal;

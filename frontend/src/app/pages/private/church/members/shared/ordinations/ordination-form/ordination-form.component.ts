@@ -42,31 +42,30 @@ import { OccupationsService } from '../../../../../administrative/occupations/oc
 import { OrdinationsService } from '../ordinations.service';
 
 @Component({
-  selector: 'app-ordination-form',
-  templateUrl: './ordination-form.component.html',
-  styleUrls: ['./ordination-form.component.scss'],
-  standalone: true,
-  providers: [
-    provideNativeDateAdapter(),
-    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
-    provideNgxMask(),
-  ],
-  imports: [
-    MatAutocompleteModule,
-    MatDatepickerModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatOptionModule,
-    MatButtonModule,
-    MatDividerModule,
-    MatIconModule,
-    MatSlideToggleModule,
-    ReactiveFormsModule,
-    CommonModule,
-    ColumnComponent,
-    ActionsComponent,
-  ],
+    selector: 'app-ordination-form',
+    templateUrl: './ordination-form.component.html',
+    styleUrls: ['./ordination-form.component.scss'],
+    providers: [
+        provideNativeDateAdapter(),
+        { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+        provideNgxMask(),
+    ],
+    imports: [
+        MatAutocompleteModule,
+        MatDatepickerModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatOptionModule,
+        MatButtonModule,
+        MatDividerModule,
+        MatIconModule,
+        MatSlideToggleModule,
+        ReactiveFormsModule,
+        CommonModule,
+        ColumnComponent,
+        ActionsComponent,
+    ]
 })
 export class OrdinationFormComponent implements OnInit {
   ordinationForm: FormGroup;

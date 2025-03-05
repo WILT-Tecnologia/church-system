@@ -20,11 +20,10 @@ import { FamiliesFormComponent } from './families-form/families-form.component';
 import { FamiliesService } from './families.service';
 
 @Component({
-  selector: 'app-families',
-  templateUrl: './families.component.html',
-  styleUrls: ['./families.component.scss'],
-  standalone: true,
-  imports: [CommonModule, NotFoundRegisterComponent, CrudComponent],
+    selector: 'app-families',
+    templateUrl: './families.component.html',
+    styleUrls: ['./families.component.scss'],
+    imports: [CommonModule, NotFoundRegisterComponent, CrudComponent]
 })
 export class FamiliesComponent implements OnInit {
   @Input() families: Families[] = [];

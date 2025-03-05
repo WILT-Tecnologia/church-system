@@ -18,11 +18,10 @@ import { OccupationComponent } from './occupation/occupation.component';
 import { OccupationsService } from './occupations.service';
 
 @Component({
-  selector: 'app-occupations',
-  templateUrl: './occupations.component.html',
-  styleUrls: ['./occupations.component.scss'],
-  standalone: true,
-  imports: [NotFoundRegisterComponent, CommonModule, CrudComponent],
+    selector: 'app-occupations',
+    templateUrl: './occupations.component.html',
+    styleUrls: ['./occupations.component.scss'],
+    imports: [NotFoundRegisterComponent, CommonModule, CrudComponent]
 })
 export class OccupationsComponent implements OnInit {
   occupations: Occupation[] = [];

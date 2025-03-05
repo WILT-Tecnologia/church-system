@@ -26,23 +26,22 @@ import { ValidationService } from '../../../../../services/validation/validation
 import { EventTypesService } from '../eventTypes.service';
 
 @Component({
-  selector: 'app-eventType',
-  standalone: true,
-  templateUrl: './eventType.component.html',
-  styleUrls: ['./eventType.component.scss'],
-  imports: [
-    MatCardModule,
-    MatButtonModule,
-    MatInputModule,
-    MatSlideToggleModule,
-    MatFormFieldModule,
-    MatDividerModule,
-    MatIconModule,
-    ReactiveFormsModule,
-    CommonModule,
-    ColumnComponent,
-    ActionsComponent,
-  ],
+    selector: 'app-eventType',
+    templateUrl: './eventType.component.html',
+    styleUrls: ['./eventType.component.scss'],
+    imports: [
+        MatCardModule,
+        MatButtonModule,
+        MatInputModule,
+        MatSlideToggleModule,
+        MatFormFieldModule,
+        MatDividerModule,
+        MatIconModule,
+        ReactiveFormsModule,
+        CommonModule,
+        ColumnComponent,
+        ActionsComponent,
+    ]
 })
 export class EventTypeComponent implements OnInit {
   eventTypeForm: FormGroup;

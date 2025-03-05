@@ -19,11 +19,10 @@ import { StatusMemberFormComponent } from './status-member-form/status-member-fo
 import { StatusMemberService } from './status-member.service';
 
 @Component({
-  selector: 'app-status-member',
-  standalone: true,
-  templateUrl: './status-member.component.html',
-  styleUrl: './status-member.component.scss',
-  imports: [CommonModule, NotFoundRegisterComponent, CrudComponent],
+    selector: 'app-status-member',
+    templateUrl: './status-member.component.html',
+    styleUrl: './status-member.component.scss',
+    imports: [CommonModule, NotFoundRegisterComponent, CrudComponent]
 })
 export class StatusMemberComponent implements OnInit {
   @Input() status_member: StatusMember[] = [];

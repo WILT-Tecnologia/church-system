@@ -10,18 +10,17 @@ import { EventsComponent } from './events/events.component';
 import { MembersComponent } from './members/members.component';
 
 @Component({
-  selector: 'app-church',
-  standalone: true,
-  templateUrl: './church.component.html',
-  styleUrls: ['./church.component.scss'],
-  imports: [
-    MatTabsModule,
-    MatCardModule,
-    MatDividerModule,
-    MembersComponent,
-    DashboardComponent,
-    EventsComponent,
-  ],
+    selector: 'app-church',
+    templateUrl: './church.component.html',
+    styleUrls: ['./church.component.scss'],
+    imports: [
+        MatTabsModule,
+        MatCardModule,
+        MatDividerModule,
+        MembersComponent,
+        DashboardComponent,
+        EventsComponent,
+    ]
 })
 export class ChurchComponent implements OnInit {
   churchId: string | null = null;

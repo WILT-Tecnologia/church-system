@@ -58,29 +58,28 @@ import { PersonsService } from '../../persons/persons.service';
 import { ChurchsService } from '../churchs.service';
 
 @Component({
-  selector: 'app-church',
-  templateUrl: './church.component.html',
-  styleUrls: ['./church.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
-  imports: [
-    MatTabsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatDatepickerModule,
-    MatSelectModule,
-    MatDividerModule,
-    MatAutocompleteModule,
-    MatIconModule,
-    NgxMaskDirective,
-    ReactiveFormsModule,
-    CommonModule,
-    ColumnComponent,
-    ActionsComponent,
-  ],
-  providers: [provideNgxMask()],
+    selector: 'app-church',
+    templateUrl: './church.component.html',
+    styleUrls: ['./church.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [
+        MatTabsModule,
+        MatCardModule,
+        MatButtonModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatDatepickerModule,
+        MatSelectModule,
+        MatDividerModule,
+        MatAutocompleteModule,
+        MatIconModule,
+        NgxMaskDirective,
+        ReactiveFormsModule,
+        CommonModule,
+        ColumnComponent,
+        ActionsComponent,
+    ],
+    providers: [provideNgxMask()]
 })
 export class ChurchComponent implements OnInit, OnDestroy {
   churchForm: FormGroup;

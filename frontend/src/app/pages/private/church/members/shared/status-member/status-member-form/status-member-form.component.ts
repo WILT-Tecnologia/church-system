@@ -49,30 +49,29 @@ import { ValidationService } from '../../../../../../../services/validation/vali
 import { StatusMemberService } from '../status-member.service';
 
 @Component({
-  selector: 'app-status-member-form',
-  standalone: true,
-  templateUrl: './status-member-form.component.html',
-  styleUrl: './status-member-form.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    MatAutocompleteModule,
-    MatDatepickerModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatDividerModule,
-    MatIconModule,
-    MatSlideToggleModule,
-    ReactiveFormsModule,
-    CommonModule,
-    ColumnComponent,
-    ActionsComponent,
-  ],
-  providers: [
-    provideNgxMask(),
-    provideNativeDateAdapter(),
-    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
-  ],
+    selector: 'app-status-member-form',
+    templateUrl: './status-member-form.component.html',
+    styleUrl: './status-member-form.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [
+        MatAutocompleteModule,
+        MatDatepickerModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatDividerModule,
+        MatIconModule,
+        MatSlideToggleModule,
+        ReactiveFormsModule,
+        CommonModule,
+        ColumnComponent,
+        ActionsComponent,
+    ],
+    providers: [
+        provideNgxMask(),
+        provideNativeDateAdapter(),
+        { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+    ]
 })
 export class StatusMemberFormComponent implements OnInit, OnDestroy {
   statusMemberForm: FormGroup;

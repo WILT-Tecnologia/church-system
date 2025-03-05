@@ -19,11 +19,10 @@ import { OrdinationFormComponent } from './ordination-form/ordination-form.compo
 import { OrdinationsService } from './ordinations.service';
 
 @Component({
-  selector: 'app-ordinations',
-  templateUrl: './ordinations.component.html',
-  styleUrls: ['./ordinations.component.scss'],
-  standalone: true,
-  imports: [CommonModule, NotFoundRegisterComponent, CrudComponent],
+    selector: 'app-ordinations',
+    templateUrl: './ordinations.component.html',
+    styleUrls: ['./ordinations.component.scss'],
+    imports: [CommonModule, NotFoundRegisterComponent, CrudComponent]
 })
 export class OrdinationsComponent implements OnInit {
   @Input() ordination: Ordination[] = [];

@@ -19,12 +19,11 @@ import { PersonComponent } from './person/person.component';
 import { PersonsService } from './persons.service';
 
 @Component({
-  selector: 'app-persons',
-  standalone: true,
-  templateUrl: './persons.component.html',
-  styleUrls: ['./persons.component.scss'],
-  imports: [NotFoundRegisterComponent, CommonModule, CrudComponent],
-  providers: [FormatsPipe],
+    selector: 'app-persons',
+    templateUrl: './persons.component.html',
+    styleUrls: ['./persons.component.scss'],
+    imports: [NotFoundRegisterComponent, CommonModule, CrudComponent],
+    providers: [FormatsPipe]
 })
 export class PersonsComponent implements OnInit {
   persons: Person[] = [];

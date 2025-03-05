@@ -57,29 +57,28 @@ import { EventsService } from './events.service';
 import { GuestsComponent } from './shared/guests/guests.component';
 
 @Component({
-  selector: 'app-events',
-  templateUrl: './events.component.html',
-  styleUrls: ['./events.component.scss'],
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatPaginatorModule,
-    ColumnComponent,
-    MatFormFieldModule,
-    MatIconModule,
-    MatTableModule,
-    MatSortModule,
-    MatButtonModule,
-    MatInputModule,
-    MatTooltipModule,
-    MatDividerModule,
-    MatRippleModule,
-    MatMenuModule,
-    CrudComponent,
-    NotFoundRegisterComponent,
-    FullCalendarModule,
-  ],
-  providers: [FormatsPipe],
+    selector: 'app-events',
+    templateUrl: './events.component.html',
+    styleUrls: ['./events.component.scss'],
+    imports: [
+        CommonModule,
+        MatPaginatorModule,
+        ColumnComponent,
+        MatFormFieldModule,
+        MatIconModule,
+        MatTableModule,
+        MatSortModule,
+        MatButtonModule,
+        MatInputModule,
+        MatTooltipModule,
+        MatDividerModule,
+        MatRippleModule,
+        MatMenuModule,
+        CrudComponent,
+        NotFoundRegisterComponent,
+        FullCalendarModule,
+    ],
+    providers: [FormatsPipe]
 })
 export class EventsComponent implements OnInit, AfterViewInit {
   breakpointObserver = inject(BreakpointObserver);

@@ -8,11 +8,10 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { AuthService } from './services/auth/auth.service';
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss',
-  imports: [RouterOutlet, NavbarComponent, LoadingComponent, CommonModule],
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrl: './app.component.scss',
+    imports: [RouterOutlet, NavbarComponent, LoadingComponent, CommonModule]
 })
 export class AppComponent implements OnInit {
   title = 'church-system';

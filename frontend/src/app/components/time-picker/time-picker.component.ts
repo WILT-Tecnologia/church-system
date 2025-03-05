@@ -24,31 +24,30 @@ import { MatInput, MatInputModule } from '@angular/material/input';
 import { Subject } from 'rxjs';
 
 @Component({
-  selector: 'app-time-picker',
-  standalone: true,
-  templateUrl: './time-picker.component.html',
-  styleUrl: './time-picker.component.scss',
-  imports: [
-    //MatFormFieldModule,
-    MatInputModule,
-    MatIconButton,
-    NgIf,
-    MatButton,
-    NgForOf,
-    FormsModule,
-    ReactiveFormsModule,
-  ],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => TimePickerComponent),
-      multi: true,
-    },
-    {
-      provide: MatFormFieldControl,
-      useExisting: forwardRef(() => TimePickerComponent),
-    },
-  ],
+    selector: 'app-time-picker',
+    templateUrl: './time-picker.component.html',
+    styleUrl: './time-picker.component.scss',
+    imports: [
+        //MatFormFieldModule,
+        MatInputModule,
+        MatIconButton,
+        NgIf,
+        MatButton,
+        NgForOf,
+        FormsModule,
+        ReactiveFormsModule,
+    ],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => TimePickerComponent),
+            multi: true,
+        },
+        {
+            provide: MatFormFieldControl,
+            useExisting: forwardRef(() => TimePickerComponent),
+        },
+    ]
 })
 export class TimePickerComponent
   implements ControlValueAccessor, MatFormFieldControl<string>, OnDestroy

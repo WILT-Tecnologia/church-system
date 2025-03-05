@@ -18,11 +18,10 @@ import { UserFormComponent } from './user-form/user-form.component';
 import { UsersService } from './users.service';
 
 @Component({
-  selector: 'app-users',
-  standalone: true,
-  templateUrl: './users.component.html',
-  styleUrls: ['./users.component.scss'],
-  imports: [NotFoundRegisterComponent, CommonModule, CrudComponent],
+    selector: 'app-users',
+    templateUrl: './users.component.html',
+    styleUrls: ['./users.component.scss'],
+    imports: [NotFoundRegisterComponent, CommonModule, CrudComponent]
 })
 export class UsersComponent implements OnInit {
   users: User[] = [];
