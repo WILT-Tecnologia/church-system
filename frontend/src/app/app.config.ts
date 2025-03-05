@@ -1,12 +1,7 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
-import {
-  HTTP_INTERCEPTORS,
-  provideHttpClient,
-  withFetch,
-  withInterceptorsFromDi,
-} from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { provideClientHydration } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
