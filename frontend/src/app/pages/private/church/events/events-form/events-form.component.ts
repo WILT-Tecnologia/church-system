@@ -1,9 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit, Optional } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Inject,
+  OnDestroy,
+  OnInit,
+  Optional,
+  ViewChild,
+} from '@angular/core';
 import {
   FormBuilder,
   FormControl,
   FormGroup,
+  FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -12,53 +21,77 @@ import {
   MatAutocompleteSelectedEvent,
 } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
+import {
+  MAT_DATE_LOCALE,
+  provideNativeDateAdapter,
+} from '@angular/material/core';
+import {
+  MatDatepicker,
+  MatDatepickerModule,
+} from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { map, Observable, startWith } from 'rxjs';
-import { ActionsComponent } from '../../../../../components/actions/actions.component';
-import { ColumnComponent } from '../../../../../components/column/column.component';
-import { LoadingService } from '../../../../../components/loading/loading.service';
-import { MESSAGES } from '../../../../../components/toast/messages';
-import { Church } from '../../../../../model/Church';
-import { Events } from '../../../../../model/Events';
-import { EventTypes } from '../../../../../model/EventTypes';
-import { NotificationService } from '../../../../../services/notification/notification.service';
-import { ValidationService } from '../../../../../services/validation/validation.service';
+import { ActionsComponent } from 'app/components/actions/actions.component';
+import { ColumnComponent } from 'app/components/column/column.component';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { TimePickerComponent } from 'app/components/time-picker/time-picker.component';
+import { MESSAGES } from 'app/components/toast/messages';
+import { Church } from 'app/model/Church';
+import { Events } from 'app/model/Events';
+import { EventTypes } from 'app/model/EventTypes';
+import { NotificationService } from 'app/services/notification/notification.service';
+import { ValidationService } from 'app/services/validation/validation.service';
+import { map, Observable, startWith, Subject } from 'rxjs';
 import { ChurchsService } from '../../../administrative/churchs/churchs.service';
 import { EventTypesService } from '../../../administrative/eventTypes/eventTypes.service';
 import { EventsService } from '../events.service';
 
 @Component({
-  selector: 'app-events-form',
-  templateUrl: './events-form.component.html',
-  styleUrl: './events-form.component.scss',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatButtonModule,
     MatInputModule,
     MatFormFieldModule,
     MatAutocompleteModule,
     MatDividerModule,
+    MatDatepickerModule,
     ReactiveFormsModule,
     CommonModule,
     ColumnComponent,
     ActionsComponent,
+    MatIconModule,
+    TimePickerComponent,
+    FormsModule,
   ],
+  providers: [
+    provideNativeDateAdapter(),
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+  ],
+  selector: 'app-events-form',
+  standalone: true,
+  styleUrl: './events-form.component.scss',
+  templateUrl: './events-form.component.html',
 })
-export class EventsFormComponent implements OnInit {
+export class EventsFormComponent implements OnInit, OnDestroy {
   eventForm: FormGroup;
   event: Events[] = [];
   church: Church[] = [];
   eventType: EventTypes[] = [];
   isEditMode: boolean = false;
+  readonly minDate = new Date(1900, 0, 1);
+  private destroy$ = new Subject<void>();
 
   searchChurchControl = new FormControl('');
   searchEventTypeControl = new FormControl('');
 
   filterChurch: Observable<Church[]> = new Observable<Church[]>();
   filterEventTypes: Observable<EventTypes[]> = new Observable<EventTypes[]>();
+
+  @ViewChild('start_date') start_date!: MatDatepicker<Date>;
+  @ViewChild('end_date') end_date!: MatDatepicker<Date>;
 
   constructor(
     private fb: FormBuilder,
@@ -80,6 +113,11 @@ export class EventsFormComponent implements OnInit {
     this.checkEditMode();
   }
 
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   createForm = (): FormGroup => {
     return this.fb.group({
       id: [this.data.event?.id ?? ''],
@@ -92,8 +130,34 @@ export class EventsFormComponent implements OnInit {
         this.data.event?.event_type?.id ?? '',
         [Validators.required],
       ],
+      theme: [this.data.event?.theme ?? '', [Validators.max(255)]],
       obs: [this.data.event?.obs ?? '', [Validators.max(255)]],
+      start_date: [this.data.event?.start_date ?? '', [Validators.required]],
+      end_date: [this.data.event?.end_date ?? '', [Validators.required]],
+      start_time: [
+        this.data.event?.start_time ?? '',
+        [
+          Validators.required,
+          Validators.pattern(/^(0[0-9]|1[0-2]):[0-5][0-9] (AM|PM)$/),
+        ],
+      ],
+      end_time: [
+        this.data.event?.end_time ?? '',
+        [
+          Validators.required,
+          Validators.pattern(/^(0[0-9]|1[0-2]):[0-5][0-9] (AM|PM)$/),
+        ],
+      ],
+      location: [this.data.event?.location ?? '', Validators.max(255)],
     });
+  };
+
+  private showLoading = () => {
+    this.loading.show();
+  };
+
+  hideLoading = () => {
+    this.loading.hide();
   };
 
   checkEditMode = () => {
@@ -131,7 +195,7 @@ export class EventsFormComponent implements OnInit {
           error ? error.error.message : MESSAGES.LOADING_ERROR,
         );
       },
-      complete: () => this.loading.hide(),
+      complete: () => this.hideLoading(),
     });
   };
 
@@ -145,7 +209,7 @@ export class EventsFormComponent implements OnInit {
           error ? error.error.message : MESSAGES.LOADING_ERROR,
         );
       },
-      complete: () => this.loading.hide(),
+      complete: () => this.hideLoading(),
     });
   };
 
@@ -207,6 +271,22 @@ export class EventsFormComponent implements OnInit {
     this.eventForm.get('event_type_id')?.setValue(eventType.id);
   };
 
+  clearDate(fieldName: string) {
+    this.eventForm.get(fieldName)?.reset();
+  }
+
+  openCalendarStartDate(): void {
+    if (this.start_date) {
+      this.start_date.open();
+    }
+  }
+
+  openCalendarEndDate(): void {
+    if (this.end_date) {
+      this.end_date.open();
+    }
+  }
+
   handleCancel = () => {
     this.dialogRef.close();
   };
@@ -226,30 +306,30 @@ export class EventsFormComponent implements OnInit {
   };
 
   handleCreate = (event: Events) => {
-    this.loading.show();
+    this.showLoading();
     this.eventsService.create(event).subscribe({
       next: () => {
-        this.loading.hide();
+        this.hideLoading();
         this.notification.onSuccess(MESSAGES.CREATE_SUCCESS);
         this.dialogRef.close(true);
       },
       error: () => {
-        this.loading.hide();
+        this.hideLoading();
         this.notification.onError(MESSAGES.CREATE_ERROR);
       },
     });
   };
 
   handleUpdate = (id: string, event: Events) => {
-    this.loading.show();
+    this.showLoading();
     this.eventsService.update(id, event).subscribe({
       next: () => {
-        this.loading.hide();
+        this.hideLoading();
         this.notification.onSuccess(MESSAGES.UPDATE_SUCCESS);
         this.dialogRef.close(true);
       },
       error: () => {
-        this.loading.hide();
+        this.hideLoading();
         this.notification.onError(MESSAGES.UPDATE_ERROR);
       },
     });

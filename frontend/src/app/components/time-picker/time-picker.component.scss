@@ -1,0 +1,104 @@
+:host {
+  display: block;
+  width: 100%;
+
+  &.mat-form-field-type-app-time-picker {
+    .mat-form-field-infix {
+      width: auto;
+      padding: 0;
+      border-top: 0;
+    }
+  }
+}
+
+.time-picker-container {
+  position: relative;
+  width: 100%;
+
+  .time-inputs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 0;
+
+    .time-input {
+      width: 40px;
+      text-align: center;
+      cursor: pointer;
+      border: 1px solid transparent;
+      background: transparent;
+      font: inherit;
+
+      &:focus {
+        outline: none;
+      }
+
+      &:hover {
+        border-color: #888888;
+      }
+    }
+
+    .separator {
+      font-size: 16px;
+    }
+
+    .period-toggle {
+      margin-left: 8px;
+      border: 1px solid #CCCCCC;
+      border-radius: 4px;
+      width: 50px;
+      height: 36px;
+      font-size: 14px;
+    }
+  }
+
+  .picker-popover {
+    position: absolute;
+    top: 45px;
+    left: 0;
+    background: white;
+    border: 1px solid #DDDDDD;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    z-index: 1000;
+
+    .picker-header {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+
+      button {
+        flex: 1;
+
+        &.active {
+          background-color: #E0E0E0;
+        }
+      }
+    }
+
+    .numbers-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+
+      button {
+        min-width: 40px;
+        padding: 8px;
+        border-radius: 4px;
+        transition: all 0.2s;
+
+        &.selected {
+          background-color: #2196F3;
+          color: white;
+        }
+
+        &:hover {
+          background-color: #E3F2FD;
+        }
+      }
+    }
+  }
+}

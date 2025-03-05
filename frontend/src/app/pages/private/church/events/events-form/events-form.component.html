@@ -27,10 +27,8 @@
           <mat-option disabled>Nenhuma igreja encontrada.</mat-option>
         }
       </mat-autocomplete>
-      @if (
-        eventForm.get('church_id')?.invalid &&
-        eventForm.get('church_id')?.touched
-      ) {
+      @if (eventForm.get('church_id')?.invalid &&
+      eventForm.get('church_id')?.touched) {
         <mat-error>{{ getErrorMessage('church_id') }}</mat-error>
       }
     </mat-form-field>
@@ -58,10 +56,8 @@
           <mat-option disabled>Nenhum tipo de evento encontrado.</mat-option>
         }
       </mat-autocomplete>
-      @if (
-        eventForm.get('event_type_id')?.invalid &&
-        eventForm.get('event_type_id')?.touched
-      ) {
+      @if (eventForm.get('event_type_id')?.invalid &&
+      eventForm.get('event_type_id')?.touched) {
         <mat-error>{{ getErrorMessage('event_type_id') }}</mat-error>
       }
     </mat-form-field>
@@ -73,9 +69,155 @@
       <input matInput formControlName="name" maxlength="255" required />
       <mat-error
         *ngIf="eventForm.get('name')?.invalid && eventForm.get('name')?.touched"
-        >{{ getErrorMessage('name') }}</mat-error
+      >{{ getErrorMessage('name') }}
+      </mat-error
       >
     </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Tema</mat-label>
+      <input matInput formControlName="theme" maxlength="255" required />
+      <mat-error
+        *ngIf="eventForm.get('theme')?.invalid && eventForm.get('theme')?.touched"
+      >{{ getErrorMessage('theme') }}
+      </mat-error
+      >
+    </mat-form-field>
+  </app-column>
+  <app-column>
+    <app-column>
+      <mat-form-field appearance="fill">
+        <mat-label>Data inicial</mat-label>
+        <input
+          matInput
+          [matDatepicker]="start_date"
+          name="start_date"
+          [min]="minDate"
+          placeholder="Selecione uma data"
+          formControlName="start_date"
+          (focus)="openCalendarStartDate()"
+          readonly
+        />
+        @if (eventForm.value.start_date) {
+          <button
+            type="button"
+            mat-icon-button
+            matSuffix
+            (click)="clearDate('start_date')"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        } @else {
+          <ng-container>
+            <mat-datepicker-toggle
+              matSuffix
+              [for]="start_date"
+            ></mat-datepicker-toggle>
+            <mat-datepicker #start_date>
+              <mat-datepicker-actions>
+                <button
+                  mat-stroked-button
+                  type="button"
+                  color="warn"
+                  matDatepickerCancel
+                >
+                  Cancelar
+                </button>
+                <button
+                  mat-raised-button
+                  type="button"
+                  color="primary"
+                  matDatepickerApply
+                >
+                  Confirmar
+                </button>
+              </mat-datepicker-actions>
+            </mat-datepicker>
+          </ng-container>
+        }
+        @if (eventForm.get('start_date')?.invalid && eventForm.get('start_date')?.touched) {
+          <mat-error>
+            {{ getErrorMessage('start_date') }}
+          </mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Hora inicial</mat-label>
+        <app-time-picker
+          formControlName="start_time"
+          [placeholder]="'HH:MM AM/PM'"
+        ></app-time-picker>
+        <mat-error *ngIf="eventForm.get('start_time')?.invalid">
+          {{ getErrorMessage('start_time') }}
+        </mat-error>
+      </mat-form-field>
+    </app-column>
+    <app-column>
+      <mat-form-field appearance="fill">
+        <mat-label>Data final</mat-label>
+        <input
+          matInput
+          [matDatepicker]="end_date"
+          name="end_date"
+          [min]="minDate"
+          placeholder="Selecione uma data"
+          formControlName="end_date"
+          (focus)="openCalendarEndDate()"
+          readonly
+        />
+        @if (eventForm.value.end_date) {
+          <button
+            type="button"
+            mat-icon-button
+            matSuffix
+            (click)="clearDate('end_date')"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        } @else {
+          <ng-container>
+            <mat-datepicker-toggle
+              matSuffix
+              [for]="end_date"
+            ></mat-datepicker-toggle>
+            <mat-datepicker #end_date>
+              <mat-datepicker-actions>
+                <button
+                  mat-stroked-button
+                  type="button"
+                  color="warn"
+                  matDatepickerCancel
+                >
+                  Cancelar
+                </button>
+                <button
+                  mat-raised-button
+                  type="button"
+                  color="primary"
+                  matDatepickerApply
+                >
+                  Confirmar
+                </button>
+              </mat-datepicker-actions>
+            </mat-datepicker>
+          </ng-container>
+        }
+        @if (eventForm.get('start_date')?.invalid && eventForm.get('start_date')?.touched) {
+          <mat-error>
+            {{ getErrorMessage('start_date') }}
+          </mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Hora final</mat-label>
+        <app-time-picker
+          formControlName="end_time"
+          [placeholder]="'HH:MM AM/PM'"
+        ></app-time-picker>
+        <mat-error *ngIf="eventForm.get('end_time')?.invalid">
+          {{ getErrorMessage('end_time') }}
+        </mat-error>
+      </mat-form-field>
+    </app-column>
   </app-column>
 
   <app-column>

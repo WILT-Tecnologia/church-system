@@ -10,10 +10,12 @@ export type Events = {
   event_type_id: string;
   name: string;
   obs: string;
+  theme: string;
   start_date: string;
   end_date: string;
-  start_hour: string;
-  end_hour: string;
+  start_time: string;
+  end_time: string;
+  location: string;
   created_at: string;
   updated_at: string;
 };

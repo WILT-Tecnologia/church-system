@@ -119,7 +119,9 @@ export class EventsComponent implements OnInit, AfterViewInit {
     { key: 'event_type.name', header: 'Tipo do evento', type: 'string' },
     { key: 'name', header: 'Nome', type: 'string' },
     { key: 'start_date', header: 'Data inicio', type: 'date' },
+    { key: 'start_time', header: 'Hora inicio', type: 'date' },
     { key: 'end_date', header: 'Data fim', type: 'date' },
+    { key: 'end_time', header: 'Hora fim', type: 'date' },
     { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
   ];
   isMobile: boolean = false;
@@ -140,14 +142,14 @@ export class EventsComponent implements OnInit, AfterViewInit {
       list: 'Lista',
     },
     buttonHints: {
-      next: 'Próximo',
+      next: 'Próximo',
       prev: 'Anterior',
       month: 'Mês',
       day: 'Dia',
       week: 'Semana',
       today: 'Hoje',
       prevYear: 'Ano Anterior',
-      nextYear: 'Próximo Ano',
+      nextYear: 'Próximo Ano',
     },
     initialDate: dayjs().format('YYYY-MM-DD'),
     locale: 'pt-br',

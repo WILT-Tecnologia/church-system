@@ -1,0 +1,48 @@
+<div class="time-picker-container">
+  <div class="time-inputs">
+    <input
+      matInput
+      #hourInput
+      [value]="time.hour"
+      (click)="togglePicker()"
+      readonly
+      class="time-input"
+    >
+    <span class="separator">:</span>
+    <input
+      #minuteInput
+      (click)="togglePicker()"
+      [value]="time.minute"
+      class="time-input"
+      matInput
+      readonly
+    >
+    <button
+      type="button"
+      mat-icon-button
+      class="period-toggle"
+      (click)="togglePeriod()"
+    >
+      {{ time.period }}
+    </button>
+  </div>
+
+  <div class="picker-popover" *ngIf="showPicker">
+    <div class="picker-header">
+      <button mat-button type="button" (click)="isHourView = true" [class.active]="isHourView">Hour</button>
+      <button mat-button type="button" (click)="isHourView = false" [class.active]="!isHourView">Minute</button>
+    </div>
+
+    <div class="numbers-grid">
+      <button
+        type="button"
+        mat-button
+        *ngFor="let num of numbers"
+        (click)="isHourView ? selectHour(num) : selectMinute(num)"
+        [class.selected]="(isHourView && num === time.hour) || (!isHourView && num === time.minute)"
+      >
+        {{ num }}
+      </button>
+    </div>
+  </div>
+</div>
