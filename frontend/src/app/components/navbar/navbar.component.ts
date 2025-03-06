@@ -107,7 +107,6 @@ export class NavbarComponent implements OnInit {
         await this.sidenav.close();
       }
       this.showLoading();
-      await new Promise((resolve) => setTimeout(resolve, 500));
       await this.authService.logout();
     } catch (error) {
       console.error('Erro ao fazer logout:', error);

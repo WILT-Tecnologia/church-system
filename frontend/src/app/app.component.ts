@@ -27,18 +27,14 @@ export class AppComponent implements OnInit {
     this.loadingService.show();
     this.isLoggedIn$ = this.authService.isLoggedIn$;
 
-    this.authService
-      .initializeAuthState()
-      .then((isLoggedIn): Promise<boolean> => {
-        if (isLoggedIn) {
-          return this.router.navigate(['church']);
-        } else if (!isLoggedIn) {
-          return this.router.navigate(['login']);
-        } else {
-          this.loadingService.hide();
+    this.authService.initializeAuthState().then((isLoggedIn) => {
+      if (isLoggedIn) {
+        this.router.navigateByUrl('church');
+      } else if (!isLoggedIn) {
+        this.router.navigateByUrl('login');
+      }
 
-          return Promise.resolve(false);
-        }
-      });
+      this.loadingService.hide();
+    });
   }
 }

@@ -12,7 +12,6 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 })
 export class AuthService {
   private apiUrl = environment.apiUrl;
-  private route = Inject(Router);
 
   private isLoggedInSubject = new BehaviorSubject<boolean>(
     this.isAuthenticated(),
@@ -21,6 +20,7 @@ export class AuthService {
 
   constructor(
     private http: HttpClient,
+    private router: Router,
     @Inject(PLATFORM_ID) private platformId: any,
   ) {
     if (this.isAuthenticated()) {
@@ -87,14 +87,18 @@ export class AuthService {
     return this.isLoggedIn$;
   }
 
-  logout(): Promise<void> {
-    return new Promise((resolve) => {
-      if (isPlatformBrowser(this.platformId)) {
-        localStorage.clear();
-        this.isLoggedInSubject.next(false);
-        this.route.navigate(['login']);
-      }
-      resolve();
-    });
+  clearAuthState(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.clear();
+      window.location.reload();
+    }
+
+    this.isLoggedInSubject.next(false);
+  }
+
+  logout(): Promise<boolean> {
+    this.clearAuthState();
+
+    return this.router.navigateByUrl('/login');
   }
 }

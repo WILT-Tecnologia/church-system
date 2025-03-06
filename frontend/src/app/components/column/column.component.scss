@@ -1,11 +1,37 @@
-.container {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  gap: 1rem;
-  margin: 0.5rem 0;
+:host {
+  display: block;
+}
 
-  @media screen and (max-width: 768px) {
-    flex-direction: column;
+/* Define a grid e o espaçamento entre os elementos */
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+
+/* Estilos para as diferentes configurações de colunas */
+.columns-1 {
+  grid-template-columns: 1fr;
+}
+
+.columns-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.columns-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.columns-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* Exemplo de responsividade: ajusta a grid para uma configuração específica no mobile */
+@media screen and (max-width: 768px) {
+
+  /* Para manter duas colunas no mobile, mesmo que o componente seja configurado para mais colunas */
+  .columns-2,
+  .columns-3,
+  .columns-4 {
+    grid-template-columns: repeat(1, 1fr);
   }
 }

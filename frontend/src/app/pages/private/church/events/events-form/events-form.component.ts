@@ -32,10 +32,12 @@ import {
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatTimepickerModule } from '@angular/material/timepicker';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActionsComponent } from 'app/components/actions/actions.component';
-import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { MESSAGES } from 'app/components/toast/messages';
 import { Church } from 'app/model/Church';
@@ -43,7 +45,9 @@ import { Events } from 'app/model/Events';
 import { EventTypes } from 'app/model/EventTypes';
 import { NotificationService } from 'app/services/notification/notification.service';
 import { ValidationService } from 'app/services/validation/validation.service';
+import { provideNgxMask } from 'ngx-mask';
 import { map, Observable, startWith, Subject } from 'rxjs';
+import { ColumnComponent } from '../../../../../components/column/column.component';
 import { ChurchsService } from '../../../administrative/churchs/churchs.service';
 import { EventTypesService } from '../../../administrative/eventTypes/eventTypes.service';
 import { EventsService } from '../events.service';
@@ -57,14 +61,18 @@ import { EventsService } from '../events.service';
     MatAutocompleteModule,
     MatDividerModule,
     MatDatepickerModule,
+    MatTooltipModule,
+    MatTimepickerModule,
     ReactiveFormsModule,
-    CommonModule,
-    ColumnComponent,
     ActionsComponent,
+    MatGridListModule,
     MatIconModule,
     FormsModule,
+    CommonModule,
+    ColumnComponent,
   ],
   providers: [
+    provideNgxMask(),
     provideNativeDateAdapter(),
     { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
   ],
@@ -78,6 +86,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
   church: Church[] = [];
   eventType: EventTypes[] = [];
   isEditMode: boolean = false;
+
   readonly minDate = new Date(1900, 0, 1);
   private destroy$ = new Subject<void>();
 
@@ -127,24 +136,15 @@ export class EventsFormComponent implements OnInit, OnDestroy {
         this.data.event?.event_type?.id ?? '',
         [Validators.required],
       ],
-      theme: [this.data.event?.theme ?? '', [Validators.max(255)]],
+      theme: [
+        this.data.event?.theme ?? '',
+        [Validators.required, Validators.min(3), Validators.max(255)],
+      ],
       obs: [this.data.event?.obs ?? '', [Validators.max(255)]],
       start_date: [this.data.event?.start_date ?? '', [Validators.required]],
       end_date: [this.data.event?.end_date ?? '', [Validators.required]],
-      start_time: [
-        this.data.event?.start_time ?? '',
-        [
-          Validators.required,
-          Validators.pattern(/^(0[0-9]|1[0-2]):[0-5][0-9] (AM|PM)$/),
-        ],
-      ],
-      end_time: [
-        this.data.event?.end_time ?? '',
-        [
-          Validators.required,
-          Validators.pattern(/^(0[0-9]|1[0-2]):[0-5][0-9] (AM|PM)$/),
-        ],
-      ],
+      start_time: [this.data.event?.start_time ?? '', [Validators.required]],
+      end_time: [this.data.event?.end_time ?? '', [Validators.required]],
       location: [this.data.event?.location ?? '', Validators.max(255)],
     });
   };
@@ -284,16 +284,56 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     }
   }
 
+  formatDate(date: Date | string | null): string | null {
+    if (!date) return null;
+
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  }
+
+  formatTime(time: string | Date | null): string | null {
+    if (!time) return null;
+
+    // Se for um objeto Date, formata como "HH:mm"
+    if (time instanceof Date) {
+      const hours = String(time.getHours()).padStart(2, '0');
+      const minutes = String(time.getMinutes()).padStart(2, '0');
+      return `${hours}:${minutes}`;
+    }
+
+    // Se for uma string, processa como antes
+    const timeParts = time.split(':');
+    if (timeParts.length >= 2) {
+      return `${timeParts[0]}:${timeParts[1]}`;
+    }
+
+    return time;
+  }
+
   handleCancel = () => {
     this.dialogRef.close();
   };
 
   handleSubmit = () => {
-    const event = this.eventForm.value;
-
-    if (!event) {
+    if (this.eventForm.invalid) {
       return;
     }
+
+    const formValues = this.eventForm.value;
+
+    const event = {
+      ...formValues,
+      start_date: this.formatDate(formValues.start_date),
+      end_date: this.formatDate(formValues.end_date),
+      start_time: this.formatTime(formValues.start_time),
+      end_time: this.formatTime(formValues.end_time),
+    };
+
+    console.log(event);
 
     if (this.isEditMode) {
       this.handleUpdate(event.id, event);

@@ -35,6 +35,13 @@ class Evento extends Model
         'updated_by',
     ];
 
+    protected $casts = [
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'start_time' => 'datetime:H:i:s',
+        'end_time' => 'datetime:H:i:s',
+    ];
+
     protected static function boot() {
         parent::boot();
 
