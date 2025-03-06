@@ -1,11 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Kinships } from 'app/model/Auxiliaries';
+import { Families } from 'app/model/Families';
+import { Person } from 'app/model/Person';
+import { environment } from 'environments/environment';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../../../../environments/environment';
-import { Kinships } from '../../../../../../model/Auxiliaries';
-import { Families } from '../../../../../../model/Families';
-import { Members } from '../../../../../../model/Members';
-import { Person } from '../../../../../../model/Person';
 
 @Injectable({
   providedIn: 'root',
@@ -26,17 +25,17 @@ export class FamiliesService {
     return this.http.get<Person[]>(this.persons);
   }
 
-  getMembers(): Observable<Members[]> {
-    return this.http.get<Members[]>(this.members);
-  }
-
-  getFamilies(): Observable<Families[]> {
-    return this.http.get<Families[]>(this.families);
-  }
-
-  getFamily(id: string): Observable<Families> {
-    return this.http.get<Families>(`${this.families}/${id}`);
-  }
+  // getMembers(): Observable<Members[]> {
+  //   return this.http.get<Members[]>(this.members);
+  // }
+  //
+  // getFamilies(): Observable<Families[]> {
+  //   return this.http.get<Families[]>(this.families);
+  // }
+  //
+  // getFamily(id: string): Observable<Families> {
+  //   return this.http.get<Families>(`${this.families}/${id}`);
+  // }
 
   createFamily(family: Families): Observable<Families> {
     return this.http.post<Families>(this.families, family);

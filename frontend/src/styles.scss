@@ -1,32 +1,35 @@
-@use 'app/styles/theme.scss'as theme;
-@use '@angular/material'as mat;
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-$church-system-primary: mat.m2-define-palette(theme.$primaryColors);
-$church-system-accent: mat.m2-define-palette(mat.$m2-amber-palette, A200, A100, A400);
-$church-system-warn: mat.m2-define-palette(mat.$m2-red-palette);
-
-$church-system-theme: mat.m2-define-light-theme((color: (primary: $church-system-primary,
-  accent: $church-system-accent,
-  warn: $church-system-warn,
-),
-  typography: mat.m2-define-typography-config(safelist),
-  density: 0,
-));
+@use 'app/styles/theme' as theme;
+@use '@angular/material' as mat;
+@use 'app/styles/autocomplete-theme' as autocomplete;
+@use 'sass:map';
 
 @include mat.core();
 
 :root {
-  @include mat.core();
-  @include mat.core-color($church-system-theme);
-  @include mat.all-component-themes($church-system-theme);
-  //@include mat.system-level-colors($church-system-theme);
-  //@include mat.system-level-typography($church-system-theme);
-  @include mat.all-component-typographies($church-system-theme);
-  //@include mat.color-variants-backwards-compatibility($church-system-theme);
+  @include mat.core-theme(theme.$light-theme);
+  @include mat.core-color(theme.$light-theme);
+  @include mat.button-theme(theme.$light-theme);
+  @include mat.all-component-themes(theme.$light-theme);
+  @include mat.system-level-colors(theme.$light-theme);
+  @include mat.system-level-typography(theme.$light-theme);
+  @include mat.all-component-typographies(theme.$light-theme);
+  @include mat.color-variants-backwards-compatibility(theme.$light-theme);
+  @include autocomplete.autocomplete-theme();
+
+  --primary-color: #{mat.get-theme-color(theme.$light-theme, primary, 50)};
+  --primary-color-dark: #{mat.get-theme-color(theme.$light-theme, primary, 40)};
+  --secondary-color: #{mat.get-theme-color(theme.$light-theme, secondary)};
+  --tertiary-color: #{mat.get-theme-color(theme.$light-theme, tertiary)};
+  --neutral-40: #{mat.get-theme-color(theme.$light-theme, neutral, 40)};
+  --text-color: #{theme.$textColor};
+  --error-color: #{theme.$error};
+  --danger-color: #{theme.$danger};
+  --success-color: #{theme.$success};
+  --warning-color: #{theme.$warning};
+  --hover-color: #{theme.$hover};
+  --separator-color: #{theme.$separator};
+  --white-color: #{theme.$white};
+  --background-color: #{theme.$backgroundColor};
 }
 
 *:not(mat-icon) {
@@ -39,8 +42,8 @@ $church-system-theme: mat.m2-define-light-theme((color: (primary: $church-system
 }
 
 ::selection {
-  background-color: theme.$primaryDark;
-  color: theme.$white;
+  background-color: var(--primary-color);
+  color: var(--white-color);
 }
 
 html,
@@ -56,31 +59,35 @@ app-root {
 }
 
 .title {
-  color: theme.$primary;
+  color: var(--text-color);
   font-size: 1.5rem;
   font-weight: bold;
   margin: 1rem 0;
 }
 
 .text-default {
-  color: theme.$textColor;
+  color: var(--text-color);
   font-size: 1rem;
 }
 
 .active {
-  color: theme.$success;
+  color: var(--success-color);
 }
 
 .inactive {
-  color: theme.$errorMain;
+  color: var(--danger-color);
 }
 
 .white {
-  color: theme.$white;
+  color: var(--white-color);
 }
 
 .spacer {
   flex: 1 1 auto;
+}
+
+.padding-1 {
+  padding: 1rem;
 }
 
 .custom-snackbar {
@@ -89,37 +96,37 @@ app-root {
   }
 
   .mat-mdc-button.mat-mdc-snack-bar-action {
-    color: theme.$white !important;
+    color: var(--white-color) !important;
   }
 }
 
 .snackbar-success {
   .mdc-snackbar__surface {
-    background-color: theme.$secondary !important;
+    background-color: var(--success-color) !important;
   }
 
   .mdc-snackbar__label {
-    color: theme.$white !important;
+    color: var(--white-color) !important;
   }
 }
 
 .snackbar-error {
   .mdc-snackbar__surface {
-    background-color: theme.$errorLight !important;
+    background-color: var(--danger-color) !important;
   }
 
   .mdc-snackbar__label {
-    color: theme.$white !important;
+    color: var(--white-color) !important;
   }
 }
 
 .snackbar-warning {
   .mdc-snackbar__surface {
-    background-color: theme.$warning !important;
+    background-color: var(--warning-color) !important;
   }
 
   .mdc-snackbar__label {
-    color: theme.$white !important;
+    color: var(--white-color) !important;
   }
 }
 
@@ -131,6 +138,7 @@ app-root {
   display: flex;
   flex-direction: column;
   flex: 1 1 100%;
+  padding: 1rem;
 }
 
 mat-form-field {
@@ -166,16 +174,16 @@ mat-form-field {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: theme.$greyVeryLight;
+  background: var(--primary-color);
   border-radius: 0.5rem;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: theme.$greyLight;
+  background: var(--primary-color-dark);
 }
 
 ::-webkit-scrollbar-track {
-  background: theme.$hover;
+  background: var(--hover-color);
   border-radius: 0.5rem;
 }
 
@@ -216,7 +224,7 @@ mat-form-field {
   padding: 1rem;
   margin: 1rem;
   border-radius: 0.3rem;
-  background-color: theme.$white;
+  background-color: var(--white-color);
 
   @media screen and (max-width: 768px) {
     height: auto;
@@ -258,8 +266,8 @@ mat-form-field {
       padding: 8px 16px !important;
       border-radius: 4px !important;
       transition: all 0.1s ease-in-out !important;
-      background-color: theme.$primary !important;
-      color: theme.$white;
+      background-color: var(--primary-color) !important;
+      color: var(--white-color);
       box-shadow: 0 1px 1px -1px rgba(0, 0, 0, 0.1), 0 1px 1px 0 rgba(0, 0, 0, 0.1), 0 1px 5px 0 rgba(0, 0, 0, 0.1);
       text-transform: uppercase;
 
@@ -286,27 +294,27 @@ mat-form-field {
 
       /* Botão primário (today) */
       &.fc-button-primary {
-        background-color: theme.$primary !important;
-        color: theme.$white !important;
+        background-color: var(--primary-color) !important;
+        color: var(--white-color) !important;
         border: 0 !important;
 
         &:hover {
           @include mat.elevation(2);
-          background-color: theme.$primaryDark !important;
-          color: theme.$white !important;
+          background-color: var(--primary-color) !important;
+          color: var(--white-color) !important;
         }
 
         &:active {
-          background-color: theme.$primary !important;
-          color: theme.$white !important;
+          background-color: var(--primary-color) !important;
+          color: var(--white-color) !important;
           border: 0 !important;
         }
       }
 
       /* Botões ativos (view selecionada) */
       &.fc-button-active {
-        background-color: theme.$primary !important;
-        color: theme.$white !important;
+        background-color: var(--primary-color) !important;
+        color: var(--white-color) !important;
         border: 0 !important;
       }
     }
@@ -323,4 +331,12 @@ mat-form-field {
       }
     }
   }
+}
+
+.mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+  color: var(--primary-color) !important;
+}
+
+.mat-mdc-tab:not(.mdc-tab--active:focus) .mdc-tab__text-label {
+  color: var(--neutral-40);
 }

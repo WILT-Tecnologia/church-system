@@ -13,31 +13,31 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { ActionsComponent } from '../../../../../components/actions/actions.component';
-import { ColumnComponent } from '../../../../../components/column/column.component';
-import { LoadingService } from '../../../../../components/loading/loading.service';
-import { MESSAGES } from '../../../../../components/toast/messages';
-import { ToastService } from '../../../../../components/toast/toast.service';
-import { User } from '../../../../../model/User';
-import { ValidationService } from '../../../../../services/validation/validation.service';
+import { ActionsComponent } from 'app/components/actions/actions.component';
+import { ColumnComponent } from 'app/components/column/column.component';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { MESSAGES } from 'app/components/toast/messages';
+import { ToastService } from 'app/components/toast/toast.service';
+import { User } from 'app/model/User';
+import { ValidationService } from 'app/services/validation/validation.service';
 import { UsersService } from '../users.service';
 
 @Component({
-    selector: 'app-user-form',
-    templateUrl: './user-form.component.html',
-    styleUrl: './user-form.component.scss',
-    imports: [
-        MatButtonModule,
-        MatInputModule,
-        MatSlideToggleModule,
-        MatFormFieldModule,
-        MatDividerModule,
-        MatIconModule,
-        ReactiveFormsModule,
-        CommonModule,
-        ActionsComponent,
-        ColumnComponent,
-    ]
+  selector: 'app-user-form',
+  templateUrl: './user-form.component.html',
+  styleUrl: './user-form.component.scss',
+  imports: [
+    MatButtonModule,
+    MatInputModule,
+    MatSlideToggleModule,
+    MatFormFieldModule,
+    MatDividerModule,
+    MatIconModule,
+    ReactiveFormsModule,
+    CommonModule,
+    ActionsComponent,
+    ColumnComponent,
+  ],
 })
 export class UserFormComponent implements OnInit {
   userForm: FormGroup;

@@ -3,27 +3,27 @@ import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { ConfirmService } from '../../../../../../components/confirm/confirm.service';
+import { ConfirmService } from 'app/components/confirm/confirm.service';
 import {
   ActionsProps,
   CrudComponent,
-} from '../../../../../../components/crud/crud.component';
-import { LoadingService } from '../../../../../../components/loading/loading.service';
-import { ModalService } from '../../../../../../components/modal/modal.service';
-import { NotFoundRegisterComponent } from '../../../../../../components/not-found-register/not-found-register.component';
-import { MESSAGES } from '../../../../../../components/toast/messages';
-import { ToastService } from '../../../../../../components/toast/toast.service';
-import { Families } from '../../../../../../model/Families';
+} from 'app/components/crud/crud.component';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalService } from 'app/components/modal/modal.service';
+import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
+import { MESSAGES } from 'app/components/toast/messages';
+import { ToastService } from 'app/components/toast/toast.service';
+import { Families } from 'app/model/Families';
 import { MembersService } from '../../members.service';
 import { MemberService } from '../member.service';
 import { FamiliesFormComponent } from './families-form/families-form.component';
 import { FamiliesService } from './families.service';
 
 @Component({
-    selector: 'app-families',
-    templateUrl: './families.component.html',
-    styleUrls: ['./families.component.scss'],
-    imports: [CommonModule, NotFoundRegisterComponent, CrudComponent]
+  selector: 'app-families',
+  templateUrl: './families.component.html',
+  styleUrls: ['./families.component.scss'],
+  imports: [CommonModule, NotFoundRegisterComponent, CrudComponent],
 })
 export class FamiliesComponent implements OnInit {
   @Input() families: Families[] = [];

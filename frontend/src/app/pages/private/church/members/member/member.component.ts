@@ -43,29 +43,26 @@ import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltip } from '@angular/material/tooltip';
+import { ActionsComponent } from 'app/components/actions/actions.component';
+import { ColumnComponent } from 'app/components/column/column.component';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalService } from 'app/components/modal/modal.service';
+import { MESSAGES } from 'app/components/toast/messages';
+import { ToastService } from 'app/components/toast/toast.service';
+import { CivilStatus, ColorRace, Formations } from 'app/model/Auxiliaries';
+import { Church } from 'app/model/Church';
+import { Families } from 'app/model/Families';
+import { MemberOrigin } from 'app/model/MemberOrigins';
+import { History, Members, StatusMember } from 'app/model/Members';
+import { Ordination } from 'app/model/Ordination';
+import { Person } from 'app/model/Person';
+import { NavigationService } from 'app/services/navigation/navigation.service';
+import { NotificationService } from 'app/services/notification/notification.service';
+import { ValidationService } from 'app/services/validation/validation.service';
 import dayjs from 'dayjs';
 import { provideNgxMask } from 'ngx-mask';
 import { map, Observable, startWith, Subject } from 'rxjs';
-import { ActionsComponent } from '../../../../../components/actions/actions.component';
-import { ColumnComponent } from '../../../../../components/column/column.component';
-import { LoadingService } from '../../../../../components/loading/loading.service';
-import { ModalService } from '../../../../../components/modal/modal.service';
-import { MESSAGES } from '../../../../../components/toast/messages';
-import { ToastService } from '../../../../../components/toast/toast.service';
-import {
-  CivilStatus,
-  ColorRace,
-  Formations,
-} from '../../../../../model/Auxiliaries';
-import { Church } from '../../../../../model/Church';
-import { Families } from '../../../../../model/Families';
-import { MemberOrigin } from '../../../../../model/MemberOrigins';
-import { History, Members, StatusMember } from '../../../../../model/Members';
-import { Ordination } from '../../../../../model/Ordination';
-import { Person } from '../../../../../model/Person';
-import { NavigationService } from '../../../../../services/navigation/navigation.service';
-import { NotificationService } from '../../../../../services/notification/notification.service';
-import { ValidationService } from '../../../../../services/validation/validation.service';
 import { ChurchComponent } from '../../../administrative/churchs/church/church.component';
 import { PersonComponent } from '../../../administrative/persons/person/person.component';
 import { MembersService } from '../members.service';
@@ -75,38 +72,39 @@ import { OrdinationsComponent } from '../shared/ordinations/ordinations.componen
 import { StatusMemberComponent } from '../shared/status-member/status-member.component';
 
 @Component({
-    selector: 'app-member',
-    templateUrl: './member.component.html',
-    styleUrls: ['./member.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: [
-        provideNativeDateAdapter(),
-        provideNgxMask(),
-        { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
-    ],
-    imports: [
-        MatTabsModule,
-        MatCardModule,
-        MatIconModule,
-        MatDividerModule,
-        MatRadioModule,
-        MatSelectModule,
-        MatOptionModule,
-        MatCheckboxModule,
-        MatInputModule,
-        MatButtonModule,
-        MatFormFieldModule,
-        MatDatepickerModule,
-        MatAutocompleteModule,
-        CommonModule,
-        ReactiveFormsModule,
-        ColumnComponent,
-        FamiliesComponent,
-        MatDialogModule,
-        OrdinationsComponent,
-        StatusMemberComponent,
-        ActionsComponent,
-    ]
+  selector: 'app-member',
+  templateUrl: './member.component.html',
+  styleUrls: ['./member.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    provideNativeDateAdapter(),
+    provideNgxMask(),
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+  ],
+  imports: [
+    MatTabsModule,
+    MatCardModule,
+    MatIconModule,
+    MatDividerModule,
+    MatRadioModule,
+    MatSelectModule,
+    MatOptionModule,
+    MatCheckboxModule,
+    MatInputModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatDatepickerModule,
+    MatAutocompleteModule,
+    CommonModule,
+    ReactiveFormsModule,
+    ColumnComponent,
+    FamiliesComponent,
+    MatDialogModule,
+    OrdinationsComponent,
+    StatusMemberComponent,
+    ActionsComponent,
+    MatTooltip,
+  ],
 })
 export class MemberComponent implements OnInit, OnDestroy {
   memberForm: FormGroup;
@@ -425,7 +423,7 @@ export class MemberComponent implements OnInit, OnDestroy {
   showAllMemberOrigins() {
     this.filterMemberOrigins =
       this.searchControlMemberOrigins.valueChanges.pipe(
-        startWith(this.searchControlMemberOrigins.value),
+        startWith(''),
         map((value: any) => {
           if (typeof value === 'string') {
             return value;
@@ -556,10 +554,6 @@ export class MemberComponent implements OnInit, OnDestroy {
     return this.currentStep !== tabIndex;
   }
 
-  goToStep(step: number) {
-    this.currentStep = step;
-  }
-
   onBack() {
     if (this.currentStep > 0) {
       this.currentStep--;
@@ -611,7 +605,7 @@ export class MemberComponent implements OnInit, OnDestroy {
     const stepFiveData = this.memberForm.get('stepFive')?.value;
     const stepSixData = this.memberForm.get('stepSix')?.value;
 
-    const combinedData = {
+    return {
       ...stepOneData,
       ...stepTwoData,
       ...stepThreeData,
@@ -619,8 +613,6 @@ export class MemberComponent implements OnInit, OnDestroy {
       ...stepFiveData,
       ...stepSixData,
     };
-
-    return combinedData;
   }
 
   handleBack() {
@@ -678,8 +670,7 @@ export class MemberComponent implements OnInit, OnDestroy {
 
     this.membersService.getMemberById(memberId).subscribe({
       next: (currentMember) => {
-        const beforeData = currentMember;
-        const changes = this.detectChanges(beforeData, memberData);
+        const changes = this.detectChanges(currentMember, memberData);
 
         if (changes.length > 0) {
           const historyPromises = changes.map((change) => {

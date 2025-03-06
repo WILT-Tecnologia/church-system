@@ -1,5 +1,5 @@
 <mat-tab-group>
-  <mat-tab label="Identificação">
+  <mat-tab label="Identificação" class="padding-1">
     <form
       [formGroup]="churchForm"
       (ngSubmit)="handleNext()"
@@ -23,7 +23,7 @@
           >
             <mat-option
               *ngFor="
-                let responsible of filterResponsable | async as responsibles
+                let responsible of filterResponsable | async
               "
               [value]="responsible"
             >
@@ -46,7 +46,8 @@
             *ngIf="
               churchForm.get('name')?.invalid && churchForm.get('name')?.touched
             "
-            >{{ getErrorMessage('name') }}</mat-error
+          >{{ getErrorMessage('name') }}
+          </mat-error
           >
         </mat-form-field>
       </app-column>
@@ -60,7 +61,8 @@
               churchForm.get('email')?.invalid &&
               churchForm.get('email')?.touched
             "
-            >{{ getErrorMessage('email') }}</mat-error
+          >{{ getErrorMessage('email') }}
+          </mat-error
           >
         </mat-form-field>
         <mat-form-field appearance="fill">
@@ -77,15 +79,16 @@
                 churchForm.get('cnpj')?.touched) ||
               churchForm.get('cnpj')?.hasError('invalidCnpj')
             "
-            >{{
+          >{{
               getErrorMessage('cnpj') ||
-                churchForm.get('cnpj')?.getError('invalidCnpj')
-            }}</mat-error
+              churchForm.get('cnpj')?.getError('invalidCnpj')
+            }}
+          </mat-error
           >
         </mat-form-field>
       </app-column>
 
-      <mat-divider></mat-divider>
+
       <app-actions>
         <button
           mat-stroked-button
@@ -95,7 +98,7 @@
         >
           Cancelar
         </button>
-        <button mat-raised-button type="submit" color="primary">Avançar</button>
+        <button mat-flat-button type="submit" color="primary">Avançar</button>
       </app-actions>
     </form>
   </mat-tab>
@@ -114,7 +117,8 @@
             *ngIf="
               churchForm.get('cep')?.invalid && churchForm.get('cep')?.touched
             "
-            >{{ getErrorMessage('cep') }}</mat-error
+          >{{ getErrorMessage('cep') }}
+          </mat-error
           >
         </mat-form-field>
         <mat-form-field appearance="fill">
@@ -125,7 +129,8 @@
               churchForm.get('street')?.invalid &&
               churchForm.get('street')?.touched
             "
-            >{{ getErrorMessage('street') }}</mat-error
+          >{{ getErrorMessage('street') }}
+          </mat-error
           >
         </mat-form-field>
       </app-column>
@@ -139,7 +144,8 @@
               churchForm.get('number')?.invalid &&
               churchForm.get('number')?.touched
             "
-            >{{ getErrorMessage('number') }}</mat-error
+          >{{ getErrorMessage('number') }}
+          </mat-error
           >
         </mat-form-field>
         <mat-form-field appearance="fill">
@@ -150,7 +156,8 @@
               churchForm.get('complement')?.invalid &&
               churchForm.get('complement')?.touched
             "
-            >{{ getErrorMessage('complement') }}</mat-error
+          >{{ getErrorMessage('complement') }}
+          </mat-error
           >
         </mat-form-field>
         <mat-form-field appearance="fill">
@@ -161,7 +168,8 @@
               churchForm.get('district')?.invalid &&
               churchForm.get('district')?.touched
             "
-            >{{ getErrorMessage('district') }}</mat-error
+          >{{ getErrorMessage('district') }}
+          </mat-error
           >
         </mat-form-field>
       </app-column>
@@ -174,7 +182,8 @@
             *ngIf="
               churchForm.get('city')?.invalid && churchForm.get('city')?.touched
             "
-            >{{ getErrorMessage('city') }}</mat-error
+          >{{ getErrorMessage('city') }}
+          </mat-error
           >
         </mat-form-field>
         <mat-form-field appearance="fill">
@@ -185,7 +194,8 @@
               churchForm.get('state')?.invalid &&
               churchForm.get('state')?.touched
             "
-            >{{ getErrorMessage('state') }}</mat-error
+          >{{ getErrorMessage('state') }}
+          </mat-error
           >
         </mat-form-field>
         <mat-form-field appearance="fill">
@@ -196,12 +206,13 @@
               churchForm.get('country')?.invalid &&
               churchForm.get('country')?.touched
             "
-            >{{ getErrorMessage('country') }}</mat-error
+          >{{ getErrorMessage('country') }}
+          </mat-error
           >
         </mat-form-field>
       </app-column>
 
-      <mat-divider></mat-divider>
+
       <app-actions>
         <button
           mat-stroked-button
@@ -212,7 +223,7 @@
           Voltar
         </button>
         <button
-          mat-raised-button
+          mat-flat-button
           type="submit"
           color="primary"
           [disabled]="churchForm.invalid"

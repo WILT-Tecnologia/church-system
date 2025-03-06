@@ -1,20 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
-import { environment } from '../../../../../environments/environment';
-import {
-  CivilStatus,
-  ColorRace,
-  Formations,
-  Kinships,
-} from '../../../../model/Auxiliaries';
+import { CivilStatus, ColorRace, Formations } from 'app/model/Auxiliaries';
 
-import { Church } from '../../../../model/Church';
-import { Families } from '../../../../model/Families';
-import { MemberOrigin } from '../../../../model/MemberOrigins';
-import { Members } from '../../../../model/Members';
-import { Ordination } from '../../../../model/Ordination';
-import { Person } from '../../../../model/Person';
+import { Church } from 'app/model/Church';
+import { Families } from 'app/model/Families';
+import { MemberOrigin } from 'app/model/MemberOrigins';
+import { Members } from 'app/model/Members';
+import { Person } from 'app/model/Person';
+import { environment } from 'environments/environment';
+import { map, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -26,11 +20,11 @@ export class MembersService {
   private apiAdmin = `${environment.apiUrl}/admin`;
   private apiAux = `${environment.apiUrl}/aux`;
 
-  getOrdinationByMemberId(memberId: string): Observable<Ordination[]> {
-    return this.http
-      .get<Members>(`${this.api}/${memberId}`)
-      .pipe(map((member) => member.ordination));
-  }
+  // getOrdinationByMemberId(memberId: string): Observable<Ordination[]> {
+  //   return this.http
+  //     .get<Members>(`${this.api}/${memberId}`)
+  //     .pipe(map((member) => member.ordination));
+  // }
 
   getFamilyOfMemberId(memberId: string): Observable<Families[]> {
     return this.http
@@ -50,9 +44,9 @@ export class MembersService {
     return this.http.get<Formations[]>(`${this.apiAux}/formations`);
   }
 
-  getKinships(): Observable<Kinships[]> {
-    return this.http.get<Kinships[]>(`${this.apiAux}/kinships`);
-  }
+  // getKinships(): Observable<Kinships[]> {
+  //   return this.http.get<Kinships[]>(`${this.apiAux}/kinships`);
+  // }
 
   getPersons(): Observable<Person[]> {
     return this.http.get<Person[]>(`${this.apiAdmin}/persons`);
@@ -78,19 +72,19 @@ export class MembersService {
     return this.http.post<Members>(this.api, member);
   }
 
-  createPerson(person: Person): Observable<Person> {
-    return this.http.post<Person>(
-      `${environment.apiUrl}/admin/persons`,
-      person,
-    );
-  }
+  // createPerson(person: Person): Observable<Person> {
+  //   return this.http.post<Person>(
+  //     `${environment.apiUrl}/admin/persons`,
+  //     person,
+  //   );
+  // }
 
-  createChurch(church: Church): Observable<Church> {
-    return this.http.post<Church>(
-      `${environment.apiUrl}/admin/churches`,
-      church,
-    );
-  }
+  // createChurch(church: Church): Observable<Church> {
+  //   return this.http.post<Church>(
+  //     `${environment.apiUrl}/admin/churches`,
+  //     church,
+  //   );
+  // }
 
   updateMember(
     memberId: string,

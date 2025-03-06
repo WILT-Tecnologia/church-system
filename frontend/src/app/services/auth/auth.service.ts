@@ -4,8 +4,8 @@ import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { Church } from 'app/model/Church';
 import { User } from 'app/model/User';
+import { environment } from 'environments/environment';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',

@@ -14,32 +14,32 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { ActionsComponent } from 'app/components/actions/actions.component';
+import { ColumnComponent } from 'app/components/column/column.component';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { ToastService } from 'app/components/toast/toast.service';
+import { MemberOrigin } from 'app/model/MemberOrigins';
+import { ValidationService } from 'app/services/validation/validation.service';
 import dayjs from 'dayjs';
-import { ActionsComponent } from '../../../../../components/actions/actions.component';
-import { ColumnComponent } from '../../../../../components/column/column.component';
-import { LoadingService } from '../../../../../components/loading/loading.service';
-import { ToastService } from '../../../../../components/toast/toast.service';
-import { MemberOrigin } from '../../../../../model/MemberOrigins';
-import { ValidationService } from '../../../../../services/validation/validation.service';
 import { MemberOriginService } from '../member-origin.service';
 
 @Component({
-    selector: 'app-member-origin-form',
-    templateUrl: './member-origin-form.component.html',
-    styleUrls: ['./member-origin-form.component.scss'],
-    imports: [
-        MatIconModule,
-        MatCardModule,
-        MatButtonModule,
-        MatInputModule,
-        MatSlideToggleModule,
-        MatDividerModule,
-        MatFormFieldModule,
-        ReactiveFormsModule,
-        CommonModule,
-        ColumnComponent,
-        ActionsComponent,
-    ]
+  selector: 'app-member-origin-form',
+  templateUrl: './member-origin-form.component.html',
+  styleUrls: ['./member-origin-form.component.scss'],
+  imports: [
+    MatIconModule,
+    MatCardModule,
+    MatButtonModule,
+    MatInputModule,
+    MatSlideToggleModule,
+    MatDividerModule,
+    MatFormFieldModule,
+    ReactiveFormsModule,
+    CommonModule,
+    ColumnComponent,
+    ActionsComponent,
+  ],
 })
 export class MemberOriginFormComponent implements OnInit {
   memberOriginForm: FormGroup;
@@ -135,7 +135,7 @@ export class MemberOriginFormComponent implements OnInit {
           this.toast.openSuccess('Origem de membro criada com sucesso!');
           this.dialogRef.close(this.memberOriginForm.value);
         },
-        error: (error) => {
+        error: () => {
           this.loadingService.hide();
           this.toast.openError('Erro ao criar a origem de membro!');
         },

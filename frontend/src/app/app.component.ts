@@ -8,10 +8,10 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { AuthService } from './services/auth/auth.service';
 
 @Component({
-    selector: 'app-root',
-    templateUrl: './app.component.html',
-    styleUrl: './app.component.scss',
-    imports: [RouterOutlet, NavbarComponent, LoadingComponent, CommonModule]
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss',
+  imports: [RouterOutlet, NavbarComponent, LoadingComponent, CommonModule],
 })
 export class AppComponent implements OnInit {
   title = 'church-system';
@@ -27,13 +27,18 @@ export class AppComponent implements OnInit {
     this.loadingService.show();
     this.isLoggedIn$ = this.authService.isLoggedIn$;
 
-    this.authService.initializeAuthState().then((isLoggedIn) => {
-      if (isLoggedIn) {
-        this.router.navigate(['church']);
-      } else {
-        this.router.navigate(['login']);
-      }
-      this.loadingService.hide();
-    });
+    this.authService
+      .initializeAuthState()
+      .then((isLoggedIn): Promise<boolean> => {
+        if (isLoggedIn) {
+          return this.router.navigate(['church']);
+        } else if (!isLoggedIn) {
+          return this.router.navigate(['login']);
+        } else {
+          this.loadingService.hide();
+
+          return Promise.resolve(false);
+        }
+      });
   }
 }

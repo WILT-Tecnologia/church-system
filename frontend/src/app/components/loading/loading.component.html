@@ -1,8 +1,11 @@
-<div *ngIf="loading$ | async" class="loading-overlay">
-  <mat-spinner
-    color="primary"
-    mode="indeterminate"
-    strokeWidth="4"
-    diameter="60"
-  ></mat-spinner>
-</div>
+@if (loading$ | async) {
+  <div class="loading-overlay">
+    <mat-spinner
+      color="primary"
+      mode="indeterminate"
+      strokeWidth="4"
+      diameter="60"
+    ></mat-spinner>
+  </div>
+
+}

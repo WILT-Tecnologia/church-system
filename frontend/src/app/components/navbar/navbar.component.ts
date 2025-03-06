@@ -19,30 +19,30 @@ import {
 } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterOutlet } from '@angular/router';
-import { AuthService } from '../../services/auth/auth.service';
+import { AuthService } from 'app/services/auth/auth.service';
 import { LoadingService } from '../loading/loading.service';
 import { LogoComponent } from './logo/logo.component';
 import { GLOBAL, USER } from './routes';
 
 @Component({
-    selector: 'app-navbar',
-    templateUrl: './navbar.component.html',
-    styleUrl: './navbar.component.scss',
-    imports: [
-        MatToolbarModule,
-        MatButtonModule,
-        MatMenuModule,
-        MatIconModule,
-        CommonModule,
-        MatDividerModule,
-        LogoComponent,
-        MatSidenavContainer,
-        MatSidenavContent,
-        MatSidenav,
-        MatNavList,
-        MatListItem,
-        RouterOutlet,
-    ]
+  selector: 'app-navbar',
+  templateUrl: './navbar.component.html',
+  styleUrl: './navbar.component.scss',
+  imports: [
+    MatToolbarModule,
+    MatButtonModule,
+    MatMenuModule,
+    MatIconModule,
+    CommonModule,
+    MatDividerModule,
+    LogoComponent,
+    MatSidenavContainer,
+    MatSidenavContent,
+    MatSidenav,
+    MatNavList,
+    MatListItem,
+    RouterOutlet,
+  ],
 })
 export class NavbarComponent implements OnInit {
   @ViewChild('sidenav') sidenav!: MatSidenav;

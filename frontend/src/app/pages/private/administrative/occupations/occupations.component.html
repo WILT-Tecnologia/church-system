@@ -1,4 +1,4 @@
-@if (occupations && occupations.length > 0) {
+@if ((occupations && occupations.length > 0) || rendering) {
   <app-crud
     [fields]="occupations"
     [dataSourceMat]="dataSourceMat"
@@ -11,5 +11,7 @@
     [enableToggleStatus]="true"
   ></app-crud>
 } @else {
-  <app-not-found-register [addRegisterFn]="handleCreate"></app-not-found-register>
+  <app-not-found-register
+    [addRegisterFn]="handleCreate"
+  ></app-not-found-register>
 }

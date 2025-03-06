@@ -3,25 +3,25 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { ConfirmService } from '../../../../../../components/confirm/confirm.service';
+import { ConfirmService } from 'app/components/confirm/confirm.service';
 import {
   ActionsProps,
   CrudComponent,
-} from '../../../../../../components/crud/crud.component';
-import { LoadingService } from '../../../../../../components/loading/loading.service';
-import { ModalService } from '../../../../../../components/modal/modal.service';
-import { NotFoundRegisterComponent } from '../../../../../../components/not-found-register/not-found-register.component';
-import { MESSAGES } from '../../../../../../components/toast/messages';
-import { ToastService } from '../../../../../../components/toast/toast.service';
-import { Guest } from '../../../../../../model/Events';
+} from 'app/components/crud/crud.component';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalService } from 'app/components/modal/modal.service';
+import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
+import { MESSAGES } from 'app/components/toast/messages';
+import { ToastService } from 'app/components/toast/toast.service';
+import { Guest } from 'app/model/Events';
 import { GuestsFormComponent } from './guests-form/guests-form.component';
 import { GuestsService } from './guests.service';
 
 @Component({
-    selector: 'app-guests',
-    templateUrl: './guests.component.html',
-    styleUrl: './guests.component.scss',
-    imports: [NotFoundRegisterComponent, CommonModule, CrudComponent]
+  selector: 'app-guests',
+  templateUrl: './guests.component.html',
+  styleUrl: './guests.component.scss',
+  imports: [NotFoundRegisterComponent, CommonModule, CrudComponent],
 })
 export class GuestsComponent implements OnInit {
   guest: Guest[] = [];

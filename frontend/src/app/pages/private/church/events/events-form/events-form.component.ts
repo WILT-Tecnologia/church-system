@@ -37,7 +37,6 @@ import { MatInputModule } from '@angular/material/input';
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
-import { TimePickerComponent } from 'app/components/time-picker/time-picker.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { Church } from 'app/model/Church';
 import { Events } from 'app/model/Events';
@@ -50,29 +49,28 @@ import { EventTypesService } from '../../../administrative/eventTypes/eventTypes
 import { EventsService } from '../events.service';
 
 @Component({
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [
-        MatButtonModule,
-        MatInputModule,
-        MatFormFieldModule,
-        MatAutocompleteModule,
-        MatDividerModule,
-        MatDatepickerModule,
-        ReactiveFormsModule,
-        CommonModule,
-        ColumnComponent,
-        ActionsComponent,
-        MatIconModule,
-        TimePickerComponent,
-        FormsModule,
-    ],
-    providers: [
-        provideNativeDateAdapter(),
-        { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
-    ],
-    selector: 'app-events-form',
-    styleUrl: './events-form.component.scss',
-    templateUrl: './events-form.component.html'
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    MatButtonModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatAutocompleteModule,
+    MatDividerModule,
+    MatDatepickerModule,
+    ReactiveFormsModule,
+    CommonModule,
+    ColumnComponent,
+    ActionsComponent,
+    MatIconModule,
+    FormsModule,
+  ],
+  providers: [
+    provideNativeDateAdapter(),
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+  ],
+  selector: 'app-events-form',
+  styleUrl: './events-form.component.scss',
+  templateUrl: './events-form.component.html',
 })
 export class EventsFormComponent implements OnInit, OnDestroy {
   eventForm: FormGroup;

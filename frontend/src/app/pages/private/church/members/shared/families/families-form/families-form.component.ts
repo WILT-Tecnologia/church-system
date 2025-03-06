@@ -19,38 +19,38 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { ActionsComponent } from 'app/components/actions/actions.component';
+import { ColumnComponent } from 'app/components/column/column.component';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalService } from 'app/components/modal/modal.service';
+import { MESSAGES } from 'app/components/toast/messages';
+import { ToastService } from 'app/components/toast/toast.service';
+import { Kinships } from 'app/model/Auxiliaries';
+import { Families } from 'app/model/Families';
+import { Members } from 'app/model/Members';
+import { Person } from 'app/model/Person';
+import { ValidationService } from 'app/services/validation/validation.service';
 import { forkJoin, map, Observable, startWith, Subject } from 'rxjs';
-import { ActionsComponent } from '../../../../../../../components/actions/actions.component';
-import { ColumnComponent } from '../../../../../../../components/column/column.component';
-import { LoadingService } from '../../../../../../../components/loading/loading.service';
-import { ModalService } from '../../../../../../../components/modal/modal.service';
-import { MESSAGES } from '../../../../../../../components/toast/messages';
-import { ToastService } from '../../../../../../../components/toast/toast.service';
-import { Kinships } from '../../../../../../../model/Auxiliaries';
-import { Families } from '../../../../../../../model/Families';
-import { Members } from '../../../../../../../model/Members';
-import { Person } from '../../../../../../../model/Person';
-import { ValidationService } from '../../../../../../../services/validation/validation.service';
 import { PersonComponent } from '../../../../../administrative/persons/person/person.component';
 import { FamiliesService } from '../families.service';
 
 @Component({
-    selector: 'app-families-form',
-    templateUrl: './families-form.component.html',
-    styleUrl: './families-form.component.scss',
-    imports: [
-        MatIconModule,
-        MatButtonModule,
-        MatFormFieldModule,
-        MatDividerModule,
-        MatAutocompleteModule,
-        MatInputModule,
-        MatCheckboxModule,
-        CommonModule,
-        ReactiveFormsModule,
-        ColumnComponent,
-        ActionsComponent,
-    ]
+  selector: 'app-families-form',
+  templateUrl: './families-form.component.html',
+  styleUrl: './families-form.component.scss',
+  imports: [
+    MatIconModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatDividerModule,
+    MatAutocompleteModule,
+    MatInputModule,
+    MatCheckboxModule,
+    CommonModule,
+    ReactiveFormsModule,
+    ColumnComponent,
+    ActionsComponent,
+  ],
 })
 export class FamiliesFormComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

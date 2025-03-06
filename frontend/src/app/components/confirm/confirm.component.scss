@@ -1,35 +1,45 @@
-@use '../../styles/theme.scss' as theme;
-
 ::ng-deep .cdk-overlay-container {
-  backdrop-filter: blur(0.5rem);
-  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(0.1rem);
+  background-color: rgba(0, 0, 0, 0.32);
 }
 
-.mat-dialog-container {
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   width: 100%;
-  max-width: 100%;
-  height: auto;
-  max-height: 100%;
-
-  &.fullscreen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    margin: 0;
-    border-radius: 0;
-    z-index: 9999;
-  }
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .header {
-  background-color: theme.$backgroundColor;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1rem;
+  flex-shrink: 1;
+  background-color: var(--background-color);
   width: 100%;
+
+  & > .title {
+    font-size: 1rem;
+    font-style: italic;
+    font-weight: 700;
+    color: var(--primary-color);
+  }
 }
 
 .content {
-  padding: 1rem;
   flex-grow: 1;
-  background-color: theme.$white;
+  padding: 1.5rem;
+  overflow-y: auto;
+
+  & > .message {
+    padding: 1rem 0;
+    font-size: 1rem;
+  }
+}
+
+.actions {
+  padding: 1rem;
 }

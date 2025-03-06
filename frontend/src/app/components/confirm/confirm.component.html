@@ -1,40 +1,38 @@
-<div class="mat-dialog-container">
-  <div class="flex flex-col w-full h-full">
-    <!-- Header -->
-    <div class="header flex flex-shrink-1 justify-between items-center p-4">
-      <span class="px-4 text-lg italic font-semibold">{{ data.title }}</span>
-    </div>
+<div class="wrapper">
+  <div class="header">
+    <span class="title">{{ data.title }}</span>
+  </div>
 
-    <mat-divider></mat-divider>
+  <mat-divider></mat-divider>
 
-    <!-- Content -->
-    <div class="content flex-grow overflow-x-auto my-5 p-5">
-      <p class="text-base text-gray-700">{{ data.message }}</p>
-    </div>
+  <!-- Content -->
+  <div class="content">
+    <p class="message">{{ data.message }}</p>
+  </div>
 
-    <!-- Divider -->
-    <mat-divider></mat-divider>
+  <!-- Divider -->
+  <mat-divider></mat-divider>
 
-    <!-- Actions -->
-    <div class="p-5">
+  <!-- Actions -->
+  <div class="actions">
+    @if (data.reverseBtn) {
       <app-actions>
-        <button
-          mat-stroked-button
-          class="w-full order-2 md:order-none"
-          color="warn"
-          [mat-dialog-close]="false"
-        >
+        <button mat-flat-button color="primary" [mat-dialog-close]="true">
+          {{ data.btnOkText }}
+        </button>
+        <button mat-stroked-button color="warn" [mat-dialog-close]="false">
           {{ data.btnCancelText }}
         </button>
-        <button
-          mat-raised-button
-          class="w-full order-1"
-          color="primary"
-          [mat-dialog-close]="true"
-        >
+      </app-actions>
+    } @else {
+      <app-actions>
+        <button mat-stroked-button color="warn" [mat-dialog-close]="false">
+          {{ data.btnCancelText }}
+        </button>
+        <button mat-flat-button color="primary" [mat-dialog-close]="true">
           {{ data.btnOkText }}
         </button>
       </app-actions>
-    </div>
+    }
   </div>
 </div>

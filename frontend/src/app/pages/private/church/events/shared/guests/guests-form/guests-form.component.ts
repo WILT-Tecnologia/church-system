@@ -29,55 +29,55 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
+import { ActionsComponent } from 'app/components/actions/actions.component';
+import { ColumnComponent } from 'app/components/column/column.component';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { MESSAGES } from 'app/components/toast/messages';
+import { Address } from 'app/model/Address';
+import { Guest } from 'app/model/Events';
+import { FormatsPipe } from 'app/pipes/formats.pipe';
+import { NotificationService } from 'app/services/notification/notification.service';
+import { CepService } from 'app/services/search-cep/search-cep.service';
+import { ValidationService } from 'app/services/validation/validation.service';
+import { phoneValidator } from 'app/services/validators/phone-validator';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
-import { ActionsComponent } from '../../../../../../../components/actions/actions.component';
-import { ColumnComponent } from '../../../../../../../components/column/column.component';
-import { LoadingService } from '../../../../../../../components/loading/loading.service';
-import { MESSAGES } from '../../../../../../../components/toast/messages';
-import { Address } from '../../../../../../../model/Address';
-import { Guest } from '../../../../../../../model/Events';
-import { FormatsPipe } from '../../../../../../../pipes/formats.pipe';
-import { NotificationService } from '../../../../../../../services/notification/notification.service';
-import { CepService } from '../../../../../../../services/search-cep/search-cep.service';
-import { ValidationService } from '../../../../../../../services/validation/validation.service';
-import { phoneValidator } from '../../../../../../../services/validators/phone-validator';
 import { GuestsService } from '../guests.service';
 
 @Component({
-    selector: 'app-guests-form',
-    templateUrl: './guests-form.component.html',
-    styleUrl: './guests-form.component.scss',
-    imports: [
-        MatButtonModule,
-        MatInputModule,
-        MatFormFieldModule,
-        MatAutocompleteModule,
-        MatTabsModule,
-        MatDatepickerModule,
-        MatDividerModule,
-        MatIconModule,
-        NgxMaskDirective,
-        ReactiveFormsModule,
-        CommonModule,
-        ColumnComponent,
-        ActionsComponent,
-    ],
-    providers: [
-        provideNativeDateAdapter(),
-        { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
-        provideNgxMask(),
-        FormatsPipe,
-    ]
+  selector: 'app-guests-form',
+  templateUrl: './guests-form.component.html',
+  styleUrl: './guests-form.component.scss',
+  imports: [
+    MatButtonModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatAutocompleteModule,
+    MatTabsModule,
+    MatDatepickerModule,
+    MatDividerModule,
+    MatIconModule,
+    NgxMaskDirective,
+    ReactiveFormsModule,
+    CommonModule,
+    ColumnComponent,
+    ActionsComponent,
+  ],
+  providers: [
+    provideNativeDateAdapter(),
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+    provideNgxMask(),
+    FormatsPipe,
+  ],
 })
 export class GuestsFormComponent implements OnInit, OnDestroy {
   guestForm: FormGroup;
-  guest: Guest[] = [];
+  //guest: Guest[] = [];
   isEditMode: boolean = false;
 
-  private readonly _currentDate = new Date();
-  readonly minDate = new Date(1900, 0, 1);
-  readonly maxDate = new Date(this._currentDate);
+  //private readonly _currentDate = new Date();
+  // readonly minDate = new Date(1900, 0, 1);
+  // readonly maxDate = new Date(this._currentDate);
   private destroy$ = new Subject<void>();
   @ViewChild(MatDatepicker) picker!: MatDatepicker<Date>;
   @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;

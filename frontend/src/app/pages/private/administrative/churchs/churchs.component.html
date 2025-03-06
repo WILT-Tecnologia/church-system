@@ -1,4 +1,4 @@
-@if (churchs && churchs.length > 0) {
+@if ((churchs && churchs.length > 0) || rendering) {
   <app-crud
     [fields]="churchs"
     [dataSourceMat]="dataSourceMat"

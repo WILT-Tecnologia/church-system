@@ -140,16 +140,16 @@
           </mat-error>
         }
       </mat-form-field>
-      <mat-form-field appearance="fill">
-        <mat-label>Hora inicial</mat-label>
-        <app-time-picker
-          formControlName="start_time"
-          [placeholder]="'HH:MM AM/PM'"
-        ></app-time-picker>
-        <mat-error *ngIf="eventForm.get('start_time')?.invalid">
-          {{ getErrorMessage('start_time') }}
-        </mat-error>
-      </mat-form-field>
+      <!--      <mat-form-field appearance="fill">-->
+      <!--        <mat-label>Hora inicial</mat-label>-->
+      <!--        <app-time-picker-->
+      <!--          formControlName="start_time"-->
+      <!--          [placeholder]="'HH:MM AM/PM'"-->
+      <!--        ></app-time-picker>-->
+      <!--        <mat-error *ngIf="eventForm.get('start_time')?.invalid">-->
+      <!--          {{ getErrorMessage('start_time') }}-->
+      <!--        </mat-error>-->
+      <!--      </mat-form-field>-->
     </app-column>
     <app-column>
       <mat-form-field appearance="fill">
@@ -207,16 +207,16 @@
           </mat-error>
         }
       </mat-form-field>
-      <mat-form-field appearance="fill">
-        <mat-label>Hora final</mat-label>
-        <app-time-picker
-          formControlName="end_time"
-          [placeholder]="'HH:MM AM/PM'"
-        ></app-time-picker>
-        <mat-error *ngIf="eventForm.get('end_time')?.invalid">
-          {{ getErrorMessage('end_time') }}
-        </mat-error>
-      </mat-form-field>
+      <!--      <mat-form-field appearance="fill">-->
+      <!--        <mat-label>Hora final</mat-label>-->
+      <!--        <app-time-picker-->
+      <!--          formControlName="end_time"-->
+      <!--          [placeholder]="'HH:MM AM/PM'"-->
+      <!--        ></app-time-picker>-->
+      <!--        <mat-error *ngIf="eventForm.get('end_time')?.invalid">-->
+      <!--          {{ getErrorMessage('end_time') }}-->
+      <!--        </mat-error>-->
+      <!--      </mat-form-field>-->
     </app-column>
   </app-column>
 

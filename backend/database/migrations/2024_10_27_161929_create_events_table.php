@@ -15,6 +15,12 @@ return new class extends Migration {
             $table->uuid('event_type_id');
             $table->string('name');
             $table->text('obs')->nullable();
+            $table->string('theme')->nullable();
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->time('start_time')->nullable();
+            $table->time('end_time')->nullable();
+            $table->string('location')->nullable();
             $table->uuid('created_by')->nullable();
             $table->uuid('updated_by')->nullable();
             $table->timestamps();

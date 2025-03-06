@@ -14,6 +14,7 @@ export class ConfirmService {
    * @param message menssagem do confirm
    * @param btnOkText botão de confirmação
    * @param btnCancelText botão de cancelamento
+   * @param reverseBtn inverte a ordem dos botoes
    * @param disableClose disabilita o fechamento clicando fora do modal
    * @param customClassContainer classe css no container
    */

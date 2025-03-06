@@ -1,7 +1,13 @@
-import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import {
+  HttpErrorResponse,
+  HttpEvent,
+  HttpHandler,
+  HttpInterceptor,
+  HttpRequest,
+} from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, Observable, throwError } from 'rxjs';
+import { catchError, from, Observable, switchMap, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 
 @Injectable()
@@ -30,8 +36,10 @@ export class AuthInterceptor implements HttpInterceptor {
       return next.handle(clonedRequest).pipe(
         catchError((error: HttpErrorResponse) => {
           if (error.status === 401) {
-            this.authService.logout();
-            this.router.navigate(['/login']);
+            return from(this.authService.logout()).pipe(
+              switchMap(() => from(this.router.navigate(['/login']))),
+              switchMap(() => throwError(() => error)),
+            );
           }
           return throwError(() => error);
         }),

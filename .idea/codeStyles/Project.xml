@@ -1,10 +1,12 @@
 <component name="ProjectCodeStyleConfiguration">
   <code_scheme name="Project" version="173">
-    <option name="LINE_SEPARATOR" value="&#10;" />
+    <option name="LINE_SEPARATOR" />
+    <option name="RIGHT_MARGIN" value="80" />
     <option name="WRAP_WHEN_TYPING_REACHES_RIGHT_MARGIN" value="true" />
     <option name="FORMATTER_TAGS_ACCEPT_REGEXP" value="true" />
     <option name="SOFT_MARGINS" value="120" />
     <Angular2HtmlCodeStyleSettings>
+      <option name="INTERPOLATION_WRAP" value="5" />
       <option name="INTERPOLATION_NEW_LINE_AFTER_START_DELIMITER" value="false" />
       <option name="INTERPOLATION_NEW_LINE_BEFORE_END_DELIMITER" value="false" />
     </Angular2HtmlCodeStyleSettings>
@@ -13,10 +15,10 @@
     </CssCodeStyleSettings>
     <HTMLCodeStyleSettings>
       <option name="HTML_UNIFORM_INDENT" value="true" />
+      <option name="HTML_ATTRIBUTE_WRAP" value="4" />
       <option name="HTML_ALIGN_TEXT" value="true" />
       <option name="HTML_SPACE_INSIDE_EMPTY_TAG" value="true" />
       <option name="HTML_ENFORCE_QUOTES" value="true" />
-      <option name="HTML_NEWLINE_BEFORE_FIRST_ATTRIBUTE" value="When multiline" />
       <option name="HTML_NEWLINE_AFTER_LAST_ATTRIBUTE" value="When multiline" />
     </HTMLCodeStyleSettings>
     <JSCodeStyleSettings version="0">
@@ -26,7 +28,6 @@
       <option name="USE_DOUBLE_QUOTES" value="false" />
       <option name="FORCE_QUOTE_STYlE" value="true" />
       <option name="ENFORCE_TRAILING_COMMA" value="WhenMultiline" />
-      <option name="JSX_ATTRIBUTE_VALUE" value="Based on type" />
       <option name="FUNCTION_PARAMETER_DECORATOR_WRAP" value="1" />
       <option name="CLASS_DECORATOR_WRAP" value="1" />
       <option name="CLASS_METHOD_DECORATOR_WRAP" value="1" />
@@ -76,8 +77,6 @@
       </arrangement>
     </codeStyleSettings>
     <codeStyleSettings language="HTML">
-      <option name="WRAP_ON_TYPING" value="1" />
-      <option name="SOFT_MARGINS" value="80" />
       <indentOptions>
         <option name="INDENT_SIZE" value="2" />
         <option name="CONTINUATION_INDENT_SIZE" value="2" />

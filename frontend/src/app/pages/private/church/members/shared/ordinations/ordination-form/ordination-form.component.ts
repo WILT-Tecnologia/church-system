@@ -25,57 +25,57 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { ActionsComponent } from 'app/components/actions/actions.component';
+import { ColumnComponent } from 'app/components/column/column.component';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalService } from 'app/components/modal/modal.service';
+import { MESSAGES } from 'app/components/toast/messages';
+import { ToastService } from 'app/components/toast/toast.service';
+//import { Members } from 'app/model/Members';
+import { Occupation } from 'app/model/Occupation';
+import { Ordination } from 'app/model/Ordination';
+import { ValidationService } from 'app/services/validation/validation.service';
 import { provideNgxMask } from 'ngx-mask';
 import { forkJoin, map, Observable, startWith } from 'rxjs';
-import { ActionsComponent } from '../../../../../../../components/actions/actions.component';
-import { ColumnComponent } from '../../../../../../../components/column/column.component';
-import { LoadingService } from '../../../../../../../components/loading/loading.service';
-import { ModalService } from '../../../../../../../components/modal/modal.service';
-import { MESSAGES } from '../../../../../../../components/toast/messages';
-import { ToastService } from '../../../../../../../components/toast/toast.service';
-import { Members } from '../../../../../../../model/Members';
-import { Occupation } from '../../../../../../../model/Occupation';
-import { Ordination } from '../../../../../../../model/Ordination';
-import { ValidationService } from '../../../../../../../services/validation/validation.service';
 import { OccupationComponent } from '../../../../../administrative/occupations/occupation/occupation.component';
 import { OccupationsService } from '../../../../../administrative/occupations/occupations.service';
 import { OrdinationsService } from '../ordinations.service';
 
 @Component({
-    selector: 'app-ordination-form',
-    templateUrl: './ordination-form.component.html',
-    styleUrls: ['./ordination-form.component.scss'],
-    providers: [
-        provideNativeDateAdapter(),
-        { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
-        provideNgxMask(),
-    ],
-    imports: [
-        MatAutocompleteModule,
-        MatDatepickerModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatOptionModule,
-        MatButtonModule,
-        MatDividerModule,
-        MatIconModule,
-        MatSlideToggleModule,
-        ReactiveFormsModule,
-        CommonModule,
-        ColumnComponent,
-        ActionsComponent,
-    ]
+  selector: 'app-ordination-form',
+  templateUrl: './ordination-form.component.html',
+  styleUrls: ['./ordination-form.component.scss'],
+  providers: [
+    provideNativeDateAdapter(),
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+    provideNgxMask(),
+  ],
+  imports: [
+    MatAutocompleteModule,
+    MatDatepickerModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatOptionModule,
+    MatButtonModule,
+    MatDividerModule,
+    MatIconModule,
+    MatSlideToggleModule,
+    ReactiveFormsModule,
+    CommonModule,
+    ColumnComponent,
+    ActionsComponent,
+  ],
 })
 export class OrdinationFormComponent implements OnInit {
   ordinationForm: FormGroup;
   occupation: Occupation[] = [];
   isEditMode: boolean = false;
 
-  searchControlMembers = new FormControl('');
+  //searchControlMembers = new FormControl('');
   searchControlOccupation = new FormControl('');
 
-  filterMembers: Observable<Members[]> = new Observable<Members[]>();
+  //filterMembers: Observable<Members[]> = new Observable<Members[]>();
   filterOccupations: Observable<Occupation[]> = new Observable<Occupation[]>();
 
   constructor(
@@ -232,9 +232,9 @@ export class OrdinationFormComponent implements OnInit {
     });
   };
 
-  clearDate(fieldName: string): void {
-    this.ordinationForm.get(fieldName)?.setValue(null);
-  }
+  // clearDate(fieldName: string): void {
+  //   this.ordinationForm.get(fieldName)?.setValue(null);
+  // }
 
   openAddOccupationForm() {
     this.modalService.openModal(

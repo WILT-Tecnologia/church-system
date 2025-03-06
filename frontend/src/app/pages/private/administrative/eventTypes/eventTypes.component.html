@@ -1,4 +1,4 @@
-@if (eventTypes && eventTypes.length > 0) {
+@if ((eventTypes && eventTypes.length > 0) || rendering) {
   <app-crud
     [fields]="eventTypes"
     [dataSourceMat]="dataSourceMat"

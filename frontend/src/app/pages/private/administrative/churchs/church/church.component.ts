@@ -31,6 +31,19 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
+import { ActionsComponent } from 'app/components/actions/actions.component';
+import { ColumnComponent } from 'app/components/column/column.component';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { MESSAGES } from 'app/components/toast/messages';
+import { ToastService } from 'app/components/toast/toast.service';
+import { Address } from 'app/model/Address';
+import { Church } from 'app/model/Church';
+import { Person } from 'app/model/Person';
+import { NotificationService } from 'app/services/notification/notification.service';
+import { SanitizeValuesService } from 'app/services/sanitize/sanitize-values.service';
+import { CepService } from 'app/services/search-cep/search-cep.service';
+import { ValidationService } from 'app/services/validation/validation.service';
+import { cnpjValidator } from 'app/services/validators/cnpj-validator';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import {
   debounceTime,
@@ -41,45 +54,32 @@ import {
   Subject,
   takeUntil,
 } from 'rxjs';
-import { ActionsComponent } from '../../../../../components/actions/actions.component';
-import { ColumnComponent } from '../../../../../components/column/column.component';
-import { LoadingService } from '../../../../../components/loading/loading.service';
-import { MESSAGES } from '../../../../../components/toast/messages';
-import { ToastService } from '../../../../../components/toast/toast.service';
-import { Address } from '../../../../../model/Address';
-import { Church } from '../../../../../model/Church';
-import { Person } from '../../../../../model/Person';
-import { NotificationService } from '../../../../../services/notification/notification.service';
-import { SanitizeValuesService } from '../../../../../services/sanitize/sanitize-values.service';
-import { CepService } from '../../../../../services/search-cep/search-cep.service';
-import { ValidationService } from '../../../../../services/validation/validation.service';
-import { cnpjValidator } from '../../../../../services/validators/cnpj-validator';
 import { PersonsService } from '../../persons/persons.service';
 import { ChurchsService } from '../churchs.service';
 
 @Component({
-    selector: 'app-church',
-    templateUrl: './church.component.html',
-    styleUrls: ['./church.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [
-        MatTabsModule,
-        MatCardModule,
-        MatButtonModule,
-        MatInputModule,
-        MatFormFieldModule,
-        MatDatepickerModule,
-        MatSelectModule,
-        MatDividerModule,
-        MatAutocompleteModule,
-        MatIconModule,
-        NgxMaskDirective,
-        ReactiveFormsModule,
-        CommonModule,
-        ColumnComponent,
-        ActionsComponent,
-    ],
-    providers: [provideNgxMask()]
+  selector: 'app-church',
+  templateUrl: './church.component.html',
+  styleUrls: ['./church.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    MatTabsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatDatepickerModule,
+    MatSelectModule,
+    MatDividerModule,
+    MatAutocompleteModule,
+    MatIconModule,
+    NgxMaskDirective,
+    ReactiveFormsModule,
+    CommonModule,
+    ColumnComponent,
+    ActionsComponent,
+  ],
+  providers: [provideNgxMask()],
 })
 export class ChurchComponent implements OnInit, OnDestroy {
   churchForm: FormGroup;
@@ -209,8 +209,7 @@ export class ChurchComponent implements OnInit, OnDestroy {
 
   showAllResponsibles = () => {
     this.filterResponsable = this.searchResponsibleControl.valueChanges.pipe(
-      debounceTime(300),
-      startWith(this.searchResponsibleControl.value),
+      startWith(''),
       map((value: any) => {
         if (typeof value === 'string') {
           return value;
@@ -226,8 +225,7 @@ export class ChurchComponent implements OnInit, OnDestroy {
 
   private initialFilterResponsibles() {
     this.filterResponsable = this.searchResponsibleControl.valueChanges.pipe(
-      debounceTime(300),
-      startWith(this.searchResponsibleControl.value),
+      startWith(''),
       map((value: any) => {
         if (typeof value === 'string') {
           return value;

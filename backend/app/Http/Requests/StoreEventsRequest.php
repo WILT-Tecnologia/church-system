@@ -22,8 +22,14 @@ class StoreEventsRequest extends FormRequest
         return [
             'church_id' => ['required', 'exists:churches,id'],
             'event_type_id' => ['required', 'exists:event_types,id'],
-            'name' => ['required'],
-            'obs' => ['nullable'],
+            'name' => ['required', 'string', 'max:255'],
+            'obs' => ['nullable', 'string', 'max:255'],
+            'theme' => ['nullable', 'string', 'max:255'],
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date'],
+            'start_time' => ['required', 'date'],
+            'end_time' => ['required', 'date'],
+            'location' => ['nullable', 'string', 'max:255'],
             'created_by' => ['nullable', 'exists:users,id'],
             'updated_by' => ['nullable', 'exists:users,id']
         ];

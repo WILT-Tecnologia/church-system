@@ -23,7 +23,7 @@
           mat-list-item class="mat-button-options" (click)="route.path !== 'logout' ?
         navigateTo(route.path) : logout()"
         >
-        <span [ngClass]="{'text-red-800': route.path === 'logout'}">
+        <span>
           {{ route.title }}
         </span>
         </button>
@@ -81,7 +81,7 @@
       (click)="route.path !== 'logout' ? navigateTo(route.path) : logout()"
       mat-menu-item
     >
-    <span [ngClass]="{'text-red-800': route.path === 'logout'}">
+    <span>
       {{ route.title }}
     </span>
     </button>

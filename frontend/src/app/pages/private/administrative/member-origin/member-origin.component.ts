@@ -5,31 +5,31 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { ConfirmService } from '../../../../components/confirm/confirm.service';
+import { ConfirmService } from 'app/components/confirm/confirm.service';
 import {
   ActionsProps,
   CrudComponent,
-} from '../../../../components/crud/crud.component';
-import { LoadingService } from '../../../../components/loading/loading.service';
-import { ModalService } from '../../../../components/modal/modal.service';
-import { NotFoundRegisterComponent } from '../../../../components/not-found-register/not-found-register.component';
-import { MESSAGES } from '../../../../components/toast/messages';
-import { ToastService } from '../../../../components/toast/toast.service';
-import { MemberOrigin } from '../../../../model/MemberOrigins';
+} from 'app/components/crud/crud.component';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalService } from 'app/components/modal/modal.service';
+import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
+import { MESSAGES } from 'app/components/toast/messages';
+import { ToastService } from 'app/components/toast/toast.service';
+import { MemberOrigin } from 'app/model/MemberOrigins';
 import { MemberOriginFormComponent } from './member-origin-form/member-origin-form.component';
 import { MemberOriginService } from './member-origin.service';
 
 @Component({
-    selector: 'app-member-origin',
-    templateUrl: './member-origin.component.html',
-    styleUrls: ['./member-origin.component.scss'],
-    imports: [
-        NotFoundRegisterComponent,
-        MatCardModule,
-        MatIconModule,
-        CommonModule,
-        CrudComponent,
-    ]
+  selector: 'app-member-origin',
+  templateUrl: './member-origin.component.html',
+  styleUrls: ['./member-origin.component.scss'],
+  imports: [
+    NotFoundRegisterComponent,
+    MatCardModule,
+    MatIconModule,
+    CommonModule,
+    CrudComponent,
+  ],
 })
 export class MemberOriginComponent implements OnInit {
   memberOrigins: MemberOrigin[] = [];
@@ -39,6 +39,14 @@ export class MemberOriginComponent implements OnInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   actions: ActionsProps[] = [
+    {
+      type: 'toggle',
+      tooltip: 'Ativar/Desativar a origem',
+      icon: 'toggle_on',
+      activeLabel: 'Ativar',
+      inactiveLabel: 'Desativar',
+      action: (memberOrigin: MemberOrigin) => this.toggleStatus(memberOrigin),
+    },
     {
       type: 'edit',
       tooltip: 'Editar',
@@ -129,7 +137,7 @@ export class MemberOriginComponent implements OnInit {
   handleDelete = (memberOrigin: MemberOrigin) => {
     const modal = this.confirmService.openConfirm(
       'Atenção',
-      `Tem certeza que deseja excluir a Origem de Membros ${memberOrigin.name}?`,
+      `Tem certeza que deseja excluir a origem de membros ${memberOrigin.name}?`,
       'Confirmar ',
       'Cancelar',
     );
@@ -163,7 +171,7 @@ export class MemberOriginComponent implements OnInit {
     ).subscribe({
       next: () => {
         this.toast.openSuccess(
-          `Perfil ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`,
+          `Origem do membro ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`,
         );
       },
       error: () => {

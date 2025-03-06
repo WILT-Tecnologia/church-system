@@ -25,6 +25,12 @@ class Evento extends Model
         'event_type_id',
         'name',
         'obs',
+        'theme',
+        'start_date',
+        'end_date',
+        'start_time',
+        'end_time',
+        'location',
         'created_by',
         'updated_by',
     ];

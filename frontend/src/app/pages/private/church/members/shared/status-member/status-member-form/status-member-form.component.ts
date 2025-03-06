@@ -35,43 +35,43 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { ActionsComponent } from 'app/components/actions/actions.component';
+import { ColumnComponent } from 'app/components/column/column.component';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { MESSAGES } from 'app/components/toast/messages';
+import { ToastService } from 'app/components/toast/toast.service';
+import { MemberSituations } from 'app/model/Auxiliaries';
+import { StatusMember } from 'app/model/Members';
+import { ValidationService } from 'app/services/validation/validation.service';
 import dayjs from 'dayjs';
 import { provideNgxMask } from 'ngx-mask';
 import { forkJoin, map, Observable, startWith, Subject } from 'rxjs';
-import { ActionsComponent } from '../../../../../../../components/actions/actions.component';
-import { ColumnComponent } from '../../../../../../../components/column/column.component';
-import { LoadingService } from '../../../../../../../components/loading/loading.service';
-import { MESSAGES } from '../../../../../../../components/toast/messages';
-import { ToastService } from '../../../../../../../components/toast/toast.service';
-import { MemberSituations } from '../../../../../../../model/Auxiliaries';
-import { StatusMember } from '../../../../../../../model/Members';
-import { ValidationService } from '../../../../../../../services/validation/validation.service';
 import { StatusMemberService } from '../status-member.service';
 
 @Component({
-    selector: 'app-status-member-form',
-    templateUrl: './status-member-form.component.html',
-    styleUrl: './status-member-form.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [
-        MatAutocompleteModule,
-        MatDatepickerModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule,
-        MatDividerModule,
-        MatIconModule,
-        MatSlideToggleModule,
-        ReactiveFormsModule,
-        CommonModule,
-        ColumnComponent,
-        ActionsComponent,
-    ],
-    providers: [
-        provideNgxMask(),
-        provideNativeDateAdapter(),
-        { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
-    ]
+  selector: 'app-status-member-form',
+  templateUrl: './status-member-form.component.html',
+  styleUrl: './status-member-form.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    MatAutocompleteModule,
+    MatDatepickerModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDividerModule,
+    MatIconModule,
+    MatSlideToggleModule,
+    ReactiveFormsModule,
+    CommonModule,
+    ColumnComponent,
+    ActionsComponent,
+  ],
+  providers: [
+    provideNgxMask(),
+    provideNativeDateAdapter(),
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+  ],
 })
 export class StatusMemberFormComponent implements OnInit, OnDestroy {
   statusMemberForm: FormGroup;

@@ -20,8 +20,8 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { FormatValuesPipe } from '../../pipes/format-values.pipe';
-import { FormatsPipe } from '../../pipes/formats.pipe';
+import { FormatValuesPipe } from 'app/pipes/format-values.pipe';
+import { FormatsPipe } from 'app/pipes/formats.pipe';
 import {
   FilterButtonAdvancedComponent,
   FilterField,
@@ -48,26 +48,26 @@ export type ColumnDefinitionsProps = {
 };
 
 @Component({
-    selector: 'app-crud',
-    templateUrl: './crud.component.html',
-    styleUrl: './crud.component.scss',
-    imports: [
-        MatCardModule,
-        MatTableModule,
-        MatSortModule,
-        MatButtonModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatPaginatorModule,
-        MatTooltipModule,
-        MatDividerModule,
-        MatIconModule,
-        MatMenuModule,
-        CommonModule,
-        FormatValuesPipe,
-        FilterButtonAdvancedComponent,
-    ],
-    providers: [FormatsPipe]
+  selector: 'app-crud',
+  templateUrl: './crud.component.html',
+  styleUrl: './crud.component.scss',
+  imports: [
+    MatCardModule,
+    MatTableModule,
+    MatSortModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatPaginatorModule,
+    MatTooltipModule,
+    MatDividerModule,
+    MatIconModule,
+    MatMenuModule,
+    CommonModule,
+    FormatValuesPipe,
+    FilterButtonAdvancedComponent,
+  ],
+  providers: [FormatsPipe],
 })
 export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() fields: TableField[] = [];

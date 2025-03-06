@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Guest } from 'app/model/Events';
+import { environment } from 'environments/environment';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../../../../environments/environment';
-import { Guest } from '../../../../../../model/Events';
 
 @Injectable({
   providedIn: 'root',
@@ -16,9 +16,9 @@ export class GuestsService {
     return this.http.get<Guest[]>(this.api);
   }
 
-  getGuestById(id: string): Observable<Guest> {
-    return this.http.get<Guest>(`${this.api}/${id}`);
-  }
+  // getGuestById(id: string): Observable<Guest> {
+  //   return this.http.get<Guest>(`${this.api}/${id}`);
+  // }
 
   create(guest: Guest): Observable<Guest> {
     return this.http.post<Guest>(this.api, guest);

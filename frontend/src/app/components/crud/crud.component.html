@@ -1,6 +1,6 @@
 @if (enableAddButtonAdd) {
   <div class="add-button">
-    <button type="button" mat-raised-button color="primary" (click)="addFn()">
+    <button type="button" mat-flat-button color="primary" (click)="addFn()">
       {{ ctaLabel || 'Adicionar' }}
     </button>
   </div>
@@ -19,7 +19,10 @@
         </div>
       </mat-form-field>
       @if (enableFilterAdvanced) {
-        <button (click)="toggleFilter()" aria-label="Botão de filtro" mat-icon-button matTooltip="Filtro" type="button">
+        <button
+          (click)="toggleFilter()" aria-label="Botão de filtro" mat-icon-button
+          matTooltip="Filtro" type="button"
+        >
           <mat-icon>filter_alt</mat-icon>
         </button>
       }
@@ -122,9 +125,9 @@
               <ng-container [ngSwitch]="action.type">
                 <!-- Botão Toggle (Ativar/Desativar) -->
                 <ng-container *ngSwitchCase="'toggle'">
-                  <div class="m-4 flex flex-col items-center justify-center">
+                  <div class="toggle">
                     <button
-                      mat-raised-button
+                      mat-flat-button
                       type="button"
                       [matTooltip]="action.tooltip ?? ''"
                       [color]="fields.status ? 'warn' : 'primary'"
@@ -159,7 +162,6 @@
                 <ng-container *ngSwitchCase="'delete'">
                   <button
                     (click)="action.action(fields)"
-                    color="warn"
                     mat-menu-item
                     matTooltip="{{ action.tooltip }}"
                     type="button"
@@ -173,7 +175,7 @@
                   </button>
                 </ng-container>
 
-                <!-- Botão historico -->
+                <!-- Botão histórico -->
                 <ng-container *ngSwitchCase="'history'">
                   <button
                     type="button"

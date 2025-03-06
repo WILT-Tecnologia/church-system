@@ -3,32 +3,32 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { ConfirmService } from '../../../../components/confirm/confirm.service';
+import { ConfirmService } from 'app/components/confirm/confirm.service';
 import {
   ActionsProps,
   CrudComponent,
-} from '../../../../components/crud/crud.component';
-import { LoadingService } from '../../../../components/loading/loading.service';
-import { ModalService } from '../../../../components/modal/modal.service';
-import { NotFoundRegisterComponent } from '../../../../components/not-found-register/not-found-register.component';
-import { MESSAGES } from '../../../../components/toast/messages';
-import { ToastService } from '../../../../components/toast/toast.service';
-import { Church } from '../../../../model/Church';
-import { FormatsPipe } from '../../../../pipes/formats.pipe';
-import { NotificationService } from '../../../../services/notification/notification.service';
+} from 'app/components/crud/crud.component';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalService } from 'app/components/modal/modal.service';
+import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
+import { MESSAGES } from 'app/components/toast/messages';
+import { ToastService } from 'app/components/toast/toast.service';
+import { Church } from 'app/model/Church';
+import { FormatsPipe } from 'app/pipes/formats.pipe';
+import { NotificationService } from 'app/services/notification/notification.service';
 import { ChurchComponent } from './church/church.component';
 import { ChurchsService } from './churchs.service';
 
 @Component({
-    selector: 'app-churchs',
-    templateUrl: './churchs.component.html',
-    styleUrls: ['./churchs.component.scss'],
-    imports: [NotFoundRegisterComponent, CrudComponent, CommonModule],
-    providers: [FormatsPipe]
+  selector: 'app-churchs',
+  templateUrl: './churchs.component.html',
+  styleUrls: ['./churchs.component.scss'],
+  imports: [NotFoundRegisterComponent, CrudComponent, CommonModule],
+  providers: [FormatsPipe],
 })
 export class ChurchsComponent implements OnInit {
   churchs: Church[] = [];
-  rendeing: boolean = true;
+  rendering: boolean = true;
   dataSourceMat = new MatTableDataSource<Church>(this.churchs);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -78,7 +78,7 @@ export class ChurchsComponent implements OnInit {
         this.dataSourceMat.data = this.churchs;
         this.dataSourceMat.paginator = this.paginator;
         this.dataSourceMat.sort = this.sort;
-        this.rendeing = false;
+        this.rendering = false;
       },
       error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
       complete: () => this.loading.hide(),

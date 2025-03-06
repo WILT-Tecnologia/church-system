@@ -1,8 +1,6 @@
 <div class="container">
   <mat-card class="card" appearance="outlined">
-    <span class="title font-bold text-center text-4xl md:text-2xl mb-4 md:mb-2"
-      >Acessar o sistema</span
-    >
+    <span class="title">Acessar o sistema</span>
     <form
       [formGroup]="loginForm"
       (ngSubmit)="onSubmit()"
@@ -21,7 +19,8 @@
             *ngIf="
               loginForm.get('email')?.invalid && loginForm.get('email')?.touched
             "
-            >{{ getErrorMessage('email') }}</mat-error
+          >{{ getErrorMessage('email') }}
+          </mat-error
           >
         </mat-form-field>
       </app-column>
@@ -50,14 +49,15 @@
               loginForm.get('password')?.invalid &&
               loginForm.get('password')?.touched
             "
-            >{{ getErrorMessage('password') }}</mat-error
+          >{{ getErrorMessage('password') }}
+          </mat-error
           >
         </mat-form-field>
       </app-column>
 
       <app-actions>
         <button
-          mat-raised-button
+          mat-flat-button
           color="primary"
           type="submit"
           [disabled]="loginForm.invalid"

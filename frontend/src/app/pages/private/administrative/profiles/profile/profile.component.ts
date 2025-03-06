@@ -24,35 +24,35 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableModule } from '@angular/material/table';
-import { ActionsComponent } from '../../../../../components/actions/actions.component';
-import { ColumnComponent } from '../../../../../components/column/column.component';
-import { LoadingService } from '../../../../../components/loading/loading.service';
-import { MESSAGES } from '../../../../../components/toast/messages';
-import { ToastService } from '../../../../../components/toast/toast.service';
-import { Module, Profile, ProfileModule } from '../../../../../model/Profile';
-import { ValidationService } from '../../../../../services/validation/validation.service';
+import { ActionsComponent } from 'app/components/actions/actions.component';
+import { ColumnComponent } from 'app/components/column/column.component';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { MESSAGES } from 'app/components/toast/messages';
+import { ToastService } from 'app/components/toast/toast.service';
+import { Module, Profile, ProfileModule } from 'app/model/Profile';
+import { ValidationService } from 'app/services/validation/validation.service';
 import { ProfilesService } from '../profiles.service';
 
 @Component({
-    selector: 'app-profile',
-    templateUrl: './profile.component.html',
-    styleUrls: ['./profile.component.scss'],
-    imports: [
-        MatButtonModule,
-        MatInputModule,
-        MatSlideToggleModule,
-        MatFormFieldModule,
-        MatDividerModule,
-        MatIconModule,
-        MatCheckboxModule,
-        MatTableModule,
-        ReactiveFormsModule,
-        CommonModule,
-        FormsModule,
-        ActionsComponent,
-        ColumnComponent,
-    ],
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-profile',
+  templateUrl: './profile.component.html',
+  styleUrls: ['./profile.component.scss'],
+  imports: [
+    MatButtonModule,
+    MatInputModule,
+    MatSlideToggleModule,
+    MatFormFieldModule,
+    MatDividerModule,
+    MatIconModule,
+    MatCheckboxModule,
+    MatTableModule,
+    ReactiveFormsModule,
+    CommonModule,
+    FormsModule,
+    ActionsComponent,
+    ColumnComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileComponent implements OnInit {
   profileForm: FormGroup;

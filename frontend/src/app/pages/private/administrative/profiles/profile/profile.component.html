@@ -5,8 +5,9 @@
 >
   <app-column>
     <mat-slide-toggle formControlName="status" color="primary">{{
-      profileForm.get('status')?.value ? 'Ativado' : 'Desativado'
-    }}</mat-slide-toggle>
+        profileForm.get('status')?.value ? 'Ativado' : 'Desativado'
+      }}
+    </mat-slide-toggle>
   </app-column>
 
   <app-column>
@@ -17,7 +18,8 @@
         *ngIf="
           profileForm.get('name')?.invalid && profileForm.get('name')?.touched
         "
-        >{{ getErrorMessage('name') }}</mat-error
+      >{{ getErrorMessage('name') }}
+      </mat-error
       >
     </mat-form-field>
   </app-column>
@@ -36,7 +38,8 @@
           profileForm.get('description')?.invalid &&
           profileForm.get('description')?.touched
         "
-        >{{ getErrorMessage('description') }}</mat-error
+      >{{ getErrorMessage('description') }}
+      </mat-error
       >
     </mat-form-field>
   </app-column>
@@ -80,8 +83,6 @@
     <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
 
-  <mat-divider></mat-divider>
-
   <app-actions>
     <button
       type="button"
@@ -93,7 +94,7 @@
     </button>
     <button
       type="submit"
-      mat-raised-button
+      mat-flat-button
       color="primary"
       [disabled]="profileForm.invalid"
     >

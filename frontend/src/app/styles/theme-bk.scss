@@ -1,0 +1,65 @@
+$primary: #0393BE;
+$primaryDark: #03759B;
+$primaryLight: #03D0FD;
+
+$secondary: #0DBF87;
+$secondaryDark: #079A5C;
+$secondaryLight: #B6ECDB;
+
+$errorMain: #EE4C4C;
+$errorDark: #A63535;
+$errorLight: #F16F6F;
+
+$greyMain: #4D4D4D;
+$greyLight: #808080;
+$greyVeryLight: #A2A2A2;
+$greyDark: #1A1A1A;
+
+$success: #23BF6A;
+$warning: #FFB946;
+$danger: #F7685B;
+
+$white: #FFFFFF;
+$backgroundColor: #F0F0F0;
+$separator: #C7C7C7;
+$textColor: #4D4D4D;
+$hover: #C4C4C44D;
+
+$primaryColors: (50: $primaryLight,
+  100: $primaryLight,
+  200: $primaryLight,
+  300: $primary,
+  400: $primary,
+  500: $primary,
+  600: $primary,
+  700: $primary,
+  800: $primary,
+  900: $primary,
+  A100: $primaryLight,
+  A200: $primary,
+  A300: $primary,
+  A400: $primary,
+  A500: $primary,
+  A600: $primary,
+  A700: $primary,
+  A800: $primaryDark,
+  A900: $primaryDark,
+  contrast: (50: $textColor,
+    100: $textColor,
+    200: $textColor,
+    300: $textColor,
+    400: $textColor,
+    500: $white,
+    600: $white,
+    700: $white,
+    800: $white,
+    900: $white,
+    A100: $white,
+    A200: $white,
+    A400: $white,
+    A500: $white,
+    A600: $white,
+    A700: $white,
+    A800: $white,
+    A900: $white,
+  ))

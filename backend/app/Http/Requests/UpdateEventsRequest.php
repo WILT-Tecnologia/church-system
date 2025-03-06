@@ -24,6 +24,12 @@ class UpdateEventsRequest extends FormRequest
             'event_type_id' => ['sometimes', 'required', 'exists:event_types,id'],
             'name' => ['sometimes', 'required'],
             'obs' => ['sometimes', 'nullable'],
+            'theme' => ['sometimes', 'nullable'],
+            'start_date' => ['sometimes', 'required'],
+            'end_date' => ['sometimes', 'required'],
+            'start_time' => ['sometimes', 'required'],
+            'end_time' => ['sometimes', 'required'],
+            'location' => ['sometimes', 'nullable'],
             'created_by' => ['nullable', 'exists:users,id'],
             'updated_by' => ['nullable', 'exists:users,id']
         ];

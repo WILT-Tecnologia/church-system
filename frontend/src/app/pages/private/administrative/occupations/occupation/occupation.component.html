@@ -5,8 +5,9 @@
 >
   <app-column>
     <mat-slide-toggle formControlName="status" color="primary">{{
-      occupationForm.get('status')?.value ? 'Ativado' : 'Desativado'
-    }}</mat-slide-toggle>
+        occupationForm.get('status')?.value ? 'Ativado' : 'Desativado'
+      }}
+    </mat-slide-toggle>
   </app-column>
 
   <app-column>
@@ -18,7 +19,8 @@
           occupationForm.get('name')?.invalid &&
           occupationForm.get('name')?.touched
         "
-        >{{ getErrorMessage('name') }}</mat-error
+      >{{ getErrorMessage('name') }}
+      </mat-error
       >
     </mat-form-field>
   </app-column>
@@ -32,30 +34,28 @@
           occupationForm.get('description')?.invalid &&
           occupationForm.get('description')?.touched
         "
-        >{{ getErrorMessage('description') }}</mat-error
+      >{{ getErrorMessage('description') }}
+      </mat-error
       >
     </mat-form-field>
   </app-column>
 
-  <mat-divider></mat-divider>
   <app-actions>
-    <div class="cta">
-      <button
-        type="button"
-        mat-stroked-button
-        color="warn"
-        (click)="handleBack()"
-      >
-        Cancelar
-      </button>
-      <button
-        type="submit"
-        mat-raised-button
-        color="primary"
-        [disabled]="occupationForm.invalid"
-      >
-        {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
-      </button>
-    </div>
+    <button
+      type="button"
+      mat-stroked-button
+      color="warn"
+      (click)="handleBack()"
+    >
+      Cancelar
+    </button>
+    <button
+      type="submit"
+      mat-flat-button
+      color="primary"
+      [disabled]="occupationForm.invalid"
+    >
+      {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
+    </button>
   </app-actions>
 </form>

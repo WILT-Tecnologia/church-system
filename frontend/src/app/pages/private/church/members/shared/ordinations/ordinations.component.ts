@@ -3,26 +3,26 @@ import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { ConfirmService } from '../../../../../../components/confirm/confirm.service';
+import { ConfirmService } from 'app/components/confirm/confirm.service';
 import {
   ActionsProps,
   CrudComponent,
-} from '../../../../../../components/crud/crud.component';
-import { LoadingService } from '../../../../../../components/loading/loading.service';
-import { ModalService } from '../../../../../../components/modal/modal.service';
-import { NotFoundRegisterComponent } from '../../../../../../components/not-found-register/not-found-register.component';
-import { MESSAGES } from '../../../../../../components/toast/messages';
-import { ToastService } from '../../../../../../components/toast/toast.service';
-import { Ordination } from '../../../../../../model/Ordination';
+} from 'app/components/crud/crud.component';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalService } from 'app/components/modal/modal.service';
+import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
+import { MESSAGES } from 'app/components/toast/messages';
+import { ToastService } from 'app/components/toast/toast.service';
+import { Ordination } from 'app/model/Ordination';
 import { MemberService } from '../member.service';
 import { OrdinationFormComponent } from './ordination-form/ordination-form.component';
 import { OrdinationsService } from './ordinations.service';
 
 @Component({
-    selector: 'app-ordinations',
-    templateUrl: './ordinations.component.html',
-    styleUrls: ['./ordinations.component.scss'],
-    imports: [CommonModule, NotFoundRegisterComponent, CrudComponent]
+  selector: 'app-ordinations',
+  templateUrl: './ordinations.component.html',
+  styleUrls: ['./ordinations.component.scss'],
+  imports: [CommonModule, NotFoundRegisterComponent, CrudComponent],
 })
 export class OrdinationsComponent implements OnInit {
   @Input() ordination: Ordination[] = [];

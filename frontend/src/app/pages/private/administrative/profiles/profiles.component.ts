@@ -5,31 +5,31 @@ import { MatCardModule } from '@angular/material/card';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { ConfirmService } from '../../../../components/confirm/confirm.service';
+import { ConfirmService } from 'app/components/confirm/confirm.service';
 import {
   ActionsProps,
   CrudComponent,
-} from '../../../../components/crud/crud.component';
-import { LoadingService } from '../../../../components/loading/loading.service';
-import { ModalService } from '../../../../components/modal/modal.service';
-import { NotFoundRegisterComponent } from '../../../../components/not-found-register/not-found-register.component';
-import { MESSAGES } from '../../../../components/toast/messages';
-import { ToastService } from '../../../../components/toast/toast.service';
-import { Profile } from '../../../../model/Profile';
+} from 'app/components/crud/crud.component';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalService } from 'app/components/modal/modal.service';
+import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
+import { MESSAGES } from 'app/components/toast/messages';
+import { ToastService } from 'app/components/toast/toast.service';
+import { Profile } from 'app/model/Profile';
 import { ProfileComponent } from './profile/profile.component';
 import { ProfilesService } from './profiles.service';
 
 @Component({
-    selector: 'app-profiles',
-    templateUrl: './profiles.component.html',
-    styleUrls: ['./profiles.component.scss'],
-    imports: [
-        MatCardModule,
-        MatButtonModule,
-        NotFoundRegisterComponent,
-        CommonModule,
-        CrudComponent,
-    ]
+  selector: 'app-profiles',
+  templateUrl: './profiles.component.html',
+  styleUrls: ['./profiles.component.scss'],
+  imports: [
+    MatCardModule,
+    MatButtonModule,
+    NotFoundRegisterComponent,
+    CommonModule,
+    CrudComponent,
+  ],
 })
 export class ProfilesComponent implements OnInit {
   profiles: Profile[] = [];

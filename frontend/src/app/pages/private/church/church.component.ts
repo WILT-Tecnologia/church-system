@@ -4,23 +4,23 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTabsModule } from '@angular/material/tabs';
 import { Router } from '@angular/router';
-import { ToastService } from '../../../components/toast/toast.service';
+import { ToastService } from 'app/components/toast/toast.service';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { EventsComponent } from './events/events.component';
 import { MembersComponent } from './members/members.component';
 
 @Component({
-    selector: 'app-church',
-    templateUrl: './church.component.html',
-    styleUrls: ['./church.component.scss'],
-    imports: [
-        MatTabsModule,
-        MatCardModule,
-        MatDividerModule,
-        MembersComponent,
-        DashboardComponent,
-        EventsComponent,
-    ]
+  selector: 'app-church',
+  templateUrl: './church.component.html',
+  styleUrls: ['./church.component.scss'],
+  imports: [
+    MatTabsModule,
+    MatCardModule,
+    MatDividerModule,
+    MembersComponent,
+    DashboardComponent,
+    EventsComponent,
+  ],
 })
 export class ChurchComponent implements OnInit {
   churchId: string | null = null;

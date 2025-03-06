@@ -36,6 +36,22 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
+import { MatTooltip } from '@angular/material/tooltip';
+import { ActionsComponent } from 'app/components/actions/actions.component';
+import { ColumnComponent } from 'app/components/column/column.component';
+import { LoadingService } from 'app/components/loading/loading.service';
+import { MESSAGES } from 'app/components/toast/messages';
+import { ToastService } from 'app/components/toast/toast.service';
+import { Address } from 'app/model/Address';
+import { Person } from 'app/model/Person';
+import { User } from 'app/model/User';
+import { FormatsPipe } from 'app/pipes/formats.pipe';
+import { NotificationService } from 'app/services/notification/notification.service';
+import { SanitizeValuesService } from 'app/services/sanitize/sanitize-values.service';
+import { CepService } from 'app/services/search-cep/search-cep.service';
+import { ValidationService } from 'app/services/validation/validation.service';
+import { cpfValidator } from 'app/services/validators/cpf-validator';
+import { phoneValidator } from 'app/services/validators/phone-validator';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import {
   debounceTime,
@@ -46,21 +62,6 @@ import {
   Subject,
   takeUntil,
 } from 'rxjs';
-import { ActionsComponent } from '../../../../../components/actions/actions.component';
-import { ColumnComponent } from '../../../../../components/column/column.component';
-import { LoadingService } from '../../../../../components/loading/loading.service';
-import { MESSAGES } from '../../../../../components/toast/messages';
-import { ToastService } from '../../../../../components/toast/toast.service';
-import { Address } from '../../../../../model/Address';
-import { Person } from '../../../../../model/Person';
-import { User } from '../../../../../model/User';
-import { FormatsPipe } from '../../../../../pipes/formats.pipe';
-import { NotificationService } from '../../../../../services/notification/notification.service';
-import { SanitizeValuesService } from '../../../../../services/sanitize/sanitize-values.service';
-import { CepService } from '../../../../../services/search-cep/search-cep.service';
-import { ValidationService } from '../../../../../services/validation/validation.service';
-import { cpfValidator } from '../../../../../services/validators/cpf-validator';
-import { phoneValidator } from '../../../../../services/validators/phone-validator';
 import { UsersService } from '../../users/users.service';
 import { PersonsService } from '../persons.service';
 
@@ -70,33 +71,34 @@ type Sex = {
 };
 
 @Component({
-    selector: 'app-person',
-    templateUrl: './person.component.html',
-    styleUrls: ['./person.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: [
-        provideNativeDateAdapter(),
-        { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
-        provideNgxMask(),
-        FormatsPipe,
-    ],
-    imports: [
-        MatCardModule,
-        MatButtonModule,
-        MatInputModule,
-        MatFormFieldModule,
-        MatAutocompleteModule,
-        MatTabsModule,
-        MatDatepickerModule,
-        MatSelectModule,
-        MatDividerModule,
-        MatIconModule,
-        NgxMaskDirective,
-        ReactiveFormsModule,
-        CommonModule,
-        ColumnComponent,
-        ActionsComponent,
-    ]
+  selector: 'app-person',
+  templateUrl: './person.component.html',
+  styleUrls: ['./person.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    provideNativeDateAdapter(),
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+    provideNgxMask(),
+    FormatsPipe,
+  ],
+  imports: [
+    MatCardModule,
+    MatButtonModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatAutocompleteModule,
+    MatTabsModule,
+    MatDatepickerModule,
+    MatSelectModule,
+    MatDividerModule,
+    MatIconModule,
+    NgxMaskDirective,
+    ReactiveFormsModule,
+    CommonModule,
+    ColumnComponent,
+    ActionsComponent,
+    MatTooltip,
+  ],
 })
 export class PersonComponent implements OnInit, OnDestroy {
   personForm: FormGroup;
@@ -137,7 +139,6 @@ export class PersonComponent implements OnInit, OnDestroy {
     this.checkEditMode();
     this.loadUsers();
     this.filterUsers = this.searchUserControl.valueChanges.pipe(
-      debounceTime(300),
       startWith(''),
       map((value: any) => {
         if (typeof value === 'string') {
@@ -259,7 +260,6 @@ export class PersonComponent implements OnInit, OnDestroy {
 
   showAllUsers() {
     this.filterUsers = this.searchUserControl.valueChanges.pipe(
-      debounceTime(300),
       startWith(this.searchUserControl.value),
       map((value: any) => {
         if (typeof value === 'string') {

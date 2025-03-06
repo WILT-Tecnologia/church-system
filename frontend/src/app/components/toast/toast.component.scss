@@ -1,5 +1,3 @@
-@import '../../styles/theme.scss';
-
 .snackbar-content {
   display: flex;
   align-items: center;
@@ -14,5 +12,5 @@ mat-icon {
 }
 
 button {
-  color: $white !important;
+  color: var(--white-color) !important;
 }

@@ -18,7 +18,8 @@
           memberOriginForm.get('name')?.invalid &&
           memberOriginForm.get('name')?.touched
         "
-        >{{ getErrorMessage('name') }}</mat-error
+      >{{ getErrorMessage('name') }}
+      </mat-error
       >
     </mat-form-field>
   </app-column>
@@ -32,11 +33,12 @@
           memberOriginForm.get('description')?.invalid &&
           memberOriginForm.get('description')?.touched
         "
-        >{{ getErrorMessage('description') }}</mat-error
+      >{{ getErrorMessage('description') }}
+      </mat-error
       >
     </mat-form-field>
   </app-column>
-  <mat-divider></mat-divider>
+
   <app-actions>
     <button
       mat-stroked-button
@@ -47,7 +49,7 @@
       Cancelar
     </button>
     <button
-      mat-raised-button
+      mat-flat-button
       color="primary"
       [disabled]="!memberOriginForm.valid"
     >

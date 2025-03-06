@@ -22,7 +22,7 @@
             (optionSelected)="onUserSelected($event)"
           >
             <mat-option
-              *ngFor="let user of filterUsers | async as users"
+              *ngFor="let user of filterUsers | async"
               [value]="user"
             >
               {{ user.name }}
@@ -57,13 +57,15 @@
             matInput
             formControlName="cpf"
             mask="000.000.000-00"
+            placeholder="000.000.000-00"
             required
           />
           <mat-error
             *ngIf="
               personForm.get('cpf')?.invalid && personForm.get('cpf')?.touched
             "
-            >{{ getErrorMessage('cpf') }}</mat-error
+          >{{ getErrorMessage('cpf') }}
+          </mat-error
           >
         </mat-form-field>
         <mat-form-field appearance="fill">
@@ -74,68 +76,63 @@
               personForm.get('email')?.invalid &&
               personForm.get('email')?.touched
             "
-            >{{ getErrorMessage('email') }}</mat-error
+          >{{ getErrorMessage('email') }}
+          </mat-error
           >
         </mat-form-field>
-        <mat-form-field class="birth_date">
+        <mat-form-field>
           <mat-label>Data de nascimento</mat-label>
           <input
             matInput
-            [matDatepicker]="picker"
             name="birth_date"
+            [matDatepicker]="picker"
+            placeholder="dd/mm/aaaa"
+            formControlName="birth_date"
+            (click)="openCalendar()"
             [min]="minDate"
             [max]="maxDate"
-            placeholder="Selecione a data de nascimento"
-            formControlName="birth_date"
-            (focus)="openCalendar()"
             required
             readonly
-          />
-
-          @if (personForm.value.birth_date) {
-            <button
-              mat-icon-button
-              type="button"
-              matSuffix
-              (click)="clearDate()"
-            >
-              <mat-icon>close</mat-icon>
-            </button>
-          } @else {
-            <ng-container>
-              <mat-datepicker-toggle
-                matIconSuffix
-                [for]="picker"
-              ></mat-datepicker-toggle>
-              <mat-datepicker #picker>
-                <mat-datepicker-actions>
-                  <button
-                    mat-stroked-button
-                    type="button"
-                    color="warn"
-                    matDatepickerCancel
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    mat-raised-button
-                    type="button"
-                    color="primary"
-                    matDatepickerApply
-                  >
-                    Confirmar
-                  </button>
-                </mat-datepicker-actions>
-              </mat-datepicker>
-            </ng-container>
-          }
-          <mat-error
-            *ngIf="
-              personForm.get('birth_date')?.invalid &&
-              personForm.get('birth_date')?.touched
-            "
-            >{{ getErrorMessage('birth_date') }}</mat-error
           >
+          <mat-datepicker-toggle
+            matIconSuffix
+            [for]="picker"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #picker>
+            <mat-datepicker-actions>
+              @if (personForm.get('birth_date')?.value) {
+                <button
+                  matTooltip="Limpar a data"
+                  mat-flat-button
+                  matSuffix
+                  matDatepickerToggleIcon
+                  (click)="clearDate()"
+                  type="button"
+                  color="warn"
+                >
+                  <mat-icon>close</mat-icon>
+                  Limpar
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  mat-button
+                  matDatepickerCancel
+                >
+                  Cancelar
+                </button>
+                <button type="button" mat-flat-button matDatepickerApply>
+                  Concluir
+                </button>
+              }
+            </mat-datepicker-actions>
+          </mat-datepicker>
+
+          @if (personForm.get('birth_date')?.invalid &&
+          personForm.get('birth_date')?.touched) {
+            <mat-error>{{ getErrorMessage('birth_date') }}</mat-error>
+
+          }
         </mat-form-field>
       </app-column>
 
@@ -151,7 +148,8 @@
             *ngIf="
               personForm.get('sex')?.invalid && personForm.get('sex')?.touched
             "
-            >{{ getErrorMessage('sex') }}</mat-error
+          >{{ getErrorMessage('sex') }}
+          </mat-error
           >
         </mat-form-field>
         <mat-form-field appearance="fill">
@@ -160,6 +158,7 @@
             matInput
             formControlName="phone_one"
             mask="(00) 00000-0000"
+            placeholder="(00) 00000-0000"
             required
           />
           <mat-error
@@ -167,23 +166,29 @@
               personForm.get('phone_one')?.invalid &&
               personForm.get('phone_one')?.touched
             "
-            >{{ getErrorMessage('phone_one') }}</mat-error
+          >{{ getErrorMessage('phone_one') }}
+          </mat-error
           >
         </mat-form-field>
         <mat-form-field appearance="fill">
           <mat-label>Telefone II</mat-label>
-          <input matInput formControlName="phone_two" mask="(00) 00000-0000" />
+          <input
+            matInput
+            formControlName="phone_two"
+            mask="(00) 00000-0000"
+            placeholder="(00) 00000-0000"
+          />
           <mat-error
             *ngIf="
               personForm.get('phone_two')?.invalid &&
               personForm.get('phone_two')?.touched
             "
-            >{{ getErrorMessage('phone_two') }}</mat-error
+          >{{ getErrorMessage('phone_two') }}
+          </mat-error
           >
         </mat-form-field>
       </app-column>
 
-      <mat-divider></mat-divider>
       <app-actions>
         <button
           mat-stroked-button
@@ -193,7 +198,7 @@
         >
           Cancelar
         </button>
-        <button mat-raised-button type="submit" color="primary">Avançar</button>
+        <button mat-flat-button type="submit" color="primary">Avançar</button>
       </app-actions>
     </form>
   </mat-tab>
@@ -212,7 +217,8 @@
             *ngIf="
               personForm.get('cep')?.invalid && personForm.get('cep')?.touched
             "
-            >{{ getErrorMessage('cep') }}</mat-error
+          >{{ getErrorMessage('cep') }}
+          </mat-error
           >
         </mat-form-field>
         <mat-form-field appearance="fill">
@@ -223,7 +229,8 @@
               personForm.get('street')?.invalid &&
               personForm.get('street')?.touched
             "
-            >{{ getErrorMessage('street') }}</mat-error
+          >{{ getErrorMessage('street') }}
+          </mat-error
           >
         </mat-form-field>
       </app-column>
@@ -237,7 +244,8 @@
               personForm.get('number')?.invalid &&
               personForm.get('number')?.touched
             "
-            >{{ getErrorMessage('number') }}</mat-error
+          >{{ getErrorMessage('number') }}
+          </mat-error
           >
         </mat-form-field>
         <mat-form-field appearance="fill">
@@ -248,7 +256,8 @@
               personForm.get('complement')?.invalid &&
               personForm.get('complement')?.touched
             "
-            >{{ getErrorMessage('complement') }}</mat-error
+          >{{ getErrorMessage('complement') }}
+          </mat-error
           >
         </mat-form-field>
         <mat-form-field appearance="fill">
@@ -259,7 +268,8 @@
               personForm.get('district')?.invalid &&
               personForm.get('district')?.touched
             "
-            >{{ getErrorMessage('district') }}</mat-error
+          >{{ getErrorMessage('district') }}
+          </mat-error
           >
         </mat-form-field>
       </app-column>
@@ -272,7 +282,8 @@
             *ngIf="
               personForm.get('city')?.invalid && personForm.get('city')?.touched
             "
-            >{{ getErrorMessage('city') }}</mat-error
+          >{{ getErrorMessage('city') }}
+          </mat-error
           >
         </mat-form-field>
         <mat-form-field appearance="fill">
@@ -283,7 +294,8 @@
               personForm.get('state')?.invalid &&
               personForm.get('state')?.touched
             "
-            >{{ getErrorMessage('state') }}</mat-error
+          >{{ getErrorMessage('state') }}
+          </mat-error
           >
         </mat-form-field>
         <mat-form-field appearance="fill">
@@ -294,11 +306,12 @@
               personForm.get('country')?.invalid &&
               personForm.get('country')?.touched
             "
-            >{{ getErrorMessage('country') }}</mat-error
+          >{{ getErrorMessage('country') }}
+          </mat-error
           >
         </mat-form-field>
       </app-column>
-      <mat-divider></mat-divider>
+
       <app-actions>
         <button
           mat-stroked-button
@@ -309,7 +322,7 @@
           Voltar
         </button>
         <button
-          mat-raised-button
+          mat-flat-button
           type="submit"
           color="primary"
           [disabled]="personForm.invalid"

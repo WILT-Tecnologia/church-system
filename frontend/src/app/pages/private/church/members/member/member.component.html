@@ -26,7 +26,7 @@
                     (optionSelected)="onPersonSelected($event)"
                   >
                     <mat-option
-                      *ngFor="let person of filteredPerson | async as persons"
+                      *ngFor="let person of filteredPerson | async"
                       [value]="person"
                     >
                       {{ person.name }}
@@ -58,7 +58,7 @@
                     (optionSelected)="onChurchSelected($event)"
                   >
                     <mat-option
-                      *ngFor="let church of filteredChurch | async as churches"
+                      *ngFor="let church of filteredChurch | async"
                       [value]="church"
                     >
                       {{ church.name }}
@@ -124,8 +124,7 @@
                   >
                     <mat-option
                       *ngFor="
-                        let civilStatus of filteredCivilStatus | async;
-                        civilStatus
+                        let civilStatus of filteredCivilStatus | async
                       "
                       [value]="civilStatus"
                     >
@@ -159,8 +158,7 @@
                   >
                     <mat-option
                       *ngFor="
-                        let colorRace of filteredColorRace | async;
-                        colorRace
+                        let colorRace of filteredColorRace | async
                       "
                       [value]="colorRace"
                     >
@@ -233,8 +231,7 @@
                   >
                     <mat-option
                       *ngFor="
-                        let formation of filteredFormations | async;
-                        formations
+                        let formation of filteredFormations | async
                       "
                       [value]="formation"
                     >
@@ -283,30 +280,43 @@
                 <mat-label>Deficiências</mat-label>
                 <div class="checkbox-group">
                   <div class="checkbox-column">
-                    <mat-checkbox color="primary" formControlName="def_hearing"
-                      >Auditiva</mat-checkbox
+                    <mat-checkbox
+                      color="primary" formControlName="def_hearing"
+                    >Auditiva
+                    </mat-checkbox
                     >
-                    <mat-checkbox color="primary" formControlName="def_visual"
-                      >Visual</mat-checkbox
+                    <mat-checkbox
+                      color="primary" formControlName="def_visual"
+                    >Visual
+                    </mat-checkbox
                     >
-                    <mat-checkbox color="primary" formControlName="def_physical"
-                      >Física</mat-checkbox
+                    <mat-checkbox
+                      color="primary" formControlName="def_physical"
+                    >Física
+                    </mat-checkbox
                     >
-                    <mat-checkbox color="primary" formControlName="def_other"
-                      >Outra</mat-checkbox
+                    <mat-checkbox
+                      color="primary" formControlName="def_other"
+                    >Outra
+                    </mat-checkbox
                     >
                   </div>
                   <div class="checkbox-column">
-                    <mat-checkbox color="primary" formControlName="def_mental"
-                      >Mental</mat-checkbox
+                    <mat-checkbox
+                      color="primary" formControlName="def_mental"
+                    >Mental
+                    </mat-checkbox
                     >
                     <mat-checkbox
                       color="primary"
                       formControlName="def_intellectual"
-                      >Intelectual</mat-checkbox
+                    >Intelectual
+                    </mat-checkbox
                     >
-                    <mat-checkbox color="primary" formControlName="def_multiple"
-                      >Múltipla</mat-checkbox
+                    <mat-checkbox
+                      color="primary" formControlName="def_multiple"
+                    >Múltipla
+                    </mat-checkbox
                     >
                   </div>
                 </div>
@@ -344,64 +354,61 @@
           <mat-card-content>
             <div formGroupName="stepThree">
               <app-column>
-                <mat-form-field appearance="fill">
+                <mat-form-field>
                   <mat-label>Data do batismo</mat-label>
                   <input
                     matInput
+                    name="baptism_date"
                     [matDatepicker]="baptismPicker"
-                    name="birth_date"
+                    placeholder="dd/mm/aaaa"
+                    formControlName="baptism_date"
+                    (click)="openCalendarBaptismDate()"
                     [min]="minDate"
                     [max]="maxDate"
-                    placeholder="Selecione uma data"
-                    formControlName="baptism_date"
-                    (focus)="openCalendarBaptismDate()"
                     readonly
-                  />
-                  @if (memberForm.value.stepThree.baptism_date) {
-                    <button
-                      type="button"
-                      mat-icon-button
-                      matSuffix
-                      (click)="clearDate('stepThree.baptism_date')"
-                    >
-                      <mat-icon>close</mat-icon>
-                    </button>
-                  } @else {
-                    <ng-container>
-                      <mat-datepicker-toggle
-                        matSuffix
-                        [for]="baptism_date"
-                      ></mat-datepicker-toggle>
-                      <mat-datepicker #baptism_date>
-                        <mat-datepicker-actions>
-                          <button
-                            mat-stroked-button
-                            type="button"
-                            color="warn"
-                            matDatepickerCancel
-                          >
-                            Cancelar
-                          </button>
-                          <button
-                            mat-raised-button
-                            type="button"
-                            color="primary"
-                            matDatepickerApply
-                          >
-                            Confirmar
-                          </button>
-                        </mat-datepicker-actions>
-                      </mat-datepicker>
-                    </ng-container>
-                  }
-                  <mat-error
-                    *ngIf="
-                      memberForm.get('stepThree.baptism_date')?.invalid &&
-                      memberForm.get('stepThree.baptism_date')?.touched
-                    "
                   >
-                    {{ getErrorMessage('stepThree.baptism_date') }}
-                  </mat-error>
+                  <mat-datepicker-toggle
+                    matIconSuffix
+                    [for]="baptismPicker"
+                  ></mat-datepicker-toggle>
+                  <mat-datepicker #baptismPicker>
+                    <mat-datepicker-actions>
+                      @if (memberForm.get('stepThree.baptism_date')?.value) {
+                        <button
+                          matTooltip="Limpar a data"
+                          mat-flat-button
+                          matSuffix
+                          matDatepickerToggleIcon
+                          (click)="clearDate('stepThree.baptism_date')"
+                          type="button"
+                          color="warn"
+                        >
+                          <mat-icon>close</mat-icon>
+                          Limpar
+                        </button>
+                      } @else {
+                        <button
+                          type="button"
+                          mat-button
+                          matDatepickerCancel
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          type="button" mat-flat-button matDatepickerApply
+                        >
+                          Concluir
+                        </button>
+                      }
+                    </mat-datepicker-actions>
+                  </mat-datepicker>
+
+                  @if (memberForm.get('stepThree.baptism_date')?.invalid &&
+                  memberForm.get('stepThree.baptism_date')?.touched) {
+                    <mat-error>{{ getErrorMessage('stepThree.baptism_date') }}
+                    </mat-error>
+
+                  }
                 </mat-form-field>
 
                 <mat-form-field appearance="fill">
@@ -412,9 +419,10 @@
                       memberForm.get('stepThree.baptism_official')?.invalid &&
                       memberForm.get('stepThree.baptism_official')?.touched
                     "
-                    >{{
+                  >{{
                       getErrorMessage('stepThree.baptism_official')
-                    }}</mat-error
+                    }}
+                  </mat-error
                   >
                 </mat-form-field>
               </app-column>
@@ -427,9 +435,10 @@
                       memberForm.get('stepThree.baptism_locale')?.invalid &&
                       memberForm.get('stepThree.baptism_locale')?.touched
                     "
-                    >{{
+                  >{{
                       getErrorMessage('stepThree.baptism_locale')
-                    }}</mat-error
+                    }}
+                  </mat-error
                   >
                 </mat-form-field>
               </app-column>
@@ -450,68 +459,62 @@
                   </mat-checkbox>
                 </div>
                 @if (memberForm.get('stepThree.baptism_holy_spirit')?.value) {
-                  <mat-form-field class="w-6/12 lg:w-full" appearance="fill">
-                    <mat-label>Data do batismo do Espírito Santo</mat-label>
+                  <mat-form-field>
+                    <mat-label>Data do batismo no Espírito Santo</mat-label>
                     <input
                       matInput
+                      name="baptism_holy_spirit_date"
                       [matDatepicker]="baptismHolySpiritPicker"
+                      placeholder="dd/mm/aaaa"
+                      formControlName="baptism_holy_spirit_date"
+                      (click)="openCalendarBaptismHolySpiritDate()"
                       [min]="minDate"
                       [max]="maxDate"
-                      name="baptism_holy_spirit_date"
-                      placeholder="Selecione uma data"
-                      formControlName="baptism_holy_spirit_date"
-                      (focus)="openCalendarBaptismHolySpiritDate()"
                       readonly
-                    />
-                    @if (memberForm.value.stepThree.baptism_holy_spirit_date) {
-                      <button
-                        type="button"
-                        mat-icon-button
-                        matSuffix
-                        (click)="
-                          clearDate('stepThree.baptism_holy_spirit_date')
-                        "
-                      >
-                        <mat-icon>close</mat-icon>
-                      </button>
-                    } @else {
-                      <ng-container>
-                        <mat-datepicker-toggle
-                          matSuffix
-                          [for]="baptism_holy_spirit_date"
-                        ></mat-datepicker-toggle>
-                        <mat-datepicker #baptism_holy_spirit_date>
-                          <mat-datepicker-actions>
-                            <button
-                              mat-stroked-button
-                              type="button"
-                              color="warn"
-                              matDatepickerCancel
-                            >
-                              Cancelar
-                            </button>
-                            <button
-                              mat-raised-button
-                              type="button"
-                              color="primary"
-                              matDatepickerApply
-                            >
-                              Confirmar
-                            </button>
-                          </mat-datepicker-actions>
-                        </mat-datepicker>
-                      </ng-container>
-                    }
-                    @if (
-                      memberForm.get('stepThree.baptism_holy_spirit_date')
-                        ?.invalid &&
-                      memberForm.get('stepThree.baptism_holy_spirit_date')
-                        ?.touched
-                    ) {
-                      <mat-error>
-                        {{
-                          getErrorMessage('stepThree.baptism_holy_spirit_date')
-                        }}
+                    >
+                    <mat-datepicker-toggle
+                      matIconSuffix
+                      [for]="baptismHolySpiritPicker"
+                    ></mat-datepicker-toggle>
+                    <mat-datepicker #baptismHolySpiritPicker>
+                      <mat-datepicker-actions>
+                        @if (memberForm.get(
+                          'stepThree.baptism_holy_spirit_date')?.value) {
+                          <button
+                            matTooltip="Limpar a data"
+                            mat-flat-button
+                            matSuffix
+                            matDatepickerToggleIcon
+                            (click)="clearDate('stepThree.baptism_holy_spirit_date')"
+                            type="button"
+                            color="warn"
+                          >
+                            <mat-icon>close</mat-icon>
+                            Limpar
+                          </button>
+                        } @else {
+                          <button
+                            type="button"
+                            mat-button
+                            matDatepickerCancel
+                          >
+                            Cancelar
+                          </button>
+                          <button
+                            type="button" mat-flat-button matDatepickerApply
+                          >
+                            Concluir
+                          </button>
+                        }
+                      </mat-datepicker-actions>
+                    </mat-datepicker>
+
+                    @if (memberForm.get(
+                      'stepThree.baptism_holy_spirit_date')?.invalid &&
+                    memberForm.get(
+                      'stepThree.baptism_holy_spirit_date')?.touched) {
+                      <mat-error>{{ getErrorMessage(
+                        'stepThree.baptism_holy_spirit_date') }}
                       </mat-error>
                     }
                   </mat-form-field>
@@ -519,62 +522,62 @@
               </app-column>
 
               <app-column>
-                <mat-form-field appearance="fill">
+                <mat-form-field>
                   <mat-label>Data da recepção</mat-label>
                   <input
                     matInput
                     name="receipt_date"
+                    [matDatepicker]="receiptDatePicker"
+                    placeholder="dd/mm/aaaa"
+                    formControlName="receipt_date"
+                    (click)="openCalendarReceiptDate()"
                     [min]="minDate"
                     [max]="maxDate"
-                    placeholder="Selecione uma data"
-                    [matDatepicker]="receiptDatePicker"
-                    formControlName="receipt_date"
-                    (focus)="openCalendarReceiptDate()"
                     readonly
-                  />
-                  @if (memberForm.value.stepThree.receipt_date) {
-                    <button
-                      type="button"
-                      mat-icon-button
-                      matSuffix
-                      (click)="clearDate('stepThree.receipt_date')"
-                    >
-                      <mat-icon>close</mat-icon>
-                    </button>
-                  } @else {
-                    <ng-container>
-                      <mat-datepicker-toggle
-                        matSuffix
-                        [for]="receipt_date"
-                      ></mat-datepicker-toggle>
-                      <mat-datepicker #receipt_date>
-                        <mat-datepicker-actions>
-                          <button
-                            mat-stroked-button
-                            type="button"
-                            color="warn"
-                            matDatepickerCancel
-                          >
-                            Cancelar
-                          </button>
-                          <button
-                            mat-raised-button
-                            type="button"
-                            color="primary"
-                            matDatepickerApply
-                          >
-                            Confirmar
-                          </button>
-                        </mat-datepicker-actions>
-                      </mat-datepicker>
-                    </ng-container>
-                  }
-                  @if (
-                    memberForm.get('stepThree.receipt_date')?.invalid &&
-                    memberForm.get('stepThree.receipt_date')?.touched
-                  ) {
-                    <mat-error>
-                      {{ getErrorMessage('stepThree.receipt_date') }}
+                  >
+                  <mat-datepicker-toggle
+                    matIconSuffix
+                    [for]="receiptDatePicker"
+                  ></mat-datepicker-toggle>
+                  <mat-datepicker #receiptDatePicker>
+                    <mat-datepicker-actions>
+                      @if (memberForm.get(
+                        'stepThree.receipt_date')?.value) {
+                        <button
+                          matTooltip="Limpar a data"
+                          mat-flat-button
+                          matSuffix
+                          matDatepickerToggleIcon
+                          (click)="clearDate('stepThree.receipt_date')"
+                          type="button"
+                          color="warn"
+                        >
+                          <mat-icon>close</mat-icon>
+                          Limpar
+                        </button>
+                      } @else {
+                        <button
+                          type="button"
+                          mat-button
+                          matDatepickerCancel
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          type="button" mat-flat-button matDatepickerApply
+                        >
+                          Concluir
+                        </button>
+                      }
+                    </mat-datepicker-actions>
+                  </mat-datepicker>
+
+                  @if (memberForm.get(
+                    'stepThree.receipt_date')?.invalid &&
+                  memberForm.get(
+                    'stepThree.receipt_date')?.touched) {
+                    <mat-error>{{ getErrorMessage(
+                      'stepThree.receipt_date') }}
                     </mat-error>
                   }
                 </mat-form-field>
@@ -596,8 +599,7 @@
                   >
                     <mat-option
                       *ngFor="
-                        let memberOrigin of filterMemberOrigins | async;
-                        memberOrigin
+                        let memberOrigin of filterMemberOrigins | async
                       "
                       [value]="memberOrigin"
                     >
@@ -641,14 +643,13 @@
     </ng-container>
   </mat-tab-group>
 
-  <mat-divider></mat-divider>
   <app-actions>
     <button mat-stroked-button color="warn" type="button" (click)="onBack()">
       {{ currentStep === 0 ? 'Cancelar' : 'Voltar' }}
     </button>
     <ng-container *ngIf="isEditMode">
       <button
-        mat-raised-button
+        mat-flat-button
         (click)="onNext()"
         type="button"
         color="primary"
@@ -658,7 +659,7 @@
         Avançar
       </button>
       <button
-        mat-raised-button
+        mat-flat-button
         color="primary"
         type="submit"
         *ngIf="currentStep === 5"
@@ -680,7 +681,7 @@
     </ng-container>
     <ng-container *ngIf="!isEditMode">
       <button
-        mat-raised-button
+        mat-flat-button
         (click)="onNext()"
         type="button"
         color="primary"
@@ -690,7 +691,7 @@
         Avançar
       </button>
       <button
-        mat-raised-button
+        mat-flat-button
         color="primary"
         type="submit"
         (click)="finalizeStepThree()"

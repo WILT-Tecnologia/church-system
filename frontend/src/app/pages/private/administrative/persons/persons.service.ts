@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Person } from 'app/model/Person';
+import { FormatsPipe } from 'app/pipes/formats.pipe';
+import { environment } from 'environments/environment';
 import { map, Observable } from 'rxjs';
-import { environment } from '../../../../../environments/environment';
-import { Person } from '../../../../model/Person';
-import { FormatsPipe } from '../../../../pipes/formats.pipe';
 
 @Injectable({
   providedIn: 'root',

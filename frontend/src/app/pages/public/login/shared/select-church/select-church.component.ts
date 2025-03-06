@@ -5,13 +5,13 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 import { Router } from '@angular/router';
-import { Church } from '../../../../../model/Church';
+import { Church } from 'app/model/Church';
 
 @Component({
-    selector: 'app-select-church',
-    templateUrl: './select-church.component.html',
-    styleUrl: './select-church.component.scss',
-    imports: [MatDialogModule, MatListModule, MatButtonModule, MatDividerModule]
+  selector: 'app-select-church',
+  templateUrl: './select-church.component.html',
+  styleUrl: './select-church.component.scss',
+  imports: [MatDialogModule, MatListModule, MatButtonModule, MatDividerModule],
 })
 export class SelectChurchComponent implements OnInit {
   churches: Church[] = [];

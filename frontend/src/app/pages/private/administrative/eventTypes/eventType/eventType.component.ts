@@ -14,34 +14,34 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import dayjs from 'dayjs';
-import { ActionsComponent } from '../../../../../components/actions/actions.component';
-import { ColumnComponent } from '../../../../../components/column/column.component';
-import { LoadingService } from '../../../../../components/loading/loading.service';
+import { ActionsComponent } from 'app/components/actions/actions.component';
+import { ColumnComponent } from 'app/components/column/column.component';
+import { LoadingService } from 'app/components/loading/loading.service';
 
-import { MESSAGES } from '../../../../../components/toast/messages';
-import { ToastService } from '../../../../../components/toast/toast.service';
-import { EventTypes } from '../../../../../model/EventTypes';
-import { ValidationService } from '../../../../../services/validation/validation.service';
+import { MESSAGES } from 'app/components/toast/messages';
+import { ToastService } from 'app/components/toast/toast.service';
+import { EventTypes } from 'app/model/EventTypes';
+import { ValidationService } from 'app/services/validation/validation.service';
+import dayjs from 'dayjs';
 import { EventTypesService } from '../eventTypes.service';
 
 @Component({
-    selector: 'app-eventType',
-    templateUrl: './eventType.component.html',
-    styleUrls: ['./eventType.component.scss'],
-    imports: [
-        MatCardModule,
-        MatButtonModule,
-        MatInputModule,
-        MatSlideToggleModule,
-        MatFormFieldModule,
-        MatDividerModule,
-        MatIconModule,
-        ReactiveFormsModule,
-        CommonModule,
-        ColumnComponent,
-        ActionsComponent,
-    ]
+  selector: 'app-eventType',
+  templateUrl: './eventType.component.html',
+  styleUrls: ['./eventType.component.scss'],
+  imports: [
+    MatCardModule,
+    MatButtonModule,
+    MatInputModule,
+    MatSlideToggleModule,
+    MatFormFieldModule,
+    MatDividerModule,
+    MatIconModule,
+    ReactiveFormsModule,
+    CommonModule,
+    ColumnComponent,
+    ActionsComponent,
+  ],
 })
 export class EventTypeComponent implements OnInit {
   eventTypeForm: FormGroup;

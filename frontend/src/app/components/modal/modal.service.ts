@@ -11,7 +11,7 @@ export class ModalService {
   /**
    * Modal para ser usado em toda a aplicação
    * @param id campo usado para identificar o modal
-   * @param customContent Componente customizado para o conteudo do modal
+   * @param customContent Componente customizado para o conteúdo do modal
    * @param title Titulo para o header do modal
    * @param isHandleClose Valor para habilitar ou desabilitar o botão de fechar no header
    * @param disableClose Desabilita o fechamento clicando fora do modal

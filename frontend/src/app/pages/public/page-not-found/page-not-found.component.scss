@@ -1,5 +1,3 @@
-@import '../../../styles/theme';
-
 .container {
   display: flex;
   flex-direction: column;
@@ -8,7 +6,7 @@
   position: relative;
   height: 100dvh;
   width: 100dvw;
-  background-color: $white;
+  background-color: var(--white-color);
   overflow: hidden;
 }
 
@@ -39,7 +37,7 @@
 
 .title-404 {
   font-size: 1.875rem;;
-  color: $textColor;
+  color: var(--text-color);
   margin: 0.83rem 0;
 }
 
@@ -54,7 +52,7 @@
 
 .sub-title-404 {
   font-size: 0.9rem;
-  color: grey;
+  color: var(--bs-gray-500);
 }
 
 button {
@@ -75,6 +73,6 @@ button {
     text-align: center;
     gap: 1rem;
     width: 76%;
-    margin: 0rem;
+    margin: 0;
   }
 }
