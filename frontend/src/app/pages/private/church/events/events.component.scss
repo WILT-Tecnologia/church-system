@@ -9,7 +9,6 @@
 .container {
   max-height: 0;
   transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out, padding 0.5s ease-in-out;
-  padding: 0 0.5rem;
 
   // Opcional: ajuste de opacidade ou padding também pode ser animado
   opacity: 0;
@@ -18,7 +17,6 @@
   &.expanded {
     max-height: 100%;
     opacity: 1;
-    padding: 0 1rem;
   }
 }
 

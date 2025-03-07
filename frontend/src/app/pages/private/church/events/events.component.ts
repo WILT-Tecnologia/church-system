@@ -57,28 +57,28 @@ import { EventsService } from './events.service';
 import { GuestsComponent } from './shared/guests/guests.component';
 
 @Component({
-    selector: 'app-events',
-    templateUrl: './events.component.html',
-    styleUrls: ['./events.component.scss'],
-    imports: [
-        CommonModule,
-        MatPaginatorModule,
-        ColumnComponent,
-        MatFormFieldModule,
-        MatIconModule,
-        MatTableModule,
-        MatSortModule,
-        MatButtonModule,
-        MatInputModule,
-        MatTooltipModule,
-        MatDividerModule,
-        MatRippleModule,
-        MatMenuModule,
-        CrudComponent,
-        NotFoundRegisterComponent,
-        FullCalendarModule,
-    ],
-    providers: [FormatsPipe]
+  selector: 'app-events',
+  templateUrl: './events.component.html',
+  styleUrls: ['./events.component.scss'],
+  imports: [
+    CommonModule,
+    MatPaginatorModule,
+    ColumnComponent,
+    MatFormFieldModule,
+    MatIconModule,
+    MatTableModule,
+    MatSortModule,
+    MatButtonModule,
+    MatInputModule,
+    MatTooltipModule,
+    MatDividerModule,
+    MatRippleModule,
+    MatMenuModule,
+    CrudComponent,
+    NotFoundRegisterComponent,
+    FullCalendarModule,
+  ],
+  providers: [FormatsPipe],
 })
 export class EventsComponent implements OnInit, AfterViewInit {
   breakpointObserver = inject(BreakpointObserver);
@@ -117,11 +117,21 @@ export class EventsComponent implements OnInit, AfterViewInit {
     { key: 'church.name', header: 'Igreja', type: 'string' },
     { key: 'event_type.name', header: 'Tipo do evento', type: 'string' },
     { key: 'name', header: 'Nome', type: 'string' },
+    { key: 'theme', header: 'Tema', type: 'string' },
     { key: 'start_date', header: 'Data inicio', type: 'date' },
     { key: 'start_time', header: 'Hora inicio', type: 'date' },
     { key: 'end_date', header: 'Data fim', type: 'date' },
     { key: 'end_time', header: 'Hora fim', type: 'date' },
-    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
+    {
+      key: 'combinedCreatedByAndCreatedAt',
+      header: 'Criado em',
+      type: 'string',
+    },
+    {
+      key: 'combinedUpdatedByAndUpdatedAt',
+      header: 'Atualizado em',
+      type: 'string',
+    },
   ];
   isMobile: boolean = false;
   currentEvents = signal<EventApi[]>([]);
@@ -328,19 +338,15 @@ export class EventsComponent implements OnInit, AfterViewInit {
   }
 
   private convertToISODate(dateInput: string | Date): string {
-    // Se for Date, converter para ISO diretamente
     if (dateInput instanceof Date) {
       return dateInput.toISOString();
     }
 
-    // Tratar strings no formato DD/MM/YYYY ou DD/MM/YYYY HH:mm:ss
     const [datePart, timePart] = dateInput.split(' ');
     const [day, month, year] = datePart.split('/');
 
-    // Formatar data ISO (YYYY-MM-DD)
     const isoDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 
-    // Adicionar horário se existir
     return timePart ? `${isoDate}T${timePart}` : isoDate;
   }
 
@@ -348,7 +354,15 @@ export class EventsComponent implements OnInit, AfterViewInit {
     this.showLoading();
     this.eventsService.findAll().subscribe({
       next: (events) => {
-        this.events = events;
+        this.events = events.map((event) => ({
+          ...event,
+          combinedCreatedByAndCreatedAt: event.created_by?.name
+            ? `${this.format.dateFormat(event.created_at)} por ${event.created_by?.name}`
+            : '--',
+          combinedUpdatedByAndUpdatedAt: event.updated_by?.name
+            ? `${this.format.dateFormat(event.updated_at)} por ${event.updated_by?.name}`
+            : '--',
+        }));
 
         const calendarEvents = events.map((event) => ({
           id: event.id.toString(),

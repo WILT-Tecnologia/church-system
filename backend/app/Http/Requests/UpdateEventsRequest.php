@@ -25,13 +25,24 @@ class UpdateEventsRequest extends FormRequest
             'name' => ['sometimes', 'required'],
             'obs' => ['sometimes', 'nullable'],
             'theme' => ['sometimes', 'nullable'],
-            'start_date' => ['sometimes', 'required'],
-            'end_date' => ['sometimes', 'required'],
-            'start_time' => ['sometimes', 'required'],
-            'end_time' => ['sometimes', 'required'],
+            'start_date' => ['sometimes'],
+            'end_date' => ['sometimes'],
+            'start_time' => ['required', 'regex:/^([01]\d|2[0-3]):([0-5]\d)$/'],
+            'end_time' => ['required', 'regex:/^([01]\d|2[0-3]):([0-5]\d)$/', 'after:start_time'],
             'location' => ['sometimes', 'nullable'],
             'created_by' => ['nullable', 'exists:users,id'],
             'updated_by' => ['nullable', 'exists:users,id']
+        ];
+    }
+
+    public function messages(): array {
+        return [
+            '*.required' => 'O campo :attribute é obrigatório.',
+            '*.date' => 'O campo :attribute deve ser uma data.',
+            '*.date_format' => 'O campo :attribute deve estar no formato HH:mm.',
+            '*.max' => 'O campo :attribute deve ter no máximo :max caracteres.',
+            '*.exists' => 'O campo :attribute selecionado é inválido.',
+            '*.after' => 'O campo horário de término deve ser maior que o horário de início.',
         ];
     }
 }

@@ -36,10 +36,10 @@ class Evento extends Model
     ];
 
     protected $casts = [
-        'start_date' => 'date',
-        'end_date' => 'date',
-        'start_time' => 'datetime:H:i:s',
-        'end_time' => 'datetime:H:i:s',
+        'start_date' => 'date:Y-m-d',
+        'end_date' => 'date:Y-m-d',
+        'start_time' => 'string',
+        'end_time' => 'string',
     ];
 
     protected static function boot() {

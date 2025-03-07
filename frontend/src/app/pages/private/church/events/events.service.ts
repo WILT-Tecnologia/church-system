@@ -20,7 +20,7 @@ export class EventsService {
     return this.http.get<Events>(`${this.sendEventos}/${id}`);
   }
 
-  create(event: Events): Observable<Events> {
+  create(event: Partial<Events>): Observable<Events> {
     return this.http.post<Events>(this.sendEventos, event);
   }
 

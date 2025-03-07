@@ -1,6 +1,7 @@
 import { Church } from './Church';
 import { EventTypes } from './EventTypes';
 import { Members } from './Members';
+import { User } from './User';
 
 export type Events = {
   id: string;
@@ -18,6 +19,8 @@ export type Events = {
   location: string;
   created_at: string;
   updated_at: string;
+  created_by: User;
+  updated_by: User | null;
 };
 
 export type Guest = {

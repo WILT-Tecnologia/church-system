@@ -5,7 +5,6 @@ import {
   Inject,
   OnDestroy,
   OnInit,
-  Optional,
   ViewChild,
 } from '@angular/core';
 import {
@@ -108,7 +107,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     private eventTypesService: EventTypesService,
     private eventsService: EventsService,
     private dialogRef: MatDialogRef<EventsFormComponent>,
-    @Optional() @Inject(MAT_DIALOG_DATA) public data: { event: Events },
+    @Inject(MAT_DIALOG_DATA) public data: { event: Events },
   ) {
     this.eventForm = this.createForm();
   }
@@ -141,10 +140,22 @@ export class EventsFormComponent implements OnInit, OnDestroy {
         [Validators.required, Validators.min(3), Validators.max(255)],
       ],
       obs: [this.data.event?.obs ?? '', [Validators.max(255)]],
-      start_date: [this.data.event?.start_date ?? '', [Validators.required]],
-      end_date: [this.data.event?.end_date ?? '', [Validators.required]],
-      start_time: [this.data.event?.start_time ?? '', [Validators.required]],
-      end_time: [this.data.event?.end_time ?? '', [Validators.required]],
+      start_date: [
+        this.data.event?.start_date ? new Date(this.data.event.start_date) : '',
+        [Validators.required],
+      ],
+      end_date: [
+        this.data.event?.end_date ? new Date(this.data.event.end_date) : '',
+        [Validators.required],
+      ],
+      start_time: [
+        this.formatTime(this.data.event?.start_time) ?? '',
+        [Validators.required],
+      ],
+      end_time: [
+        this.formatTime(this.data.event?.end_time) ?? '',
+        [Validators.required],
+      ],
       location: [this.data.event?.location ?? '', Validators.max(255)],
     });
   };
@@ -160,6 +171,17 @@ export class EventsFormComponent implements OnInit, OnDestroy {
   checkEditMode = () => {
     if (this.data?.event) {
       this.isEditMode = true;
+
+      this.eventForm.patchValue({
+        start_time: this.formatTime(this.data.event.start_time),
+        end_time: this.formatTime(this.data.event.end_time),
+        start_date: this.data.event.start_date
+          ? new Date(this.data.event.start_date)
+          : null,
+        end_date: this.data.event.end_date
+          ? new Date(this.data.event.end_date)
+          : null,
+      });
 
       if (this.data?.event?.church) {
         this.searchChurchControl.setValue(this.data.event?.church?.name);
@@ -298,21 +320,33 @@ export class EventsFormComponent implements OnInit, OnDestroy {
   formatTime(time: string | Date | null): string | null {
     if (!time) return null;
 
-    // Se for um objeto Date, formata como "HH:mm"
+    // Se for uma string ISO (contém 'T'), extrai a parte do tempo
+    if (typeof time === 'string' && time.includes('T')) {
+      const [datePart, timePart] = time.split('T');
+      return timePart.slice(0, 5); // Pega HH:mm
+    }
+
+    // Se for um objeto Date
     if (time instanceof Date) {
       const hours = String(time.getHours()).padStart(2, '0');
       const minutes = String(time.getMinutes()).padStart(2, '0');
       return `${hours}:${minutes}`;
     }
 
-    // Se for uma string, processa como antes
-    const timeParts = time.split(':');
-    if (timeParts.length >= 2) {
-      return `${timeParts[0]}:${timeParts[1]}`;
+    // Se já estiver no formato HH:mm
+    if (typeof time === 'string') {
+      return time.length === 5 ? time : null;
     }
 
-    return time;
+    return null;
   }
+
+  /* private formatTimeForInput(time: string | undefined): string | null {
+    if (!time) return null;
+    const t = time.split(':').slice(0, 2).join(':');
+    console.log(t);
+    return t;
+  } */
 
   handleCancel = () => {
     this.dialogRef.close();
@@ -333,10 +367,10 @@ export class EventsFormComponent implements OnInit, OnDestroy {
       end_time: this.formatTime(formValues.end_time),
     };
 
-    console.log(event);
+    delete event.id;
 
     if (this.isEditMode) {
-      this.handleUpdate(event.id, event);
+      this.handleUpdate(this.data.event.id, event);
     } else {
       this.handleCreate(event);
     }
