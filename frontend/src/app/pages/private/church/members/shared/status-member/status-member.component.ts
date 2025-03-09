@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnInit,
+  PLATFORM_ID,
+  ViewChild,
+} from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -77,6 +84,7 @@ export class StatusMemberComponent implements OnInit {
     this.statusMemberService.getStatusMemberFromMembers(memberId!).subscribe({
       next: (status_member) => {
         this.status_member = [status_member];
+        console.log(this.status_member);
         this.dataSourceMat.data = this.status_member;
         this.dataSourceMat.paginator = this.paginator;
         this.dataSourceMat.sort = this.sort;

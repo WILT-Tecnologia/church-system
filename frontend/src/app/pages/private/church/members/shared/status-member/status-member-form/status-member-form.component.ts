@@ -35,6 +35,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTooltip } from '@angular/material/tooltip';
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
@@ -66,6 +67,7 @@ import { StatusMemberService } from '../status-member.service';
     CommonModule,
     ColumnComponent,
     ActionsComponent,
+    MatTooltip,
   ],
   providers: [
     provideNgxMask(),
@@ -287,5 +289,17 @@ export class StatusMemberFormComponent implements OnInit, OnDestroy {
     return control?.errors
       ? this.validationService.getErrorMessage(control)
       : null;
+  }
+
+  openCalendarInitial_period(): void {
+    if (this.initial_period) {
+      this.initial_period.open();
+    }
+  }
+
+  openCalendarFinal_period(): void {
+    if (this.final_period) {
+      this.final_period.open();
+    }
   }
 }

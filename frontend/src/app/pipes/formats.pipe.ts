@@ -29,6 +29,28 @@ export class FormatsPipe implements PipeTransform {
     return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
   }
 
+  formatTime(time: any): string | null {
+    if (!time) return null;
+
+    if (typeof time === 'string' && time.includes('T')) {
+      const [datePart, timePart] = time.split('T');
+      return timePart.slice(0, 5); // Pega HH:mm
+    }
+
+    if (time instanceof Date) {
+      const hours = String(time.getHours()).padStart(2, '0');
+      const minutes = String(time.getMinutes()).padStart(2, '0');
+      return `${hours}:${minutes}`;
+    }
+
+    // Se já estiver no formato HH:mm
+    if (typeof time === 'string') {
+      return time.length === 5 ? time : null;
+    }
+
+    return null;
+  }
+
   dateTimeFormat(value: string): string {
     if (!value) return '';
 

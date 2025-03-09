@@ -102,8 +102,8 @@
           [matDatepicker]="start_date"
           placeholder="dd/mm/aaaa"
           formControlName="start_date"
-          (click)="openCalendarStartDate()"
           [min]="minDate"
+          required
           readonly
         />
         <mat-datepicker-toggle
@@ -149,13 +149,14 @@
         <mat-label>Hora inicial</mat-label>
         <input
           matInput
-          [matTimepicker]="start_time"
+          name="start_time"
           formControlName="start_time"
+          [matTimepicker]="start_time"
           required
           readonly
         />
         <mat-timepicker-toggle matIconSuffix [for]="start_time" />
-        <mat-timepicker #start_time></mat-timepicker>
+        <mat-timepicker interval="5min" #start_time/>
         @if (
           eventForm.get('start_time')?.invalid &&
           eventForm.get('start_time')?.touched
@@ -172,12 +173,12 @@
         <input
           matInput
           name="end_date"
-          [matDatepicker]="end_date"
           placeholder="dd/mm/aaaa"
           formControlName="end_date"
-          (click)="openCalendarEndDate()"
-          [min]="minDate"
+          required
           readonly
+          [matDatepicker]="end_date"
+          [min]="minDate"
         />
         <mat-datepicker-toggle
           matIconSuffix
@@ -228,7 +229,7 @@
           readonly
         />
         <mat-timepicker-toggle matIconSuffix [for]="end_time" />
-        <mat-timepicker #end_time />
+        <mat-timepicker interval="5min" #end_time />
         @if (
           eventForm.get('end_time')?.invalid &&
           eventForm.get('end_time')?.touched

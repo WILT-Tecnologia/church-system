@@ -8,4 +8,6 @@ export const messages = {
   emailExists: 'O e-mail já existe e pertence a um usuário.',
   invalidPhone: 'O telefone informado é inválido.',
   pattern: 'O campo deve seguir seu padrão de validação.',
+  invalidDate: 'Data inválida (use dd/mm/aaaa)',
+  invalidTime: 'Hora inválida (use HH:mm)',
 };

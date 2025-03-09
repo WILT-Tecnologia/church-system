@@ -204,6 +204,13 @@
   dependencies:
     "@angular-eslint/bundled-angular-compiler" "19.2.0"
 
+"@angular-material-components/datetime-picker@^16.0.1":
+  version "16.0.1"
+  resolved "https://registry.yarnpkg.com/@angular-material-components/datetime-picker/-/datetime-picker-16.0.1.tgz#f6813332066ab1aed69f1adb7e00d844099c8a34"
+  integrity sha512-dbkwWiC8qL7NVlMclb1hvuZvuP2l1nvfnnmijEc/zGsoWeoLNDXn/+z/UQtMcbUphcwCzFt9CfHhhpGUGgQLgw==
+  dependencies:
+    tslib "^2.3.0"
+
 "@angular/animations@^19.2.0":
   version "19.2.1"
   resolved "https://registry.yarnpkg.com/@angular/animations/-/animations-19.2.1.tgz#d826cfc64b2841eecfe1f8b6d0d11c5e1ace7d1a"
@@ -6001,10 +6008,10 @@ neotraverse@^0.6.18:
   resolved "https://registry.yarnpkg.com/neotraverse/-/neotraverse-0.6.18.tgz#abcb33dda2e8e713cf6321b29405e822230cdb30"
   integrity sha512-Z4SmBUweYa09+o6pG+eASabEpP6QkQ70yHj351pQoEXIs8uHbaU2DWVmzBANKgflPa47A50PtB2+NgRpQvr7vA==
 
-ngx-mask@^18.0.0:
-  version "18.0.4"
-  resolved "https://registry.yarnpkg.com/ngx-mask/-/ngx-mask-18.0.4.tgz#3eba85cec0db263abbe1255183f1fdd493f1a54d"
-  integrity sha512-ji6bpXCNMjEISMdvvZ2T+iMZUqiVluVJ8aywWi59//TR6G6VWs3bmlr1f+OKunjFPgvUGf7/kIdKoMbrF1++aA==
+ngx-mask@^19.0.6:
+  version "19.0.6"
+  resolved "https://registry.yarnpkg.com/ngx-mask/-/ngx-mask-19.0.6.tgz#d3d112e0962f95474c1a7df94ed7c04d2b5bec89"
+  integrity sha512-lJa3+gIg0XMwjRv71pqW7uYrzFPZXl7VUbdbafJ9uo7QydfHIhUe8ByPgWt5VxvSC2mp5ndE3O7jWMOtv7Kthw==
   dependencies:
     tslib "^2.3.0"
 

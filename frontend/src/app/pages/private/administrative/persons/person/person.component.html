@@ -5,7 +5,7 @@
       (ngSubmit)="handleNext()"
       class="form-field-group"
     >
-      <app-column>
+      <app-column [columns]="2">
         <mat-form-field appearance="fill">
           <mat-label>Usuário</mat-label>
           <input
@@ -50,7 +50,7 @@
         </mat-form-field>
       </app-column>
 
-      <app-column>
+      <app-column [columns]="2">
         <mat-form-field appearance="fill">
           <mat-label>CPF</mat-label>
           <input
@@ -80,6 +80,9 @@
           </mat-error
           >
         </mat-form-field>
+      </app-column>
+
+      <app-column [columns]="2">
         <mat-form-field>
           <mat-label>Data de nascimento</mat-label>
           <input
@@ -134,9 +137,6 @@
 
           }
         </mat-form-field>
-      </app-column>
-
-      <app-column>
         <mat-form-field appearance="fill">
           <mat-label>Sexo</mat-label>
           <mat-select formControlName="sex" required>
@@ -152,6 +152,8 @@
           </mat-error
           >
         </mat-form-field>
+      </app-column>
+      <app-column [columns]="2">
         <mat-form-field appearance="fill">
           <mat-label>Celular</mat-label>
           <input
@@ -209,8 +211,8 @@
       (ngSubmit)="handleSubmit()"
       class="form-field-group"
     >
-      <app-column class="w-full">
-        <mat-form-field class="reduction" appearance="fill">
+      <app-column [columns]="2">
+        <mat-form-field appearance="fill">
           <mat-label>CEP</mat-label>
           <input matInput formControlName="cep" mask="00000-000" required />
           <mat-error
@@ -235,7 +237,7 @@
         </mat-form-field>
       </app-column>
 
-      <app-column>
+      <app-column [columns]="2">
         <mat-form-field appearance="fill">
           <mat-label>Número</mat-label>
           <input matInput formControlName="number" maxlength="10" required />
@@ -260,6 +262,10 @@
           </mat-error
           >
         </mat-form-field>
+
+      </app-column>
+
+      <app-column [columns]="2">
         <mat-form-field appearance="fill">
           <mat-label>Bairro</mat-label>
           <input matInput formControlName="district" maxlength="255" required />
@@ -272,9 +278,6 @@
           </mat-error
           >
         </mat-form-field>
-      </app-column>
-
-      <app-column class="w-full">
         <mat-form-field appearance="fill">
           <mat-label>Cidade</mat-label>
           <input matInput formControlName="city" maxlength="255" required />

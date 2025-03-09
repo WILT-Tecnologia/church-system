@@ -9,7 +9,7 @@
         <mat-card appearance="outlined">
           <mat-card-content>
             <div formGroupName="stepOne">
-              <app-column>
+              <app-column [columns]="2">
                 <mat-form-field appearance="fill">
                   <mat-label>Pessoa</mat-label>
                   <input
@@ -75,7 +75,7 @@
                 </mat-form-field>
               </app-column>
 
-              <app-column>
+              <app-column [columns]="2">
                 <mat-form-field appearance="fill">
                   <mat-label>RG</mat-label>
                   <input matInput formControlName="rg" maxlength="15" />
@@ -106,7 +106,7 @@
                 </mat-form-field>
               </app-column>
 
-              <app-column>
+              <app-column [columns]="2">
                 <mat-form-field appearance="fill">
                   <mat-label>Estado Civil</mat-label>
                   <input
@@ -176,7 +176,7 @@
                 </mat-form-field>
               </app-column>
 
-              <app-column>
+              <app-column [columns]="2">
                 <mat-form-field appearance="fill">
                   <mat-label>Nacionalidade</mat-label>
                   <input matInput formControlName="nationality" />
@@ -214,6 +214,21 @@
           <mat-card-content>
             <div formGroupName="stepTwo">
               <app-column>
+                <mat-form-field appearance="fill">
+                  <mat-label>Profissão</mat-label>
+                  <input matInput formControlName="profission" />
+                  <mat-error
+                    *ngIf="
+                      memberForm.get('stepTwo.profission')?.invalid &&
+                      memberForm.get('stepTwo.profission')?.touched
+                    "
+                  >
+                    {{ getErrorMessage('stepTwo.profission') }}
+                  </mat-error>
+                </mat-form-field>
+              </app-column>
+
+              <app-column [columns]="isFormationCourseVisible ? 2 : 1">
                 <mat-form-field appearance="fill">
                   <mat-label>Formação</mat-label>
                   <input
@@ -261,87 +276,85 @@
                 </mat-form-field>
               </app-column>
 
-              <app-column>
-                <mat-form-field appearance="fill">
-                  <mat-label>Profissão</mat-label>
-                  <input matInput formControlName="profission" />
-                  <mat-error
-                    *ngIf="
-                      memberForm.get('stepTwo.profission')?.invalid &&
-                      memberForm.get('stepTwo.profission')?.touched
-                    "
-                  >
-                    {{ getErrorMessage('stepTwo.profission') }}
-                  </mat-error>
-                </mat-form-field>
+              <app-column [columns]="1">
+                <label id="example-radio-group-label">Possui alguma
+                                                      deficiência ?</label>
+                <mat-radio-group
+                  color="primary"
+                  aria-label="Possui alguma deficiência"
+                  formControlName="has_disability">
+                <mat-radio-button [value]="true">Sim</mat-radio-button>
+                <mat-radio-button [value]="false">Não</mat-radio-button>
+                </mat-radio-group>
               </app-column>
 
-              <div class="inputs checkbox-column" style="max-width: 30rem">
-                <mat-label>Deficiências</mat-label>
-                <div class="checkbox-group">
-                  <div class="checkbox-column">
-                    <mat-checkbox
-                      color="primary" formControlName="def_hearing"
-                    >Auditiva
-                    </mat-checkbox
-                    >
-                    <mat-checkbox
-                      color="primary" formControlName="def_visual"
-                    >Visual
-                    </mat-checkbox
-                    >
-                    <mat-checkbox
-                      color="primary" formControlName="def_physical"
-                    >Física
-                    </mat-checkbox
-                    >
-                    <mat-checkbox
-                      color="primary" formControlName="def_other"
-                    >Outra
-                    </mat-checkbox
-                    >
-                  </div>
-                  <div class="checkbox-column">
-                    <mat-checkbox
-                      color="primary" formControlName="def_mental"
-                    >Mental
-                    </mat-checkbox
-                    >
-                    <mat-checkbox
-                      color="primary"
-                      formControlName="def_intellectual"
-                    >Intelectual
-                    </mat-checkbox
-                    >
-                    <mat-checkbox
-                      color="primary" formControlName="def_multiple"
-                    >Múltipla
-                    </mat-checkbox
-                    >
-                  </div>
-                </div>
-                <mat-form-field
-                  appearance="fill"
-                  *ngIf="memberForm.get('stepTwo.def_other')?.value"
-                >
-                  <mat-label>Descrição da Outra Deficiência</mat-label>
-                  <textarea
-                    matInput
-                    rows="4"
-                    formControlName="def_other_description"
-                    matTextareaAutosize
-                  ></textarea>
-                  <mat-error
-                    *ngIf="
+              @if (memberForm.get('stepTwo.has_disability')?.value) {
+                <app-column [columns]="1">
+                  <app-column [columns]="4">
+                    <div class="checkbox-column">
+                      <mat-checkbox
+                        color="primary" formControlName="def_hearing"
+                      >Auditiva
+                      </mat-checkbox
+                      >
+                      <mat-checkbox
+                        color="primary" formControlName="def_visual"
+                      >Visual
+                      </mat-checkbox
+                      >
+                      <mat-checkbox
+                        color="primary" formControlName="def_physical"
+                      >Física
+                      </mat-checkbox
+                      >
+                      <mat-checkbox
+                        color="primary" formControlName="def_other"
+                      >Outra
+                      </mat-checkbox
+                      >
+                    </div>
+                    <div class="checkbox-column">
+                      <mat-checkbox
+                        color="primary" formControlName="def_mental"
+                      >Mental
+                      </mat-checkbox
+                      >
+                      <mat-checkbox
+                        color="primary"
+                        formControlName="def_intellectual"
+                      >Intelectual
+                      </mat-checkbox
+                      >
+                      <mat-checkbox
+                        color="primary" formControlName="def_multiple"
+                      >Múltipla
+                      </mat-checkbox
+                      >
+                    </div>
+                  </app-column>
+                  <mat-form-field
+                    appearance="fill"
+                    *ngIf="memberForm.get('stepTwo.def_other')?.value"
+                  >
+                    <mat-label>Descreva a deficiência...</mat-label>
+                    <textarea
+                      matInput
+                      rows="4"
+                      formControlName="def_other_description"
+                      matTextareaAutosize
+                    ></textarea>
+                    <mat-error
+                      *ngIf="
                       memberForm.get('stepTwo.def_other_description')
                         ?.invalid &&
                       memberForm.get('stepTwo.def_other_description')?.touched
                     "
-                  >
-                    {{ getErrorMessage('stepTwo.def_other_description') }}
-                  </mat-error>
-                </mat-form-field>
-              </div>
+                    >
+                      {{ getErrorMessage('stepTwo.def_other_description') }}
+                    </mat-error>
+                  </mat-form-field>
+                </app-column>
+              }
             </div>
           </mat-card-content>
         </mat-card>
@@ -353,7 +366,7 @@
         <mat-card appearance="outlined">
           <mat-card-content>
             <div formGroupName="stepThree">
-              <app-column>
+              <app-column [columns]="2">
                 <mat-form-field>
                   <mat-label>Data do batismo</mat-label>
                   <input
@@ -426,6 +439,7 @@
                   >
                 </mat-form-field>
               </app-column>
+
               <app-column>
                 <mat-form-field appearance="fill">
                   <mat-label>Local do batismo</mat-label>
@@ -443,8 +457,7 @@
                 </mat-form-field>
               </app-column>
 
-              <app-column>
-                <div class="w-80">
+              <app-column [columns]="2">
                   <mat-checkbox
                     color="primary"
                     formControlName="baptism_holy_spirit"
@@ -457,7 +470,7 @@
                   >
                     Batizado pelo Espírito Santo?
                   </mat-checkbox>
-                </div>
+
                 @if (memberForm.get('stepThree.baptism_holy_spirit')?.value) {
                   <mat-form-field>
                     <mat-label>Data do batismo no Espírito Santo</mat-label>
@@ -521,7 +534,7 @@
                 }
               </app-column>
 
-              <app-column>
+              <app-column [columns]="2">
                 <mat-form-field>
                   <mat-label>Data da recepção</mat-label>
                   <input
@@ -622,7 +635,7 @@
       </section>
     </mat-tab>
 
-    <ng-container *ngIf="isEditMode">
+    @if (isEditMode) {
       <mat-tab label="Filiação">
         <div formGroupName="stepFour">
           <app-families [families]="families"></app-families>
@@ -640,7 +653,7 @@
           ></app-status-member>
         </div>
       </mat-tab>
-    </ng-container>
+    }
   </mat-tab-group>
 
   <app-actions>

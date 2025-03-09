@@ -1,13 +1,15 @@
 <div class="wrapper">
   <div class="calendar-actions">
     @if (calendarVisible()) {
-      <button mat-raised-button color="primary" (click)="handleCreate()">
+      <button mat-flat-button color="primary" (click)="handleCreate()">
         <mat-icon>add</mat-icon>
         Novo Evento
       </button>
     }
     <button mat-stroked-button color="primary" (click)="handleEnableCalendar()">
-      <mat-icon>{{ calendarVisible() ? 'view_list' : 'calendar_month' }}</mat-icon>
+      <mat-icon>{{
+        calendarVisible() ? 'view_list' : 'calendar_month'
+      }}</mat-icon>
       {{ calendarVisible() ? 'Ver na Lista' : 'Ver no Calendário' }}
     </button>
   </div>
@@ -54,5 +56,4 @@
       }
     }
   </div>
-
 </div>

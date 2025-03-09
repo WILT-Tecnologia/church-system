@@ -20,8 +20,11 @@
       </mat-form-field>
       @if (enableFilterAdvanced) {
         <button
-          (click)="toggleFilter()" aria-label="Botão de filtro" mat-icon-button
-          matTooltip="Filtro" type="button"
+          (click)="toggleFilter()"
+          aria-label="Botão de filtro"
+          mat-icon-button
+          matTooltip="Filtro"
+          type="button"
         >
           <mat-icon>filter_alt</mat-icon>
         </button>
@@ -86,6 +89,9 @@
           <ng-container *ngSwitchCase="'datetime'">
             {{ fields | formatValues: column.key : column.type }}
           </ng-container>
+          <ng-container *ngSwitchCase="'time'">
+            {{ fields | formatValues: column.key : column.type }}
+          </ng-container>
           <ng-container *ngSwitchCase="'phone'">
             {{ fields | formatValues: column.key : column.type }}
           </ng-container>
@@ -135,8 +141,8 @@
                     >
                       {{
                         fields.status
-                        ? action.inactiveLabel
-                        : action.activeLabel
+                          ? action.inactiveLabel
+                          : action.activeLabel
                       }}
                     </button>
                   </div>
@@ -153,8 +159,8 @@
                   >
                     <mat-icon *ngIf="action.icon">{{ action.icon }}</mat-icon>
                     <span *ngIf="action.label" class="label-button-menu">{{
-                        action.label
-                      }}</span>
+                      action.label
+                    }}</span>
                   </button>
                 </ng-container>
 
@@ -185,8 +191,8 @@
                   >
                     <mat-icon *ngIf="action.icon">{{ action.icon }}</mat-icon>
                     <span *ngIf="action.label" class="label-button-menu">{{
-                        action.label
-                      }}</span>
+                      action.label
+                    }}</span>
                   </button>
                 </ng-container>
 
@@ -200,8 +206,8 @@
                   >
                     <mat-icon *ngIf="action.icon">{{ action.icon }}</mat-icon>
                     <span *ngIf="action.label" class="label-button-menu">{{
-                        action.label
-                      }}</span>
+                      action.label
+                    }}</span>
                   </button>
                 </ng-container>
 
@@ -215,8 +221,8 @@
                   >
                     <mat-icon *ngIf="action.icon">{{ action.icon }}</mat-icon>
                     <span *ngIf="action.label" class="label-button-menu">{{
-                        action.label
-                      }}</span>
+                      action.label
+                    }}</span>
                   </button>
                 </ng-container>
 

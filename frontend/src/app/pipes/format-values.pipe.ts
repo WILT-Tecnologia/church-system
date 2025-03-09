@@ -16,6 +16,8 @@ export class FormatValuesPipe implements PipeTransform {
         return this.formats.dateFormat(value);
       case 'datetime':
         return this.formats.dateTimeFormat(value);
+      case 'time':
+        return this.formats.formatTime(value) || '';
       case 'cpf':
         return this.formats.cpfFormat(value);
       case 'cnpj':

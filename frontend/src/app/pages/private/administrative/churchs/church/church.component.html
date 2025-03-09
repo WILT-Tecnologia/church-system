@@ -5,7 +5,7 @@
       (ngSubmit)="handleNext()"
       class="form-field-group"
     >
-      <app-column>
+      <app-column [columns]="2">
         <mat-form-field appearance="fill">
           <mat-label>Responsável</mat-label>
           <input
@@ -52,7 +52,7 @@
         </mat-form-field>
       </app-column>
 
-      <app-column>
+      <app-column [columns]="2">
         <mat-form-field appearance="fill">
           <mat-label>E-mail</mat-label>
           <input matInput formControlName="email" maxlength="255" required />
@@ -88,7 +88,6 @@
         </mat-form-field>
       </app-column>
 
-
       <app-actions>
         <button
           mat-stroked-button
@@ -109,8 +108,8 @@
       (ngSubmit)="handleSubmit()"
       class="form-field-group"
     >
-      <app-column>
-        <mat-form-field class="reduction" appearance="fill">
+      <app-column [columns]="4">
+        <mat-form-field appearance="fill">
           <mat-label>CEP</mat-label>
           <input matInput formControlName="cep" mask="00000-000" required />
           <mat-error
@@ -121,6 +120,8 @@
           </mat-error
           >
         </mat-form-field>
+      </app-column>
+      <app-column [columns]="2">
         <mat-form-field appearance="fill">
           <mat-label>Rua</mat-label>
           <input matInput formControlName="street" maxlength="255" required />
@@ -133,9 +134,6 @@
           </mat-error
           >
         </mat-form-field>
-      </app-column>
-
-      <app-column>
         <mat-form-field appearance="fill">
           <mat-label>Número</mat-label>
           <input matInput formControlName="number" maxlength="10" required />
@@ -174,7 +172,7 @@
         </mat-form-field>
       </app-column>
 
-      <app-column class="w-full">
+      <app-column [columns]="2">
         <mat-form-field appearance="fill">
           <mat-label>Cidade</mat-label>
           <input matInput formControlName="city" maxlength="255" required />
@@ -198,6 +196,9 @@
           </mat-error
           >
         </mat-form-field>
+      </app-column>
+
+      <app-column [columns]="2">
         <mat-form-field appearance="fill">
           <mat-label>Pais</mat-label>
           <input matInput formControlName="country" maxlength="255" required />
@@ -211,7 +212,6 @@
           >
         </mat-form-field>
       </app-column>
-
 
       <app-actions>
         <button

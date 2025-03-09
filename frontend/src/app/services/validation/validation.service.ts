@@ -1,6 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import {
+  AbstractControl,
+  FormControl,
+  ValidationErrors,
+  ValidatorFn
+} from '@angular/forms';
 import { catchError, map, Observable, of } from 'rxjs';
 import { messages } from './message';
 
@@ -60,5 +65,45 @@ export class ValidationService {
         ? null
         : { invalidPassword: true };
     };
+  }
+
+  dateValidator(control: FormControl) {
+    const value = control.value;
+    if (!value) return null;
+
+    // Verifica o formato dd/mm/yyyy
+    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
+      return { invalidDate: true };
+    }
+
+    const [day, month, year] = value.split('/').map(Number);
+    const date = new Date(year, month - 1, day);
+
+    return date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day
+      ? null
+      : { invalidDate: true };
+  }
+
+  timeValidator(control: FormControl) {
+    const value = control.value;
+    if (!value) return null;
+
+    return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value)
+      ? null
+      : { invalidTime: true };
+  }
+
+  // Novo método para parse de datas
+  parseDate(dateString: string | null | undefined): Date | null {
+    if (!dateString) return null;
+
+    if (dateString.includes('/')) {
+      const [day, month, year] = dateString.split('/').map(Number);
+      return new Date(year, month - 1, day);
+    }
+
+    return new Date(dateString);
   }
 }

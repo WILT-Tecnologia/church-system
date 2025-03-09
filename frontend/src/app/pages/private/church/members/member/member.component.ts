@@ -6,6 +6,7 @@ import {
   OnDestroy,
   OnInit,
   Optional,
+  signal,
   ViewChild,
 } from '@angular/core';
 import {
@@ -43,7 +44,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatTooltip } from '@angular/material/tooltip';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
@@ -103,13 +104,14 @@ import { StatusMemberComponent } from '../shared/status-member/status-member.com
     OrdinationsComponent,
     StatusMemberComponent,
     ActionsComponent,
-    MatTooltip,
+    MatTooltipModule,
   ],
 })
 export class MemberComponent implements OnInit, OnDestroy {
   memberForm: FormGroup;
   isEditMode: boolean = false;
   isInitialStepCompleted = false;
+  enableDefinitionForm = signal(false);
   currentStep = 0;
   isFormationCourseVisible: boolean = false;
   formationsRequiringCourse: string[] = ['08', '09', '10', '11', '12'];
@@ -183,8 +185,8 @@ export class MemberComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  createMemberForm(): FormGroup {
-    return this.fb.group({
+  createMemberForm = (): FormGroup =>
+    this.fb.group({
       stepOne: this.fb.group({
         id: [this.data?.members?.id || ''],
         person_id: [
@@ -234,6 +236,7 @@ export class MemberComponent implements OnInit, OnDestroy {
           this.data?.members?.profission || '',
           [Validators.maxLength(255)],
         ],
+        has_disability: [false],
         def_physical: [this.data?.members?.def_physical || false],
         def_visual: [this.data?.members?.def_visual || false],
         def_hearing: [this.data?.members?.def_hearing || false],
@@ -274,7 +277,6 @@ export class MemberComponent implements OnInit, OnDestroy {
 
       stepSix: this.fb.group({}),
     });
-  }
 
   showLoading = () => {
     this.loading.show();
@@ -284,7 +286,7 @@ export class MemberComponent implements OnInit, OnDestroy {
     this.loading.hide();
   };
 
-  loadInitialData() {
+  private loadInitialData() {
     this.membersService.getPersons().subscribe({
       next: (persons) => {
         this.persons = persons;
@@ -342,7 +344,7 @@ export class MemberComponent implements OnInit, OnDestroy {
 
   showAllPerson() {
     this.filteredPerson = this.searchControlPerson.valueChanges.pipe(
-      startWith(this.searchControlPerson.value ?? ''),
+      startWith(''),
       map((value: any) => {
         if (typeof value === 'string') {
           return value;
@@ -358,7 +360,7 @@ export class MemberComponent implements OnInit, OnDestroy {
 
   showAllChurch() {
     this.filteredChurch = this.searchControlChurch.valueChanges.pipe(
-      startWith(this.searchControlChurch.value),
+      startWith(''),
       map((value: any) => {
         if (typeof value === 'string') {
           return value;
@@ -374,7 +376,7 @@ export class MemberComponent implements OnInit, OnDestroy {
 
   showAllCivilStatus() {
     this.filteredCivilStatus = this.searchControlCivilStatus.valueChanges.pipe(
-      startWith(this.searchControlCivilStatus.value),
+      startWith(''),
       map((value: any) => {
         if (typeof value === 'string') {
           return value;
@@ -390,7 +392,7 @@ export class MemberComponent implements OnInit, OnDestroy {
 
   showAllColorRace() {
     this.filteredColorRace = this.searchControlColorRace.valueChanges.pipe(
-      startWith(this.searchControlColorRace.value),
+      startWith(''),
       map((value: any) => {
         if (typeof value === 'string') {
           return value;
@@ -406,7 +408,7 @@ export class MemberComponent implements OnInit, OnDestroy {
 
   showAllFormations() {
     this.filteredFormations = this.searchControlFormations.valueChanges.pipe(
-      startWith(this.searchControlFormations.value),
+      startWith(''),
       map((value: any) => {
         if (typeof value === 'string') {
           return value;

@@ -21,6 +21,8 @@ import {
 } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import {
+  DateAdapter,
+  MAT_DATE_FORMATS,
   MAT_DATE_LOCALE,
   provideNativeDateAdapter,
 } from '@angular/material/core';
@@ -46,7 +48,7 @@ import { NotificationService } from 'app/services/notification/notification.serv
 import { ValidationService } from 'app/services/validation/validation.service';
 import { provideNgxMask } from 'ngx-mask';
 import { map, Observable, startWith, Subject } from 'rxjs';
-import { ColumnComponent } from '../../../../../components/column/column.component';
+import { ColumnComponent } from 'app/components/column/column.component';
 import { ChurchsService } from '../../../administrative/churchs/churchs.service';
 import { EventTypesService } from '../../../administrative/eventTypes/eventTypes.service';
 import { EventsService } from '../events.service';
@@ -141,11 +143,11 @@ export class EventsFormComponent implements OnInit, OnDestroy {
       ],
       obs: [this.data.event?.obs ?? '', [Validators.max(255)]],
       start_date: [
-        this.data.event?.start_date ? new Date(this.data.event.start_date) : '',
+        this.parseTimeString(this.data.event?.start_time) || null,
         [Validators.required],
       ],
       end_date: [
-        this.data.event?.end_date ? new Date(this.data.event.end_date) : '',
+        this.parseTimeString(this.data.event?.end_time) || null,
         [Validators.required],
       ],
       start_time: [
@@ -172,15 +174,28 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     if (this.data?.event) {
       this.isEditMode = true;
 
+      let startDate = null;
+      let endDate = null;
+
+      if (this.data.event.start_date) {
+        startDate = new Date(this.data.event.start_date + 'T00:00:00Z');
+        startDate = new Date(
+          startDate.getTime() + startDate.getTimezoneOffset() * 60000,
+        );
+      }
+
+      if (this.data.event.end_date) {
+        endDate = new Date(this.data.event.end_date + 'T00:00:00Z');
+        endDate = new Date(
+          endDate.getTime() + endDate.getTimezoneOffset() * 60000,
+        );
+      }
+
       this.eventForm.patchValue({
-        start_time: this.formatTime(this.data.event.start_time),
-        end_time: this.formatTime(this.data.event.end_time),
-        start_date: this.data.event.start_date
-          ? new Date(this.data.event.start_date)
-          : null,
-        end_date: this.data.event.end_date
-          ? new Date(this.data.event.end_date)
-          : null,
+        start_time: this.parseTimeString(this.data.event.start_time),
+        end_time: this.parseTimeString(this.data.event.end_time),
+        start_date: startDate,
+        end_date: endDate,
       });
 
       if (this.data?.event?.church) {
@@ -306,6 +321,15 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     }
   }
 
+  private parseTimeString(time: string | null | undefined): Date | null {
+    if (!time) return null;
+    const [hours, minutes] = time.split(':').map(Number);
+    const date = new Date();
+    date.setHours(hours);
+    date.setMinutes(minutes);
+    return date;
+  }
+
   formatDate(date: Date | string | null): string | null {
     if (!date) return null;
 
@@ -320,10 +344,18 @@ export class EventsFormComponent implements OnInit, OnDestroy {
   formatTime(time: string | Date | null): string | null {
     if (!time) return null;
 
-    // Se for uma string ISO (contém 'T'), extrai a parte do tempo
-    if (typeof time === 'string' && time.includes('T')) {
-      const [datePart, timePart] = time.split('T');
-      return timePart.slice(0, 5); // Pega HH:mm
+    // Se já estiver no formato HH:mm (como no JSON)
+    if (typeof time === 'string') {
+      // Verifica se está no formato HH:mm
+      if (/^\d{1,2}:\d{2}$/.test(time)) {
+        return time;
+      }
+
+      // Se for uma string ISO (contém 'T'), extrai a parte do tempo
+      if (time.includes('T')) {
+        const [datePart, timePart] = time.split('T');
+        return timePart.slice(0, 5); // Pega HH:mm
+      }
     }
 
     // Se for um objeto Date
@@ -333,20 +365,8 @@ export class EventsFormComponent implements OnInit, OnDestroy {
       return `${hours}:${minutes}`;
     }
 
-    // Se já estiver no formato HH:mm
-    if (typeof time === 'string') {
-      return time.length === 5 ? time : null;
-    }
-
     return null;
   }
-
-  /* private formatTimeForInput(time: string | undefined): string | null {
-    if (!time) return null;
-    const t = time.split(':').slice(0, 2).join(':');
-    console.log(t);
-    return t;
-  } */
 
   handleCancel = () => {
     this.dialogRef.close();

@@ -119,9 +119,9 @@ export class EventsComponent implements OnInit, AfterViewInit {
     { key: 'name', header: 'Nome', type: 'string' },
     { key: 'theme', header: 'Tema', type: 'string' },
     { key: 'start_date', header: 'Data inicio', type: 'date' },
-    { key: 'start_time', header: 'Hora inicio', type: 'date' },
+    { key: 'start_time', header: 'Hora inicio', type: 'time' },
     { key: 'end_date', header: 'Data fim', type: 'date' },
-    { key: 'end_time', header: 'Hora fim', type: 'date' },
+    { key: 'end_time', header: 'Hora fim', type: 'time' },
     {
       key: 'combinedCreatedByAndCreatedAt',
       header: 'Criado em',

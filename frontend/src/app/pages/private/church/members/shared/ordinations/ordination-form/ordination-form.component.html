@@ -9,7 +9,7 @@
     }}</mat-slide-toggle>
   </app-column>
 
-  <app-column>
+  <app-column [columns]="1">
     <mat-form-field appearance="fill">
       <mat-label>Ocupação</mat-label>
       <input
@@ -46,7 +46,7 @@
     </mat-form-field>
   </app-column>
 
-  <app-column>
+  <app-column [columns]="2">
     <mat-form-field appearance="fill">
       <mat-label>Data Inicial</mat-label>
       <input
@@ -90,14 +90,13 @@
     </mat-form-field>
   </app-column>
 
-  <mat-divider></mat-divider>
   <app-actions>
     <button type="button" mat-stroked-button color="warn" (click)="onCancel()">
       Cancelar
     </button>
     <button
       type="submit"
-      mat-raised-button
+      mat-flat-button
       color="primary"
       [disabled]="ordinationForm.invalid"
     >

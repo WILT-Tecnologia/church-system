@@ -1,10 +1,12 @@
 :host {
   display: block;
+  width: 100%;
 }
 
 /* Define a grid e o espaçamento entre os elementos */
 .grid {
   display: grid;
+  padding: 0.5rem;
   gap: 1rem;
 }
 
@@ -25,13 +27,11 @@
   grid-template-columns: repeat(4, 1fr);
 }
 
-/* Exemplo de responsividade: ajusta a grid para uma configuração específica no mobile */
 @media screen and (max-width: 768px) {
-
-  /* Para manter duas colunas no mobile, mesmo que o componente seja configurado para mais colunas */
   .columns-2,
   .columns-3,
   .columns-4 {
     grid-template-columns: repeat(1, 1fr);
+    width: 100%;
   }
 }

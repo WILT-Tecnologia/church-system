@@ -13,7 +13,7 @@
     </mat-checkbox>
   </app-column>
 
-  <app-column>
+  <app-column [columns]="2">
     @if (handleIsMemberChange()) {
       <mat-form-field appearance="fill">
         <mat-label>Filiação</mat-label>
@@ -92,7 +92,6 @@
     </mat-form-field>
   </app-column>
 
-  <mat-divider></mat-divider>
   <app-actions>
     <button
       mat-stroked-button
@@ -103,7 +102,7 @@
       Cancelar
     </button>
     <button
-      mat-raised-button
+      mat-flat-button
       color="primary"
       type="submit"
       [disabled]="familyForm.invalid"
