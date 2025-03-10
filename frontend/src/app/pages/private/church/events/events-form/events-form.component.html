@@ -15,6 +15,7 @@
         [matAutocomplete]="autoChurch"
         [formControl]="searchChurchControl"
         (focus)="showAllChurchs()"
+        [readonly]="true"
       />
       <mat-autocomplete
         #autoChurch="matAutocomplete"
@@ -156,7 +157,7 @@
           readonly
         />
         <mat-timepicker-toggle matIconSuffix [for]="start_time" />
-        <mat-timepicker interval="5min" #start_time/>
+        <mat-timepicker interval="5min" #start_time />
         @if (
           eventForm.get('start_time')?.invalid &&
           eventForm.get('start_time')?.touched

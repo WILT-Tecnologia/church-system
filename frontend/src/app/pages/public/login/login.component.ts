@@ -8,6 +8,7 @@ import {
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -51,6 +52,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private loading: LoadingService,
     private toast: ToastService,
     private authService: AuthService,
+    private dialog: MatDialog,
     private validationService: ValidationService,
   ) {
     this.loginForm = this.createForm();
@@ -92,23 +94,29 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleLoginResponse(response: any): Promise<boolean> {
+  handleLoginResponse(response: any) {
     const { churches } = response;
+
+    if (!churches || churches.length === 0) {
+      this.onError('Nenhuma igreja encontrada');
+      return;
+    }
 
     localStorage.setItem('churches', JSON.stringify(churches));
 
     if (churches.length === 1) {
-      return this.navigateToChurch(churches[0]);
+      this.navigateToChurch(churches[0]);
     } else if (churches.length > 1) {
-      return this.router.navigateByUrl('select-church');
+      localStorage.removeItem('selectedChurch');
+      this.router.navigate(['/select-church']);
     } else {
-      return Promise.resolve(false);
+      this.onError('Nenhuma igreja encontrada para este usuário');
     }
   }
 
   navigateToChurch(church: Church): Promise<boolean> {
     localStorage.setItem('selectedChurch', church?.id);
-    return this.router.navigateByUrl('church');
+    return this.router.navigate(['/church']);
   }
 
   getErrorMessage(controlName: string) {

@@ -24,29 +24,34 @@ export class SelectChurchComponent implements OnInit {
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
+      const churchesStr = localStorage.getItem('churches');
+      if (churchesStr) {
+        this.churches = JSON.parse(churchesStr);
+      }
+
+      if (this.churches.length === 0) {
+        this.router.navigate(['/login']);
+      } else if (this.churches.length === 1) {
+        this.selectChurch(this.churches[0]);
+      }
+
       this.selectedChurchId = localStorage.getItem('selectedChurch');
-      const churches = JSON.parse(localStorage.getItem('churches') || '[]');
-
-      if (churches.length > 0) {
-        this.churches = churches;
-
-        if (this.selectedChurchId) {
-          const selectedChurch = this.churches.find(
-            (church) => church.id === this.selectedChurchId,
-          );
-          if (!selectedChurch) {
-            this.clearSelectedChurch();
-          }
+      if (this.selectedChurchId) {
+        const selectedChurch = this.churches.find(
+          (church) => church.id === this.selectedChurchId,
+        );
+        if (!selectedChurch) {
+          this.clearSelectedChurch();
         }
       }
     }
   }
 
-  selectChurch(church: Church): void {
+  selectChurch(church: Church): Promise<boolean> {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem('selectedChurch', church.id);
     }
-    this.router.navigate(['/church']);
+    return this.router.navigateByUrl('/church');
   }
 
   clearSelectedChurch(): void {

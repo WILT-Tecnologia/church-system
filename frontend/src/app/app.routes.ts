@@ -19,14 +19,14 @@ export const routes: Routes = [
     canActivate: [selectChurchGuard],
   },
   {
-    path: 'administrative',
-    component: AdministrativeComponent,
+    path: 'church',
+    component: ChurchComponent,
     pathMatch: 'full',
     canActivate: [AuthGuard],
   },
   {
-    path: 'church',
-    component: ChurchComponent,
+    path: 'administrative',
+    component: AdministrativeComponent,
     pathMatch: 'full',
     canActivate: [AuthGuard],
   },

@@ -16,10 +16,14 @@ export class AuthGuard implements CanActivate {
     return this.authService.isLoggedIn$.pipe(
       take(1),
       map((isAuthenticated) => {
-        if (isAuthenticated) {
+        if (
+          isAuthenticated &&
+          this.authService.isAuthenticated() &&
+          localStorage.getItem('selectedChurch')
+        ) {
           return true;
         } else {
-          this.router.navigate(['/login']);
+          this.router.navigateByUrl('login');
           return false;
         }
       }),

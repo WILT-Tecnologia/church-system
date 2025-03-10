@@ -118,6 +118,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     this.findAllChurchs();
     this.findAllEventTypes();
     this.checkEditMode();
+    this.loadChurchFromLocalStorage();
   }
 
   ngOnDestroy() {
@@ -218,6 +219,32 @@ export class EventsFormComponent implements OnInit, OnDestroy {
       ? this.validationService.getErrorMessage(control)
       : null;
   };
+
+  loadChurchFromLocalStorage() {
+    const selectedChurchId = localStorage.getItem('selectedChurch');
+
+    if (selectedChurchId) {
+      this.eventForm.get('church_id')?.setValue(selectedChurchId);
+      this.eventForm.get('church_id')?.disable();
+
+      this.churchsService.getChurch().subscribe({
+        next: (churches) => {
+          const selectedChurch = churches.find(
+            (church) => church.id === selectedChurchId,
+          );
+          if (selectedChurch) {
+            this.searchChurchControl.setValue(selectedChurch.name);
+            this.searchChurchControl.disable();
+          }
+        },
+        error: (error) => {
+          this.notification.onError(
+            error ? error.error.message : MESSAGES.LOADING_ERROR,
+          );
+        },
+      });
+    }
+  }
 
   findAllChurchs = () => {
     this.churchsService.getChurch().subscribe({
@@ -344,14 +371,11 @@ export class EventsFormComponent implements OnInit, OnDestroy {
   formatTime(time: string | Date | null): string | null {
     if (!time) return null;
 
-    // Se já estiver no formato HH:mm (como no JSON)
     if (typeof time === 'string') {
-      // Verifica se está no formato HH:mm
       if (/^\d{1,2}:\d{2}$/.test(time)) {
         return time;
       }
 
-      // Se for uma string ISO (contém 'T'), extrai a parte do tempo
       if (time.includes('T')) {
         const [datePart, timePart] = time.split('T');
         return timePart.slice(0, 5); // Pega HH:mm
@@ -377,7 +401,18 @@ export class EventsFormComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const churchIdControl = this.eventForm.get('church_id');
+    const churchIdDisabled = churchIdControl?.disabled;
+
+    if (churchIdDisabled) {
+      churchIdControl?.enable();
+    }
+
     const formValues = this.eventForm.value;
+
+    if (churchIdDisabled) {
+      churchIdControl?.disable();
+    }
 
     const event = {
       ...formValues,

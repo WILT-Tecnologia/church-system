@@ -3,14 +3,11 @@
   width: 100%;
 }
 
-/* Define a grid e o espaçamento entre os elementos */
 .grid {
   display: grid;
-  padding: 0.5rem;
   gap: 1rem;
 }
 
-/* Estilos para as diferentes configurações de colunas */
 .columns-1 {
   grid-template-columns: 1fr;
 }
@@ -28,6 +25,7 @@
 }
 
 @media screen and (max-width: 768px) {
+
   .columns-2,
   .columns-3,
   .columns-4 {

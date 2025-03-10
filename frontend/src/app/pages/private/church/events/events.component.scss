@@ -1,16 +1,11 @@
-@use '../../../../styles/theme-bk'as theme;
-
 .wrapper {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
 }
 
 .container {
   max-height: 0;
   transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out, padding 0.5s ease-in-out;
-
-  // Opcional: ajuste de opacidade ou padding também pode ser animado
   opacity: 0;
   transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out, padding 0.5s ease-in-out;
 
@@ -25,7 +20,14 @@
   flex-direction: row;
   gap: 1rem;
   padding: 1rem;
-  margin-left: 1rem;
+
+  & > button {
+    width: 20rem;
+
+    @media screen and (max-width: 768px) {
+      width: 100%;
+    }
+  }
 
   @media screen and (max-width: 768px) {
     flex-direction: column;

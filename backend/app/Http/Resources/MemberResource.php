@@ -17,6 +17,7 @@ class MemberResource extends JsonResource
             'id' => $this->id,
             'person' => new PersonResource($this->person),
             'church' => new ChurchResource($this->church),
+            'churches' => ChurchResource::collection($this->whenLoaded('churches')),
             'families' => FamilyResource::collection($this->families),
             'ordination' => OrdinationResource::collection($this->ordination),
             'status_member' => new StatusMemberResource($this->whenLoaded('statusMember')),

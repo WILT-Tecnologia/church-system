@@ -1,13 +1,74 @@
+.title-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem 0
+}
+
+.title {
+  font-weight: 700;
+  text-align: center;
+  font-size: 1.5rem;
+  color: var(--primary-color);
+
+  @media screen and (max-width: 768px) {
+    font-size: 1.12rem;
+  }
+}
+
 mat-list-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 2.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.2s;
+  border-radius: 0.2rem;
+  padding: 2.5rem 1rem;
+  transition: background 0.2s ease-in-out;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  @media screen and (max-width: 768px) {
+    padding: 1.5rem 1rem;
+  }
 }
 
-mat-list-item:hover {
-  background: rgba(0, 0, 0, 0.1);
+.item-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.item-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--primary-color);
+
+  @media screen and (max-width: 768px) {
+    font-size: 0.8rem;
+  }
+}
+
+.church-not-found-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 10rem 0;
+}
+
+.church-not-found-title {
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: var(--primary-color);
 }
