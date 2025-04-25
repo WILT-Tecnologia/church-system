@@ -258,6 +258,12 @@ export class ChurchComponent implements OnInit, OnDestroy {
   }
 
   handleSubmit = () => {
+    this.churchForm.markAllAsTouched();
+
+    if (this.churchForm.invalid) {
+      return;
+    }
+
     const church = this.churchForm.value;
 
     if (!church) {
@@ -274,7 +280,20 @@ export class ChurchComponent implements OnInit, OnDestroy {
   };
 
   handleNext = () => {
-    this.tabGroup.selectedIndex = 1;
+    const identificationFields = ['responsible_id', 'name', 'email', 'cnpj'];
+
+    identificationFields.forEach((field) => {
+      const control = this.churchForm.get(field);
+      control?.markAsTouched();
+    });
+
+    const isIdentificationValid = identificationFields.every(
+      (field) => this.churchForm.get(field)?.valid,
+    );
+
+    if (isIdentificationValid) {
+      this.tabGroup.selectedIndex = 1;
+    }
   };
 
   handleBack = () => {

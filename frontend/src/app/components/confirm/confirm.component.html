@@ -10,29 +10,24 @@
     <p class="message">{{ data.message }}</p>
   </div>
 
-  <!-- Divider -->
-  <mat-divider></mat-divider>
-
   <!-- Actions -->
   <div class="actions">
-    @if (data.reverseBtn) {
-      <app-actions>
+    <app-actions>
+      @if (data.reverseBtn) {
         <button mat-flat-button color="primary" [mat-dialog-close]="true">
           {{ data.btnOkText }}
         </button>
         <button mat-stroked-button color="warn" [mat-dialog-close]="false">
           {{ data.btnCancelText }}
         </button>
-      </app-actions>
-    } @else {
-      <app-actions>
+      } @else {
         <button mat-stroked-button color="warn" [mat-dialog-close]="false">
           {{ data.btnCancelText }}
         </button>
         <button mat-flat-button color="primary" [mat-dialog-close]="true">
           {{ data.btnOkText }}
         </button>
-      </app-actions>
-    }
+      }
+    </app-actions>
   </div>
 </div>

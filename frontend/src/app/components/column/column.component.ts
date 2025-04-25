@@ -12,13 +12,7 @@ export class ColumnComponent {
 
   @Input()
   set columns(value: number) {
-    if (value < 1) {
-      this._columns = 1;
-    } else if (value > 4) {
-      this._columns = 4;
-    } else {
-      this._columns = value;
-    }
+    this._columns = Math.max(1, Math.min(12, Math.floor(value)));
   }
 
   get columns(): number {

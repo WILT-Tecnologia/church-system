@@ -19,7 +19,8 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libpq-dev \
     zip \
-    unzip
+    unzip \
+    wget
 
 # Limpar cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -50,9 +51,11 @@ RUN useradd -m -u $uid -G www-data,root -s /bin/bash $user \
 
 # Temporariamente execute os comandos como root para instalar o Redis
 USER root
-RUN pecl install -o -f redis \
-    && rm -rf /tmp/pear \
-    && docker-php-ext-enable redis
+RUN mkdir -p /usr/src/php/ext/redis \
+    && wget -O redis.tar.gz https://github.com/phpredis/phpredis/archive/5.3.7.tar.gz \
+    && tar -xf redis.tar.gz -C /usr/src/php/ext/redis --strip-components=1 \
+    && rm redis.tar.gz \
+    && docker-php-ext-install redis
 
 # Ajustar permissões do diretório /var/www
 RUN chown -R myuser:myuser /var/www

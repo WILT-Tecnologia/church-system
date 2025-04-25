@@ -1,6 +1,6 @@
-@use 'app/styles/theme' as theme;
-@use '@angular/material' as mat;
-@use 'app/styles/autocomplete-theme' as autocomplete;
+@use 'app/styles/theme'as theme;
+@use '@angular/material'as mat;
+@use 'app/styles/autocomplete-theme'as autocomplete;
 @use 'sass:map';
 
 @include mat.core();
@@ -16,20 +16,23 @@
   @include mat.color-variants-backwards-compatibility(theme.$light-theme);
   @include autocomplete.autocomplete-theme();
 
-  --primary-color: #{mat.get-theme-color(theme.$light-theme, primary, 50)};
-  --primary-color-dark: #{mat.get-theme-color(theme.$light-theme, primary, 40)};
-  --secondary-color: #{mat.get-theme-color(theme.$light-theme, secondary)};
-  --tertiary-color: #{mat.get-theme-color(theme.$light-theme, tertiary)};
-  --neutral-40: #{mat.get-theme-color(theme.$light-theme, neutral, 40)};
-  --text-color: #{theme.$textColor};
-  --error-color: #{theme.$error};
-  --danger-color: #{theme.$danger};
-  --success-color: #{theme.$success};
-  --warning-color: #{theme.$warning};
-  --hover-color: #{theme.$hover};
-  --separator-color: #{theme.$separator};
-  --white-color: #{theme.$white};
-  --background-color: #{theme.$backgroundColor};
+  & {
+    --primary-color: #{mat.get-theme-color(theme.$light-theme, primary, 50)};
+    --primary-color-dark: #{mat.get-theme-color(theme.$light-theme, primary, 40)};
+    --secondary-color: #{mat.get-theme-color(theme.$light-theme, secondary)};
+    --tertiary-color: #{mat.get-theme-color(theme.$light-theme, tertiary)};
+    --neutral-40: #{mat.get-theme-color(theme.$light-theme, neutral, 40)};
+    --text-color: #{theme.$textColor};
+    --error-color: #{theme.$error};
+    --danger-color: #{theme.$danger};
+    --success-color: #{theme.$success};
+    --warning-color: #{theme.$warning};
+    --hover-color: #{theme.$hover};
+    --separator-color: #{theme.$separator};
+    --white-color: #{theme.$white};
+    --background-color: #{theme.$backgroundColor};
+  }
+
 }
 
 *:not(mat-icon) {
@@ -88,6 +91,14 @@ app-root {
 
 .padding-1 {
   padding: 1rem;
+}
+
+.cep-field {
+  max-width: 10dvw;
+
+  @media screen and (max-width: 768px) {
+    max-width: 100%;
+  }
 }
 
 .custom-snackbar {

@@ -21,8 +21,6 @@ import {
 } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import {
-  DateAdapter,
-  MAT_DATE_FORMATS,
   MAT_DATE_LOCALE,
   provideNativeDateAdapter,
 } from '@angular/material/core';
@@ -39,6 +37,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActionsComponent } from 'app/components/actions/actions.component';
+import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { MESSAGES } from 'app/components/toast/messages';
 import { Church } from 'app/model/Church';
@@ -48,7 +47,6 @@ import { NotificationService } from 'app/services/notification/notification.serv
 import { ValidationService } from 'app/services/validation/validation.service';
 import { provideNgxMask } from 'ngx-mask';
 import { map, Observable, startWith, Subject } from 'rxjs';
-import { ColumnComponent } from 'app/components/column/column.component';
 import { ChurchsService } from '../../../administrative/churchs/churchs.service';
 import { EventTypesService } from '../../../administrative/eventTypes/eventTypes.service';
 import { EventsService } from '../events.service';
@@ -276,7 +274,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
 
   showAllChurchs = () => {
     this.filterChurch = this.searchChurchControl.valueChanges.pipe(
-      startWith(this.searchChurchControl.value),
+      startWith(''),
       map((value: any) => {
         if (typeof value === 'string') {
           return value;
@@ -292,7 +290,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
 
   showAllEventTypes = () => {
     this.filterEventTypes = this.searchEventTypeControl.valueChanges.pipe(
-      startWith(this.searchEventTypeControl.value),
+      startWith(''),
       map((value: any) => {
         if (typeof value === 'string') {
           return value;

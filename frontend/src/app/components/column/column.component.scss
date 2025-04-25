@@ -1,35 +1,17 @@
 :host {
   display: block;
   width: 100%;
+  margin: 0.5rem 0;
 }
 
 .grid {
   display: grid;
   gap: 1rem;
-}
-
-.columns-1 {
-  grid-template-columns: 1fr;
-}
-
-.columns-2 {
-  grid-template-columns: repeat(2, 1fr);
-}
-
-.columns-3 {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.columns-4 {
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(var(--columns, 1), 1fr);
 }
 
 @media screen and (max-width: 768px) {
-
-  .columns-2,
-  .columns-3,
-  .columns-4 {
-    grid-template-columns: repeat(1, 1fr);
-    width: 100%;
+  .grid {
+    grid-template-columns: 1fr;
   }
 }

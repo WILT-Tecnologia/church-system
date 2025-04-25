@@ -335,7 +335,31 @@ export class PersonComponent implements OnInit, OnDestroy {
   }
 
   handleNext = () => {
-    this.tabGroup.selectedIndex = 1;
+    // Marcar os campos da aba "Identificação" como tocados para exibir erros
+    const identificationFields = [
+      'user_id',
+      'name',
+      'cpf',
+      'birth_date',
+      'email',
+      'phone_one',
+      'phone_two',
+      'sex',
+    ];
+
+    identificationFields.forEach((field) => {
+      const control = this.personForm.get(field);
+      control?.markAsTouched();
+    });
+
+    // Verificar se os campos da aba "Identificação" são válidos
+    const isIdentificationValid = identificationFields.every(
+      (field) => this.personForm.get(field)?.valid,
+    );
+
+    if (isIdentificationValid) {
+      this.tabGroup.selectedIndex = 1; // Avançar para a aba "Endereço"
+    }
   };
 
   handleBack = () => {
@@ -347,6 +371,12 @@ export class PersonComponent implements OnInit, OnDestroy {
   }
 
   handleSubmit = () => {
+    this.personForm.markAllAsTouched();
+
+    if (this.personForm.invalid) {
+      return;
+    }
+
     const person = this.personForm.value;
 
     if (!person) {

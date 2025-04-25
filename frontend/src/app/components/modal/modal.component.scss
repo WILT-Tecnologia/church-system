@@ -1,4 +1,4 @@
-@use 'app/styles/theme.scss' as theme;
+@use 'app/styles/theme.scss'as theme;
 
 ::ng-deep .cdk-overlay-container {
   backdrop-filter: blur(0.1rem);
