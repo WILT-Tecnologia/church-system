@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Hash;
@@ -101,5 +102,10 @@ class Member extends Model
     public function histMembers(): HasMany
     {
         return $this->hasMany(HistMember::class);
+    }
+
+    public function eventos(): BelongsToMany
+    {
+        return $this->belongsToMany(Evento::class, 'event_participants');
     }
 }
