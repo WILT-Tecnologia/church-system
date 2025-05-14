@@ -1,4 +1,4 @@
-@use 'app/styles/theme.scss' as theme;
+@use 'app/styles/theme.scss'as theme;
 
 ::ng-deep .mat-drawer-backdrop.mat-drawer-shown {
   backdrop-filter: blur(0.2rem) !important;
@@ -95,17 +95,13 @@
 }
 
 .nav-button {
-  height: 100%;
-  display: flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 0;
-  transition: all .2s ease-in-out;
   border-bottom: 0.1rem solid transparent;
-
-  &.hover {
-    border-bottom: 0.19rem solid var(--primary-color);
-  }
+  border-radius: 0 !important;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  transition: all .2s ease-in-out;
 
   &.active-route {
     border-bottom: 0.19rem solid var(--primary-color);

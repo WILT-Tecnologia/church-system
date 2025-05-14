@@ -9,8 +9,10 @@
     <mat-nav-list class="mat-nav-list-options">
       @for (route of routesGlobal; track $index) {
         <button
-          mat-list-item class="mat-button-options" (click)="navigateTo(route.path)"
-          [ngClass]="{'active-route': isActiveRoute(route.path)}"
+          mat-list-item
+          class="mat-button-options"
+          (click)="navigateTo(route.path)"
+          [ngClass]="{ 'active-route': isActiveRoute(route.path) }"
         >
           {{ route.label }}
         </button>
@@ -20,21 +22,21 @@
     <mat-nav-list>
       @for (route of routesUser; track $index) {
         <button
-          mat-list-item class="mat-button-options" (click)="route.path !== 'logout' ?
-        navigateTo(route.path) : logout()"
+          mat-list-item
+          class="mat-button-options"
+          (click)="route.path !== 'logout' ? navigateTo(route.path) : logout()"
         >
-        <span>
-          {{ route.title }}
-        </span>
+          <span>
+            {{ route.title }}
+          </span>
         </button>
       }
-
     </mat-nav-list>
   </mat-sidenav>
 
   <mat-sidenav-content class="sidenav-content">
     <mat-toolbar class="navbar">
-      <div class="container-section-one-nav p-4">
+      <div class="p-4 container-section-one-nav">
         @if (isChurchSelected()) {
           <app-logo></app-logo>
           <span class="separator"></span>
@@ -43,7 +45,12 @@
       </div>
       <span class="spacer"></span>
       @if (isMobile) {
-        <button (click)="sidenav.toggle()" mat-icon-button color="primary" class="mr-2">
+        <button
+          (click)="sidenav.toggle()"
+          mat-icon-button
+          color="primary"
+          class="mr-2"
+        >
           <mat-icon>menu</mat-icon>
         </button>
       }
@@ -52,15 +59,22 @@
           @if (isChurchSelected()) {
             @for (route of routesGlobal; track $index) {
               <button
-                (click)="navigateTo(route.path)" color="primary" mat-button class="nav-button"
-                [ngClass]="{'active-route': isActiveRoute(route.path)}"
+                (click)="navigateTo(route.path)"
+                color="primary"
+                mat-button
+                class="nav-button"
+                [ngClass]="{ 'active-route': isActiveRoute(route.path) }"
               >
                 {{ route.label }}
               </button>
             }
           }
           <button
-            color="primary" type="button" [matMenuTriggerFor]="userMenu" class="user-button nav-button" mat-button
+            color="primary"
+            type="button"
+            [matMenuTriggerFor]="userMenu"
+            class="user-button nav-button"
+            mat-button
           >
             <mat-icon>person</mat-icon>
             <span class="button-text">{{ userName }}</span>
@@ -81,9 +95,9 @@
       (click)="route.path !== 'logout' ? navigateTo(route.path) : logout()"
       mat-menu-item
     >
-    <span>
-      {{ route.title }}
-    </span>
+      <span>
+        {{ route.title }}
+      </span>
     </button>
   }
 </mat-menu>

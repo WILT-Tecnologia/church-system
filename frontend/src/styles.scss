@@ -22,6 +22,10 @@
     --secondary-color: #{mat.get-theme-color(theme.$light-theme, secondary)};
     --tertiary-color: #{mat.get-theme-color(theme.$light-theme, tertiary)};
     --neutral-40: #{mat.get-theme-color(theme.$light-theme, neutral, 40)};
+    --grey-very-light: #{theme.$greyVeryLight};
+    --grey-light: #{theme.$greyLight};
+    --grey-main: #{theme.$greyMain};
+    --grey-dark: #{theme.$greyDark};
     --text-color: #{theme.$textColor};
     --error-color: #{theme.$error};
     --danger-color: #{theme.$danger};
@@ -32,7 +36,6 @@
     --white-color: #{theme.$white};
     --background-color: #{theme.$backgroundColor};
   }
-
 }
 
 *:not(mat-icon) {
@@ -52,8 +55,8 @@
 html,
 body,
 app-root {
-  background-color: theme.$backgroundColor;
-  color: theme.$textColor;
+  background-color: var(--background-color);
+  color: var(--text-color);
   margin: 0;
   overflow: hidden;
   padding: 0;
@@ -71,14 +74,6 @@ app-root {
 .text-default {
   color: var(--text-color);
   font-size: 1rem;
-}
-
-.active {
-  color: var(--success-color);
-}
-
-.inactive {
-  color: var(--danger-color);
 }
 
 .white {
@@ -350,4 +345,31 @@ mat-form-field {
 
 .mat-mdc-tab:not(.mdc-tab--active:focus) .mdc-tab__text-label {
   color: var(--neutral-40);
+}
+
+.mat-mdc-dialog-surface,
+.mat-expansion-panel,
+.mat-mdc-card-outlined,
+.mat-mdc-button,
+.mat-mdc-outlined-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-raised-button,
+.mat-mdc-fab,
+.mat-mdc-mini-fab {
+  border-radius: 0.2rem !important;
+}
+
+.mat-mdc-outlined-button {
+  border-color: var(--grey-very-light) !important;
+}
+
+.mat-divider {
+  border-top-color: var(--grey-very-light) !important;
+}
+
+.mat-mdc-nav-list .mat-mdc-list-item,
+mat-sidenav {
+  border-bottom-left-radius: 0 !important;
+  border-radius: 0 !important;
+  border-top-left-radius: 0 !important;
 }
