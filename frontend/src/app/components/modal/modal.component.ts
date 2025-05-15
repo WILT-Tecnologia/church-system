@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import {
@@ -11,21 +17,18 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-type DataProps = {
-  id?: string;
+type ModalProps = {
+  title?: string;
+  isHandleClose?: boolean;
+  enableFullscreen?: boolean;
   customContent?: any;
-  title: string;
-  isHandleClose: boolean;
-  disableClose: boolean;
-  data?: Record<string, any>;
-  customClassContainer?: string | string[];
-  enableFullscreen: boolean;
 };
 
 @Component({
   selector: 'app-modal',
   templateUrl: './modal.component.html',
   styleUrl: './modal.component.scss',
+  standalone: true,
   imports: [
     MatCardModule,
     MatTooltipModule,
@@ -39,27 +42,49 @@ type DataProps = {
 export class ModalComponent implements OnInit {
   isFullscreen: boolean = false;
 
+  @ViewChild('customContent', { static: false }) customContent: any;
+
   constructor(
     public dialogRef: MatDialogRef<ModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DataProps,
+    @Inject(MAT_DIALOG_DATA) public data: ModalProps,
+    private cdr: ChangeDetectorRef,
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.dialogRef.updateSize();
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      const dialogContainer = document.querySelector(
+        '.mat-dialog-container',
+      ) as HTMLElement;
+      if (dialogContainer) {
+        this.dialogRef.updatePosition();
+        this.cdr.detectChanges();
+      }
+    }, 0);
+  }
 
   closeModal = (): void => {
     this.dialogRef.close();
   };
 
   toggleFullscreen() {
-    const dialogElement = document.querySelector('.mat-dialog-container');
+    this.isFullscreen = !this.isFullscreen;
 
-    if (dialogElement) {
-      if (this.isFullscreen) {
-        dialogElement.classList.remove('fullscreen');
-      } else {
-        dialogElement.classList.add('fullscreen');
-      }
-      this.isFullscreen = !this.isFullscreen;
+    if (this.customContent && this.customContent.onFullscreenChange) {
+      this.customContent.onFullscreenChange(this.isFullscreen);
     }
+
+    /* if (this.isFullscreen) {
+      this.dialogRef.updateSize('100vw', '100vh');
+      this.dialogRef.updatePosition({ top: '0', left: '0' });
+    } else {
+      this.dialogRef.updateSize();
+      this.dialogRef.updatePosition();
+    } */
+
+    this.cdr.detectChanges();
   }
 }

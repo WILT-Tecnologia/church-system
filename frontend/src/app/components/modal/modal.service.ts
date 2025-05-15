@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { ModalComponent } from './modal.component';
 
 @Injectable({
@@ -11,7 +11,7 @@ export class ModalService {
   /**
    * Modal para ser usado em toda a aplicação
    * @param id campo usado para identificar o modal
-   * @param customContent Componente customizado para o conteúdo do modal
+   * @param customContent Componente customizado para o conteudo do modal
    * @param title Titulo para o header do modal
    * @param isHandleClose Valor para habilitar ou desabilitar o botão de fechar no header
    * @param disableClose Desabilita o fechamento clicando fora do modal
@@ -38,11 +38,10 @@ export class ModalService {
         ? [customClassContainer, 'responsive-modal']
         : ['responsive-modal'];
 
-    return this.dialog.open<ModalComponent>(ModalComponent, {
-      width: isMobile ? '95vw' : '60vw',
-      height: isMobile ? '90vh' : '70vh',
-      maxWidth: '100vw',
-      maxHeight: '100vh',
+    const dialogConfig: MatDialogConfig = {
+      width: '60dvw',
+      maxWidth: '100dvw',
+      maxHeight: '90vh',
       role: 'dialog',
       autoFocus: false,
       disableClose: disableClose,
@@ -56,6 +55,13 @@ export class ModalService {
         enableFullscreen,
         ...data,
       },
-    });
+    };
+
+    if (isMobile) {
+      dialogConfig.width = '100dvw';
+      dialogConfig.height = '100dvh';
+    }
+
+    return this.dialog.open<ModalComponent>(ModalComponent, dialogConfig);
   }
 }

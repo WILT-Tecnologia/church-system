@@ -12,4 +12,5 @@ export const MESSAGES = {
     'Não foi possível efetuar o login! Verifique suas credenciais e tente novamente.',
   INFO: 'Informação',
   WARNING: 'Atenção',
+  FORM_INVALID: 'O formulário contém campos inválidos.',
 };

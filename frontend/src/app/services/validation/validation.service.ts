@@ -4,7 +4,7 @@ import {
   AbstractControl,
   FormControl,
   ValidationErrors,
-  ValidatorFn
+  ValidatorFn,
 } from '@angular/forms';
 import { catchError, map, Observable, of } from 'rxjs';
 import { messages } from './message';
@@ -80,8 +80,8 @@ export class ValidationService {
     const date = new Date(year, month - 1, day);
 
     return date.getFullYear() === year &&
-    date.getMonth() === month - 1 &&
-    date.getDate() === day
+      date.getMonth() === month - 1 &&
+      date.getDate() === day
       ? null
       : { invalidDate: true };
   }

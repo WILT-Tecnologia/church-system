@@ -365,7 +365,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
         }));
 
         const calendarEvents = events.map((event) => ({
-          id: event.id.toString(),
+          id: event.id ?? '',
           title: event.name,
           start: this.convertToISODate(event.start_date || dayjs().toDate()),
           end: this.convertToISODate(event.end_date || dayjs().toDate()),

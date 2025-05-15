@@ -15,6 +15,7 @@
         [matAutocomplete]="autoChurch"
         [formControl]="searchChurchControl"
         (focus)="showAllChurchs()"
+        (click)="showAllChurchs()"
         [readonly]="true"
       />
       <mat-autocomplete
@@ -36,6 +37,7 @@
         <mat-error>{{ getErrorMessage('church_id') }}</mat-error>
       }
     </mat-form-field>
+
     <mat-form-field appearance="fill">
       <mat-label>Tipo do evento</mat-label>
       <input
@@ -61,7 +63,8 @@
       </mat-autocomplete>
       @if (
         eventForm.get('event_type_id')?.invalid &&
-        eventForm.get('event_type_id')?.touched
+        (eventForm.get('event_type_id')?.touched ||
+          eventForm.get('event_type_id')?.dirty)
       ) {
         <mat-error>{{ getErrorMessage('event_type_id') }}</mat-error>
       }
@@ -81,7 +84,7 @@
 
     <mat-form-field appearance="fill">
       <mat-label>Tema</mat-label>
-      <input matInput formControlName="theme" maxlength="255" required />
+      <input matInput formControlName="theme" maxlength="255" />
       <mat-error
         *ngIf="
           eventForm.get('theme')?.invalid && eventForm.get('theme')?.touched
@@ -99,13 +102,13 @@
         <mat-label>Data inicial</mat-label>
         <input
           matInput
+          type="text"
           name="start_date"
           [matDatepicker]="start_date"
           placeholder="dd/mm/aaaa"
           formControlName="start_date"
           [min]="minDate"
           required
-          readonly
         />
         <mat-datepicker-toggle
           matIconSuffix
@@ -146,23 +149,21 @@
       </mat-form-field>
 
       <!-- Hora inicial -->
-      <mat-form-field>
+      <mat-form-field appearance="fill">
         <mat-label>Hora inicial</mat-label>
         <input
           matInput
-          name="start_time"
+          type="time"
           formControlName="start_time"
-          [matTimepicker]="start_time"
           required
-          readonly
+          placeholder="hh:mm"
         />
-        <mat-timepicker-toggle matIconSuffix [for]="start_time" />
-        <mat-timepicker interval="5min" #start_time />
         @if (
           eventForm.get('start_time')?.invalid &&
-          eventForm.get('start_time')?.touched
+          (eventForm.get('start_time')?.touched ||
+            eventForm.get('start_time')?.dirty)
         ) {
-          <mat-error>{{ getErrorMessage('start_time') }} </mat-error>
+          <mat-error>{{ getErrorMessage('start_time') }}</mat-error>
         }
       </mat-form-field>
     </app-column>
@@ -176,10 +177,10 @@
           name="end_date"
           placeholder="dd/mm/aaaa"
           formControlName="end_date"
-          required
-          readonly
           [matDatepicker]="end_date"
           [min]="minDate"
+          required
+          readonly
         />
         <mat-datepicker-toggle
           matIconSuffix
@@ -220,22 +221,21 @@
       </mat-form-field>
 
       <!-- Hora final -->
-      <mat-form-field>
+      <mat-form-field appearance="fill">
         <mat-label>Hora final</mat-label>
         <input
           matInput
-          [matTimepicker]="end_time"
+          type="time"
           formControlName="end_time"
           required
-          readonly
+          placeholder="hh:mm"
         />
-        <mat-timepicker-toggle matIconSuffix [for]="end_time" />
-        <mat-timepicker interval="5min" #end_time />
         @if (
           eventForm.get('end_time')?.invalid &&
-          eventForm.get('end_time')?.touched
+          (eventForm.get('end_time')?.touched ||
+            eventForm.get('end_time')?.dirty)
         ) {
-          <mat-error>{{ getErrorMessage('end_time') }} </mat-error>
+          <mat-error>{{ getErrorMessage('end_time') }}</mat-error>
         }
       </mat-form-field>
     </app-column>

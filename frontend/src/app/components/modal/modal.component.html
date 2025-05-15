@@ -1,4 +1,7 @@
-<div [ngClass]="{ fullscreen: isFullscreen, 'responsive-modal': true }" class="mat-dialog-container">
+<div
+  [ngClass]="{ fullscreen: isFullscreen, 'responsive-modal': true }"
+  class="mat-dialog-container"
+>
   <div class="wrapper">
     <!-- HEADER -->
     <div class="header">
@@ -20,7 +23,12 @@
           </button>
         }
         @if (data.isHandleClose) {
-          <button mat-icon-button type="button" color="warn" (click)="closeModal()">
+          <button
+            mat-icon-button
+            type="button"
+            color="warn"
+            (click)="closeModal()"
+          >
             <mat-icon color="warn">close</mat-icon>
           </button>
         }
