@@ -385,7 +385,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
           calendarApi.updateSize();
         }
 
-        this.dataSourceMat.data = [...this.events];
+        this.dataSourceMat.data = this.events;
         this.dataSourceMat.sort = this.sort;
         this.dataSourceMat.paginator = this.paginator;
         this.rendering = false;
@@ -407,6 +407,8 @@ export class EventsComponent implements OnInit, AfterViewInit {
       true,
       true,
       { event },
+      '',
+      true,
     );
   };
 

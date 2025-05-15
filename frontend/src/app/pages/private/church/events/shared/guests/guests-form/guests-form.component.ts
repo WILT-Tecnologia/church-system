@@ -72,12 +72,8 @@ import { GuestsService } from '../guests.service';
 })
 export class GuestsFormComponent implements OnInit, OnDestroy {
   guestForm: FormGroup;
-  //guest: Guest[] = [];
   isEditMode: boolean = false;
 
-  //private readonly _currentDate = new Date();
-  // readonly minDate = new Date(1900, 0, 1);
-  // readonly maxDate = new Date(this._currentDate);
   private destroy$ = new Subject<void>();
   @ViewChild(MatDatepicker) picker!: MatDatepicker<Date>;
   @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;
@@ -202,7 +198,19 @@ export class GuestsFormComponent implements OnInit, OnDestroy {
   }
 
   handleNext = () => {
-    this.tabGroup.selectedIndex = 1;
+    const identificationFields = ['name', 'email', 'phone_one', 'phone_two'];
+    identificationFields.forEach((field) => {
+      const control = this.guestForm.get(field);
+      control?.markAsTouched();
+    });
+
+    const isIdentificationValid = identificationFields.every(
+      (field) => this.guestForm.get(field)?.valid,
+    );
+
+    if (isIdentificationValid) {
+      this.tabGroup.selectedIndex = 1;
+    }
   };
 
   handleBack = () => {
@@ -214,7 +222,11 @@ export class GuestsFormComponent implements OnInit, OnDestroy {
   }
 
   handleSubmit() {
+    this.guestForm.markAllAsTouched();
+
     const guest = this.guestForm;
+
+    if (!guest.value) return;
 
     if (this.isEditMode && guest.valid) {
       this.handleUpdate(this.data?.guest?.id, guest.value);
@@ -223,11 +235,10 @@ export class GuestsFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleCreate = (data: any) => {
+  handleCreate = (data: Guest) => {
     this.loading.show();
     this.guestsService.create(data).subscribe({
       next: (guest) => {
-        console.log(guest);
         this.notification.onSuccess(
           MESSAGES.CREATE_SUCCESS,
           this.dialogRef,
@@ -241,7 +252,7 @@ export class GuestsFormComponent implements OnInit, OnDestroy {
     });
   };
 
-  handleUpdate = (id: string, data: any) => {
+  handleUpdate = (id: string, data: Guest) => {
     this.loading.show();
     this.guestsService.update(id, data).subscribe({
       next: (guest) => {

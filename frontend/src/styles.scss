@@ -373,3 +373,8 @@ mat-sidenav {
   border-radius: 0 !important;
   border-top-left-radius: 0 !important;
 }
+
+.mat-mdc-table,
+.mat-mdc-paginator {
+  background-color: inherit !important;
+}

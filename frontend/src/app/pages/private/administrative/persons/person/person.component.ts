@@ -352,13 +352,12 @@ export class PersonComponent implements OnInit, OnDestroy {
       control?.markAsTouched();
     });
 
-    // Verificar se os campos da aba "Identificação" são válidos
     const isIdentificationValid = identificationFields.every(
       (field) => this.personForm.get(field)?.valid,
     );
 
     if (isIdentificationValid) {
-      this.tabGroup.selectedIndex = 1; // Avançar para a aba "Endereço"
+      this.tabGroup.selectedIndex = 1;
     }
   };
 
@@ -395,7 +394,7 @@ export class PersonComponent implements OnInit, OnDestroy {
     }
   };
 
-  handleCreate = (data: any) => {
+  handleCreate = (data: Person) => {
     this.loading.show();
     this.personService.createPerson(data).subscribe({
       next: () =>
@@ -410,7 +409,7 @@ export class PersonComponent implements OnInit, OnDestroy {
     });
   };
 
-  handleUpdate = (personId: string, data: any) => {
+  handleUpdate = (personId: string, data: Person) => {
     this.loading.show();
     this.personService.updatePerson(personId, data).subscribe({
       next: () =>

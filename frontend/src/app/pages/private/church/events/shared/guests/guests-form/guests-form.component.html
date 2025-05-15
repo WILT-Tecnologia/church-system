@@ -17,7 +17,8 @@
           >
         </mat-form-field>
       </app-column>
-      <app-column>
+
+      <app-column [columns]="2">
         <mat-form-field appearance="fill">
           <mat-label>Celular</mat-label>
           <input
@@ -57,7 +58,7 @@
         >
           Cancelar
         </button>
-        <button mat-raised-button type="submit" color="primary">Avançar</button>
+        <button mat-flat-button type="submit" color="primary">Avançar</button>
       </app-actions>
     </form>
   </mat-tab>
@@ -68,8 +69,8 @@
       (ngSubmit)="handleSubmit()"
       class="form-field-group"
     >
-      <app-column class="w-full">
-        <mat-form-field class="reduction" appearance="fill">
+      <app-column [columns]="2">
+        <mat-form-field class="cep-field" appearance="fill">
           <mat-label>CEP</mat-label>
           <input matInput formControlName="cep" mask="00000-000" required />
           <mat-error
@@ -79,6 +80,9 @@
             >{{ getErrorMessage('cep') }}</mat-error
           >
         </mat-form-field>
+      </app-column>
+
+      <app-column [columns]="2">
         <mat-form-field appearance="fill">
           <mat-label>Rua</mat-label>
           <input matInput formControlName="street" maxlength="255" required />
@@ -90,9 +94,6 @@
             >{{ getErrorMessage('street') }}</mat-error
           >
         </mat-form-field>
-      </app-column>
-
-      <app-column>
         <mat-form-field appearance="fill">
           <mat-label>Número</mat-label>
           <input matInput formControlName="number" maxlength="10" required />
@@ -128,7 +129,7 @@
         </mat-form-field>
       </app-column>
 
-      <app-column class="w-full">
+      <app-column [columns]="2">
         <mat-form-field appearance="fill">
           <mat-label>Cidade</mat-label>
           <input matInput formControlName="city" maxlength="255" required />
@@ -161,7 +162,9 @@
           >
         </mat-form-field>
       </app-column>
+
       <mat-divider></mat-divider>
+
       <app-actions>
         <button
           mat-stroked-button
@@ -172,7 +175,7 @@
           Voltar
         </button>
         <button
-          mat-raised-button
+          mat-flat-button
           type="submit"
           color="primary"
           [disabled]="guestForm.invalid"
