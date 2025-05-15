@@ -48,7 +48,6 @@ import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
-import { createEventId } from 'app/mock/event-utils';
 import { Events } from 'app/model/Events';
 import { FormatsPipe } from 'app/pipes/formats.pipe';
 import dayjs from 'dayjs';
@@ -168,9 +167,14 @@ export class EventsComponent implements OnInit, AfterViewInit {
     selectable: true,
     selectMirror: true,
     dayMaxEvents: true,
+    eventTimeFormat: {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    },
     //select: this.handleDateSelect.bind(this),
     //eventClick: this.handleRemoveEventCalendar.bind(this),
-    //eventsSet: this.handleEvents.bind(this),
+    eventsSet: this.handleEvents.bind(this),
     height: '70dvh',
     eventContent: this.eventContent,
   });
@@ -241,8 +245,10 @@ export class EventsComponent implements OnInit, AfterViewInit {
   handleEnableCalendar = () => {
     this.calendarVisible.update((calendarVisible) => !calendarVisible);
     setTimeout(() => {
-      if (this.calendarComponent?.getApi()) {
-        this.calendarComponent.getApi().render();
+      if (this.calendarVisible() && this.calendarComponent?.getApi()) {
+        const calendarApi = this.calendarComponent.getApi();
+        calendarApi.render();
+        calendarApi.updateSize();
       }
       this.cdr.detectChanges();
     }, 0);
@@ -273,6 +279,29 @@ export class EventsComponent implements OnInit, AfterViewInit {
   };
 
   handleDateSelect(selectInfo: DateSelectArg) {
+    const modal = this.modal.openModal(
+      `modal-${Math.random()}`,
+      EventsFormComponent,
+      'Adicionar evento',
+      true,
+      true,
+      {
+        event: {
+          start_date: dayjs(selectInfo.startStr).format('DD/MM/YYYY'),
+          end_date: dayjs(selectInfo.endStr).format('DD/MM/YYYY'),
+          allDay: selectInfo.allDay,
+        },
+      },
+    );
+
+    modal.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loadEvents();
+      }
+    });
+  }
+
+  /* handleDateSelect(selectInfo: DateSelectArg) {
     const title = prompt('Please enter a new title for your event');
     const calendarApi = selectInfo.view.calendar;
 
@@ -287,10 +316,13 @@ export class EventsComponent implements OnInit, AfterViewInit {
         allDay: selectInfo.allDay,
       });
     }
-  }
+  } */
 
   handleRemoveEventCalendar(clickInfo: EventClickArg) {
-    clickInfo.event.remove();
+    const event = this.events.find((e) => e.id === clickInfo.event.id);
+    if (event) {
+      this.handleDelete(event);
+    }
   }
 
   handleEvents(events: EventApi[]) {
@@ -337,17 +369,61 @@ export class EventsComponent implements OnInit, AfterViewInit {
       .replace(/[\u0300-\u036f]/g, '');
   }
 
-  private convertToISODate(dateInput: string | Date): string {
-    if (dateInput instanceof Date) {
-      return dateInput.toISOString();
+  private convertToISODate(
+    dateInput: string | Date,
+    timeInput?: string,
+  ): string {
+    try {
+      // Se for um objeto Date, converte diretamente para ISO
+      if (dateInput instanceof Date) {
+        return timeInput
+          ? dayjs(dateInput).format('YYYY-MM-DD') + `T${timeInput}:00Z`
+          : dateInput.toISOString();
+      }
+
+      // Se for vazio, retorna a data atual
+      if (!dateInput) {
+        console.warn('Data vazia, usando data atual');
+        return dayjs().toISOString();
+      }
+
+      // Tenta parsear a data com dayjs em diferentes formatos
+      let parsedDate: dayjs.Dayjs;
+
+      // Verifica se está no formato YYYY-MM-DD
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
+        parsedDate = dayjs(dateInput, 'YYYY-MM-DD');
+      }
+      // Verifica se está no formato DD/MM/YYYY [ HH:mm]
+      else if (/^\d{2}\/\d{2}\/\d{4}( \d{2}:\d{2})?$/.test(dateInput)) {
+        parsedDate = dayjs(dateInput, ['DD/MM/YYYY', 'DD/MM/YYYY HH:mm']);
+      }
+      // Formato inválido
+      else {
+        console.error('Formato de data não reconhecido:', dateInput);
+        return dayjs().toISOString();
+      }
+
+      // Verifica se a data é válida
+      if (!parsedDate.isValid()) {
+        console.error('Data inválida:', dateInput);
+        return dayjs().toISOString();
+      }
+
+      // Se houver horário, adiciona ao formato ISO
+      if (timeInput) {
+        const timeFormatted = timeInput.includes(':')
+          ? timeInput
+          : `${timeInput}:00`;
+        return parsedDate.format('YYYY-MM-DD') + `T${timeFormatted}:00Z`;
+      }
+
+      // Retorna apenas a data no formato ISO (sem horário)
+      return parsedDate.toISOString();
+    } catch (error) {
+      console.error('Erro ao converter data:', dateInput, error);
+      return dayjs().toISOString();
     }
-
-    const [datePart, timePart] = dateInput.split(' ');
-    const [day, month, year] = datePart.split('/');
-
-    const isoDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-
-    return timePart ? `${isoDate}T${timePart}` : isoDate;
   }
 
   loadEvents = () => {
@@ -367,9 +443,24 @@ export class EventsComponent implements OnInit, AfterViewInit {
         const calendarEvents = events.map((event) => ({
           id: event.id ?? '',
           title: event.name,
-          start: this.convertToISODate(event.start_date || dayjs().toDate()),
-          end: this.convertToISODate(event.end_date || dayjs().toDate()),
-          allDay: true,
+          start: this.convertToISODate(
+            event.start_date || dayjs().toDate(),
+            event.start_time,
+          ),
+          end: this.convertToISODate(
+            event.end_date || dayjs().toDate(),
+            event.end_time,
+          ),
+          allDay: !(event.start_time || event.end_time), // Define allDay como false se houver horário
+          extendedProps: {
+            event_type: event.event_type?.name || 'Não especificado',
+            start_date: event.start_date || '',
+            start_time: event.start_time || '',
+            end_date: event.end_date || '',
+            end_time: event.end_time || '',
+            location: event.location || '',
+            obs: event.obs || '',
+          },
         }));
 
         this.calendarOptions.update((options) => ({
@@ -381,8 +472,10 @@ export class EventsComponent implements OnInit, AfterViewInit {
           const calendarApi = this.calendarComponent.getApi();
           calendarApi.removeAllEvents();
           calendarApi.addEventSource(calendarEvents);
-          calendarApi.render();
-          calendarApi.updateSize();
+          if (this.calendarVisible()) {
+            calendarApi.render();
+            calendarApi.updateSize();
+          }
         }
 
         this.dataSourceMat.data = this.events;
@@ -468,4 +561,20 @@ export class EventsComponent implements OnInit, AfterViewInit {
         }
       });
   };
+
+  formatTooltip(event: any): string {
+    const props: Events = event.extendedProps;
+    const lines = [
+      `Tipo: ${props.event_type}`,
+      `Início: ${props.start_date ? this.format.dateFormat(props.start_date) : 'Não especificado'}${props.start_time ? ' às ' + props.start_time : ''}`,
+      `Fim: ${props.end_date ? this.format.dateFormat(props.end_date) : 'Não especificado'}${props.end_time ? ' às ' + props.end_time : ''}`,
+    ];
+    if (props.location) {
+      lines.push(`Local: ${props.location}`);
+    }
+    if (props.obs) {
+      lines.push(`Observação: ${props.obs}`);
+    }
+    return lines.join('\n');
+  }
 }

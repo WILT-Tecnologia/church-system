@@ -22,9 +22,12 @@
             <ng-template #eventContent let-arg>
               <button
                 class="full-calendar-event"
-                mat-raised-button
+                mat-flat-button
                 type="button"
                 color="primary"
+                matTooltipClass="event-tooltip"
+                matTooltipPosition="above"
+                [matTooltip]="formatTooltip(arg.event)"
               >
                 {{ arg.event.title }}
               </button>

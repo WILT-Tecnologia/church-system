@@ -21,7 +21,7 @@
   gap: 1rem;
   padding: 1rem;
 
-  & > button {
+  &>button {
     width: 20rem;
 
     @media screen and (max-width: 768px) {

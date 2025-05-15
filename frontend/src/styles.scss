@@ -230,7 +230,6 @@ mat-form-field {
   padding: 1rem;
   margin: 1rem;
   border-radius: 0.3rem;
-  background-color: var(--white-color);
 
   @media screen and (max-width: 768px) {
     height: auto;
@@ -268,6 +267,7 @@ mat-form-field {
     }
 
     & .fc-button {
+
       border: none !important;
       padding: 8px 16px !important;
       border-radius: 4px !important;
@@ -303,6 +303,7 @@ mat-form-field {
         background-color: var(--primary-color) !important;
         color: var(--white-color) !important;
         border: 0 !important;
+
 
         &:hover {
           @include mat.elevation(2);
@@ -377,4 +378,15 @@ mat-sidenav {
 .mat-mdc-table,
 .mat-mdc-paginator {
   background-color: inherit !important;
+}
+
+.event-tooltip {
+  color: #fff;
+
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  white-space: pre-wrap;
+  width: auto;
+  max-width: 50dvw;
+  line-height: 2rem;
 }
