@@ -40,6 +40,63 @@
 
   <div class="container" [class.expanded]="!calendarVisible()">
     @if (!calendarVisible()) {
+      @if (eventTypes && eventTypes.length > 0) {
+        <app-tab-crud
+          [tabs]="eventTypes"
+          [crudConfig]="crudConfig"
+          [dataService]="findEventsByTabIdAdapter"
+        ></app-tab-crud>
+      } @else if (!rendering) {
+        <app-column>
+          <app-not-found-register></app-not-found-register>
+        </app-column>
+      }
+    }
+  </div>
+</div>
+
+<!-- <div class="wrapper">
+  <div class="calendar-actions">
+    @if (calendarVisible()) {
+      <button mat-flat-button color="primary" (click)="handleCreate()">
+        <mat-icon>add</mat-icon>
+        Novo Evento
+      </button>
+    }
+    <button mat-stroked-button color="primary" (click)="handleEnableCalendar()">
+      <mat-icon>{{
+        calendarVisible() ? 'view_list' : 'calendar_month'
+      }}</mat-icon>
+      {{ calendarVisible() ? 'Ver na Lista' : 'Ver no Calendário' }}
+    </button>
+  </div>
+
+  <div class="container" [class.expanded]="calendarVisible()">
+    @if (calendarVisible()) {
+      <app-column>
+        <div class="full-calendar-container mat-elevation-z3">
+          <full-calendar #calendar [options]="calendarOptions()">
+            <ng-template #eventContent let-arg>
+              <button
+                class="full-calendar-event"
+                mat-flat-button
+                type="button"
+                color="primary"
+                matTooltipClass="event-tooltip"
+                matTooltipPosition="above"
+                [matTooltip]="formatTooltip(arg.event)"
+              >
+                {{ arg.event.title }}
+              </button>
+            </ng-template>
+          </full-calendar>
+        </div>
+      </app-column>
+    }
+  </div>
+
+  <div class="container" [class.expanded]="!calendarVisible()">
+    @if (!calendarVisible()) {
       @if ((events && events.length > 0) || rendering) {
         <app-crud
           [fields]="events"
@@ -60,3 +117,4 @@
     }
   </div>
 </div>
+ -->

@@ -4,7 +4,7 @@ import { Members } from './Members';
 import { User } from './User';
 
 export type Events = {
-  id?: string;
+  id: string;
   church: Church;
   church_id: string;
   event_type: EventTypes;
@@ -17,6 +17,7 @@ export type Events = {
   start_time: string;
   end_time: string;
   location: string;
+  status: boolean;
   created_at: string;
   updated_at: string;
   created_by: User;

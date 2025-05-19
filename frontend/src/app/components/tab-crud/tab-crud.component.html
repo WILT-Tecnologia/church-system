@@ -1,0 +1,20 @@
+<mat-tab-group (selectedTabChange)="onTabChange($event.index)">
+  <mat-tab *ngFor="let tab of tabs">
+    <ng-template mat-tab-label>
+      <span [style.background-color]="tab.color" class="tab-label">{{
+        tab.name
+      }}</span>
+    </ng-template>
+    <app-crud
+      *ngIf="dataSources[tabs[selectedTabIndex].id]"
+      [fields]="dataSources[tabs[selectedTabIndex].id]"
+      [columnDefinitions]="crudConfig.columnDefinitions"
+      [actions]="crudConfig.actions"
+      [addFn]="crudConfig.addFn"
+      [editFn]="crudConfig.editFn"
+      [deleteFn]="crudConfig.deleteFn"
+      [toggleFn]="crudConfig.toggleFn"
+      [enableToggleStatus]="crudConfig.enableToggleStatus"
+    ></app-crud>
+  </mat-tab>
+</mat-tab-group>

@@ -455,10 +455,6 @@ export class EventsFormComponent implements OnInit, OnDestroy {
       end_time: this.formatTime(formValues.end_time),
     };
 
-    if (!this.isEditMode) {
-      delete eventPayload.id;
-    }
-
     if (this.isEditMode && this.data.event?.id) {
       this.handleUpdate(this.data.event.id, eventPayload);
     } else {

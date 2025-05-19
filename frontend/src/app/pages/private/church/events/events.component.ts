@@ -19,9 +19,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   FullCalendarComponent,
@@ -39,18 +39,23 @@ import listPlugin from '@fullcalendar/list';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import {
-  ActionsProps,
-  CrudComponent,
-} from 'app/components/crud/crud.component';
+import { ActionsProps } from 'app/components/crud/crud.component';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
+import {
+  CrudConfig,
+  TabConfig,
+  TabCrudComponent,
+} from 'app/components/tab-crud/tab-crud.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Events } from 'app/model/Events';
+import { EventTypes } from 'app/model/EventTypes';
 import dayjs from 'dayjs';
+import { Observable, of } from 'rxjs';
+import { EventTypesService } from '../../administrative/eventTypes/eventTypes.service';
 import { EventsFormComponent } from './events-form/events-form.component';
 import { EventsService } from './events.service';
 import { GuestsComponent } from './shared/guests/guests.component';
@@ -73,20 +78,18 @@ import { GuestsComponent } from './shared/guests/guests.component';
     MatDividerModule,
     MatRippleModule,
     MatMenuModule,
-    CrudComponent,
     NotFoundRegisterComponent,
     FullCalendarModule,
+    TabCrudComponent,
   ],
   providers: [FormatsPipe],
 })
 export class EventsComponent implements OnInit, AfterViewInit {
   breakpointObserver = inject(BreakpointObserver);
   events: Events[] = [];
-
+  eventTypes: EventTypes[] = [];
+  tabs: TabConfig[] = [];
   rendering: boolean = true;
-  dataSourceMat = new MatTableDataSource<Events>(this.events);
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   @ViewChild('eventContent') eventContent!: TemplateRef<any>;
   actions: ActionsProps[] = [
@@ -117,8 +120,8 @@ export class EventsComponent implements OnInit, AfterViewInit {
     { key: 'event_type.name', header: 'Tipo do evento', type: 'string' },
     { key: 'name', header: 'Nome', type: 'string' },
     { key: 'theme', header: 'Tema', type: 'string' },
-    { key: 'start_date', header: 'Data inicio', type: 'date' },
-    { key: 'start_time', header: 'Hora inicio', type: 'time' },
+    { key: 'start_date', header: 'Data início', type: 'date' },
+    { key: 'start_time', header: 'Hora início', type: 'time' },
     { key: 'end_date', header: 'Data fim', type: 'date' },
     { key: 'end_time', header: 'Hora fim', type: 'time' },
     {
@@ -132,6 +135,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
       type: 'string',
     },
   ];
+  crudConfig!: CrudConfig;
   isMobile: boolean = false;
   currentEvents = signal<EventApi[]>([]);
   calendarVisible = signal(false);
@@ -143,7 +147,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
       right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
     },
     buttonText: {
-      today: 'Ir paga hoje',
+      today: 'Ir para hoje',
       month: 'Mês',
       week: 'Semana',
       day: 'Dia',
@@ -172,8 +176,8 @@ export class EventsComponent implements OnInit, AfterViewInit {
       minute: '2-digit',
       hour12: false,
     },
-    //select: this.handleDateSelect.bind(this),
-    //eventClick: this.handleRemoveEventCalendar.bind(this),
+    select: this.handleDateSelect.bind(this),
+    eventClick: this.handleRemoveEventCalendar.bind(this),
     eventsSet: this.handleEvents.bind(this),
     height: '70dvh',
     eventContent: this.eventContent,
@@ -186,8 +190,9 @@ export class EventsComponent implements OnInit, AfterViewInit {
     private modal: ModalService,
     private eventsService: EventsService,
     private format: FormatsPipe,
-    @Inject(PLATFORM_ID) private platformId: Object,
     private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private eventTypesService: EventTypesService,
   ) {}
 
   ngOnInit() {
@@ -197,8 +202,63 @@ export class EventsComponent implements OnInit, AfterViewInit {
         this.isMobile = result.matches;
         this.updateCalendarOptions();
       });
-    this.loadEvents();
+    this.crudConfig = {
+      columnDefinitions: this.columnDefinitions,
+      actions: this.actions,
+      addFn: this.handleCreate.bind(this),
+      editFn: this.handleEdit.bind(this),
+      deleteFn: this.handleDelete.bind(this),
+      toggleFn: this.toggleStatus.bind(this),
+      enableToggleStatus: true,
+    };
+    this.loadEventTypes();
   }
+
+  ngAfterViewInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      setTimeout(() => {
+        if (this.calendarComponent && this.calendarComponent.getApi()) {
+          const calendarApi = this.calendarComponent.getApi();
+          calendarApi.render();
+          calendarApi.updateSize();
+        }
+        const buttons = document.querySelectorAll('.fc-button');
+        buttons.forEach((btn) => {
+          btn.classList.add('mat-raised-button', 'mat-primary');
+        });
+        this.cdr.detectChanges();
+      }, 0);
+    }
+  }
+
+  loadEventTypes() {
+    this.loading.show();
+    this.eventTypesService.getEventTypes().subscribe({
+      next: (eventTypes: EventTypes[]) => {
+        this.eventTypes = eventTypes.filter((et) => et.status);
+        this.tabs = this.eventTypes.map((et) => ({
+          id: et.id,
+          name: et.name,
+          color: et.color,
+        }));
+        this.rendering = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.toast.openError(MESSAGES.LOADING_ERROR);
+        this.loading.hide();
+      },
+      complete: () => this.loading.hide(),
+    });
+  }
+
+  findEventsByTabIdAdapter = (tabId: string): Observable<Events[]> => {
+    const eventType = this.eventTypes.find((et) => et.id === tabId);
+    if (!eventType) {
+      return of([]);
+    }
+    return this.eventsService.findByEventType(eventType);
+  };
 
   updateCalendarOptions() {
     if (this.isMobile) {
@@ -213,24 +273,6 @@ export class EventsComponent implements OnInit, AfterViewInit {
         initialView: 'dayGridMonth',
         height: '70dvh',
       }));
-    }
-  }
-
-  ngAfterViewInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      setTimeout(() => {
-        if (this.calendarComponent && this.calendarComponent.getApi()) {
-          const calendarApi = this.calendarComponent.getApi();
-          calendarApi.render();
-          calendarApi.updateSize();
-        }
-        const buttons = document.querySelectorAll('.fc-button');
-        buttons.forEach((btn) => {
-          btn.classList.add('mat-raised-button', 'mat-primary');
-          // Se desejar, adicione classes adicionais ou remova classes padrão
-        });
-        this.cdr.detectChanges();
-      }, 0);
     }
   }
 
@@ -256,7 +298,6 @@ export class EventsComponent implements OnInit, AfterViewInit {
 
   handleCalendarToggle = () => {
     this.calendarVisible.update((bool) => !bool);
-    // Ensure calendar renders after toggling visibility
     setTimeout(() => {
       if (this.calendarVisible() && this.calendarComponent?.getApi()) {
         this.calendarComponent.getApi().render();
@@ -270,7 +311,6 @@ export class EventsComponent implements OnInit, AfterViewInit {
       ...options,
       weekends: !options.weekends,
     }));
-    // Force re-render after updating options
     setTimeout(() => {
       if (this.calendarComponent?.getApi()) {
         this.calendarComponent.getApi().render();
@@ -301,23 +341,6 @@ export class EventsComponent implements OnInit, AfterViewInit {
     });
   }
 
-  /* handleDateSelect(selectInfo: DateSelectArg) {
-    const title = prompt('Please enter a new title for your event');
-    const calendarApi = selectInfo.view.calendar;
-
-    calendarApi.unselect();
-
-    if (title) {
-      calendarApi.addEvent({
-        id: createEventId(),
-        title,
-        start: selectInfo.startStr,
-        end: selectInfo.endStr,
-        allDay: selectInfo.allDay,
-      });
-    }
-  } */
-
   handleRemoveEventCalendar(clickInfo: EventClickArg) {
     const event = this.events.find((e) => e.id === clickInfo.event.id);
     if (event) {
@@ -328,102 +351,6 @@ export class EventsComponent implements OnInit, AfterViewInit {
   handleEvents(events: EventApi[]) {
     this.currentEvents.set(events);
     this.cdr.detectChanges();
-  }
-
-  applyFilter = (event: Event): void => {
-    const filterValue = (event.target as HTMLInputElement).value
-      .trim()
-      .toLowerCase();
-
-    this.filterPredicate();
-
-    this.dataSourceMat.filter = filterValue;
-
-    if (this.dataSourceMat.paginator) {
-      this.dataSourceMat.paginator.firstPage();
-    }
-  };
-
-  private filterPredicate() {
-    this.dataSourceMat.filterPredicate = (data: any, filter: string) => {
-      return this.normalizedFilter(filter, data);
-    };
-  }
-
-  private normalizedFilter(filter: any, data: any): boolean {
-    const normalizedFilter = this.normalizeString(filter);
-    return this.columnDefinitions.some((column) => {
-      const value = this.format.getNestedValue(data, column.key);
-      if (value !== null && value !== undefined) {
-        const normalizedValue = this.normalizeString(value);
-        return normalizedValue.includes(normalizedFilter);
-      }
-      return false;
-    });
-  }
-
-  private normalizeString(value: any): string {
-    return String(value)
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-  }
-
-  private convertToISODate(
-    dateInput: string | Date,
-    timeInput?: string,
-  ): string {
-    try {
-      // Se for um objeto Date, converte diretamente para ISO
-      if (dateInput instanceof Date) {
-        return timeInput
-          ? dayjs(dateInput).format('YYYY-MM-DD') + `T${timeInput}:00Z`
-          : dateInput.toISOString();
-      }
-
-      // Se for vazio, retorna a data atual
-      if (!dateInput) {
-        console.warn('Data vazia, usando data atual');
-        return dayjs().toISOString();
-      }
-
-      // Tenta parsear a data com dayjs em diferentes formatos
-      let parsedDate: dayjs.Dayjs;
-
-      // Verifica se está no formato YYYY-MM-DD
-      if (/^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
-        parsedDate = dayjs(dateInput, 'YYYY-MM-DD');
-      }
-      // Verifica se está no formato DD/MM/YYYY [ HH:mm]
-      else if (/^\d{2}\/\d{2}\/\d{4}( \d{2}:\d{2})?$/.test(dateInput)) {
-        parsedDate = dayjs(dateInput, ['DD/MM/YYYY', 'DD/MM/YYYY HH:mm']);
-      }
-      // Formato inválido
-      else {
-        console.error('Formato de data não reconhecido:', dateInput);
-        return dayjs().toISOString();
-      }
-
-      // Verifica se a data é válida
-      if (!parsedDate.isValid()) {
-        console.error('Data inválida:', dateInput);
-        return dayjs().toISOString();
-      }
-
-      // Se houver horário, adiciona ao formato ISO
-      if (timeInput) {
-        const timeFormatted = timeInput.includes(':')
-          ? timeInput
-          : `${timeInput}:00`;
-        return parsedDate.format('YYYY-MM-DD') + `T${timeFormatted}:00Z`;
-      }
-
-      // Retorna apenas a data no formato ISO (sem horário)
-      return parsedDate.toISOString();
-    } catch (error) {
-      console.error('Erro ao converter data:', dateInput, error);
-      return dayjs().toISOString();
-    }
   }
 
   loadEvents = () => {
@@ -440,7 +367,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
             : '--',
         }));
 
-        const calendarEvents = events.map((event) => ({
+        const calendarEvents = this.events.map((event) => ({
           id: event.id ?? '',
           title: event.name,
           start: this.convertToISODate(
@@ -451,7 +378,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
             event.end_date || dayjs().toDate(),
             event.end_time,
           ),
-          allDay: !(event.start_time || event.end_time), // Define allDay como false se houver horário
+          allDay: !(event.start_time || event.end_time),
           extendedProps: {
             event_type: event.event_type?.name || 'Não especificado',
             start_date: event.start_date || '',
@@ -478,9 +405,6 @@ export class EventsComponent implements OnInit, AfterViewInit {
           }
         }
 
-        this.dataSourceMat.data = this.events;
-        this.dataSourceMat.sort = this.sort;
-        this.dataSourceMat.paginator = this.paginator;
         this.rendering = false;
         this.cdr.detectChanges();
       },
@@ -562,6 +486,24 @@ export class EventsComponent implements OnInit, AfterViewInit {
       });
   };
 
+  toggleStatus = (event: Events) => {
+    const updatedStatus = !event.status;
+    this.showLoading();
+    this.eventsService.updatedStatus(event.id, updatedStatus).subscribe({
+      next: () => {
+        this.toast.openSuccess(
+          `Evento ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`,
+        );
+        this.loadEvents();
+      },
+      error: () => {
+        this.toast.openError(MESSAGES.UPDATE_ERROR);
+        this.hideLoading();
+      },
+      complete: () => this.hideLoading(),
+    });
+  };
+
   formatTooltip(event: any): string {
     const props: Events = event.extendedProps;
     const lines = [
@@ -576,5 +518,51 @@ export class EventsComponent implements OnInit, AfterViewInit {
       lines.push(`Observação: ${props.obs}`);
     }
     return lines.join('\n');
+  }
+
+  private convertToISODate(
+    dateInput: string | Date,
+    timeInput?: string,
+  ): string {
+    try {
+      if (dateInput instanceof Date) {
+        return timeInput
+          ? dayjs(dateInput).format('YYYY-MM-DD') + `T${timeInput}:00Z`
+          : dateInput.toISOString();
+      }
+
+      if (!dateInput) {
+        console.warn('Data vazia, usando data atual');
+        return dayjs().toISOString();
+      }
+
+      let parsedDate: dayjs.Dayjs;
+
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
+        parsedDate = dayjs(dateInput, 'YYYY-MM-DD');
+      } else if (/^\d{2}\/\d{2}\/\d{4}( \d{2}:\d{2})?$/.test(dateInput)) {
+        parsedDate = dayjs(dateInput, ['DD/MM/YYYY', 'DD/MM/YYYY HH:mm']);
+      } else {
+        console.error('Formato de data não reconhecido:', dateInput);
+        return dayjs().toISOString();
+      }
+
+      if (!parsedDate.isValid()) {
+        console.error('Data inválida:', dateInput);
+        return dayjs().toISOString();
+      }
+
+      if (timeInput) {
+        const timeFormatted = timeInput.includes(':')
+          ? timeInput
+          : `${timeInput}:00`;
+        return parsedDate.format('YYYY-MM-DD') + `T${timeFormatted}:00Z`;
+      }
+
+      return parsedDate.toISOString();
+    } catch (error) {
+      console.error('Erro ao converter data:', dateInput, error);
+      return dayjs().toISOString();
+    }
   }
 }
