@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import { Church } from 'app/model/Church';
-import { FormatsPipe } from 'app/pipes/formats.pipe';
 import { environment } from 'environments/environment';
 import { map, Observable } from 'rxjs';
 

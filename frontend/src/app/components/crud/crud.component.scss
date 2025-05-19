@@ -181,3 +181,17 @@ th {
 .mat-mdc-row {
   color: var(--text-color) !important;
 }
+
+.color-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.color-box {
+  width: 1.5rem; // Increased size for visibility
+  height: 1.5rem;
+  border-radius: 0.25rem; // Slightly rounded corners
+  border: 1px solid #333; // Darker border for contrast
+  flex-shrink: 0; // Prevent shrinking
+}

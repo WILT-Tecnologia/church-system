@@ -101,6 +101,14 @@
           <ng-container *ngSwitchCase="'number'">
             {{ fields | formatValues: column.key : column.type }}
           </ng-container>
+          <ng-container *ngSwitchCase="'color'">
+            <div class="color-display">
+              <div
+                class="color-box"
+                [ngStyle]="{ 'background-color': fields[column.key] }"
+              ></div>
+            </div>
+          </ng-container>
           <ng-container *ngSwitchCase="'boolean'">
             <span [ngClass]="fields[column.key] ? 'active' : 'inactive'">
               {{ fields[column.key] ? 'Ativado' : 'Desativado' }}

@@ -59,6 +59,7 @@ export class EventTypesComponent implements OnInit {
   columnDefinitions = [
     { key: 'status', header: 'Status', type: 'boolean' },
     { key: 'name', header: 'Nome', type: 'string' },
+    { key: 'color', header: 'Cor', type: 'color' },
     { key: 'description', header: 'Descrição', type: 'string' },
     { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
   ];

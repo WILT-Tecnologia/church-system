@@ -34,7 +34,7 @@ export class FormatsPipe implements PipeTransform {
 
     if (typeof time === 'string' && time.includes('T')) {
       const [datePart, timePart] = time.split('T');
-      return timePart.slice(0, 5); // Pega HH:mm
+      return timePart.slice(0, 5);
     }
 
     if (time instanceof Date) {
@@ -43,7 +43,6 @@ export class FormatsPipe implements PipeTransform {
       return `${hours}:${minutes}`;
     }
 
-    // Se já estiver no formato HH:mm
     if (typeof time === 'string') {
       return time.length === 5 ? time : null;
     }
@@ -87,22 +86,18 @@ export class FormatsPipe implements PipeTransform {
   phoneFormat(value: string | number): string {
     const phone = value.toString().replace(/\D/g, '');
 
-    // Telefone com DDD (Brasil)
     if (phone.length === 11) {
       return `(${phone.slice(0, 2)}) ${phone.slice(2, 7)}-${phone.slice(7)}`;
     }
 
-    // Telefone fixo com DDD (Brasil)
     if (phone.length === 10) {
       return `(${phone.slice(0, 2)}) ${phone.slice(2, 6)}-${phone.slice(6)}`;
     }
 
-    // Telefone sem DDD
     if (phone.length === 8) {
       return `${phone.slice(0, 4)}-${phone.slice(4)}`;
     }
 
-    // Número inválido
     return value.toString();
   }
 

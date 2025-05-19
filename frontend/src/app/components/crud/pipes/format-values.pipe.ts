@@ -24,6 +24,11 @@ export class FormatValuesPipe implements PipeTransform {
         return this.formats.cnpjFormat(value);
       case 'phone':
         return this.formats.phoneFormat(value);
+      case 'color':
+        if (value && /^#[0-9A-F]{6}$/i.test(value)) {
+          return value; // Return valid hex color
+        }
+        return '';
       case 'sex':
         return this.formats.SexTransform(value, 'toView');
       case 'boolean':

@@ -20,8 +20,8 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { FormatValuesPipe } from 'app/pipes/format-values.pipe';
-import { FormatsPipe } from 'app/pipes/formats.pipe';
+import { FormatValuesPipe } from 'app/components/crud/pipes/format-values.pipe';
+import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import {
   FilterButtonAdvancedComponent,
   FilterField,
@@ -89,6 +89,7 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() editFn!: (element: any) => void;
   @Input() addFn!: () => void;
   @Input() actionFn!: (element?: any) => void;
+
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   displayedColumns: string[] = [];

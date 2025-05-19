@@ -22,11 +22,11 @@ class EventType extends Model
         'id',
         'name',
         'description',
+        'color',
         'status',
     ];
 
-    public function evento(): HasMany
-    {
+    public function evento(): HasMany {
         return $this->hasMany(Evento::class);
     }
 

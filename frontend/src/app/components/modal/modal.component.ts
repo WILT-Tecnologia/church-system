@@ -77,14 +77,6 @@ export class ModalComponent implements OnInit {
       this.customContent.onFullscreenChange(this.isFullscreen);
     }
 
-    /* if (this.isFullscreen) {
-      this.dialogRef.updateSize('100vw', '100vh');
-      this.dialogRef.updatePosition({ top: '0', left: '0' });
-    } else {
-      this.dialogRef.updateSize();
-      this.dialogRef.updatePosition();
-    } */
-
     this.cdr.detectChanges();
   }
 }

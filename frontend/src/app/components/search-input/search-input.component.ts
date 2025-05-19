@@ -3,7 +3,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableDataSource } from '@angular/material/table';
-import { FormatsPipe } from 'app/pipes/formats.pipe';
+import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 
 interface TableField {
   [key: string]: any;

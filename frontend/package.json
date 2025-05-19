@@ -34,6 +34,7 @@
     "@fullcalendar/interaction": "^6.1.15",
     "@fullcalendar/list": "^6.1.15",
     "@fullcalendar/timegrid": "^6.1.15",
+    "@iplab/ngx-color-picker": "^19.0.1",
     "@swimlane/ngx-charts": "^21.1.2",
     "dayjs": "^1.11.13",
     "express": "^4.18.2",

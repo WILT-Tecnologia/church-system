@@ -1677,6 +1677,13 @@
   resolved "https://registry.yarnpkg.com/@inquirer/type/-/type-3.0.4.tgz#fa5f9e91a0abf3c9e93d3e1990ecb891d8195cf2"
   integrity sha512-2MNFrDY8jkFYc9Il9DgLsHhMzuHnOYM1+CUYVWbzu9oT0hC7V7EcYvdCKeoll/Fcci04A+ERZ9wcc7cQ8lTkIA==
 
+"@iplab/ngx-color-picker@^19.0.1":
+  version "19.0.1"
+  resolved "https://registry.yarnpkg.com/@iplab/ngx-color-picker/-/ngx-color-picker-19.0.1.tgz#2a51747a6faa6d05a2bec78d9486a83e321a70b2"
+  integrity sha512-xaRoJTqMuzi6wkcBi1XWafDLfg4FzIDQv7U5YDN0EkNI7d88EEMmSbvySd7sGheKp71/CN93QThq8dpCGwbYcQ==
+  dependencies:
+    tslib "^2.3.0"
+
 "@isaacs/cliui@^8.0.2":
   version "8.0.2"
   resolved "https://registry.yarnpkg.com/@isaacs/cliui/-/cliui-8.0.2.tgz#b37667b7bc181c168782259bab42474fbf52b550"

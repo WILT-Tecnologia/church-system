@@ -43,13 +43,13 @@ import {
   ActionsProps,
   CrudComponent,
 } from 'app/components/crud/crud.component';
+import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Events } from 'app/model/Events';
-import { FormatsPipe } from 'app/pipes/formats.pipe';
 import dayjs from 'dayjs';
 import { EventsFormComponent } from './events-form/events-form.component';
 import { EventsService } from './events.service';
