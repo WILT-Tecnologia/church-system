@@ -125,132 +125,83 @@
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let fields" class="actions-cell">
         <div class="actions-container">
-          <button
-            type="button"
-            mat-icon-button
-            [matMenuTriggerFor]="menu"
-            matTooltip="Ações"
-          >
-            <mat-icon>more_vert</mat-icon>
-          </button>
-          <mat-menu #menu="matMenu">
-            <!-- Itera sobre as ações definidas dinamicamente -->
-            <ng-container *ngFor="let action of actions">
-              <ng-container [ngSwitch]="action.type">
-                <!-- Botão Toggle (Ativar/Desativar) -->
-                <ng-container *ngSwitchCase="'toggle'">
+          <!-- Toggle Action (rendered separately) -->
+          <!-- @for (action of actions; track action.type) {
+            @if (action.type === 'toggle') {
+              <button
+                mat-icon-button
+                [matTooltip]="action.tooltip || 'Toggle status'"
+                [color]="fields.status ? 'warn' : 'primary'"
+                (click)="action.action(fields)"
+                type="button"
+              >
+                <mat-icon [color]="fields.status ? 'warn' : 'primary'">
+                  {{ action.icon || 'power_settings_new' }}
+                </mat-icon>
+              </button>
+            }
+          } -->
+          <!-- Other Actions (generic rendering in menu) -->
+          @if (actions | hasNonToggleActions) {
+            <button
+              type="button"
+              mat-icon-button
+              [matMenuTriggerFor]="menu"
+              matTooltip="Ações"
+            >
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+              @for (action of actions; track action.type) {
+                @if (action.type === 'toggle') {
                   <div class="toggle">
                     <button
                       mat-flat-button
-                      type="button"
-                      [matTooltip]="action.tooltip ?? ''"
+                      [matTooltip]="
+                        action.tooltip ||
+                        (fields.status ? 'Desativar' : 'Ativar')
+                      "
                       [color]="fields.status ? 'warn' : 'primary'"
                       (click)="action.action(fields)"
+                      type="button"
                     >
-                      {{
-                        fields.status
-                          ? action.inactiveLabel
-                          : action.activeLabel
-                      }}
+                      <mat-icon>
+                        {{ action.icon || 'power_settings_new' }}
+                      </mat-icon>
+                      <span>
+                        {{ fields.status ? 'Desativar' : 'Ativar' }}
+                      </span>
                     </button>
                   </div>
-                  <mat-divider></mat-divider>
-                </ng-container>
-
-                <!-- Botão Editar -->
-                <ng-container *ngSwitchCase="'edit'">
+                }
+                @if (action.type !== 'toggle') {
                   <button
-                    type="button"
                     mat-menu-item
-                    matTooltip="{{ action.tooltip }}"
+                    [matTooltip]="action.tooltip || ''"
                     (click)="action.action(fields)"
-                  >
-                    <mat-icon *ngIf="action.icon">{{ action.icon }}</mat-icon>
-                    <span *ngIf="action.label" class="label-button-menu">{{
-                      action.label
-                    }}</span>
-                  </button>
-                </ng-container>
-
-                <!-- Botão Excluir -->
-                <ng-container *ngSwitchCase="'delete'">
-                  <button
-                    (click)="action.action(fields)"
-                    mat-menu-item
-                    matTooltip="{{ action.tooltip }}"
                     type="button"
                   >
-                    <mat-icon *ngIf="action.icon" color="warn">
-                      {{ action.icon }}
-                    </mat-icon>
-                    <span *ngIf="action.label" class="label-button-menu delete">
-                      {{ action.label }}
-                    </span>
+                    @if (action.icon) {
+                      <mat-icon [color]="action.color || 'primary'">
+                        {{ action.icon }}
+                      </mat-icon>
+                    }
+                    @if (action.label) {
+                      <span
+                        [ngClass]="action.type === 'delete' ? 'delete' : ''"
+                        class="label-button-menu"
+                      >
+                        {{ action.label }}
+                      </span>
+                    }
                   </button>
-                </ng-container>
-
-                <!-- Botão histórico -->
-                <ng-container *ngSwitchCase="'history'">
-                  <button
-                    type="button"
-                    mat-menu-item
-                    matTooltip="{{ action.tooltip }}"
-                    (click)="action.action(fields)"
-                  >
-                    <mat-icon *ngIf="action.icon">{{ action.icon }}</mat-icon>
-                    <span *ngIf="action.label" class="label-button-menu">{{
-                      action.label
-                    }}</span>
-                  </button>
-                </ng-container>
-
-                <!-- Botão permissões -->
-                <ng-container *ngSwitchCase="'security'">
-                  <button
-                    type="button"
-                    mat-menu-item
-                    matTooltip="{{ action.tooltip }}"
-                    (click)="action.action(fields)"
-                  >
-                    <mat-icon *ngIf="action.icon">{{ action.icon }}</mat-icon>
-                    <span *ngIf="action.label" class="label-button-menu">{{
-                      action.label
-                    }}</span>
-                  </button>
-                </ng-container>
-
-                <!-- Botão person -->
-                <ng-container *ngSwitchCase="'person'">
-                  <button
-                    type="button"
-                    mat-menu-item
-                    matTooltip="{{ action.tooltip }}"
-                    (click)="action.action(fields)"
-                  >
-                    <mat-icon *ngIf="action.icon">{{ action.icon }}</mat-icon>
-                    <span *ngIf="action.label" class="label-button-menu">{{
-                      action.label
-                    }}</span>
-                  </button>
-                </ng-container>
-
-                <!-- Botão fazer visualizar -->
-                <ng-container *ngSwitchCase="'view'">
-                  <button
-                    (click)="action.action(fields)"
-                    mat-menu-item
-                    matTooltip="{{ action.tooltip }}"
-                    type="button"
-                  >
-                    <mat-icon *ngIf="action.icon">{{ action.icon }}</mat-icon>
-                    <span *ngIf="action.label" class="label-button-menu">
-                      {{ action.label }}
-                    </span>
-                  </button>
-                </ng-container>
-              </ng-container>
-            </ng-container>
-          </mat-menu>
+                  @if (action !== actions[actions.length - 1]) {
+                    <mat-divider></mat-divider>
+                  }
+                }
+              }
+            </mat-menu>
+          }
         </div>
       </td>
     </ng-container>

@@ -6,6 +6,8 @@ import {
   Input,
   OnChanges,
   OnInit,
+  Pipe,
+  PipeTransform,
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
@@ -34,10 +36,11 @@ export interface TableField {
 export type ActionsProps = {
   type: string;
   tooltip?: string;
-  activeLabel?: string;
-  inactiveLabel?: string;
   icon?: string;
   label?: string;
+  color?: string;
+  inactiveLabel?: string;
+  activeLabel?: string;
   action: (element: any) => void;
 };
 
@@ -46,6 +49,13 @@ export type ColumnDefinitionsProps = {
   header: string;
   type: string;
 };
+
+@Pipe({ name: 'hasNonToggleActions', standalone: true })
+export class HasNonToggleActionsPipe implements PipeTransform {
+  transform(actions: ActionsProps[]): boolean {
+    return actions.some((action) => action.type !== 'toggle');
+  }
+}
 
 @Component({
   selector: 'app-crud',
@@ -65,6 +75,7 @@ export type ColumnDefinitionsProps = {
     MatMenuModule,
     CommonModule,
     FormatValuesPipe,
+    HasNonToggleActionsPipe,
     FilterButtonAdvancedComponent,
   ],
   providers: [FormatsPipe],
@@ -89,6 +100,7 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() editFn!: (element: any) => void;
   @Input() addFn!: () => void;
   @Input() actionFn!: (element?: any) => void;
+  processedActions: ActionsProps[] = [];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -110,10 +122,15 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['fields']) {
+    if (changes['fields'] || changes['actions']) {
       this.dataSourceMat.data = this.fields;
+      // Process actions to handle dynamic labels (e.g., for toggle)
+      this.processedActions = this.actions.map((action) => ({
+        ...action,
+        label:
+          action.type === 'toggle' ? this.getToggleLabel(action) : action.label,
+      }));
     }
-
     if (this.paginator) {
       this.dataSourceMat.paginator = this.paginator;
       this.paginator.length = this.fields.length;
@@ -222,6 +239,10 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   toggleFilter = () => {
     this.enableFilterAdvanced = !this.enableFilterAdvanced;
   };
+
+  private getToggleLabel(action: ActionsProps): string {
+    return action.inactiveLabel || 'Desativar';
+  }
 
   private normalizeString(value: any): string {
     return String(value)

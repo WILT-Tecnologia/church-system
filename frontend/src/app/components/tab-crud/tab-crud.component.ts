@@ -8,6 +8,7 @@ import {
   CrudComponent,
 } from '../crud/crud.component';
 import { LoadingService } from '../loading/loading.service';
+import { NotFoundRegisterComponent } from '../not-found-register/not-found-register.component';
 import { MESSAGES } from '../toast/messages';
 import { ToastService } from '../toast/toast.service';
 
@@ -31,12 +32,18 @@ export interface CrudConfig {
   selector: 'app-tab-crud',
   templateUrl: './tab-crud.component.html',
   styleUrl: './tab-crud.component.scss',
-  imports: [CommonModule, MatTabsModule, CrudComponent],
+  imports: [
+    CommonModule,
+    MatTabsModule,
+    CrudComponent,
+    NotFoundRegisterComponent,
+  ],
 })
 export class TabCrudComponent implements OnInit {
   @Input() tabs: TabConfig[] = [];
   @Input() crudConfig!: CrudConfig;
   @Input() dataService!: (tabId: string) => Observable<any[]>;
+  @Input() handleCreate!: () => void;
 
   selectedTabIndex = 0;
   dataSources: { [key: string]: any[] } = {};

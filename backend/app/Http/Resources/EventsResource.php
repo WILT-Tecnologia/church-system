@@ -30,6 +30,12 @@ class EventsResource extends JsonResource
             'updated_at' => $this->updated_at,
             'created_by' => new UserResource($this->createdBy),
             'updated_by' => new UserResource($this->updatedBy),
+            'combinedCreatedByAndCreatedAt' => $this->created_at && $this->createdBy?->name
+                ? Carbon::parse($this->created_at)->timezone('America/Sao_Paulo')->format('d/m/Y \à\s H:i:s') . ' por ' . $this->createdBy->name
+                : '--',
+            'combinedUpdatedByAndUpdatedAt' => $this->updated_at && $this->updatedBy?->name
+                ? Carbon::parse($this->updated_at)->timezone('America/Sao_Paulo')->format('d/m/Y \à\s H:i:s') . ' por ' . $this->updatedBy->name
+                : '--',
         ];
     }
 }

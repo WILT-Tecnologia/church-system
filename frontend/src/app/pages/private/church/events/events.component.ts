@@ -39,11 +39,13 @@ import listPlugin from '@fullcalendar/list';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { ActionsProps } from 'app/components/crud/crud.component';
+import {
+  ActionsProps,
+  ColumnDefinitionsProps,
+} from 'app/components/crud/crud.component';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
-import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import {
   CrudConfig,
   TabConfig,
@@ -56,9 +58,9 @@ import { EventTypes } from 'app/model/EventTypes';
 import dayjs from 'dayjs';
 import { Observable, of } from 'rxjs';
 import { EventTypesService } from '../../administrative/eventTypes/eventTypes.service';
+import { MembersComponent } from '../members/members.component';
 import { EventsFormComponent } from './events-form/events-form.component';
 import { EventsService } from './events.service';
-import { GuestsComponent } from './shared/guests/guests.component';
 
 @Component({
   selector: 'app-events',
@@ -78,7 +80,6 @@ import { GuestsComponent } from './shared/guests/guests.component';
     MatDividerModule,
     MatRippleModule,
     MatMenuModule,
-    NotFoundRegisterComponent,
     FullCalendarModule,
     TabCrudComponent,
   ],
@@ -94,11 +95,11 @@ export class EventsComponent implements OnInit, AfterViewInit {
   @ViewChild('eventContent') eventContent!: TemplateRef<any>;
   actions: ActionsProps[] = [
     {
-      type: 'person',
-      tooltip: 'Convidados',
-      icon: 'groups',
-      label: 'Convidados',
-      action: (events: Events) => this.handleGuest(events),
+      type: 'person_add',
+      tooltip: 'Adicionar membros',
+      icon: 'person_add',
+      label: 'Adicionar membros',
+      action: (events: Events) => this.handleAddMembers(events),
     },
     {
       type: 'edit',
@@ -112,10 +113,11 @@ export class EventsComponent implements OnInit, AfterViewInit {
       tooltip: 'Excluir',
       icon: 'delete',
       label: 'Excluir',
+      color: 'warn',
       action: (events: Events) => this.handleDelete(events),
     },
   ];
-  columnDefinitions = [
+  columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'church.name', header: 'Igreja', type: 'string' },
     { key: 'event_type.name', header: 'Tipo do evento', type: 'string' },
     { key: 'name', header: 'Nome', type: 'string' },
@@ -191,11 +193,13 @@ export class EventsComponent implements OnInit, AfterViewInit {
     private eventsService: EventsService,
     private format: FormatsPipe,
     private cdr: ChangeDetectorRef,
-    @Inject(PLATFORM_ID) private platformId: Object,
     private eventTypesService: EventTypesService,
+    @Inject(PLATFORM_ID) private platformId: Object,
   ) {}
 
   ngOnInit() {
+    this.loadEventTypes();
+    this.loadEvents();
     this.breakpointObserver
       .observe([Breakpoints.Handset])
       .subscribe((result) => {
@@ -211,7 +215,6 @@ export class EventsComponent implements OnInit, AfterViewInit {
       toggleFn: this.toggleStatus.bind(this),
       enableToggleStatus: true,
     };
-    this.loadEventTypes();
   }
 
   ngAfterViewInit() {
@@ -231,7 +234,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
     }
   }
 
-  loadEventTypes() {
+  loadEventTypes = () => {
     this.loading.show();
     this.eventTypesService.getEventTypes().subscribe({
       next: (eventTypes: EventTypes[]) => {
@@ -250,7 +253,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
       },
       complete: () => this.loading.hide(),
     });
-  }
+  };
 
   findEventsByTabIdAdapter = (tabId: string): Observable<Events[]> => {
     const eventType = this.eventTypes.find((et) => et.id === tabId);
@@ -276,13 +279,13 @@ export class EventsComponent implements OnInit, AfterViewInit {
     }
   }
 
-  showLoading() {
+  showLoading = () => {
     this.loading.show();
-  }
+  };
 
-  hideLoading() {
+  hideLoading = () => {
     this.loading.hide();
-  }
+  };
 
   handleEnableCalendar = () => {
     this.calendarVisible.update((calendarVisible) => !calendarVisible);
@@ -357,15 +360,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
     this.showLoading();
     this.eventsService.findAll().subscribe({
       next: (events) => {
-        this.events = events.map((event) => ({
-          ...event,
-          combinedCreatedByAndCreatedAt: event.created_by?.name
-            ? `${this.format.dateFormat(event.created_at)} por ${event.created_by?.name}`
-            : '--',
-          combinedUpdatedByAndUpdatedAt: event.updated_by?.name
-            ? `${this.format.dateFormat(event.updated_at)} por ${event.updated_by?.name}`
-            : '--',
-        }));
+        this.events = events;
 
         const calendarEvents = this.events.map((event) => ({
           id: event.id ?? '',
@@ -416,19 +411,6 @@ export class EventsComponent implements OnInit, AfterViewInit {
     });
   };
 
-  handleGuest = (event: Events) => {
-    this.modal.openModal(
-      `modal-${Math.random()}`,
-      GuestsComponent,
-      `Convidados do evento ${event.event_type?.name}`,
-      true,
-      true,
-      { event },
-      '',
-      true,
-    );
-  };
-
   handleCreate = () => {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
@@ -443,6 +425,19 @@ export class EventsComponent implements OnInit, AfterViewInit {
         this.loadEvents();
       }
     });
+  };
+
+  handleAddMembers = (event: Events) => {
+    this.modal.openModal(
+      `modal-${Math.random()}`,
+      MembersComponent,
+      `Adicionar membros no evento ${event.name}`,
+      true,
+      true,
+      { event },
+      '',
+      true,
+    );
   };
 
   handleEdit = (event: Events) => {
@@ -520,10 +515,10 @@ export class EventsComponent implements OnInit, AfterViewInit {
     return lines.join('\n');
   }
 
-  private convertToISODate(
+  private convertToISODate = (
     dateInput: string | Date,
     timeInput?: string,
-  ): string {
+  ): string => {
     try {
       if (dateInput instanceof Date) {
         return timeInput
@@ -564,5 +559,5 @@ export class EventsComponent implements OnInit, AfterViewInit {
       console.error('Erro ao converter data:', dateInput, error);
       return dayjs().toISOString();
     }
-  }
+  };
 }

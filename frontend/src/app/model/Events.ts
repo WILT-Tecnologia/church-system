@@ -22,6 +22,8 @@ export type Events = {
   updated_at: string;
   created_by: User;
   updated_by: User | null;
+  combinedCreatedByAndCreatedAt?: string;
+  combinedUpdatedByAndUpdatedAt?: string;
 };
 
 export type Guest = {

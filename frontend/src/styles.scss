@@ -80,6 +80,18 @@ app-root {
   color: var(--white-color);
 }
 
+.success {
+  color: var(--success-color);
+}
+
+.danger {
+  color: var(--danger-color);
+}
+
+.warning {
+  color: var(--warning-color);
+}
+
 .spacer {
   flex: 1 1 auto;
 }

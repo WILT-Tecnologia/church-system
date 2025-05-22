@@ -15,7 +15,8 @@ class EventTypeController extends Controller
      * Display a listing of the resource.
      */
     public function index() {
-        return EventTypeResource::collection(EventType::all());
+        $eventType = EventType::orderBy('name')->get();
+        return EventTypeResource::collection($eventType);
     }
 
     /**

@@ -7,6 +7,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import {
   ActionsProps,
+  ColumnDefinitionsProps,
   CrudComponent,
 } from 'app/components/crud/crud.component';
 import { LoadingService } from 'app/components/loading/loading.service';
@@ -34,8 +35,7 @@ export class EventTypesComponent implements OnInit {
   actions: ActionsProps[] = [
     {
       type: 'toggle',
-      tooltip: 'Ativa/Desativa o tipo',
-      icon: 'toggle_on',
+      tooltip: 'Ativar/Desativar',
       activeLabel: 'Ativar',
       inactiveLabel: 'Desativar',
       action: (eventType: EventTypes) => this.toggleStatus(eventType),
@@ -52,11 +52,12 @@ export class EventTypesComponent implements OnInit {
       tooltip: 'Excluir',
       icon: 'delete',
       label: 'Excluir',
+      color: 'warn',
       action: (eventType: EventTypes) => this.handleDelete(eventType),
     },
   ];
 
-  columnDefinitions = [
+  columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'status', header: 'Status', type: 'boolean' },
     { key: 'name', header: 'Nome', type: 'string' },
     { key: 'color', header: 'Cor', type: 'color' },
