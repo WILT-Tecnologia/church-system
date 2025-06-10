@@ -1,0 +1,17 @@
+:host {
+  display: block;
+  width: 100%;
+  margin: 0.5rem 0;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(var(--columns, 1), 1fr);
+}
+
+@media screen and (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,15 @@
+@if (profiles && profiles.length > 0) {
+  <app-crud
+    [fields]="profiles"
+    [dataSourceMat]="dataSourceMat"
+    [columnDefinitions]="columnDefinitions"
+    [addFn]="handleCreate"
+    [editFn]="handleEdit"
+    [deleteFn]="handleDelete"
+    [toggleFn]="toggleStatus"
+    [actions]="actions"
+    [enableToggleStatus]="true"
+  ></app-crud>
+} @else {
+  <app-not-found-register [addRegisterFn]="handleCreate"></app-not-found-register>
+}

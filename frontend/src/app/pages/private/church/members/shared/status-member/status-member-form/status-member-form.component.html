@@ -1,0 +1,166 @@
+<form
+  [formGroup]="statusMemberForm"
+  (ngSubmit)="handleSubmit()"
+  class="form-field-group"
+>
+  <app-column>
+    <mat-form-field appearance="fill">
+      <mat-label>Situação do membro</mat-label>
+      <input
+        type="text"
+        matInput
+        [matAutocomplete]="member_situation_id"
+        [formControl]="searchMemberSituationControl"
+        placeholder="Selecione uma situação do membro"
+        (focus)="showAllMembersSituations()"
+        required
+      />
+      <mat-autocomplete
+        #member_situation_id="matAutocomplete"
+        (optionSelected)="onSelectedMemberSituations($event)"
+      >
+        @for (memberSituations of filterMemberSituation | async; track $index) {
+          <mat-option [value]="memberSituations">
+            {{ memberSituations.name }}
+          </mat-option>
+        }
+      </mat-autocomplete>
+      @if (
+        statusMemberForm.get('member_situation_id')?.invalid &&
+        statusMemberForm.get('member_situation_id')?.touched
+      ) {
+        <mat-error>{{ getErrorMessage('member_situation_id') }}</mat-error>
+      }
+    </mat-form-field>
+  </app-column>
+
+  <app-column [columns]="2">
+    <mat-form-field>
+      <mat-label>Data inicial</mat-label>
+      <input
+        matInput
+        name="initial_period"
+        [matDatepicker]="initial_period"
+        placeholder="dd/mm/aaaa"
+        formControlName="initial_period"
+        (click)="openCalendarInitial_period()"
+        [min]="minDate"
+        [max]="maxDate"
+        readonly
+      >
+      <mat-datepicker-toggle
+        matIconSuffix
+        [for]="initial_period"
+      ></mat-datepicker-toggle>
+      <mat-datepicker #initial_period>
+        <mat-datepicker-actions>
+          @if (statusMemberForm.get('initial_period')?.value) {
+            <button
+              matTooltip="Limpar a data"
+              mat-flat-button
+              matSuffix
+              matDatepickerToggleIcon
+              (click)="clearDate('initial_period')"
+              type="button"
+              color="warn"
+            >
+              <mat-icon>close</mat-icon>
+              Limpar
+            </button>
+          } @else {
+            <button
+              type="button"
+              mat-button
+              matDatepickerCancel
+            >
+              Cancelar
+            </button>
+            <button
+              type="button" mat-flat-button matDatepickerApply
+            >
+              Concluir
+            </button>
+          }
+        </mat-datepicker-actions>
+      </mat-datepicker>
+
+      @if (statusMemberForm.get('initial_period')?.invalid &&
+      statusMemberForm.get('initial_period')?.touched) {
+        <mat-error>{{ getErrorMessage('initial_period') }}
+        </mat-error>
+
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Data final</mat-label>
+      <input
+        matInput
+        name="final_period"
+        [matDatepicker]="final_period"
+        placeholder="dd/mm/aaaa"
+        formControlName="final_period"
+        (click)="openCalendarFinal_period()"
+        [min]="minDate"
+        [max]="maxDate"
+        readonly
+      >
+      <mat-datepicker-toggle
+        matIconSuffix
+        [for]="final_period"
+      ></mat-datepicker-toggle>
+      <mat-datepicker #final_period>
+        <mat-datepicker-actions>
+          @if (statusMemberForm.get('final_period')?.value) {
+            <button
+              matTooltip="Limpar a data"
+              mat-flat-button
+              matSuffix
+              matDatepickerToggleIcon
+              (click)="clearDate('final_period')"
+              type="button"
+              color="warn"
+            >
+              <mat-icon>close</mat-icon>
+              Limpar
+            </button>
+          } @else {
+            <button
+              type="button"
+              mat-button
+              matDatepickerCancel
+            >
+              Cancelar
+            </button>
+            <button
+              type="button" mat-flat-button matDatepickerApply
+            >
+              Concluir
+            </button>
+          }
+        </mat-datepicker-actions>
+      </mat-datepicker>
+
+      @if (statusMemberForm.get('final_period')?.invalid &&
+      statusMemberForm.get('final_period')?.touched) {
+        <mat-error>{{ getErrorMessage('final_period') }}
+        </mat-error>
+
+      }
+    </mat-form-field>
+  </app-column>
+
+  <app-actions>
+    <button type="button" mat-stroked-button color="warn" (click)="onCancel()">
+      Cancelar
+    </button>
+    <button
+      type="submit"
+      mat-raised-button
+      color="primary"
+      [disabled]="statusMemberForm.invalid"
+    >
+      {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
+    </button>
+  </app-actions>
+</form>

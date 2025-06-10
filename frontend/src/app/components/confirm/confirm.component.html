@@ -1,0 +1,33 @@
+<div class="wrapper">
+  <div class="header">
+    <span class="title">{{ data.title }}</span>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Content -->
+  <div class="content">
+    <p class="message">{{ data.message }}</p>
+  </div>
+
+  <!-- Actions -->
+  <div class="actions">
+    <app-actions>
+      @if (data.reverseBtn) {
+        <button mat-flat-button color="primary" [mat-dialog-close]="true">
+          {{ data.btnOkText }}
+        </button>
+        <button mat-stroked-button color="warn" [mat-dialog-close]="false">
+          {{ data.btnCancelText }}
+        </button>
+      } @else {
+        <button mat-stroked-button color="warn" [mat-dialog-close]="false">
+          {{ data.btnCancelText }}
+        </button>
+        <button mat-flat-button color="primary" [mat-dialog-close]="true">
+          {{ data.btnOkText }}
+        </button>
+      }
+    </app-actions>
+  </div>
+</div>

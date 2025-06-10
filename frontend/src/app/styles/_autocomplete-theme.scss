@@ -1,0 +1,28 @@
+@use '@angular/material' as mat;
+@use 'app/styles/theme.scss' as theme;
+
+@mixin autocomplete-theme() {
+  .mat-mdc-option {
+    background-color: transparent !important;
+  }
+
+  .mdc-list-item--selected, .mdc-list-item__primary-text {
+    color: var(--text-color) !important;
+
+    .mat-pseudo-checkbox {
+      color: var(--primary-color) !important;
+    }
+
+    .mdc-list-item__end {
+      color: var(--text-color) !important;
+    }
+  }
+
+  .mat-mdc-option:not(.mdc-list-item--selected):hover {
+    background-color: rgba(theme.$hover, 0.5) !important;
+
+    .mat-pseudo-checkbox {
+      color: var(--text-color) !important;
+    }
+  }
+}

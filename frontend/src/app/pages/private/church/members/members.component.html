@@ -1,0 +1,16 @@
+@if ((member && member.length > 0) || rendering) {
+  <app-crud
+    [fields]="member"
+    [dataSourceMat]="dataSourceMat"
+    [columnDefinitions]="columnDefinitions"
+    [addFn]="addNewMembers"
+    [editFn]="editMembers"
+    [deleteFn]="deleteMembers"
+    [actions]="actions"
+  ></app-crud>
+} @else {
+  <app-not-found-register
+    [ctaLabel]="'Adicionar'"
+    [addRegisterFn]="addNewMembers"
+  ></app-not-found-register>
+}

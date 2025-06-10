@@ -1,0 +1,102 @@
+@use '../../styles/theme-bk'as theme;
+
+/* Container ocupa a tela inteira */
+.calendar-container {
+  display: flex;
+  flex-direction: column;
+  height: 70dvh;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 1rem;
+  background-color: #F4F4F4;
+}
+
+/* Cabeçalho com os controles de navegação */
+.calendar-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.7rem;
+}
+
+.calendar-header button {
+  background-color: transparent;
+  border: none;
+  font-size: 2em;
+  cursor: pointer;
+}
+
+.calendar-title {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: theme.$primary;
+}
+
+/* Linha dos dias da semana */
+.calendar-day-names {
+  display: flex;
+}
+
+.day-name {
+  flex: 1;
+  text-align: center;
+  font-weight: bold;
+  padding: 1rem 0;
+  color: theme.$greyMain;
+}
+
+/* Corpo do calendário com semanas */
+.calendar-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.week {
+  display: flex;
+  flex: 1;
+}
+
+.day {
+  flex: 1;
+  border: 1px solid #DDDDDD;
+  margin: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+  border-radius: 0.5rem;
+}
+
+/* Efeito de hover */
+.day:hover {
+  background-color: theme.$primaryDark;
+  color: theme.$white;
+}
+
+/* Dias fora do mês corrente */
+.other-month {
+  color: theme.$greyVeryLight;
+}
+
+/* Destaque para o dia selecionado */
+.selected {
+  background-color: theme.$primary;
+  color: theme.$white;
+}
+
+/* Destaque para o dia atual */
+.today {
+  border: 2px solid theme.$primary;
+}
+
+/* Rodapé com botão para voltar para hoje */
+.calendar-footer {
+  text-align: center;
+}
+
+.go-to-today {
+  font-size: 0.5rem;
+}

@@ -1,0 +1,16 @@
+.snackbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem;
+  border-radius: 0.4rem;
+}
+
+mat-icon {
+  margin-right: 0.8rem;
+}
+
+button {
+  color: var(--white-color) !important;
+}

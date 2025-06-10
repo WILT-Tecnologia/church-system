@@ -22,10 +22,19 @@ class StoreEventsRequest extends FormRequest
         return [
             'church_id' => ['required', 'exists:churches,id'],
             'event_type_id' => ['required', 'exists:event_types,id'],
-            'name' => ['required'],
-            'obs' => ['nullable'],
+            'name' => ['required', 'string', 'max:255'],
+            'obs' => ['nullable', 'string', 'max:255'],
             'created_by' => ['nullable', 'exists:users,id'],
             'updated_by' => ['nullable', 'exists:users,id']
+        ];
+    }
+
+    public function messages(): array {
+        return [
+            '*.required' => 'O campo :attribute é obrigatório.',
+            '*.max' => 'O campo :attribute deve ter no máximo :max caracteres.',
+            '*.exists' => 'O campo :attribute selecionado é inválido.',
+            '*.string' => 'O campo :attribute deve ser um texto.',
         ];
     }
 }

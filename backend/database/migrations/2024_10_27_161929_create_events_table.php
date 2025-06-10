@@ -22,8 +22,8 @@ return new class extends Migration {
 
             $table->foreign('church_id')->references('id')->on('churches');
             $table->foreign('event_type_id')->references('id')->on('event_types');
-            $table->foreign('created_by')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('updated_by')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

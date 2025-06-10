@@ -1,0 +1,48 @@
+<div
+  [ngClass]="{ fullscreen: isFullscreen, 'responsive-modal': true }"
+  class="mat-dialog-container"
+>
+  <div class="wrapper">
+    <!-- HEADER -->
+    <div class="header">
+      @if (data.title) {
+        <span class="title">{{ data.title }}</span>
+      }
+
+      <div class="actions-header">
+        @if (data.enableFullscreen) {
+          <button
+            mat-icon-button
+            type="button"
+            (click)="toggleFullscreen()"
+            [matTooltip]="isFullscreen ? 'Fechar tela cheia' : 'Tela cheia'"
+          >
+            <mat-icon>
+              {{ isFullscreen ? 'fullscreen_exit' : 'fullscreen' }}
+            </mat-icon>
+          </button>
+        }
+        @if (data.isHandleClose) {
+          <button
+            mat-icon-button
+            type="button"
+            color="warn"
+            (click)="closeModal()"
+          >
+            <mat-icon color="warn">close</mat-icon>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <mat-divider></mat-divider>
+
+    <!-- Conteúdo -->
+    <div class="content">
+      @if (data.customContent) {
+        <ng-container *ngComponentOutlet="data.customContent"></ng-container>
+      }
+    </div>
+  </div>
+</div>

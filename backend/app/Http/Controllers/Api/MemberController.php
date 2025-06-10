@@ -23,7 +23,13 @@ class MemberController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(StoreMemberRequest $request) {
-        $member = Member::create($request->all());
+        $member = Member::create($request->validated());
+
+        // Verifica se o campo church_ids existe na requisição
+        if ($request->has('church_id')) {
+            $member->churches()->attach($request->church_id);
+        }
+
         return new MemberResource($member);
     }
 
@@ -41,6 +47,11 @@ class MemberController extends Controller
     public function update(UpdateMemberRequest $request, $id) {
         $member = Member::findOrFail($id);
         $member->update($request->validated());
+
+        if ($request->has('church_ids')) {
+            $member->churches()->syncWithoutDetaching($request->church_id);
+        }
+
         return new MemberResource($member);
     }
 

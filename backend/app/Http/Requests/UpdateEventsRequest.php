@@ -22,10 +22,21 @@ class UpdateEventsRequest extends FormRequest
         return [
             'church_id' => ['sometimes', 'required', 'exists:churches,id'],
             'event_type_id' => ['sometimes', 'required', 'exists:event_types,id'],
-            'name' => ['sometimes', 'required'],
-            'obs' => ['sometimes', 'nullable'],
+            'name' => ['sometimes', 'required', 'max:255', 'string'],
+            'obs' => ['sometimes', 'nullable', 'max:255', 'string'],
             'created_by' => ['nullable', 'exists:users,id'],
             'updated_by' => ['nullable', 'exists:users,id']
+        ];
+    }
+
+    public function messages(): array {
+        return [
+            '*.required' => 'O campo :attribute é obrigatório.',
+            '*.date' => 'O campo :attribute deve ser uma data.',
+            '*.date_format' => 'O campo :attribute deve estar no formato HH:mm.',
+            '*.max' => 'O campo :attribute deve ter no máximo :max caracteres.',
+            '*.exists' => 'O campo :attribute selecionado é inválido.',
+            '*.after' => 'O campo horário de término deve ser maior que o horário de início.',
         ];
     }
 }

@@ -21,7 +21,7 @@ class LoginController extends Controller
 
                 $churches = $members->flatMap(function ($member) {
                     return $member->churches;
-                })->unique('id');
+                })->unique('id')->values();
 
                 $churchesArray = $churches->toArray();
             } else {
