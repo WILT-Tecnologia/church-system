@@ -7,13 +7,22 @@
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
+  margin-top: 1rem;
   gap: 1rem;
   width: 100%;
-  flex: 1 1 100%;
-  padding: 1rem;
+
+  ::ng-deep>*:only-child {
+    margin-left: auto;
+    margin-right: auto;
+  }
 
   @media screen and (max-width: 768px) {
     width: 100%;
     flex-direction: column-reverse;
+
+    ::ng-deep>*:only-child {
+      margin-left: auto;
+      margin-right: auto;
+    }
   }
 }

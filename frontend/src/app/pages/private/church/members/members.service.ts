@@ -20,16 +20,8 @@ export class MembersService {
   private apiAdmin = `${environment.apiUrl}/admin`;
   private apiAux = `${environment.apiUrl}/aux`;
 
-  // getOrdinationByMemberId(memberId: string): Observable<Ordination[]> {
-  //   return this.http
-  //     .get<Members>(`${this.api}/${memberId}`)
-  //     .pipe(map((member) => member.ordination));
-  // }
-
   getFamilyOfMemberId(memberId: string): Observable<Families[]> {
-    return this.http
-      .get<Members>(`${this.api}/${memberId}`)
-      .pipe(map((member) => member.families));
+    return this.http.get<Members>(`${this.api}/${memberId}`).pipe(map((member) => member.families));
   }
 
   getCivilStatus(): Observable<CivilStatus[]> {
@@ -43,10 +35,6 @@ export class MembersService {
   getFormations(): Observable<Formations[]> {
     return this.http.get<Formations[]>(`${this.apiAux}/formations`);
   }
-
-  // getKinships(): Observable<Kinships[]> {
-  //   return this.http.get<Kinships[]>(`${this.apiAux}/kinships`);
-  // }
 
   getPersons(): Observable<Person[]> {
     return this.http.get<Person[]>(`${this.apiAdmin}/persons`);
@@ -72,24 +60,7 @@ export class MembersService {
     return this.http.post<Members>(this.api, member);
   }
 
-  // createPerson(person: Person): Observable<Person> {
-  //   return this.http.post<Person>(
-  //     `${environment.apiUrl}/admin/persons`,
-  //     person,
-  //   );
-  // }
-
-  // createChurch(church: Church): Observable<Church> {
-  //   return this.http.post<Church>(
-  //     `${environment.apiUrl}/admin/churches`,
-  //     church,
-  //   );
-  // }
-
-  updateMember(
-    memberId: string,
-    memberData: Partial<Members>,
-  ): Observable<Members> {
+  updateMember(memberId: string, memberData: Partial<Members>): Observable<Members> {
     return this.http.put<Members>(`${this.api}/${memberId}`, memberData);
   }
 

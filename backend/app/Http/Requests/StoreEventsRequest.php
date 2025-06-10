@@ -24,12 +24,6 @@ class StoreEventsRequest extends FormRequest
             'event_type_id' => ['required', 'exists:event_types,id'],
             'name' => ['required', 'string', 'max:255'],
             'obs' => ['nullable', 'string', 'max:255'],
-            'theme' => ['nullable', 'string', 'max:255'],
-            'start_date' => ['required', 'date'],
-            'end_date' => ['required', 'date'],
-            'start_time' => ['required', 'regex:/^([01]\d|2[0-3]):([0-5]\d)$/'],
-            'end_time' => ['required', 'regex:/^([01]\d|2[0-3]):([0-5]\d)$/', 'after:start_time'],
-            'location' => ['nullable', 'string', 'max:255'],
             'created_by' => ['nullable', 'exists:users,id'],
             'updated_by' => ['nullable', 'exists:users,id']
         ];
@@ -38,11 +32,9 @@ class StoreEventsRequest extends FormRequest
     public function messages(): array {
         return [
             '*.required' => 'O campo :attribute é obrigatório.',
-            '*.date' => 'O campo :attribute deve ser uma data.',
-            '*.date_format' => 'O campo :attribute deve estar no formato HH:mm.',
             '*.max' => 'O campo :attribute deve ter no máximo :max caracteres.',
             '*.exists' => 'O campo :attribute selecionado é inválido.',
-            '*.after' => 'O campo horário de término deve ser maior que o horário de início.',
+            '*.string' => 'O campo :attribute deve ser um texto.',
         ];
     }
 }

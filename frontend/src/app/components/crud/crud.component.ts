@@ -3,12 +3,16 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  EventEmitter,
   Input,
   OnChanges,
   OnInit,
+  Output,
   Pipe,
   PipeTransform,
+  signal,
   SimpleChanges,
+  Type,
   ViewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,15 +23,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatSort, MatSortModule, SortDirection } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormatValuesPipe } from 'app/components/crud/pipes/format-values.pipe';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
-import {
-  FilterButtonAdvancedComponent,
-  FilterField,
-} from './filter-button-advanced/filter-button-advanced.component';
+import { ModalService } from '../modal/modal.service';
+import { FilterButtonAdvancedComponent, FilterField } from './filter-button-advanced/filter-button-advanced.component';
 
 export interface TableField {
   [key: string]: any;
@@ -84,51 +86,63 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() fields: TableField[] = [];
   @Input() ctaLabel!: string;
   @Input() columnDefinitions: ColumnDefinitionsProps[] = [];
+  @Input() enableFilterAdvanced: boolean = false;
   @Input() enablePagination: boolean = true;
   @Input() enableToggleStatus: boolean = false;
   @Input() enableAddButtonAdd: boolean = true;
-  @Input() enableFilterAdvanced: boolean = false;
+  @Input() enableRowClickDialog: boolean = false;
+  @Input() modalTitle: string = 'Detalhes do Registro';
+  @Input() tooltipText: string = '';
   @Input() length: string = '0';
   @Input() pageSize: number = 25;
   @Input() pageSizeOptions: number[] = [25, 50, 100, 200];
-  @Input() actions!: ActionsProps[];
+  @Input() template: string = '';
+  @Input() sortColumn: string = '';
+  @Input() sortDirection: SortDirection = 'asc';
+  @Input() isTooltip?: boolean = false;
   @Input() filterFields: FilterField[] = [];
+  @Input() actions!: ActionsProps[];
   @Input() dataSourceMat = new MatTableDataSource<any>([]);
+  @Input() modalComponent: Type<any> | null = null;
   @Input() applyFilterFn!: (event: any) => void;
-  @Input() toggleFn!: (element: any) => void;
-  @Input() deleteFn!: (element: any) => void;
-  @Input() editFn!: (element: any) => void;
-  @Input() addFn!: () => void;
   @Input() actionFn!: (element?: any) => void;
-  processedActions: ActionsProps[] = [];
-
+  @Input() addFn!: () => void;
+  @Input() editFn!: (element: any) => void;
+  @Input() deleteFn!: (element: any) => void;
+  @Input() toggleFn!: (element: any) => void;
+  @Input() findDataFn!: (element?: any) => void;
+  @Output() page = new EventEmitter<Event>();
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   displayedColumns: string[] = [];
   currentPageIndex: number = 0;
+  showFilter: boolean = false;
+  buttonSelected = signal(false);
+  columnWidths: { [key: string]: number } = {};
 
   constructor(
     private format: FormatsPipe,
     private cd: ChangeDetectorRef,
+    private modalService: ModalService,
   ) {}
 
   ngOnInit() {
     this.dataSourceMat.data = this.fields;
-    this.displayedColumns = this.columnDefinitions
-      .map((col) => col.key)
-      .concat('actions');
+    this.displayedColumns = this.columnDefinitions.map((col) => col.key).concat('actions');
     this.dataSourceMat.filterPredicate = this.createFilter();
+    this.columnDefinitions.forEach((col) => {
+      this.columnWidths[col.key] = 150;
+    });
     this.cd.detectChanges();
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['fields'] || changes['actions']) {
+    if (changes['fields']) {
       this.dataSourceMat.data = this.fields;
       // Process actions to handle dynamic labels (e.g., for toggle)
-      this.processedActions = this.actions.map((action) => ({
+      this.actions = this.actions.map((action) => ({
         ...action,
-        label:
-          action.type === 'toggle' ? this.getToggleLabel(action) : action.label,
+        label: action.type === 'toggle' ? this.getToggleLabel(action) : action.label,
       }));
     }
     if (this.paginator) {
@@ -137,9 +151,7 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     if (changes['columnDefinitions']) {
-      this.displayedColumns = this.columnDefinitions
-        .map((col) => col.key)
-        .concat('actions');
+      this.displayedColumns = this.columnDefinitions.map((col) => col.key).concat('actions');
     }
   }
 
@@ -174,12 +186,9 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value
-      .trim()
-      .toLowerCase();
-
+    const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    this.dataSourceMat.filterPredicate = this.createFilter();
     this.filterPredicate();
-
     this.dataSourceMat.filter = filterValue;
 
     if (this.dataSourceMat.paginator) {
@@ -190,6 +199,11 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   applyAdvancedFilter(values: any) {
     if (Object.keys(values).length === 0) {
       this.dataSourceMat.filter = '';
+      this.dataSourceMat.filterPredicate = this.createFilter();
+      this.dataSourceMat.data = this.fields;
+      if (this.dataSourceMat.paginator) {
+        this.dataSourceMat.paginator.firstPage();
+      }
       return;
     }
 
@@ -201,43 +215,99 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-  createFilter(
-    _filterValues: any = {},
-  ): (data: any, filter: string) => boolean {
+  createFilter(_filterValues: any = {}): (data: any, filter: string) => boolean {
     return (data: any, filter: string): boolean => {
+      if (!filter) {
+        return true;
+      }
+
+      if (!filter.startsWith('{')) {
+        const searchText = filter.toLowerCase();
+        return this.columnDefinitions.some((col) => {
+          const value = this.format.getNestedValue(data, col.key);
+          return value != null && value.toString().toLowerCase().includes(searchText);
+        });
+      }
+
       let parsedFilterValues: any = {};
       try {
         parsedFilterValues = JSON.parse(filter);
       } catch (e) {
-        return false;
+        console.error('Erro ao analisar filtro JSON:', e);
+        return true;
       }
 
       if (Object.keys(parsedFilterValues).length === 0) {
         return true;
       }
 
-      let match = true;
-
-      for (const key of Object.keys(parsedFilterValues)) {
+      return Object.keys(parsedFilterValues).every((key) => {
         const filterValue = parsedFilterValues[key];
-        if (filterValue && filterValue.length > 0) {
-          const dataValue = key
-            .split('.')
-            .reduce((obj, keyPart) => obj?.[keyPart], data);
-          if (Array.isArray(filterValue)) {
-            match = match && filterValue.includes(dataValue);
-          } else {
-            match = match && filterValue === dataValue;
-          }
-        }
-      }
+        const dataValue = this.format.getNestedValue(data, key);
 
-      return match;
+        if (filterValue == null || dataValue == null) {
+          return true;
+        }
+
+        const field = this.filterFields.find((f) => f.controlName === key);
+        const fieldType = field?.type || 'text';
+
+        switch (fieldType) {
+          case 'select':
+            if (Array.isArray(filterValue)) {
+              return filterValue.length === 0 || filterValue.includes(dataValue);
+            }
+            return filterValue === dataValue;
+          case 'text':
+            return (
+              filterValue.length === 0 || String(dataValue).toLowerCase().includes(String(filterValue).toLowerCase())
+            );
+          case 'number':
+            if (Array.isArray(filterValue)) {
+              return filterValue.length === 0 || filterValue.includes(Number(dataValue));
+            }
+            return Number(dataValue) === Number(filterValue);
+          case 'boolean':
+            if (Array.isArray(filterValue)) {
+              return filterValue.length === 0 || filterValue.includes(Boolean(dataValue));
+            }
+            return Boolean(dataValue) === Boolean(filterValue);
+          case 'date':
+            return new Date(dataValue).toDateString() === new Date(filterValue).toDateString();
+          case 'dateRange':
+            const dataDate = new Date(dataValue);
+            const start = filterValue.start ? new Date(filterValue.start) : null;
+            const end = filterValue.end ? new Date(filterValue.end) : null;
+            return (!start || dataDate >= start) && (!end || dataDate <= end);
+          case 'range':
+            return Number(dataValue) >= Number(filterValue);
+          default:
+            return true;
+        }
+      });
     };
   }
 
+  openRowDialog(row: any): void {
+    if (this.enableRowClickDialog && this.modalComponent) {
+      this.modalService.openModal(
+        `modal-${Math.random()}`,
+        this.modalComponent,
+        this.modalTitle,
+        true,
+        true,
+        {
+          logCenter: row,
+        },
+        'custom-modal',
+        true,
+      );
+    }
+  }
+
   toggleFilter = () => {
-    this.enableFilterAdvanced = !this.enableFilterAdvanced;
+    this.showFilter = !this.showFilter;
+    this.buttonSelected.update((prev) => !prev);
   };
 
   private getToggleLabel(action: ActionsProps): string {
@@ -264,8 +334,6 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   private filterPredicate() {
-    this.dataSourceMat.filterPredicate = (data: any, filter: string) => {
-      return this.normalizedFilter(filter, data);
-    };
+    this.dataSourceMat.filterPredicate = this.createFilter();
   }
 }

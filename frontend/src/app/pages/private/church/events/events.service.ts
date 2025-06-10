@@ -11,7 +11,7 @@ import { Observable } from 'rxjs';
 export class EventsService {
   constructor(private http: HttpClient) {}
 
-  private apiUrl = `${environment.apiUrl}/church/evento`;
+  private apiUrl = `${environment.apiUrl}/church/events`;
 
   findByEventType(eventType: EventTypes): Observable<Events[]> {
     return this.http.get<Events[]>(`${this.apiUrl}/type/${eventType.id}`);
@@ -29,16 +29,12 @@ export class EventsService {
     return this.http.post<Events>(this.apiUrl, event);
   }
 
-  update(eventId: string, event: Partial<Events>): Observable<Events> {
-    return this.http.put<Events>(`${this.apiUrl}/${eventId}`, event);
+  update(event: Partial<Events>): Observable<Events> {
+    const route = event.id ? `${this.apiUrl}/${event.id}` : this.apiUrl;
+    return this.http.put<Events>(route, event);
   }
 
   delete(event: Events): Observable<Events> {
     return this.http.delete<Events>(`${this.apiUrl}/${event.id}`);
-  }
-
-  updatedStatus(id: string, status: boolean): Observable<Events> {
-    const statusData = { status };
-    return this.http.put<Events>(`${this.apiUrl}/${id}`, statusData);
   }
 }

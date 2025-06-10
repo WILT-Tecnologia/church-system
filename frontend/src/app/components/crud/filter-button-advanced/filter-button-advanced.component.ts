@@ -1,18 +1,6 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-  SimpleChanges, OnInit, OnChanges,
-} from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
@@ -30,7 +18,7 @@ export interface FilterField {
   label: string;
   placeholder?: string;
   controlName: string;
-  type?: 'select' | 'dateRange' | 'range';
+  type?: 'select' | 'dateRange' | 'range' | 'number' | 'boolean' | 'date';
   options?: { value: any; label: any }[];
   searchCtrl?: FormControl;
   filteredOptions?: Observable<{ value: any; label: any }[]>;
@@ -38,26 +26,26 @@ export interface FilterField {
 }
 
 @Component({
-    selector: 'app-filter-button-advanced',
-    templateUrl: './filter-button-advanced.component.html',
-    styleUrl: './filter-button-advanced.component.scss',
-    imports: [
-        CommonModule,
-        MatIconModule,
-        MatButtonModule,
-        MatFormFieldModule,
-        MatSelectModule,
-        MatOptionModule,
-        MatTooltipModule,
-        MatCheckboxModule,
-        ReactiveFormsModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        MatInputModule,
-        MatSliderModule,
-        FormsModule,
-        NgxMatSelectSearchModule,
-    ]
+  selector: 'app-filter-button-advanced',
+  templateUrl: './filter-button-advanced.component.html',
+  styleUrl: './filter-button-advanced.component.scss',
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatOptionModule,
+    MatTooltipModule,
+    MatCheckboxModule,
+    ReactiveFormsModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatInputModule,
+    MatSliderModule,
+    FormsModule,
+    NgxMatSelectSearchModule,
+  ],
 })
 export class FilterButtonAdvancedComponent implements OnInit, OnChanges {
   @Input() fields: FilterField[] = [];
@@ -91,11 +79,7 @@ export class FilterButtonAdvancedComponent implements OnInit, OnChanges {
         field.searchCtrl = new FormControl('');
         field.filteredOptions = field.searchCtrl.valueChanges.pipe(
           startWith(''),
-          map((search) =>
-            field.options!.filter((option) =>
-              option.label.toLowerCase().includes(search.toLowerCase()),
-            ),
-          ),
+          map((search) => field.options!.filter((option) => option.label.toLowerCase().includes(search.toLowerCase()))),
         );
       }
     });
@@ -124,9 +108,7 @@ export class FilterButtonAdvancedComponent implements OnInit, OnChanges {
     const control = this.filterForm.get(controlName);
     if (!control) return false;
 
-    const field = this.fields.find(
-      (field) => field.controlName === controlName,
-    );
+    const field = this.fields.find((field) => field.controlName === controlName);
     if (!field || !field.options) return false; // Check if options exist
 
     return control.value.length === field.options.length;
@@ -134,9 +116,7 @@ export class FilterButtonAdvancedComponent implements OnInit, OnChanges {
 
   toggleAllSelection(controlName: string): void {
     const control = this.filterForm.get(controlName);
-    const field = this.fields.find(
-      (field) => field.controlName === controlName,
-    );
+    const field = this.fields.find((field) => field.controlName === controlName);
     if (control && field && field.options) {
       if (this.isAllSelected(controlName)) {
         control.setValue([]);
@@ -148,14 +128,10 @@ export class FilterButtonAdvancedComponent implements OnInit, OnChanges {
 
   isIndeterminate(controlName: string): boolean {
     const control = this.filterForm.get(controlName);
-    const field = this.fields.find(
-      (field) => field.controlName === controlName,
-    );
+    const field = this.fields.find((field) => field.controlName === controlName);
     if (!control || !field || !field.options) return false; // Check if options exist
 
-    return (
-      control.value.length > 0 && control.value.length < field.options.length
-    );
+    return control.value.length > 0 && control.value.length < field.options.length;
   }
 
   private initializeFormControls() {
@@ -177,9 +153,7 @@ export class FilterButtonAdvancedComponent implements OnInit, OnChanges {
     field.filteredOptions = field.searchCtrl.valueChanges.pipe(
       startWith(''),
       map((search) =>
-        (field.options || []).filter((option) =>
-          option.label.toLowerCase().includes(search.toLowerCase()),
-        ),
+        (field.options || []).filter((option) => option.label.toLowerCase().includes(search.toLowerCase())),
       ),
     );
   }

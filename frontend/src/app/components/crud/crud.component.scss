@@ -97,13 +97,14 @@
 .rows,
 td,
 th {
+  width: 5dvw !important;
+  max-width: 40dvw !important;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 
   @media screen and (max-width: 1280px) {
     font-size: 0.8rem;
-    max-width: 100%;
     padding: 0.5rem;
   }
 }
@@ -114,7 +115,6 @@ th {
 
 .mat-header-cell {
   font-weight: bold;
-  //background-color: var(--background-color);
 }
 
 .mat-header-row,

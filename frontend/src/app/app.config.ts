@@ -15,7 +15,6 @@ import { routes } from './app.routes';
 import { NgxMaskConfig, provideEnvironmentNgxMask } from 'ngx-mask';
 import { getPtBrPaginatorIntl } from './components/crud/paginator-pt-br';
 import { LoadingInterceptor } from './components/loading/loading.interceptor';
-import { AuthInterceptorService } from './services/auth/auth-interceptor.service';
 import { AuthInterceptor } from './services/auth/auth.interceptor';
 
 const maskConfigFunction: () => Partial<NgxMaskConfig> = () => {
@@ -40,11 +39,6 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptorsFromDi()),
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true },
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptorService,
-      multi: true,
-    },
     { provide: MatPaginatorIntl, useValue: getPtBrPaginatorIntl() },
   ],
 };

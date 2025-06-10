@@ -4,10 +4,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import {
-  ActionsProps,
-  CrudComponent,
-} from 'app/components/crud/crud.component';
+import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
@@ -70,7 +67,7 @@ export class MembersComponent implements OnInit {
       header: 'Pastor presidente',
       type: 'string',
     },
-    { key: 'baptism_date', header: 'Data do batismo', type: 'date' },
+    /* { key: 'baptism_date', header: 'Data do batismo', type: 'date' }, */
     { key: 'updated_at', header: 'Última atualização', type: 'datetime' },
   ];
 

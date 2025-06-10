@@ -1,8 +1,4 @@
-<form
-  [formGroup]="memberForm"
-  (ngSubmit)="handleSubmit()"
-  class="form-field-group"
->
+<form [formGroup]="memberForm" (ngSubmit)="handleSubmit()" class="form-field-group">
   <mat-tab-group preserveContent dynamicHeight [(selectedIndex)]="currentStep">
     <mat-tab label="Identificação" [disabled]="isTabDisabled(0)">
       <section class="py-4">
@@ -21,22 +17,13 @@
                     (focus)="showAllPerson()"
                     required
                   />
-                  <mat-autocomplete
-                    #autoPerson="matAutocomplete"
-                    (optionSelected)="onPersonSelected($event)"
-                  >
-                    <mat-option
-                      *ngFor="let person of filteredPerson | async"
-                      [value]="person"
-                    >
+                  <mat-autocomplete #autoPerson="matAutocomplete" (optionSelected)="onPersonSelected($event)">
+                    <mat-option *ngFor="let person of filteredPerson | async" [value]="person">
                       {{ person.name }}
                     </mat-option>
                   </mat-autocomplete>
                   <mat-error
-                    *ngIf="
-                      memberForm.get('stepOne.person_id')?.invalid &&
-                      memberForm.get('stepOne.person_id')?.touched
-                    "
+                    *ngIf="memberForm.get('stepOne.person_id')?.invalid && memberForm.get('stepOne.person_id')?.touched"
                   >
                     {{ getErrorMessage('stepOne.person_id') }}
                   </mat-error>
@@ -53,22 +40,13 @@
                     (focus)="showAllChurch()"
                     required
                   />
-                  <mat-autocomplete
-                    #autoChurch="matAutocomplete"
-                    (optionSelected)="onChurchSelected($event)"
-                  >
-                    <mat-option
-                      *ngFor="let church of filteredChurch | async"
-                      [value]="church"
-                    >
+                  <mat-autocomplete #autoChurch="matAutocomplete" (optionSelected)="onChurchSelected($event)">
+                    <mat-option *ngFor="let church of filteredChurch | async" [value]="church">
                       {{ church.name }}
                     </mat-option>
                   </mat-autocomplete>
                   <mat-error
-                    *ngIf="
-                      memberForm.get('stepOne.church_id')?.invalid &&
-                      memberForm.get('stepOne.church_id')?.touched
-                    "
+                    *ngIf="memberForm.get('stepOne.church_id')?.invalid && memberForm.get('stepOne.church_id')?.touched"
                   >
                     {{ getErrorMessage('stepOne.church_id') }}
                   </mat-error>
@@ -79,26 +57,16 @@
                 <mat-form-field appearance="fill">
                   <mat-label>RG</mat-label>
                   <input matInput formControlName="rg" maxlength="15" />
-                  <mat-error
-                    *ngIf="
-                      memberForm.get('stepOne.rg')?.invalid &&
-                      memberForm.get('stepOne.rg')?.touched
-                    "
-                  >
+                  <mat-error *ngIf="memberForm.get('stepOne.rg')?.invalid && memberForm.get('stepOne.rg')?.touched">
                     {{ getErrorMessage('stepOne.rg') }}
                   </mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="fill">
                   <mat-label>Orgão Expedidor</mat-label>
-                  <input
-                    matInput
-                    formControlName="issuing_body"
-                    maxlength="15"
-                  />
+                  <input matInput formControlName="issuing_body" maxlength="15" />
                   <mat-error
                     *ngIf="
-                      memberForm.get('stepOne.issuing_body')?.invalid &&
-                      memberForm.get('stepOne.issuing_body')?.touched
+                      memberForm.get('stepOne.issuing_body')?.invalid && memberForm.get('stepOne.issuing_body')?.touched
                     "
                   >
                     {{ getErrorMessage('stepOne.issuing_body') }}
@@ -118,16 +86,8 @@
                     (focus)="showAllCivilStatus()"
                     required
                   />
-                  <mat-autocomplete
-                    #autoCivilStatus="matAutocomplete"
-                    (optionSelected)="onCivilStatusSelected($event)"
-                  >
-                    <mat-option
-                      *ngFor="
-                        let civilStatus of filteredCivilStatus | async
-                      "
-                      [value]="civilStatus"
-                    >
+                  <mat-autocomplete #autoCivilStatus="matAutocomplete" (optionSelected)="onCivilStatusSelected($event)">
+                    <mat-option *ngFor="let civilStatus of filteredCivilStatus | async" [value]="civilStatus">
                       {{ civilStatus.name }}
                     </mat-option>
                   </mat-autocomplete>
@@ -152,16 +112,8 @@
                     (focus)="showAllColorRace()"
                     required
                   />
-                  <mat-autocomplete
-                    #autoColorRace="matAutocomplete"
-                    (optionSelected)="onColorRaceSelected($event)"
-                  >
-                    <mat-option
-                      *ngFor="
-                        let colorRace of filteredColorRace | async
-                      "
-                      [value]="colorRace"
-                    >
+                  <mat-autocomplete #autoColorRace="matAutocomplete" (optionSelected)="onColorRaceSelected($event)">
+                    <mat-option *ngFor="let colorRace of filteredColorRace | async" [value]="colorRace">
                       {{ colorRace.name }}
                     </mat-option>
                   </mat-autocomplete>
@@ -182,8 +134,7 @@
                   <input matInput formControlName="nationality" />
                   <mat-error
                     *ngIf="
-                      memberForm.get('stepOne.nationality')?.invalid &&
-                      memberForm.get('stepOne.nationality')?.touched
+                      memberForm.get('stepOne.nationality')?.invalid && memberForm.get('stepOne.nationality')?.touched
                     "
                   >
                     {{ getErrorMessage('stepOne.nationality') }}
@@ -194,8 +145,7 @@
                   <input matInput formControlName="naturalness" />
                   <mat-error
                     *ngIf="
-                      memberForm.get('stepOne.naturalness')?.invalid &&
-                      memberForm.get('stepOne.naturalness')?.touched
+                      memberForm.get('stepOne.naturalness')?.invalid && memberForm.get('stepOne.naturalness')?.touched
                     "
                   >
                     {{ getErrorMessage('stepOne.naturalness') }}
@@ -219,8 +169,7 @@
                   <input matInput formControlName="profission" />
                   <mat-error
                     *ngIf="
-                      memberForm.get('stepTwo.profission')?.invalid &&
-                      memberForm.get('stepTwo.profission')?.touched
+                      memberForm.get('stepTwo.profission')?.invalid && memberForm.get('stepTwo.profission')?.touched
                     "
                   >
                     {{ getErrorMessage('stepTwo.profission') }}
@@ -240,23 +189,14 @@
                     (focus)="showAllFormations()"
                     required
                   />
-                  <mat-autocomplete
-                    #autoFormation="matAutocomplete"
-                    (optionSelected)="onFormationsSelected($event)"
-                  >
-                    <mat-option
-                      *ngFor="
-                        let formation of filteredFormations | async
-                      "
-                      [value]="formation"
-                    >
+                  <mat-autocomplete #autoFormation="matAutocomplete" (optionSelected)="onFormationsSelected($event)">
+                    <mat-option *ngFor="let formation of filteredFormations | async" [value]="formation">
                       {{ formation.name }}
                     </mat-option>
                   </mat-autocomplete>
                   <mat-error
                     *ngIf="
-                      memberForm.get('stepTwo.formation_id')?.invalid &&
-                      memberForm.get('stepTwo.formation_id')?.touched
+                      memberForm.get('stepTwo.formation_id')?.invalid && memberForm.get('stepTwo.formation_id')?.touched
                     "
                   >
                     {{ getErrorMessage('stepTwo.formation_id') }}
@@ -277,14 +217,14 @@
               </app-column>
 
               <app-column [columns]="1">
-                <label id="example-radio-group-label">Possui alguma
-                                                      deficiência ?</label>
+                <label id="example-radio-group-label">Possui alguma deficiência ?</label>
                 <mat-radio-group
                   color="primary"
                   aria-label="Possui alguma deficiência"
-                  formControlName="has_disability">
-                <mat-radio-button [value]="true">Sim</mat-radio-button>
-                <mat-radio-button [value]="false">Não</mat-radio-button>
+                  formControlName="has_disability"
+                >
+                  <mat-radio-button [value]="true">Sim</mat-radio-button>
+                  <mat-radio-button [value]="false">Não</mat-radio-button>
                 </mat-radio-group>
               </app-column>
 
@@ -292,63 +232,25 @@
                 <app-column [columns]="1">
                   <app-column [columns]="4">
                     <div class="checkbox-column">
-                      <mat-checkbox
-                        color="primary" formControlName="def_hearing"
-                      >Auditiva
-                      </mat-checkbox
-                      >
-                      <mat-checkbox
-                        color="primary" formControlName="def_visual"
-                      >Visual
-                      </mat-checkbox
-                      >
-                      <mat-checkbox
-                        color="primary" formControlName="def_physical"
-                      >Física
-                      </mat-checkbox
-                      >
-                      <mat-checkbox
-                        color="primary" formControlName="def_other"
-                      >Outra
-                      </mat-checkbox
-                      >
+                      <mat-checkbox color="primary" formControlName="def_hearing">Auditiva </mat-checkbox>
+                      <mat-checkbox color="primary" formControlName="def_visual">Visual </mat-checkbox>
+                      <mat-checkbox color="primary" formControlName="def_physical">Física </mat-checkbox>
+                      <mat-checkbox color="primary" formControlName="def_other">Outra </mat-checkbox>
                     </div>
                     <div class="checkbox-column">
-                      <mat-checkbox
-                        color="primary" formControlName="def_mental"
-                      >Mental
-                      </mat-checkbox
-                      >
-                      <mat-checkbox
-                        color="primary"
-                        formControlName="def_intellectual"
-                      >Intelectual
-                      </mat-checkbox
-                      >
-                      <mat-checkbox
-                        color="primary" formControlName="def_multiple"
-                      >Múltipla
-                      </mat-checkbox
-                      >
+                      <mat-checkbox color="primary" formControlName="def_mental">Mental </mat-checkbox>
+                      <mat-checkbox color="primary" formControlName="def_intellectual">Intelectual </mat-checkbox>
+                      <mat-checkbox color="primary" formControlName="def_multiple">Múltipla </mat-checkbox>
                     </div>
                   </app-column>
-                  <mat-form-field
-                    appearance="fill"
-                    *ngIf="memberForm.get('stepTwo.def_other')?.value"
-                  >
+                  <mat-form-field appearance="fill" *ngIf="memberForm.get('stepTwo.def_other')?.value">
                     <mat-label>Descreva a deficiência...</mat-label>
-                    <textarea
-                      matInput
-                      rows="4"
-                      formControlName="def_other_description"
-                      matTextareaAutosize
-                    ></textarea>
+                    <textarea matInput rows="4" formControlName="def_other_description" matTextareaAutosize></textarea>
                     <mat-error
                       *ngIf="
-                      memberForm.get('stepTwo.def_other_description')
-                        ?.invalid &&
-                      memberForm.get('stepTwo.def_other_description')?.touched
-                    "
+                        memberForm.get('stepTwo.def_other_description')?.invalid &&
+                        memberForm.get('stepTwo.def_other_description')?.touched
+                      "
                     >
                       {{ getErrorMessage('stepTwo.def_other_description') }}
                     </mat-error>
@@ -379,11 +281,8 @@
                     [min]="minDate"
                     [max]="maxDate"
                     readonly
-                  >
-                  <mat-datepicker-toggle
-                    matIconSuffix
-                    [for]="baptismPicker"
-                  ></mat-datepicker-toggle>
+                  />
+                  <mat-datepicker-toggle matIconSuffix [for]="baptismPicker"></mat-datepicker-toggle>
                   <mat-datepicker #baptismPicker>
                     <mat-datepicker-actions>
                       @if (memberForm.get('stepThree.baptism_date')?.value) {
@@ -400,27 +299,17 @@
                           Limpar
                         </button>
                       } @else {
-                        <button
-                          type="button"
-                          mat-button
-                          matDatepickerCancel
-                        >
-                          Cancelar
-                        </button>
-                        <button
-                          type="button" mat-flat-button matDatepickerApply
-                        >
-                          Concluir
-                        </button>
+                        <button type="button" mat-button matDatepickerCancel>Cancelar</button>
+                        <button type="button" mat-flat-button matDatepickerApply>Concluir</button>
                       }
                     </mat-datepicker-actions>
                   </mat-datepicker>
 
-                  @if (memberForm.get('stepThree.baptism_date')?.invalid &&
-                  memberForm.get('stepThree.baptism_date')?.touched) {
-                    <mat-error>{{ getErrorMessage('stepThree.baptism_date') }}
-                    </mat-error>
-
+                  @if (
+                    memberForm.get('stepThree.baptism_date')?.invalid &&
+                    memberForm.get('stepThree.baptism_date')?.touched
+                  ) {
+                    <mat-error>{{ getErrorMessage('stepThree.baptism_date') }} </mat-error>
                   }
                 </mat-form-field>
 
@@ -432,11 +321,8 @@
                       memberForm.get('stepThree.baptism_official')?.invalid &&
                       memberForm.get('stepThree.baptism_official')?.touched
                     "
-                  >{{
-                      getErrorMessage('stepThree.baptism_official')
-                    }}
-                  </mat-error
-                  >
+                    >{{ getErrorMessage('stepThree.baptism_official') }}
+                  </mat-error>
                 </mat-form-field>
               </app-column>
 
@@ -449,27 +335,19 @@
                       memberForm.get('stepThree.baptism_locale')?.invalid &&
                       memberForm.get('stepThree.baptism_locale')?.touched
                     "
-                  >{{
-                      getErrorMessage('stepThree.baptism_locale')
-                    }}
-                  </mat-error
-                  >
+                    >{{ getErrorMessage('stepThree.baptism_locale') }}
+                  </mat-error>
                 </mat-form-field>
               </app-column>
 
               <app-column [columns]="2">
-                  <mat-checkbox
-                    color="primary"
-                    formControlName="baptism_holy_spirit"
-                    (change)="
-                      onCheckboxChange(
-                        'stepThree.baptism_holy_spirit_date',
-                        'stepThree.baptism_holy_spirit'
-                      )
-                    "
-                  >
-                    Batizado pelo Espírito Santo?
-                  </mat-checkbox>
+                <mat-checkbox
+                  color="primary"
+                  formControlName="baptism_holy_spirit"
+                  (change)="onCheckboxChange('stepThree.baptism_holy_spirit_date', 'stepThree.baptism_holy_spirit')"
+                >
+                  Batizado pelo Espírito Santo?
+                </mat-checkbox>
 
                 @if (memberForm.get('stepThree.baptism_holy_spirit')?.value) {
                   <mat-form-field>
@@ -484,15 +362,11 @@
                       [min]="minDate"
                       [max]="maxDate"
                       readonly
-                    >
-                    <mat-datepicker-toggle
-                      matIconSuffix
-                      [for]="baptismHolySpiritPicker"
-                    ></mat-datepicker-toggle>
+                    />
+                    <mat-datepicker-toggle matIconSuffix [for]="baptismHolySpiritPicker"></mat-datepicker-toggle>
                     <mat-datepicker #baptismHolySpiritPicker>
                       <mat-datepicker-actions>
-                        @if (memberForm.get(
-                          'stepThree.baptism_holy_spirit_date')?.value) {
+                        @if (memberForm.get('stepThree.baptism_holy_spirit_date')?.value) {
                           <button
                             matTooltip="Limpar a data"
                             mat-flat-button
@@ -506,29 +380,17 @@
                             Limpar
                           </button>
                         } @else {
-                          <button
-                            type="button"
-                            mat-button
-                            matDatepickerCancel
-                          >
-                            Cancelar
-                          </button>
-                          <button
-                            type="button" mat-flat-button matDatepickerApply
-                          >
-                            Concluir
-                          </button>
+                          <button type="button" mat-button matDatepickerCancel>Cancelar</button>
+                          <button type="button" mat-flat-button matDatepickerApply>Concluir</button>
                         }
                       </mat-datepicker-actions>
                     </mat-datepicker>
 
-                    @if (memberForm.get(
-                      'stepThree.baptism_holy_spirit_date')?.invalid &&
-                    memberForm.get(
-                      'stepThree.baptism_holy_spirit_date')?.touched) {
-                      <mat-error>{{ getErrorMessage(
-                        'stepThree.baptism_holy_spirit_date') }}
-                      </mat-error>
+                    @if (
+                      memberForm.get('stepThree.baptism_holy_spirit_date')?.invalid &&
+                      memberForm.get('stepThree.baptism_holy_spirit_date')?.touched
+                    ) {
+                      <mat-error>{{ getErrorMessage('stepThree.baptism_holy_spirit_date') }} </mat-error>
                     }
                   </mat-form-field>
                 }
@@ -547,15 +409,11 @@
                     [min]="minDate"
                     [max]="maxDate"
                     readonly
-                  >
-                  <mat-datepicker-toggle
-                    matIconSuffix
-                    [for]="receiptDatePicker"
-                  ></mat-datepicker-toggle>
+                  />
+                  <mat-datepicker-toggle matIconSuffix [for]="receiptDatePicker"></mat-datepicker-toggle>
                   <mat-datepicker #receiptDatePicker>
                     <mat-datepicker-actions>
-                      @if (memberForm.get(
-                        'stepThree.receipt_date')?.value) {
+                      @if (memberForm.get('stepThree.receipt_date')?.value) {
                         <button
                           matTooltip="Limpar a data"
                           mat-flat-button
@@ -569,29 +427,17 @@
                           Limpar
                         </button>
                       } @else {
-                        <button
-                          type="button"
-                          mat-button
-                          matDatepickerCancel
-                        >
-                          Cancelar
-                        </button>
-                        <button
-                          type="button" mat-flat-button matDatepickerApply
-                        >
-                          Concluir
-                        </button>
+                        <button type="button" mat-button matDatepickerCancel>Cancelar</button>
+                        <button type="button" mat-flat-button matDatepickerApply>Concluir</button>
                       }
                     </mat-datepicker-actions>
                   </mat-datepicker>
 
-                  @if (memberForm.get(
-                    'stepThree.receipt_date')?.invalid &&
-                  memberForm.get(
-                    'stepThree.receipt_date')?.touched) {
-                    <mat-error>{{ getErrorMessage(
-                      'stepThree.receipt_date') }}
-                    </mat-error>
+                  @if (
+                    memberForm.get('stepThree.receipt_date')?.invalid &&
+                    memberForm.get('stepThree.receipt_date')?.touched
+                  ) {
+                    <mat-error>{{ getErrorMessage('stepThree.receipt_date') }} </mat-error>
                   }
                 </mat-form-field>
 
@@ -610,12 +456,7 @@
                     #autoMemberOrigin="matAutocomplete"
                     (optionSelected)="onMemberOriginSelected($event)"
                   >
-                    <mat-option
-                      *ngFor="
-                        let memberOrigin of filterMemberOrigins | async
-                      "
-                      [value]="memberOrigin"
-                    >
+                    <mat-option *ngFor="let memberOrigin of filterMemberOrigins | async" [value]="memberOrigin">
                       {{ memberOrigin.name }}
                     </mat-option>
                   </mat-autocomplete>
@@ -648,9 +489,7 @@
       </mat-tab>
       <mat-tab label="Situação">
         <div formGroupName="stepSix">
-          <app-status-member
-            [status_member]="status_member"
-          ></app-status-member>
+          <app-status-member [status_member]="status_member"></app-status-member>
         </div>
       </mat-tab>
     }
@@ -660,59 +499,46 @@
     <button mat-stroked-button color="warn" type="button" (click)="onBack()">
       {{ currentStep === 0 ? 'Cancelar' : 'Voltar' }}
     </button>
-    <ng-container *ngIf="isEditMode">
-      <button
-        mat-flat-button
-        (click)="onNext()"
-        type="button"
-        color="primary"
-        [disabled]="memberForm.get('step' + currentStep + 1)?.valid"
-        *ngIf="currentStep < 5"
-      >
-        Avançar
-      </button>
-      <button
-        mat-flat-button
-        color="primary"
-        type="submit"
-        *ngIf="currentStep === 5"
-        [disabled]="memberForm.invalid || !canProceedToNextStep()"
-      >
-        {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
-      </button>
-      @if (currentStep !== 5) {
+    @if (isEditMode) {
+      @if (currentStep < 5) {
+        <button mat-flat-button (click)="onNext()" type="button" color="primary" [disabled]="!canProceedToNextStep()">
+          Avançar
+        </button>
+      }
+      @if (currentStep === 5) {
+        <button mat-flat-button color="primary" type="submit" (click)="handleSubmit()" [disabled]="memberForm.invalid">
+          Atualizar
+        </button>
+      }
+      @if (currentStep < 5) {
         <button
           mat-stroked-button
           color="primary"
-          type="submit"
-          (click)="handleUpdateWithoutClosing()"
-          [disabled]="memberForm.invalid"
+          type="button"
+          (click)="handleUpdate(memberId!)"
+          [disabled]="memberForm.invalid || !memberId"
         >
           Atualizar
         </button>
       }
-    </ng-container>
-    <ng-container *ngIf="!isEditMode">
-      <button
-        mat-flat-button
-        (click)="onNext()"
-        type="button"
-        color="primary"
-        [disabled]="!canProceedToNextStep()"
-        *ngIf="currentStep < 2"
-      >
-        Avançar
-      </button>
-      <button
-        mat-flat-button
-        color="primary"
-        type="submit"
-        (click)="finalizeStepThree()"
-        [disabled]="memberForm.invalid"
-        *ngIf="currentStep === 2"
-      >
-        Cadastrar
-      </button>
-    </ng-container>
+    }
+    @if (!isEditMode) {
+      @if (currentStep < 2) {
+        <button mat-flat-button (click)="onNext()" type="button" color="primary" [disabled]="!canProceedToNextStep()">
+          Avançar
+        </button>
+      }
+      @if (currentStep === 2) {
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          (click)="finalizeStepThree()"
+          [disabled]="memberForm.invalid"
+        >
+          Cadastrar
+        </button>
+      }
+    }
   </app-actions>
 </form>

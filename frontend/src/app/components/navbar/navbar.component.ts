@@ -57,7 +57,7 @@ export class NavbarComponent implements OnInit {
     private router: Router,
     private loading: LoadingService,
     private authService: AuthService,
-    @Inject(PLATFORM_ID) private platformId: any,
+    @Inject(PLATFORM_ID) private platformId: object,
   ) {}
 
   ngOnInit(): void {
@@ -66,6 +66,10 @@ export class NavbarComponent implements OnInit {
     if (isPlatformBrowser(this.platformId)) {
       this.isMobile = window.innerWidth <= this.windowLength;
     }
+
+    this.authService.user$.subscribe((user) => {
+      this.userName = user ? user.name : null;
+    });
   }
 
   @HostListener('window:resize', ['$event'])

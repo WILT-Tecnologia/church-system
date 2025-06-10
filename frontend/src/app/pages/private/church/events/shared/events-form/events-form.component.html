@@ -1,11 +1,7 @@
-<form
-  [formGroup]="eventForm"
-  (ngSubmit)="handleSubmit()"
-  class="form-field-group"
->
+<form [formGroup]="eventForm" (ngSubmit)="handleSubmit()" class="form-field-group">
   <!-- Campos de igreja e tipo de evento -->
   <app-column [columns]="2">
-    <mat-form-field appearance="fill">
+    <mat-form-field appearance="fill" class="reduction">
       <mat-label>Igreja</mat-label>
       <input
         type="text"
@@ -18,10 +14,7 @@
         (click)="showAllChurchs()"
         [readonly]="true"
       />
-      <mat-autocomplete
-        #autoChurch="matAutocomplete"
-        (optionSelected)="onSelectedChurch($event)"
-      >
+      <mat-autocomplete #autoChurch="matAutocomplete" (optionSelected)="onSelectedChurch($event)">
         @for (church of filterChurch | async; track $index) {
           <mat-option [value]="church">
             {{ church.name }}
@@ -30,14 +23,13 @@
           <mat-option disabled>Nenhuma igreja encontrada.</mat-option>
         }
       </mat-autocomplete>
-      @if (
-        eventForm.get('church_id')?.invalid &&
-        eventForm.get('church_id')?.touched
-      ) {
+      @if (eventForm.get('church_id')?.invalid && eventForm.get('church_id')?.touched) {
         <mat-error>{{ getErrorMessage('church_id') }}</mat-error>
       }
     </mat-form-field>
+  </app-column>
 
+  <app-column [columns]="2">
     <mat-form-field appearance="fill">
       <mat-label>Tipo do evento</mat-label>
       <input
@@ -49,10 +41,7 @@
         [formControl]="searchEventTypeControl"
         (focus)="showAllEventTypes()"
       />
-      <mat-autocomplete
-        #autoEventType="matAutocomplete"
-        (optionSelected)="onSelectedEventType($event)"
-      >
+      <mat-autocomplete #autoEventType="matAutocomplete" (optionSelected)="onSelectedEventType($event)">
         @for (eventTypes of filterEventTypes | async; track $index) {
           <mat-option [value]="eventTypes">
             {{ eventTypes.name }}
@@ -63,41 +52,42 @@
       </mat-autocomplete>
       @if (
         eventForm.get('event_type_id')?.invalid &&
-        (eventForm.get('event_type_id')?.touched ||
-          eventForm.get('event_type_id')?.dirty)
+        (eventForm.get('event_type_id')?.touched || eventForm.get('event_type_id')?.dirty)
       ) {
         <mat-error>{{ getErrorMessage('event_type_id') }}</mat-error>
       }
     </mat-form-field>
-  </app-column>
 
-  <!-- Campos de nome e tema -->
-  <app-column [columns]="2">
     <mat-form-field appearance="fill">
       <mat-label>Nome</mat-label>
       <input matInput formControlName="name" maxlength="255" required />
-      <mat-error
-        *ngIf="eventForm.get('name')?.invalid && eventForm.get('name')?.touched"
+      <mat-error *ngIf="eventForm.get('name')?.invalid && eventForm.get('name')?.touched"
         >{{ getErrorMessage('name') }}
       </mat-error>
     </mat-form-field>
 
-    <mat-form-field appearance="fill">
+    <!-- <mat-form-field appearance="fill">
       <mat-label>Tema</mat-label>
       <input matInput formControlName="theme" maxlength="255" />
-      <mat-error
-        *ngIf="
-          eventForm.get('theme')?.invalid && eventForm.get('theme')?.touched
-        "
+      <mat-error *ngIf="eventForm.get('theme')?.invalid && eventForm.get('theme')?.touched"
         >{{ getErrorMessage('theme') }}
       </mat-error>
+    </mat-form-field> -->
+  </app-column>
+
+  <app-column>
+    <mat-form-field appearance="fill">
+      <mat-label>Observação</mat-label>
+      <textarea matInput rows="3" formControlName="obs" maxlength="255"></textarea>
+      @if (eventForm.get('obs')?.invalid && eventForm.get('obs')?.touched) {
+        <mat-error>{{ getErrorMessage('obs') }}</mat-error>
+      }
     </mat-form-field>
   </app-column>
 
   <!-- Campos de data e hora -->
-  <app-column [columns]="2">
+  <!-- <app-column [columns]="2">
     <app-column [columns]="2">
-      <!-- Data inicial -->
       <mat-form-field>
         <mat-label>Data inicial</mat-label>
         <input
@@ -110,10 +100,7 @@
           [min]="minDate"
           required
         />
-        <mat-datepicker-toggle
-          matIconSuffix
-          [for]="start_date"
-        ></mat-datepicker-toggle>
+        <mat-datepicker-toggle matIconSuffix [for]="start_date"></mat-datepicker-toggle>
         <mat-datepicker #start_date>
           <mat-datepicker-actions>
             @if (eventForm.get('start_date')?.value) {
@@ -130,38 +117,23 @@
                 Limpar
               </button>
             } @else {
-              <button type="button" mat-stroked-button matDatepickerCancel>
-                Cancelar
-              </button>
-              <button type="button" mat-flat-button matDatepickerApply>
-                Concluir
-              </button>
+              <button type="button" mat-stroked-button matDatepickerCancel>Cancelar</button>
+              <button type="button" mat-flat-button matDatepickerApply>Concluir</button>
             }
           </mat-datepicker-actions>
         </mat-datepicker>
 
-        @if (
-          eventForm.get('start_date')?.invalid &&
-          eventForm.get('start_date')?.touched
-        ) {
+        @if (eventForm.get('start_date')?.invalid && eventForm.get('start_date')?.touched) {
           <mat-error>{{ getErrorMessage('start_date') }} </mat-error>
         }
       </mat-form-field>
 
-      <!-- Hora inicial -->
       <mat-form-field appearance="fill">
         <mat-label>Hora inicial</mat-label>
-        <input
-          matInput
-          type="time"
-          formControlName="start_time"
-          required
-          placeholder="hh:mm"
-        />
+        <input matInput type="time" formControlName="start_time" required placeholder="hh:mm" />
         @if (
           eventForm.get('start_time')?.invalid &&
-          (eventForm.get('start_time')?.touched ||
-            eventForm.get('start_time')?.dirty)
+          (eventForm.get('start_time')?.touched || eventForm.get('start_time')?.dirty)
         ) {
           <mat-error>{{ getErrorMessage('start_time') }}</mat-error>
         }
@@ -169,7 +141,6 @@
     </app-column>
 
     <app-column [columns]="2">
-      <!-- Data final -->
       <mat-form-field>
         <mat-label>Data final</mat-label>
         <input
@@ -182,10 +153,7 @@
           required
           readonly
         />
-        <mat-datepicker-toggle
-          matIconSuffix
-          [for]="end_date"
-        ></mat-datepicker-toggle>
+        <mat-datepicker-toggle matIconSuffix [for]="end_date"></mat-datepicker-toggle>
         <mat-datepicker #end_date>
           <mat-datepicker-actions>
             @if (eventForm.get('end_date')?.value) {
@@ -202,91 +170,42 @@
                 Limpar
               </button>
             } @else {
-              <button type="button" mat-stroked-button matDatepickerCancel>
-                Cancelar
-              </button>
-              <button type="button" mat-flat-button matDatepickerApply>
-                Concluir
-              </button>
+              <button type="button" mat-stroked-button matDatepickerCancel>Cancelar</button>
+              <button type="button" mat-flat-button matDatepickerApply>Concluir</button>
             }
           </mat-datepicker-actions>
         </mat-datepicker>
 
-        @if (
-          eventForm.get('end_date')?.invalid &&
-          eventForm.get('end_date')?.touched
-        ) {
+        @if (eventForm.get('end_date')?.invalid && eventForm.get('end_date')?.touched) {
           <mat-error>{{ getErrorMessage('end_date') }} </mat-error>
         }
       </mat-form-field>
 
-      <!-- Hora final -->
       <mat-form-field appearance="fill">
         <mat-label>Hora final</mat-label>
-        <input
-          matInput
-          type="time"
-          formControlName="end_time"
-          required
-          placeholder="hh:mm"
-        />
+        <input matInput type="time" formControlName="end_time" required placeholder="hh:mm" />
         @if (
-          eventForm.get('end_time')?.invalid &&
-          (eventForm.get('end_time')?.touched ||
-            eventForm.get('end_time')?.dirty)
+          eventForm.get('end_time')?.invalid && (eventForm.get('end_time')?.touched || eventForm.get('end_time')?.dirty)
         ) {
           <mat-error>{{ getErrorMessage('end_time') }}</mat-error>
         }
       </mat-form-field>
     </app-column>
-  </app-column>
+  </app-column> -->
 
-  <!-- Local -->
-  <app-column [columns]="1">
+  <!--   <app-column [columns]="1">
     <mat-form-field appearance="fill">
       <mat-label>Local</mat-label>
       <input matInput formControlName="location" maxlength="255" />
-      <mat-error
-        *ngIf="
-          eventForm.get('location')?.invalid &&
-          eventForm.get('location')?.touched
-        "
-        >{{ getErrorMessage('location') }}</mat-error
-      >
+      <mat-error *ngIf="eventForm.get('location')?.invalid && eventForm.get('location')?.touched">{{
+        getErrorMessage('location')
+      }}</mat-error>
     </mat-form-field>
-  </app-column>
-
-  <!-- Observação -->
-  <app-column>
-    <mat-form-field appearance="fill">
-      <mat-label>Observação</mat-label>
-      <textarea
-        matInput
-        rows="3"
-        formControlName="obs"
-        maxlength="255"
-      ></textarea>
-      @if (eventForm.get('obs')?.invalid && eventForm.get('obs')?.touched) {
-        <mat-error>{{ getErrorMessage('obs') }}</mat-error>
-      }
-    </mat-form-field>
-  </app-column>
+  </app-column> -->
 
   <app-actions>
-    <button
-      mat-stroked-button
-      type="button"
-      color="warn"
-      (click)="handleCancel()"
-    >
-      Cancelar
-    </button>
-    <button
-      mat-flat-button
-      type="submit"
-      color="primary"
-      [disabled]="eventForm.invalid"
-    >
+    <button mat-stroked-button type="button" color="warn" (click)="handleCancel()">Cancelar</button>
+    <button mat-flat-button type="submit" color="primary" [disabled]="eventForm.invalid">
       {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
     </button>
   </app-actions>

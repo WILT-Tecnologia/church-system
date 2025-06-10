@@ -33,7 +33,10 @@ Route::prefix('church')->middleware(['cors', 'auth:sanctum'])->group(function ()
         Route::apiResource('/', EventsController::class);
         Route::get('/type/{event_type_id}', [EventsController::class, 'getByEventType']);
     });
-    Route::apiResource('events-participant', \App\Http\Controllers\Api\EventParticipantController::class);
+    Route::prefix('events/{event_id}')->group(function () {
+        Route::apiResource('events-participant', \App\Http\Controllers\Api\EventParticipantController::class);
+        Route::apiResource('calls', \App\Http\Controllers\Api\EventCallsController::class);
+    });
 });
 
 Route::prefix('aux')->middleware(['cors', 'auth:sanctum'])->group(function () {

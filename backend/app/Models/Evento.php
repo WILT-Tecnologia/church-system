@@ -25,21 +25,8 @@ class Evento extends Model
         'event_type_id',
         'name',
         'obs',
-        'theme',
-        'start_date',
-        'end_date',
-        'start_time',
-        'end_time',
-        'location',
         'created_by',
         'updated_by',
-    ];
-
-    protected $casts = [
-        'start_date' => 'date:Y-m-d',
-        'end_date' => 'date:Y-m-d',
-        'start_time' => 'string',
-        'end_time' => 'string',
     ];
 
     protected static function boot() {

@@ -22,14 +22,8 @@ class UpdateEventsRequest extends FormRequest
         return [
             'church_id' => ['sometimes', 'required', 'exists:churches,id'],
             'event_type_id' => ['sometimes', 'required', 'exists:event_types,id'],
-            'name' => ['sometimes', 'required'],
-            'obs' => ['sometimes', 'nullable'],
-            'theme' => ['sometimes', 'nullable'],
-            'start_date' => ['sometimes'],
-            'end_date' => ['sometimes'],
-            'start_time' => ['required', 'regex:/^([01]\d|2[0-3]):([0-5]\d)$/'],
-            'end_time' => ['required', 'regex:/^([01]\d|2[0-3]):([0-5]\d)$/', 'after:start_time'],
-            'location' => ['sometimes', 'nullable'],
+            'name' => ['sometimes', 'required', 'max:255', 'string'],
+            'obs' => ['sometimes', 'nullable', 'max:255', 'string'],
             'created_by' => ['nullable', 'exists:users,id'],
             'updated_by' => ['nullable', 'exists:users,id']
         ];

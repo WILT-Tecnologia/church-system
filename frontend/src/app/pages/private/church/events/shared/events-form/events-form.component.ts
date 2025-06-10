@@ -1,33 +1,10 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Inject,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import {
-  MatAutocompleteModule,
-  MatAutocompleteSelectedEvent,
-} from '@angular/material/autocomplete';
+import { ChangeDetectionStrategy, Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
-import {
-  MAT_DATE_LOCALE,
-  provideNativeDateAdapter,
-} from '@angular/material/core';
-import {
-  MatDatepicker,
-  MatDatepickerModule,
-} from '@angular/material/datepicker';
+import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
+import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -49,7 +26,7 @@ import { NotificationService } from 'app/services/notification/notification.serv
 import { ValidationService } from 'app/services/validation/validation.service';
 import { provideNgxMask } from 'ngx-mask';
 import { map, Observable, startWith, Subject } from 'rxjs';
-import { EventsService } from '../events.service';
+import { EventsService } from '../../events.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -70,11 +47,7 @@ import { EventsService } from '../events.service';
     CommonModule,
     ColumnComponent,
   ],
-  providers: [
-    provideNgxMask(),
-    provideNativeDateAdapter(),
-    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
-  ],
+  providers: [provideNgxMask(), provideNativeDateAdapter(), { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' }],
   selector: 'app-events-form',
   styleUrl: './events-form.component.scss',
   templateUrl: './events-form.component.html',
@@ -113,9 +86,9 @@ export class EventsFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.findAllChurchs();
     this.findAllEventTypes();
     this.checkEditMode();
+    /* this.findAllChurchs(); */
     this.loadChurchFromLocalStorage();
   }
 
@@ -128,8 +101,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     if (!dateStr) return null;
     try {
       const dateWithoutTimezone = new Date(dateStr + 'T00:00:00');
-      const userTimezoneOffset =
-        dateWithoutTimezone.getTimezoneOffset() * 60000;
+      const userTimezoneOffset = dateWithoutTimezone.getTimezoneOffset() * 60000;
       return new Date(dateWithoutTimezone.getTime() + userTimezoneOffset);
     } catch (e) {
       console.error('Error initializing date:', e);
@@ -137,27 +109,17 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  createForm = (): FormGroup => {
+  private createForm = (): FormGroup => {
     return this.fb.group({
       id: [this.data.event?.id ?? ''],
-      name: [
-        this.data.event?.name ?? '',
-        [
-          Validators.required,
-          Validators.minLength(3),
-          Validators.maxLength(255),
-        ],
-      ],
+      name: [this.data.event?.name ?? '', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
       church_id: [this.data.event?.church?.id ?? '', [Validators.required]],
-      event_type_id: [
-        this.data.event?.event_type?.id ?? '',
-        [Validators.required],
-      ],
-      theme: [
+      event_type_id: [this.data.event?.event_type?.id ?? '', [Validators.required]],
+      obs: [this.data.event?.obs ?? '', [Validators.maxLength(255)]],
+      /* theme: [
         this.data.event?.theme ?? '',
         [Validators.minLength(3), Validators.maxLength(255)],
       ],
-      obs: [this.data.event?.obs ?? '', [Validators.maxLength(255)]],
       start_date: [
         this.initializeDate(this.data.event?.start_date),
         [Validators.required],
@@ -178,7 +140,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
           : '',
         [Validators.required],
       ],
-      location: [this.data.event?.location ?? '', Validators.maxLength(255)],
+      location: [this.data.event?.location ?? '', Validators.maxLength(255)], */
     });
   };
 
@@ -186,31 +148,31 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     this.loading.show();
   };
 
-  hideLoading = () => {
+  private hideLoading = () => {
     this.loading.hide();
   };
 
-  checkEditMode = () => {
+  private checkEditMode = () => {
     if (this.data?.event) {
       this.isEditMode = true;
 
-      const startDate = this.initializeDate(this.data.event.start_date);
+      /* const startDate = this.initializeDate(this.data.event.start_date);
       const endDate = this.initializeDate(this.data.event.end_date);
       const formattedStartTime = this.formatTime(this.data.event.start_time);
-      const formattedEndTime = this.formatTime(this.data.event.end_time);
+      const formattedEndTime = this.formatTime(this.data.event.end_time); */
 
       this.eventForm.patchValue({
         id: this.data.event.id,
         name: this.data.event.name,
         church_id: this.data.event.church?.id,
         event_type_id: this.data.event.event_type?.id,
-        theme: this.data.event.theme,
         obs: this.data.event.obs,
+        /* theme: this.data.event.theme,
         location: this.data.event.location,
         start_date: startDate,
         end_date: endDate,
         start_time: formattedStartTime || '',
-        end_time: formattedEndTime || '',
+        end_time: formattedEndTime || '', */
       });
 
       if (this.data.event.church) {
@@ -225,12 +187,10 @@ export class EventsFormComponent implements OnInit, OnDestroy {
 
   getErrorMessage = (controlName: string): string | null => {
     const control = this.eventForm.get(controlName);
-    return control?.errors
-      ? this.validationService.getErrorMessage(control)
-      : null;
+    return control?.errors ? this.validationService.getErrorMessage(control) : null;
   };
 
-  loadChurchFromLocalStorage() {
+  private loadChurchFromLocalStorage() {
     const selectedChurchId = localStorage.getItem('selectedChurch');
 
     if (selectedChurchId) {
@@ -239,65 +199,53 @@ export class EventsFormComponent implements OnInit, OnDestroy {
 
       this.churchsService.getChurch().subscribe({
         next: (churches) => {
-          const selectedChurch = churches.find(
-            (church) => church.id === selectedChurchId,
-          );
+          const selectedChurch = churches.find((church) => church.id === selectedChurchId);
           if (selectedChurch) {
             this.searchChurchControl.setValue(selectedChurch.name);
             this.searchChurchControl.disable();
           }
         },
         error: (error) => {
-          this.notification.onError(
-            error?.error?.message ?? MESSAGES.LOADING_ERROR,
-          );
+          this.notification.onError(error?.error?.message ?? MESSAGES.LOADING_ERROR);
         },
       });
     }
   }
 
-  findAllChurchs = () => {
+  private findAllChurchs = () => {
     this.churchsService.getChurch().subscribe({
       next: (data) => {
         this.church = data;
         this.showAllChurchs();
 
         if (this.isEditMode && this.data?.event?.church) {
-          const currentChurch = this.church.find(
-            (c) => c.id === this.data.event.church.id,
-          );
+          const currentChurch = this.church.find((c) => c.id === this.data.event?.church?.id);
           if (currentChurch) {
             this.searchChurchControl.setValue(currentChurch.name);
           }
         }
       },
       error: (error) => {
-        this.notification.onError(
-          error?.error?.message ?? MESSAGES.LOADING_ERROR,
-        );
+        this.notification.onError(error?.error?.message ?? MESSAGES.LOADING_ERROR);
       },
       complete: () => this.hideLoading(),
     });
   };
 
-  findAllEventTypes = () => {
+  private findAllEventTypes = () => {
     this.eventTypesService.getEventTypes().subscribe({
       next: (data) => {
         this.eventType = data;
         this.showAllEventTypes();
         if (this.isEditMode && this.data?.event?.event_type) {
-          const currentEventType = this.eventType.find(
-            (et) => et.id === this.data.event.event_type.id,
-          );
+          const currentEventType = this.eventType.find((et) => et.id === this.data.event?.event_type?.id);
           if (currentEventType) {
             this.searchEventTypeControl.setValue(currentEventType.name);
           }
         }
       },
       error: (error) => {
-        this.notification.onError(
-          error?.error?.message ?? MESSAGES.LOADING_ERROR,
-        );
+        this.notification.onError(error?.error?.message ?? MESSAGES.LOADING_ERROR);
       },
       complete: () => this.hideLoading(),
     });
@@ -306,39 +254,27 @@ export class EventsFormComponent implements OnInit, OnDestroy {
   showAllChurchs = () => {
     this.filterChurch = this.searchChurchControl.valueChanges.pipe(
       startWith(this.searchChurchControl.value || ''),
-      map((value: any) =>
-        typeof value === 'string' ? value : (value?.name ?? ''),
-      ),
-      map((name) =>
-        name.length >= 1 ? this._filterChurch(name) : this.church.slice(),
-      ),
+      map((value: any) => (typeof value === 'string' ? value : (value?.name ?? ''))),
+      map((name) => (name.length >= 1 ? this._filterChurch(name) : this.church.slice())),
     );
   };
 
   showAllEventTypes = () => {
     this.filterEventTypes = this.searchEventTypeControl.valueChanges.pipe(
       startWith(''),
-      map((value: any) =>
-        typeof value === 'string' ? value : (value?.name ?? ''),
-      ),
-      map((name) =>
-        name.length >= 1 ? this._filterEventType(name) : this.eventType.slice(),
-      ),
+      map((value: any) => (typeof value === 'string' ? value : (value?.name ?? ''))),
+      map((name) => (name.length >= 1 ? this._filterEventType(name) : this.eventType.slice())),
     );
   };
 
   private _filterChurch = (name: string): Church[] => {
     const filterValue = name.toLowerCase();
-    return this.church.filter((church) =>
-      church.name.toLowerCase().includes(filterValue),
-    );
+    return this.church.filter((church) => church.name.toLowerCase().includes(filterValue));
   };
 
   private _filterEventType = (name: string): EventTypes[] => {
     const filterValue = name.toLowerCase();
-    return this.eventType.filter((eventType) =>
-      eventType.name.toLowerCase().includes(filterValue),
-    );
+    return this.eventType.filter((eventType) => eventType.name.toLowerCase().includes(filterValue));
   };
 
   onSelectedChurch = (event: MatAutocompleteSelectedEvent) => {
@@ -353,7 +289,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     this.eventForm.get('event_type_id')?.setValue(eventType.id);
   };
 
-  clearDate(fieldName: string) {
+  /* clearDate(fieldName: string) {
     this.eventForm.get(fieldName)?.reset();
   }
 
@@ -367,9 +303,9 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     if (this.endDatePicker) {
       this.endDatePicker.open();
     }
-  }
+  } */
 
-  formatDate(date: Date | string | null | undefined): string | null {
+  /* formatDate(date: Date | string | null | undefined): string | null {
     if (!date) return null;
 
     const d = new Date(date);
@@ -410,7 +346,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
 
     console.warn('formatTime: Unrecognized time format or value:', time);
     return null;
-  }
+  } */
 
   private markFormGroupTouched(formGroup: FormGroup) {
     Object.values(formGroup.controls).forEach((control) => {
@@ -424,7 +360,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
   }
 
   handleCancel = () => {
-    this.dialogRef.close();
+    this.dialogRef.close(this.eventForm.value);
   };
 
   handleSubmit = () => {
@@ -447,24 +383,24 @@ export class EventsFormComponent implements OnInit, OnDestroy {
       churchIdControl?.disable();
     }
 
-    const eventPayload: Events = {
+    const events: Events = {
       ...formValues,
-      start_date: this.formatDate(formValues.start_date),
+      /* start_date: this.formatDate(formValues.start_date),
       end_date: this.formatDate(formValues.end_date),
       start_time: this.formatTime(formValues.start_time),
-      end_time: this.formatTime(formValues.end_time),
+      end_time: this.formatTime(formValues.end_time), */
     };
 
-    if (this.isEditMode && this.data.event?.id) {
-      this.handleUpdate(this.data.event.id, eventPayload);
+    if (this.isEditMode) {
+      this.handleUpdate(events);
     } else {
-      this.handleCreate(eventPayload);
+      this.handleCreate(events);
     }
   };
 
-  handleCreate = (event: Events) => {
+  handleCreate = (events: Events) => {
     this.showLoading();
-    this.eventsService.create(event).subscribe({
+    this.eventsService.create(events).subscribe({
       next: () => {
         this.hideLoading();
         this.notification.onSuccess(MESSAGES.CREATE_SUCCESS);
@@ -477,11 +413,10 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     });
   };
 
-  handleUpdate = (id: string, event: Events) => {
+  handleUpdate = (events: Events) => {
     this.showLoading();
-    this.eventsService.update(id, event).subscribe({
+    this.eventsService.update(events).subscribe({
       next: () => {
-        this.hideLoading();
         this.notification.onSuccess(MESSAGES.UPDATE_SUCCESS);
         this.dialogRef.close(true);
       },
@@ -489,6 +424,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
         this.hideLoading();
         this.notification.onError(MESSAGES.UPDATE_ERROR);
       },
+      complete: () => this.hideLoading(),
     });
   };
 }

@@ -7,9 +7,7 @@
       </button>
     }
     <button mat-stroked-button color="primary" (click)="handleEnableCalendar()">
-      <mat-icon>{{
-        calendarVisible() ? 'view_list' : 'calendar_month'
-      }}</mat-icon>
+      <mat-icon>{{ calendarVisible() ? 'view_list' : 'calendar_month' }}</mat-icon>
       {{ calendarVisible() ? 'Ver na Lista' : 'Ver no Calendário' }}
     </button>
   </div>

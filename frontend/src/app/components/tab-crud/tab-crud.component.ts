@@ -2,11 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { Observable } from 'rxjs';
-import {
-  ActionsProps,
-  ColumnDefinitionsProps,
-  CrudComponent,
-} from '../crud/crud.component';
+import { ActionsProps, ColumnDefinitionsProps, CrudComponent } from '../crud/crud.component';
 import { LoadingService } from '../loading/loading.service';
 import { NotFoundRegisterComponent } from '../not-found-register/not-found-register.component';
 import { MESSAGES } from '../toast/messages';
@@ -24,7 +20,7 @@ export interface CrudConfig {
   addFn: () => void;
   editFn: (item: any) => void;
   deleteFn: (item: any) => void;
-  toggleFn: (item: any) => void;
+  toggleFn?: (item: any) => void;
   enableToggleStatus: boolean;
 }
 
@@ -32,12 +28,7 @@ export interface CrudConfig {
   selector: 'app-tab-crud',
   templateUrl: './tab-crud.component.html',
   styleUrl: './tab-crud.component.scss',
-  imports: [
-    CommonModule,
-    MatTabsModule,
-    CrudComponent,
-    NotFoundRegisterComponent,
-  ],
+  imports: [CommonModule, MatTabsModule, CrudComponent, NotFoundRegisterComponent],
 })
 export class TabCrudComponent implements OnInit {
   @Input() tabs: TabConfig[] = [];

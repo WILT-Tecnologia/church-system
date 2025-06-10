@@ -23,44 +23,30 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-  FullCalendarComponent,
-  FullCalendarModule,
-} from '@fullcalendar/angular';
-import {
-  CalendarOptions,
-  DateSelectArg,
-  EventApi,
-  EventClickArg,
-} from '@fullcalendar/core';
+import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
+import { CalendarOptions, DateSelectArg, EventApi, EventClickArg } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import {
-  ActionsProps,
-  ColumnDefinitionsProps,
-} from 'app/components/crud/crud.component';
+import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/crud.component';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
-import {
-  CrudConfig,
-  TabConfig,
-  TabCrudComponent,
-} from 'app/components/tab-crud/tab-crud.component';
+import { CrudConfig, TabConfig, TabCrudComponent } from 'app/components/tab-crud/tab-crud.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
-import { Events } from 'app/model/Events';
+import { EventCalls, Events } from 'app/model/Events';
 import { EventTypes } from 'app/model/EventTypes';
 import dayjs from 'dayjs';
 import { Observable, of } from 'rxjs';
 import { EventTypesService } from '../../administrative/eventTypes/eventTypes.service';
 import { MembersComponent } from '../members/members.component';
-import { EventsFormComponent } from './events-form/events-form.component';
+
 import { EventsService } from './events.service';
+import { EventsFormComponent } from './shared/events-form/events-form.component';
 
 @Component({
   selector: 'app-events',
@@ -102,6 +88,13 @@ export class EventsComponent implements OnInit, AfterViewInit {
       action: (events: Events) => this.handleAddMembers(events),
     },
     {
+      type: 'add_circle',
+      tooltip: 'Nova chamada',
+      icon: 'add_circle',
+      label: 'Nova chamada',
+      action: (events: Events) => this.handleAddMembers(events),
+    },
+    {
       type: 'edit',
       tooltip: 'Editar',
       icon: 'edit',
@@ -121,11 +114,12 @@ export class EventsComponent implements OnInit, AfterViewInit {
     { key: 'church.name', header: 'Igreja', type: 'string' },
     { key: 'event_type.name', header: 'Tipo do evento', type: 'string' },
     { key: 'name', header: 'Nome', type: 'string' },
-    { key: 'theme', header: 'Tema', type: 'string' },
+    { key: 'obs', header: 'Observação', type: 'string' },
+    /* { key: 'theme', header: 'Tema', type: 'string' },
     { key: 'start_date', header: 'Data início', type: 'date' },
     { key: 'start_time', header: 'Hora início', type: 'time' },
     { key: 'end_date', header: 'Data fim', type: 'date' },
-    { key: 'end_time', header: 'Hora fim', type: 'time' },
+    { key: 'end_time', header: 'Hora fim', type: 'time' }, */
     {
       key: 'combinedCreatedByAndCreatedAt',
       header: 'Criado em',
@@ -200,19 +194,16 @@ export class EventsComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.loadEventTypes();
     this.loadEvents();
-    this.breakpointObserver
-      .observe([Breakpoints.Handset])
-      .subscribe((result) => {
-        this.isMobile = result.matches;
-        this.updateCalendarOptions();
-      });
+    this.breakpointObserver.observe([Breakpoints.Handset]).subscribe((result) => {
+      this.isMobile = result.matches;
+      this.updateCalendarOptions();
+    });
     this.crudConfig = {
       columnDefinitions: this.columnDefinitions,
       actions: this.actions,
       addFn: this.handleCreate.bind(this),
       editFn: this.handleEdit.bind(this),
       deleteFn: this.handleDelete.bind(this),
-      toggleFn: this.toggleStatus.bind(this),
       enableToggleStatus: true,
     };
   }
@@ -322,20 +313,13 @@ export class EventsComponent implements OnInit, AfterViewInit {
   };
 
   handleDateSelect(selectInfo: DateSelectArg) {
-    const modal = this.modal.openModal(
-      `modal-${Math.random()}`,
-      EventsFormComponent,
-      'Adicionar evento',
-      true,
-      true,
-      {
-        event: {
-          start_date: dayjs(selectInfo.startStr).format('DD/MM/YYYY'),
-          end_date: dayjs(selectInfo.endStr).format('DD/MM/YYYY'),
-          allDay: selectInfo.allDay,
-        },
+    const modal = this.modal.openModal(`modal-${Math.random()}`, EventsFormComponent, 'Adicionar evento', true, true, {
+      event: {
+        start_date: dayjs(selectInfo.startStr).format('DD/MM/YYYY'),
+        end_date: dayjs(selectInfo.endStr).format('DD/MM/YYYY'),
+        allDay: selectInfo.allDay,
       },
-    );
+    });
 
     modal.afterClosed().subscribe((result) => {
       if (result) {
@@ -365,14 +349,8 @@ export class EventsComponent implements OnInit, AfterViewInit {
         const calendarEvents = this.events.map((event) => ({
           id: event.id ?? '',
           title: event.name,
-          start: this.convertToISODate(
-            event.start_date || dayjs().toDate(),
-            event.start_time,
-          ),
-          end: this.convertToISODate(
-            event.end_date || dayjs().toDate(),
-            event.end_time,
-          ),
+          /* start: this.convertToISODate(event.start_date || dayjs().toDate(), event.start_time),
+          end: this.convertToISODate(event.end_date || dayjs().toDate(), event.end_time),
           allDay: !(event.start_time || event.end_time),
           extendedProps: {
             event_type: event.event_type?.name || 'Não especificado',
@@ -382,7 +360,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
             end_time: event.end_time || '',
             location: event.location || '',
             obs: event.obs || '',
-          },
+          }, */
         }));
 
         this.calendarOptions.update((options) => ({
@@ -412,13 +390,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
   };
 
   handleCreate = () => {
-    const modal = this.modal.openModal(
-      `modal-${Math.random()}`,
-      EventsFormComponent,
-      'Adicionar evento',
-      true,
-      true,
-    );
+    const modal = this.modal.openModal(`modal-${Math.random()}`, EventsFormComponent, 'Adicionar evento', true, true);
 
     modal.afterClosed().subscribe((result) => {
       if (result) {
@@ -444,10 +416,12 @@ export class EventsComponent implements OnInit, AfterViewInit {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       EventsFormComponent,
-      'Editar evento',
+      `Editando o evento ${event.name}`,
       true,
       true,
-      { event },
+      {
+        event,
+      },
     );
 
     modal.afterClosed().subscribe((result) => {
@@ -459,12 +433,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
 
   handleDelete = (event: Events) => {
     this.confirmService
-      .openConfirm(
-        'Excluir evento',
-        `Tem certeza que deseja excluir o evento ${event.name}?`,
-        'Confirmar',
-        'Cancelar',
-      )
+      .openConfirm('Excluir evento', `Tem certeza que deseja excluir o evento ${event.name}?`, 'Confirmar', 'Cancelar')
       .afterClosed()
       .subscribe((result) => {
         if (result) {
@@ -481,49 +450,41 @@ export class EventsComponent implements OnInit, AfterViewInit {
       });
   };
 
-  toggleStatus = (event: Events) => {
-    const updatedStatus = !event.status;
-    this.showLoading();
-    this.eventsService.updatedStatus(event.id, updatedStatus).subscribe({
-      next: () => {
-        this.toast.openSuccess(
-          `Evento ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`,
-        );
-        this.loadEvents();
-      },
-      error: () => {
-        this.toast.openError(MESSAGES.UPDATE_ERROR);
-        this.hideLoading();
-      },
-      complete: () => this.hideLoading(),
-    });
-  };
-
   formatTooltip(event: any): string {
-    const props: Events = event.extendedProps;
-    const lines = [
-      `Tipo: ${props.event_type}`,
-      `Início: ${props.start_date ? this.format.dateFormat(props.start_date) : 'Não especificado'}${props.start_time ? ' às ' + props.start_time : ''}`,
-      `Fim: ${props.end_date ? this.format.dateFormat(props.end_date) : 'Não especificado'}${props.end_time ? ' às ' + props.end_time : ''}`,
-    ];
-    if (props.location) {
-      lines.push(`Local: ${props.location}`);
+    const events: Events = event.extendedProps;
+    const eventCalls: EventCalls = event.extendedProps;
+    if (!events || !eventCalls) {
+      this.toast.openError('Evento ou detalhes da chamada não encontrados');
+      return 'Evento ou detalhes da chamada não encontrados';
     }
-    if (props.obs) {
-      lines.push(`Observação: ${props.obs}`);
+
+    if (!events.event_type) {
+      this.toast.openError('Tipo de evento não encontrado');
+      return 'Tipo de evento não especificado';
+    }
+
+    if (!eventCalls.start_date && !eventCalls.end_date) {
+      this.toast.openError('Data de início e fim não especificadas');
+      return 'Data de início e fim não especificadas';
+    }
+    const lines = [
+      `Tipo: ${events.event_type}`,
+      `Início: ${eventCalls.start_date ? this.format.dateFormat(eventCalls.start_date) : 'Não especificado'}${eventCalls.start_time ? ' às ' + eventCalls.start_time : ''}`,
+      `Fim: ${eventCalls.end_date ? this.format.dateFormat(eventCalls.end_date) : 'Não especificado'}${eventCalls.end_time ? ' às ' + eventCalls.end_time : ''}`,
+    ];
+    if (eventCalls.location) {
+      lines.push(`Local: ${eventCalls.location}`);
+    }
+    if (events.obs) {
+      lines.push(`Observação: ${events.obs}`);
     }
     return lines.join('\n');
   }
 
-  private convertToISODate = (
-    dateInput: string | Date,
-    timeInput?: string,
-  ): string => {
+  private convertToISODate = (dateInput: string | Date, timeInput?: string): string => {
     try {
       if (dateInput instanceof Date) {
-        return timeInput
-          ? dayjs(dateInput).format('YYYY-MM-DD') + `T${timeInput}:00Z`
-          : dateInput.toISOString();
+        return timeInput ? dayjs(dateInput).format('YYYY-MM-DD') + `T${timeInput}:00Z` : dateInput.toISOString();
       }
 
       if (!dateInput) {
@@ -548,9 +509,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
       }
 
       if (timeInput) {
-        const timeFormatted = timeInput.includes(':')
-          ? timeInput
-          : `${timeInput}:00`;
+        const timeFormatted = timeInput.includes(':') ? timeInput : `${timeInput}:00`;
         return parsedDate.format('YYYY-MM-DD') + `T${timeFormatted}:00Z`;
       }
 

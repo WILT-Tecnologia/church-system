@@ -12,30 +12,29 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 })
 export class AuthService {
   private apiUrl = environment.apiUrl;
-
-  private isLoggedInSubject = new BehaviorSubject<boolean>(
-    this.isAuthenticated(),
-  );
+  private isLoggedInSubject = new BehaviorSubject<boolean>(false);
   isLoggedIn$ = this.isLoggedInSubject.asObservable();
+  private userSubject = new BehaviorSubject<User | null>(null);
+  user$ = this.userSubject.asObservable();
 
   constructor(
     private http: HttpClient,
     private router: Router,
-    @Inject(PLATFORM_ID) private platformId: any,
+    @Inject(PLATFORM_ID) private platformId: object,
   ) {
-    if (this.isAuthenticated()) {
-      this.isLoggedInSubject.next(true);
-    } else {
-      this.isLoggedInSubject.next(false);
-    }
+    this.checkInitialAuthState();
   }
 
-  initializeAuthState(): Promise<boolean> {
-    return new Promise((resolve) => {
-      const isLoggedIn = this.isAuthenticated();
-      this.isLoggedInSubject.next(isLoggedIn);
-      resolve(isLoggedIn);
-    });
+  private checkInitialAuthState(): void {
+    if (this.isAuthenticated()) {
+      const user = this.getUser();
+      this.isLoggedInSubject.next(true);
+      this.userSubject.next(user);
+    } else {
+      this.isLoggedInSubject.next(false);
+      this.userSubject.next(null);
+      this.router.navigateByUrl('/login');
+    }
   }
 
   login(
@@ -52,15 +51,19 @@ export class AuthService {
         tap((response) => {
           this.setValues(response.token, response.user);
           this.isLoggedInSubject.next(true);
+          this.userSubject.next(response.user);
+          this.router.navigateByUrl('/dashboard');
         }),
       );
   }
 
-  private setValues(token: string, user: User): void {
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-    }
+  validateToken(): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/user`).pipe(
+      tap((user) => {
+        this.userSubject.next(user);
+        localStorage.setItem('user', JSON.stringify(user));
+      }),
+    );
   }
 
   getToken(): string | null {
@@ -71,8 +74,11 @@ export class AuthService {
   }
 
   getUser(): User | null {
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
+    if (isPlatformBrowser(this.platformId)) {
+      const user = localStorage.getItem('user');
+      return user ? JSON.parse(user) : null;
+    }
+    return null;
   }
 
   isAuthenticated(): boolean {
@@ -83,22 +89,41 @@ export class AuthService {
     return false;
   }
 
-  get isLoggedIn() {
-    return this.isLoggedIn$;
+  logout(): Promise<void> {
+    return new Promise(async (resolve) => {
+      if (isPlatformBrowser(this.platformId)) {
+        this.clearAuth();
+        await this.router.navigateByUrl('/login');
+        window.location.reload();
+      }
+      resolve();
+    });
   }
 
-  clearAuthState(): void {
+  private setValues(token: string, user: User): void {
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      this.userSubject.next(user);
+    }
+  }
+
+  public clearAuth(): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.clear();
-      window.location.reload();
+      this.isLoggedInSubject.next(false);
+      this.userSubject.next(null);
     }
-
-    this.isLoggedInSubject.next(false);
   }
 
-  logout(): Promise<boolean> {
-    this.clearAuthState();
+  updateUser(user: User): void {
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('user', JSON.stringify(user));
+      this.userSubject.next(user);
+    }
+  }
 
-    return this.router.navigateByUrl('/login');
+  get isLoggedIn() {
+    return this.isLoggedIn$;
   }
 }

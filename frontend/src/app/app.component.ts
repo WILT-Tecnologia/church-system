@@ -24,17 +24,7 @@ export class AppComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadingService.show();
-    this.isLoggedIn$ = this.authService.isLoggedIn$;
-
-    this.authService.initializeAuthState().then((isLoggedIn) => {
-      if (isLoggedIn) {
-        this.router.navigateByUrl('church');
-      } else if (!isLoggedIn) {
-        this.router.navigateByUrl('login');
-      }
-
-      this.loadingService.hide();
-    });
+    this.isLoggedIn$ = this.authService.isLoggedIn;
+    setTimeout(() => this.loadingService.hide(), 0);
   }
 }
