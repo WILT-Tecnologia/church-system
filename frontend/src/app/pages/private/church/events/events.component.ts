@@ -112,24 +112,9 @@ export class EventsComponent implements OnInit, AfterViewInit {
   ];
   columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'church.name', header: 'Igreja', type: 'string' },
-    { key: 'event_type.name', header: 'Tipo do evento', type: 'string' },
+    { key: 'eventType.name', header: 'Tipo do evento', type: 'string' },
     { key: 'name', header: 'Nome', type: 'string' },
     { key: 'obs', header: 'Observação', type: 'string' },
-    /* { key: 'theme', header: 'Tema', type: 'string' },
-    { key: 'start_date', header: 'Data início', type: 'date' },
-    { key: 'start_time', header: 'Hora início', type: 'time' },
-    { key: 'end_date', header: 'Data fim', type: 'date' },
-    { key: 'end_time', header: 'Hora fim', type: 'time' }, */
-    {
-      key: 'combinedCreatedByAndCreatedAt',
-      header: 'Criado em',
-      type: 'string',
-    },
-    {
-      key: 'combinedUpdatedByAndUpdatedAt',
-      header: 'Atualizado em',
-      type: 'string',
-    },
   ];
   crudConfig!: CrudConfig;
   isMobile: boolean = false;
@@ -349,18 +334,6 @@ export class EventsComponent implements OnInit, AfterViewInit {
         const calendarEvents = this.events.map((event) => ({
           id: event.id ?? '',
           title: event.name,
-          /* start: this.convertToISODate(event.start_date || dayjs().toDate(), event.start_time),
-          end: this.convertToISODate(event.end_date || dayjs().toDate(), event.end_time),
-          allDay: !(event.start_time || event.end_time),
-          extendedProps: {
-            event_type: event.event_type?.name || 'Não especificado',
-            start_date: event.start_date || '',
-            start_time: event.start_time || '',
-            end_date: event.end_date || '',
-            end_time: event.end_time || '',
-            location: event.location || '',
-            obs: event.obs || '',
-          }, */
         }));
 
         this.calendarOptions.update((options) => ({
@@ -458,7 +431,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
       return 'Evento ou detalhes da chamada não encontrados';
     }
 
-    if (!events.event_type) {
+    if (!events.eventType) {
       this.toast.openError('Tipo de evento não encontrado');
       return 'Tipo de evento não especificado';
     }
@@ -468,7 +441,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
       return 'Data de início e fim não especificadas';
     }
     const lines = [
-      `Tipo: ${events.event_type}`,
+      `Tipo: ${events.eventType}`,
       `Início: ${eventCalls.start_date ? this.format.dateFormat(eventCalls.start_date) : 'Não especificado'}${eventCalls.start_time ? ' às ' + eventCalls.start_time : ''}`,
       `Fim: ${eventCalls.end_date ? this.format.dateFormat(eventCalls.end_date) : 'Não especificado'}${eventCalls.end_time ? ' às ' + eventCalls.end_time : ''}`,
     ];

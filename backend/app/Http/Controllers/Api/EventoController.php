@@ -34,6 +34,17 @@ class EventoController extends Controller
         return response()->noContent();
     }
 
+    public function getByEventType($event_type_id, Request $request) {
+        $perPage = $request->input('per_page', 25);
+
+        $events = Evento::query()
+            ->where('event_type_id', $event_type_id)
+            ->with('church', 'eventType')
+            ->paginate($perPage);
+
+        return response()->json(EventoResource::collection($events));
+    }
+
     public function adicionarParticipante(Request $request, Evento $evento) {
         $request->validate(['member_id' => 'required|uuid|exists:members,id']);
         // dd($request->member_id)

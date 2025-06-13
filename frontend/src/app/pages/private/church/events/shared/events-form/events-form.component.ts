@@ -97,7 +97,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private initializeDate(dateStr: string | undefined | null): Date | null {
+  /* private initializeDate(dateStr: string | undefined | null): Date | null {
     if (!dateStr) return null;
     try {
       const dateWithoutTimezone = new Date(dateStr + 'T00:00:00');
@@ -107,14 +107,14 @@ export class EventsFormComponent implements OnInit, OnDestroy {
       console.error('Error initializing date:', e);
       return null;
     }
-  }
+  } */
 
   private createForm = (): FormGroup => {
     return this.fb.group({
       id: [this.data.event?.id ?? ''],
       name: [this.data.event?.name ?? '', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
       church_id: [this.data.event?.church?.id ?? '', [Validators.required]],
-      event_type_id: [this.data.event?.event_type?.id ?? '', [Validators.required]],
+      event_type_id: [this.data.event?.eventType?.id ?? '', [Validators.required]],
       obs: [this.data.event?.obs ?? '', [Validators.maxLength(255)]],
       /* theme: [
         this.data.event?.theme ?? '',
@@ -165,7 +165,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
         id: this.data.event.id,
         name: this.data.event.name,
         church_id: this.data.event.church?.id,
-        event_type_id: this.data.event.event_type?.id,
+        event_type_id: this.data.event.eventType?.id,
         obs: this.data.event.obs,
         /* theme: this.data.event.theme,
         location: this.data.event.location,
@@ -179,8 +179,8 @@ export class EventsFormComponent implements OnInit, OnDestroy {
         this.searchChurchControl.setValue(this.data.event.church.name);
       }
 
-      if (this.data.event.event_type) {
-        this.searchEventTypeControl.setValue(this.data.event.event_type.name);
+      if (this.data.event.eventType) {
+        this.searchEventTypeControl.setValue(this.data.event.eventType.name);
       }
     }
   };
@@ -237,8 +237,8 @@ export class EventsFormComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.eventType = data;
         this.showAllEventTypes();
-        if (this.isEditMode && this.data?.event?.event_type) {
-          const currentEventType = this.eventType.find((et) => et.id === this.data.event?.event_type?.id);
+        if (this.isEditMode && this.data?.event?.eventType) {
+          const currentEventType = this.eventType.find((et) => et.id === this.data.event?.eventType?.id);
           if (currentEventType) {
             this.searchEventTypeControl.setValue(currentEventType.name);
           }

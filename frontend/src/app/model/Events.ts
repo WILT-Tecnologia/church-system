@@ -7,7 +7,7 @@ export type Events = {
   id: string;
   church?: Church;
   church_id: string;
-  event_type?: EventTypes;
+  eventType?: EventTypes;
   event_type_id: string;
   name: string;
   obs?: string;

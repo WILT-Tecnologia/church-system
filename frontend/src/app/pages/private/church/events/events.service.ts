@@ -11,7 +11,7 @@ import { Observable } from 'rxjs';
 export class EventsService {
   constructor(private http: HttpClient) {}
 
-  private apiUrl = `${environment.apiUrl}/church/events`;
+  private apiUrl = `${environment.apiUrl}/church/eventos`;
 
   findByEventType(eventType: EventTypes): Observable<Events[]> {
     return this.http.get<Events[]>(`${this.apiUrl}/type/${eventType.id}`);

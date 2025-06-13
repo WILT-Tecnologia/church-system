@@ -29,14 +29,17 @@ Route::prefix('church')->middleware(['cors', 'auth:sanctum'])->group(function ()
     Route::apiResource('ordinations', \App\Http\Controllers\Api\OrdinationController::class);
     Route::apiResource('status-members', \App\Http\Controllers\Api\StatusMemberController::class);
     Route::apiResource('hist-member', \App\Http\Controllers\Api\HistMemberController::class);
-    Route::prefix('evento')->group(function () {
-        Route::apiResource('/', EventsController::class);
-        Route::get('/type/{event_type_id}', [EventsController::class, 'getByEventType']);
+    Route::apiResource('eventos', \App\Http\Controllers\Api\EventoController::class);
+    Route::get('eventos/type/{event_type_id}', [\App\Http\Controllers\Api\EventoController::class, 'getByEventType']);
+    Route::post('eventos/{evento}/participants', [\App\Http\Controllers\Api\EventoController::class, 'adicionarParticipante']);
+    Route::delete('eventos/{evento}/participants', [\App\Http\Controllers\Api\EventoController::class, 'removerParticipante']);
+    /* Route::prefix('evento')->group(function () {
+        Route::apiResource('/', \App\Http\Controllers\Api\EventoController::class);
     });
     Route::prefix('events/{event_id}')->group(function () {
         Route::apiResource('events-participant', \App\Http\Controllers\Api\EventParticipantController::class);
         Route::apiResource('calls', \App\Http\Controllers\Api\EventCallsController::class);
-    });
+    }); */
 });
 
 Route::prefix('aux')->middleware(['cors', 'auth:sanctum'])->group(function () {
