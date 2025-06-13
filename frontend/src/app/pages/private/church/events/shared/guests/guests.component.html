@@ -1,0 +1,15 @@
+@if ((guest && guest.length > 0) || rendering) {
+  <app-crud
+    [fields]="guest"
+    [dataSourceMat]="dataSourceMat"
+    [columnDefinitions]="columnDefinitions"
+    [addFn]="handleCreate"
+    [editFn]="handleEdit"
+    [deleteFn]="handleDelete"
+    [actions]="actions"
+  ></app-crud>
+} @else {
+  <app-not-found-register
+    [addRegisterFn]="handleCreate"
+  ></app-not-found-register>
+}

@@ -1,10 +1,14 @@
 <?php
 
+use App\Http\Controllers\Api\EventsController;
 use App\Http\Controllers\Api\LoginController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
     Route::post('login', [LoginController::class, 'login']);
+});
+
+Route::prefix('auth')->middleware('auth:sanctum')->group(function () {
     Route::post('/logout/{user}', [loginController::class, 'logout']);
 });
 
@@ -25,9 +29,14 @@ Route::prefix('church')->middleware(['cors', 'auth:sanctum'])->group(function ()
     Route::apiResource('ordinations', \App\Http\Controllers\Api\OrdinationController::class);
     Route::apiResource('status-members', \App\Http\Controllers\Api\StatusMemberController::class);
     Route::apiResource('hist-member', \App\Http\Controllers\Api\HistMemberController::class);
-    Route::get('hist-member/{memberId}', [\App\Http\Controllers\Api\HistMemberController::class, 'show']);
-    Route::apiResource('evento', \App\Http\Controllers\Api\EventsController::class);
-    Route::apiResource('events-participant', \App\Http\Controllers\Api\EventParticipantController::class);
+    Route::prefix('evento')->group(function () {
+        Route::apiResource('/', EventsController::class);
+        Route::get('/type/{event_type_id}', [EventsController::class, 'getByEventType']);
+    });
+    Route::prefix('events/{event_id}')->group(function () {
+        Route::apiResource('events-participant', \App\Http\Controllers\Api\EventParticipantController::class);
+        Route::apiResource('calls', \App\Http\Controllers\Api\EventCallsController::class);
+    });
 });
 
 Route::prefix('aux')->middleware(['cors', 'auth:sanctum'])->group(function () {

@@ -90,13 +90,11 @@ class Member extends Model
         return $this->HasMany(Ordination::class);
     }
 
-    public function statusMember(): BelongsTo
-    {
+    public function statusMember(): BelongsTo {
         return $this->belongsTo(StatusMember::class, 'id', 'member_id');
     }
 
-    public function histMembers(): HasMany
-    {
+    public function histMembers(): HasMany {
         return $this->hasMany(HistMember::class);
 
     }

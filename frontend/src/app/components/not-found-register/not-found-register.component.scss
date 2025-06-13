@@ -1,0 +1,29 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 7rem;
+
+  @media screen and (max-width: 768px) {
+    padding: 2rem;
+  }
+}
+
+.image {
+  color: var(--primary-color);
+}
+
+.title {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.description {
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  color: var(--text-color);
+}

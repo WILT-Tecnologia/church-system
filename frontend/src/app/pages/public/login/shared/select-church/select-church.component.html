@@ -1,0 +1,36 @@
+@if (churches.length > 0) {
+  <div>
+    <div class="title-container">
+      <span mat-dialog-title class="title"> Selecione uma Igreja </span>
+    </div>
+    <mat-dialog-content>
+      <mat-list>
+        @for (church of churches; track $index) {
+          <mat-list-item>
+            <div class="item-container">
+              <div class="item">
+                <span class="text-lg md:text-sm font-semibold" mat-line>{{
+                  church?.name
+                }}</span>
+              </div>
+              <button
+                mat-flat-button
+                color="primary"
+                (click)="selectChurch(church)"
+              >
+                Acessar
+              </button>
+            </div>
+          </mat-list-item>
+          @if (churches.length - 1) {
+            <mat-divider></mat-divider>
+          }
+        }
+      </mat-list>
+    </mat-dialog-content>
+  </div>
+} @else {
+  <div class="church-not-found-container">
+    <span class="church-not-found-title">Nenhuma igreja encontrada</span>
+  </div>
+}

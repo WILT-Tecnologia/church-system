@@ -1,0 +1,60 @@
+<form [formGroup]="profileForm" (ngSubmit)="handleSubmit()" class="form-field-group">
+  <mat-card appearance="outlined" class="wrapper">
+    <div class="avatar">
+      <img [src]="uiAvatar()" alt="avatar" />
+      <span>{{ userData()?.name || 'Usuário' }}</span>
+    </div>
+
+    <app-column [columns]="1">
+      <mat-form-field appearance="fill">
+        <mat-label>Nome</mat-label>
+        <input matInput type="text" formControlName="name" placeholder="Nome" />
+        @if (profileForm.get('name')?.invalid && profileForm.get('name')?.touched) {
+          <mat-error>{{ getErrorMessage('name') }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>E-mail</mat-label>
+        <input matInput type="email" formControlName="email" placeholder="jhondoe@rubeus.com.br" />
+        @if (profileForm.get('email')?.invalid && profileForm.get('email')?.touched) {
+          <mat-error>{{ getErrorMessage('email') }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-checkbox color="primary" (change)="togglePasswordField($event.checked)"> Alterar Senha </mat-checkbox>
+
+      @if (change_password()) {
+        <mat-form-field appearance="fill">
+          <mat-label>Senha</mat-label>
+          <input
+            type="password"
+            [type]="hide() ? 'password' : 'text'"
+            matInput
+            formControlName="password"
+            maxlength="30"
+            minlength="8"
+          />
+          <button mat-icon-button matSuffix type="button" (click)="toggleHide()">
+            <mat-icon>{{ hide() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (profileForm.get('password')?.invalid && profileForm.get('password')?.touched) {
+            <mat-error>{{ getErrorMessage('password') }}</mat-error>
+          }
+        </mat-form-field>
+      }
+    </app-column>
+
+    <app-actions>
+      <button mat-stroked-button color="warn" type="button" (click)="handleCancel()" [disabled]="isLoading()">
+        Cancelar
+      </button>
+      <button mat-flat-button color="primary" type="submit" [disabled]="profileForm.invalid || isLoading()">
+        <span>{{ isLoading() ? 'Atualizando...' : 'Atualizar' }}</span>
+        @if (isLoading()) {
+          <mat-spinner diameter="20" style="display: inline-block; margin-left: 8px"></mat-spinner>
+        }
+      </button>
+    </app-actions>
+  </mat-card>
+</form>

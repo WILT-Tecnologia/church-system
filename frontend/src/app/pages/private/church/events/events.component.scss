@@ -1,0 +1,48 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  max-height: 0;
+  transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out, padding 0.5s ease-in-out;
+  opacity: 0;
+  transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out, padding 0.5s ease-in-out;
+
+  &.expanded {
+    max-height: 100%;
+    opacity: 1;
+  }
+}
+
+.calendar-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  padding: 1rem;
+
+  &>button {
+    width: 20rem;
+
+    @media screen and (max-width: 768px) {
+      width: 100%;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    gap: 1rem;
+    margin-left: 0;
+  }
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.full-calendar-event {
+  color: #FFFFFF;
+  width: 100%;
+}

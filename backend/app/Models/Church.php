@@ -45,7 +45,7 @@ class Church extends Model
     }
 
     public function members(): BelongsToMany {
-        return $this->belongsToMany(Member::class, 'church_member', 'member_id', 'church_id');
+        return $this->belongsToMany(Member::class, 'church_member', 'church_id', 'member_id');
     }
 
     public function evento(): HasMany {

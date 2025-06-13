@@ -1,0 +1,53 @@
+<div class="calendar-container">
+  <!-- Cabeçalho com navegação -->
+  <div class="calendar-header">
+    <div>
+      <button mat-icon-button (click)="previousMonth()">
+        <mat-icon>keyboard_arrow_left</mat-icon>
+      </button>
+      <button mat-icon-button (click)="nextMonth()">
+        <mat-icon>keyboard_arrow_right</mat-icon>
+      </button>
+    </div>
+    <div class="calendar-title">
+      {{ monthNames[currentDate.getMonth()] }} {{ currentDate.getFullYear() }}
+    </div>
+    <div>
+      <button
+        mat-button
+        color="primary"
+        (click)="goToToday()"
+        class="go-to-today"
+      >
+        Hoje
+      </button>
+    </div>
+  </div>
+
+  <!-- Dias da semana -->
+  <div class="calendar-day-names">
+    <div *ngFor="let dayName of dayNames" class="day-name">
+      {{ dayName }}
+    </div>
+  </div>
+
+  <!-- Corpo do calendário -->
+  <div class="calendar-body">
+    <div class="week" *ngFor="let week of weeks">
+      <div
+        matRipple
+        matRippleColor="rgba(255, 255, 255, 0.1)"
+        class="day"
+        *ngFor="let day of week"
+        [ngClass]="{
+          'other-month': !day.currentMonth,
+          selected: day.selected,
+          today: day.isToday,
+        }"
+        (click)="selectDate(day)"
+      >
+        {{ day.day }}
+      </div>
+    </div>
+  </div>
+</div>

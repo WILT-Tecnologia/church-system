@@ -9,8 +9,7 @@ class UpdateEventTypeRequest extends FormRequest
     /**
      * Determine if the user is authorized to make this request.
      */
-    public function authorize(): bool
-    {
+    public function authorize(): bool {
         return true;
     }
 
@@ -19,11 +18,11 @@ class UpdateEventTypeRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
-    {
+    public function rules(): array {
         return [
             'name' => ['sometimes', 'required'],
             'description' => ['sometimes', 'nullable'],
+            'color' => ['sometimes', 'nullable', 'string'],
             'status' => ['sometimes', 'boolean'],
         ];
     }

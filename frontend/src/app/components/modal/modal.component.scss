@@ -1,0 +1,131 @@
+@use 'app/styles/theme.scss'as theme;
+
+::ng-deep .cdk-overlay-container {
+  backdrop-filter: blur(0.1rem);
+  background-color: rgba(0, 0, 0, 0.32);
+}
+
+.mat-dialog-container {
+  max-height: 90dvh;
+  max-width: 100%;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+  width: 60dvw;
+  height: auto;
+  min-width: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+
+  &.fullscreen {
+    border-radius: 0;
+    height: 100vh;
+    width: 100vw;
+    max-height: 100vh !important;
+    max-width: 100vw !important;
+    position: fixed;
+    left: 0;
+    margin: 0;
+    top: 0;
+    z-index: 9999;
+
+    .wrapper {
+      height: 100%;
+      max-height: 100%;
+    }
+
+    .content {
+      flex: 1 1 auto;
+      height: 100%;
+    }
+  }
+
+  &.responsive-modal {
+    @media (max-width: 768px) {
+      max-height: 100vh !important;
+      height: 100vh !important;
+      width: 100vw !important;
+      max-width: 100vw !important;
+      margin: 0;
+    }
+
+    @media screen and (max-width: 768px) {
+      width: auto !important;
+      min-width: 100dvw !important;
+    }
+  }
+
+  .content {
+    background-color: var(--white-color);
+    overflow-x: hidden;
+    overflow-y: auto;
+    flex: 1 1 auto;
+    min-height: 10rem;
+
+    @media screen and (max-width: 768px) {
+      min-height: 0;
+      height: auto;
+    }
+  }
+
+  .title {
+    @media screen and (max-width: 480px) {
+      font-size: 1rem;
+    }
+  }
+}
+
+.fullscreen {
+  @media screen and (min-width: 769px) {
+    max-width: 100vw !important;
+    width: 100vw !important;
+  }
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+
+  @media screen and (max-width: 768px) {
+    min-height: 100%;
+    flex: 1;
+    overflow: hidden;
+  }
+}
+
+.header {
+  align-items: center;
+  background-color: #EAEAEA;
+  display: flex;
+  flex-shrink: 0;
+  justify-content: space-between;
+  padding: 0.5rem;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+
+  @media screen and (max-width: 480px) {
+    gap: 0.5rem;
+    padding: 0.25rem;
+
+    button {
+      transform: scale(0.8);
+    }
+  }
+}
+
+.actions-header {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0 0.5rem;
+}

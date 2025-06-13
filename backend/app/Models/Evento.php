@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Auth;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,13 +28,11 @@ class Evento extends Model
         'obs'
     ];
 
-    public function church(): BelongsTo
-    {
+    public function church(): BelongsTo {
         return $this->belongsTo(Church::class);
     }
 
-    public function eventType(): BelongsTo
-    {
+    public function eventType(): BelongsTo {
         return $this->belongsTo(EventType::class);
     }
 

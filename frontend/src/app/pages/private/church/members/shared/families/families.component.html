@@ -1,0 +1,14 @@
+@if ((families && families.length > 0) || rendering) {
+  <app-crud
+    [enablePagination]="false"
+    [fields]="families"
+    [dataSourceMat]="dataSourceMat"
+    [columnDefinitions]="columnDefinitions"
+    [addFn]="handleCreate"
+    [editFn]="handleEdit"
+    [deleteFn]="handleDelete"
+    [actions]="actions"
+  ></app-crud>
+} @else {
+  <app-not-found-register [addRegisterFn]="handleCreate"></app-not-found-register>
+}

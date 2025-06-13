@@ -10,8 +10,7 @@ class UserRequest extends FormRequest
     /**
      * Determine if the user is authorized to make this request.
      */
-    public function authorize(): bool
-    {
+    public function authorize(): bool {
         return true;
     }
 
@@ -20,8 +19,7 @@ class UserRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
-    {
+    public function rules(): array {
         $isCreating = $this->isMethod('post');
         $userId = $this->route('id') ?? $this->input('id');
 
@@ -48,17 +46,16 @@ class UserRequest extends FormRequest
         ];
     }
 
-        public function messages(): array
-        {
-            return [
-                '*.required' => 'O campo :attribute é obrigatório.',
-                '*.email' => 'O campo :attribute é inválido.',
-                '*.string' => 'O campo :attribute deve ser uma string.',
-                '*.max' => 'O campo :attribute deve ter no maximo :max caracteres.',
-                '*.regex' => 'O campo :attribute deve ser uma string com pelo menos uma letra minúscula, uma letra maiúscula, um número e um caractere especial.',
-                '*.min' => 'O campo :attribute deve ter pelo menos :min caracteres.',
-                '*.unique' => 'O campo :attribute já está sendo usado por outro usuário.',
-                '*.boolean' => 'O campo :attribute deve ser verdadeiro ou falso.',
-            ];
-        }
+    public function messages(): array {
+        return [
+            '*.required' => 'O campo :attribute é obrigatório.',
+            '*.email' => 'O campo :attribute é inválido.',
+            '*.string' => 'O campo :attribute deve ser uma string.',
+            '*.max' => 'O campo :attribute deve ter no maximo :max caracteres.',
+            '*.regex' => 'O campo :attribute deve ser uma string com pelo menos uma letra minúscula, uma letra maiúscula, um número e um caractere especial [@, $, !, %, *, ?, &].',
+            '*.min' => 'O campo :attribute deve ter pelo menos :min caracteres.',
+            '*.unique' => 'O campo :attribute já está sendo usado por outro usuário.',
+            '*.boolean' => 'O campo :attribute deve ser verdadeiro ou falso.',
+        ];
+    }
 }

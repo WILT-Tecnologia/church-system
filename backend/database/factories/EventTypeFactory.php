@@ -17,8 +17,7 @@ class EventTypeFactory extends Factory
      *
      * @return array<string, mixed>
      */
-    public function definition(): array
-    {
+    public function definition(): array {
         $eventTypes = [
             'Culto',
             'Reunião de Oração',
@@ -34,9 +33,10 @@ class EventTypeFactory extends Factory
         ];
 
         return [
-            'name'        => $this->faker->unique()->randomElement($eventTypes),
+            'name' => $this->faker->unique()->randomElement($eventTypes),
             'description' => $this->faker->sentence(),
-            'status'      => $this->faker->boolean(),
+            'color' => $this->faker->hexColor(),
+            'status' => $this->faker->boolean(),
         ];
     }
 }

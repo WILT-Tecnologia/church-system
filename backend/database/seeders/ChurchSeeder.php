@@ -17,7 +17,7 @@ class ChurchSeeder extends Seeder
 
         $responsibles = Person::all()->pluck('id')->toArray();
 
-        foreach (range(1, 100) as $index) {
+        foreach (range(1, 10) as $index) {
             Church::create([
                 'responsible_id' => $faker->randomElement($responsibles),
                 'name' => $faker->company,

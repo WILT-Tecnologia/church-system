@@ -59,6 +59,10 @@ class Person extends Model
         return $this->HasOne(Member::class);
     }
 
+    public function members(): HasMany {
+        return $this->hasMany(Member::class);
+    }
+
     public function family(): BelongsTo {
         return $this->belongsTo(Family::class);
     }

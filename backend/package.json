@@ -2,7 +2,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "docker:dev": "sudo chown -R $(whoami):$(whoami) .docker/postgres/dbdata ; docker compose -f ./docker-compose.yml up --build",
+        "docker:dev": "sudo chmod -R 777 .docker/postgres/dbdata ; sudo chown -R 999:999 .docker/postgres/dbdata ; docker compose -f ./docker-compose.yml up --build",
         "docker:dev:down": "docker compose down",
         "dev": "php artisan migrate && php artisan serve",
         "build": "vite build",

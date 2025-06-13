@@ -1,0 +1,172 @@
+@use 'app/styles/theme.scss'as theme;
+
+::ng-deep .mat-drawer-backdrop.mat-drawer-shown {
+  backdrop-filter: blur(0.2rem) !important;
+  background: rgba(0, 0, 0, 0.2) !important;
+}
+
+.sidenav-container {
+  background-color: var(--white-color);
+  height: 100vh;
+  overflow: hidden;
+  width: 100vw;
+}
+
+.sidebar-header {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.text-default {
+  color: var(--text-color);
+  font-size: 1rem;
+}
+
+.sidenav-content {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.main-content {
+  background: var(--background-color);
+  height: 100dvh;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.mat-sidenav {
+  background-color: var(--white-color);
+  width: 15rem;
+}
+
+.mat-nav-list .mat-list-item {
+  font-size: 0.8rem;
+  height: 4rem;
+}
+
+.mat-button-options {
+  display: flex;
+  justify-content: flex-start;
+  text-align: left;
+  color: var(--text-color);
+
+  &.active-route {
+    color: var(--primary-color);
+  }
+
+  &:not(.active-route) {
+    color: gray;
+  }
+}
+
+.navbar {
+  display: flex;
+  align-items: stretch;
+  height: 2.8rem;
+  max-width: 100dvw;
+  padding: 0 1rem;
+  background: var(--white-color);
+  z-index: 1;
+  box-shadow: 0 0.2rem 0.6rem -0.1rem rgba(0, 0, 0, .12), 0 0 0.1rem 0.1rem rgba(0, 0, 0, .2);
+
+  @media screen and (max-width: 768px) {
+    align-items: center;
+  }
+}
+
+.separator {
+  background: var(--separator-color);
+  height: 2rem;
+  margin: 0 1rem;
+  width: 0.1rem;
+}
+
+.container-section {
+  align-items: center;
+  box-sizing: border-box;
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: row;
+  margin-left: 1rem;
+  place-content: center flex-start;
+}
+
+.wrapper-buttons {
+  align-items: stretch;
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.nav-button {
+  align-items: center;
+  border-bottom: 0.1rem solid transparent;
+  border-radius: 0 !important;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  transition: all .2s ease-in-out;
+  color: var(--text-color);
+
+  &.active-route {
+    border-bottom: 3px solid var(--primary-color);
+  }
+
+  &:not(.active-route) {
+    color: gray;
+  }
+}
+
+.user-button {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  vertical-align: middle;
+
+  @media screen and (max-width: 768px) {
+    align-items: center;
+    justify-content: start;
+    width: 100%;
+  }
+}
+
+.container-section-one-nav {
+  flex: 1 1 0;
+  box-sizing: border-box;
+  place-content: center flex-start;
+  align-items: center;
+  flex-direction: row;
+  display: flex
+}
+
+
+.button-text {
+  color: var(--primary-color);
+  display: inline-flex;
+  font-size: 1rem;
+  vertical-align: middle;
+}
+
+.button-icon {
+  color: var(--primary-color);
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.button-size {
+  width: 10rem;
+}
+
+.spacing-components {
+  margin: 0 1rem;
+}
+
+.logout {
+  color: var(--error-color);
+  cursor: pointer;
+}
