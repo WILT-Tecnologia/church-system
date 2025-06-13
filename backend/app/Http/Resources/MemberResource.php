@@ -14,14 +14,13 @@ class MemberResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-
-        // dd($this);
         return [
             'id' => $this->id,
             'person' => new PersonResource($this->person),
             'church' => new ChurchResource($this->church),
-            // 'families' => FamilyResource::collection($this->whenLoaded('families')),
             'families' => FamilyResource::collection($this->families),
+            'ordination' => OrdinationResource::collection($this->ordination),
+            'statusMember' => StatusMemberResource::collection($this->statusMember),
             'rg' => $this->rg,
             'issuing_body' => $this->issuing_body,
             'civil_status' => new CivilStatusResource($this->civilStatus),

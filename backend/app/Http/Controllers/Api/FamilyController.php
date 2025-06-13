@@ -19,13 +19,12 @@ class FamilyController extends Controller
         $families = Family::with('member')->get();
 
         return FamilyResource::collection($families);
-    }
+}
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreFamilyRequest $request)
-    {
+    public function store(StoreFamilyRequest $request) {
         $family = Family::create($request->validated());
 
         return new FamilyResource($family);
@@ -46,7 +45,6 @@ class FamilyController extends Controller
     public function update(UpdateFamilyRequest $request, $id)
     {
         $family = Family::findOrFail($id);
-        $family->update($request->validated());
         return new FamilyResource($family);
     }
 

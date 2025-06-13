@@ -1,0 +1,27 @@
+<ng-container
+  *ngIf="
+    (memberOrigins && memberOrigins.length > 0) || rendering;
+    else noDataTemplate
+  "
+>
+  <app-crud
+    [fields]="memberOrigins"
+    [dataSourceMat]="dataSourceMat"
+    [columnDefinitions]="columnDefinitions"
+    [addFn]="handleCreate"
+    [editFn]="handleEdit"
+    [deleteFn]="handleDelete"
+    [toggleFn]="toggleStatus"
+    [actions]="actions"
+    [enableToggleStatus]="true"
+    [tooltipTextButtonToggleFn]="'Ativa/Desativa a origem do membro'"
+  ></app-crud>
+</ng-container>
+
+<ng-template #noDataTemplate>
+  <app-not-found-register
+    [template]="'origem do membro'"
+    [ctaLabel]="'Adicionar nova origem'"
+    [addRegisterFn]="handleCreate"
+  ></app-not-found-register>
+</ng-template>

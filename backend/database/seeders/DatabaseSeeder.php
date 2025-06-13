@@ -21,9 +21,7 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      */
-    public function run(): void
-    {
-        // User::factory(10)->create();
+    public function run(): void {
 
         $this->call([
             CivilStatusSeeder::class,
@@ -35,12 +33,14 @@ class DatabaseSeeder extends Seeder
 
 
         // User::factory()->create([
-            //     'name' => 'Test User',
+        //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
 
         if (env('APP_ENV') == 'local') {
             $this->call([
+                UserSeeder::class,
+                ProfileAndModulesSeeder::class,
                 PersonSeeder::class,
                 ChurchSeeder::class,
                 MemberOriginSeeder::class,

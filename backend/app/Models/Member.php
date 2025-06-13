@@ -54,43 +54,39 @@ class Member extends Model
         'receipt_date'
     ];
 
-    public function person(): BelongsTo
-    {
+    public function person(): BelongsTo {
         return $this->belongsTo(Person::class);
     }
 
-    public function church(): BelongsTo
-    {
+    public function church(): BelongsTo {
         return $this->belongsTo(Church::class);
     }
 
-    public function memberOrigin(): BelongsTo
-    {
+    public function churches(): BelongsToMany {
+        return $this->belongsToMany(Church::class, 'church_member', 'member_id', 'church_id');
+    }
+
+    public function memberOrigin(): BelongsTo {
         return $this->belongsTo(MemberOrigin::class);
     }
 
-    public function civilStatus(): BelongsTo
-    {
+    public function civilStatus(): BelongsTo {
         return $this->belongsTo(CivilStatus::class);
     }
 
-    public function colorRace(): BelongsTo
-    {
+    public function colorRace(): BelongsTo {
         return $this->belongsTo(ColorRace::class);
     }
 
-    public function formation(): BelongsTo
-    {
+    public function formation(): BelongsTo {
         return $this->belongsTo(Formation::class);
     }
 
-    public function families(): HasMany
-    {
+    public function families(): HasMany {
         return $this->hasMany(Family::class);
     }
 
-    public function ordination(): HasMany
-    {
+    public function ordination(): HasMany {
         return $this->HasMany(Ordination::class);
     }
 
@@ -102,6 +98,7 @@ class Member extends Model
     public function histMembers(): HasMany
     {
         return $this->hasMany(HistMember::class);
+
     }
 
     public function eventos(): BelongsToMany

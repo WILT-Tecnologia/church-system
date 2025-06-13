@@ -15,8 +15,7 @@ class StorePersonRequest extends FormRequest
     /**
      * Determine if the user is authorized to make this request.
      */
-    public function authorize(): bool
-    {
+    public function authorize(): bool {
         return true;
     }
 
@@ -25,8 +24,7 @@ class StorePersonRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
-    {
+    public function rules(): array {
 
         // dd("verificar o arquivo Handler de exception");
         return [
@@ -46,6 +44,17 @@ class StorePersonRequest extends FormRequest
             'city' => ['nullable', 'required_with:cep'],
             'state' => ['nullable', 'required_with:cep'],
             'country' => ['nullable', 'required_with:cep'],
+        ];
+    }
+
+    public function messages(): array {
+        return [
+            '*.required' => 'O campo :attribute é obrigatório.',
+            '*.email' => 'O campo :attribute é inválido.',
+            '*.numeric' => 'O campo :attribute é inválido.',
+            '*.date' => 'O campo :attribute é inválido.',
+            '*.required_with' => 'O campo :attribute é obrigatório.',
+            '*.unique' => 'O campo :attribute já está sendo usado por outra pessoa.',
         ];
     }
 }

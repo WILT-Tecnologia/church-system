@@ -1,0 +1,27 @@
+<ng-container
+  *ngIf="
+    (eventTypes && eventTypes.length > 0) || rendering;
+    else noDataTemplate
+  "
+>
+  <app-crud
+    [fields]="eventTypes"
+    [dataSourceMat]="dataSourceMat"
+    [columnDefinitions]="columnDefinitions"
+    [addFn]="handleCreate"
+    [editFn]="handleEdit"
+    [deleteFn]="handleDelete"
+    [toggleFn]="toggleStatus"
+    [actions]="actions"
+    [enableToggleStatus]="true"
+    [tooltipTextButtonToggleFn]="'Ativa/Desativa o tipo de evento'"
+  ></app-crud>
+</ng-container>
+
+<ng-template #noDataTemplate>
+  <app-not-found-register
+    [template]="'tipo de evento'"
+    [ctaLabel]="'Adicionar'"
+    [addRegisterFn]="handleCreate"
+  ></app-not-found-register>
+</ng-template>
