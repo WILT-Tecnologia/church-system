@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Evento extends Model
@@ -24,22 +25,8 @@ class Evento extends Model
         'church_id',
         'event_type_id',
         'name',
-        'obs',
-        'created_by',
-        'updated_by',
+        'obs'
     ];
-
-    protected static function boot() {
-        parent::boot();
-
-        static::creating(function ($model) {
-            $model->created_by = Auth::id();
-        });
-
-        static::updating(function ($model) {
-            $model->updated_by = Auth::id();
-        });
-    }
 
     public function church(): BelongsTo {
         return $this->belongsTo(Church::class);
@@ -49,11 +36,9 @@ class Evento extends Model
         return $this->belongsTo(EventType::class);
     }
 
-    public function createdBy(): BelongsTo {
-        return $this->belongsTo(User::class, 'created_by');
+    public function participantes(): BelongsToMany
+    {
+        return $this->belongsToMany(Member::class, 'event_participants', 'event_id');
     }
 
-    public function updatedBy(): BelongsTo {
-        return $this->belongsTo(User::class, 'updated_by');
-    }
 }

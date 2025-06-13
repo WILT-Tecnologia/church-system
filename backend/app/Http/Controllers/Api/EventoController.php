@@ -1,0 +1,50 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreEventoRequest;
+use App\Http\Requests\UpdateEventoRequest;
+use App\Http\Resources\EventoResource;
+use App\Models\Evento;
+use Illuminate\Http\Request;
+
+class EventoController extends Controller
+{
+    public function index() {
+        return EventoResource::collection(Evento::with('participantes')->get());
+    }
+
+    public function store(StoreEventoRequest $request) {
+        $evento = Evento::create($request->validated());
+        return new EventoResource($evento);
+    }
+
+    public function show(Evento $evento) {
+        return new EventoResource($evento->load('participantes'));
+    }
+
+    public function update(UpdateEventoRequest $request, Evento $evento) {
+        $evento->update($request->validated());
+        return new EventoResource($evento);
+    }
+
+    public function destroy(Evento $evento) {
+        $evento->delete();
+        return response()->noContent();
+    }
+
+    public function adicionarParticipante(Request $request, Evento $evento) {
+        $request->validate(['member_id' => 'required|uuid|exists:members,id']);
+        // dd($request->member_id)
+        $evento->participantes()->syncWithoutDetaching($request->member_id);
+        // $evento->participantes()->syncWithoutDetaching([$request->participante_id]);
+        return response()->json(['message' => 'Participante adicionado']);
+    }
+
+    public function removerParticipante(Request $request, Evento $evento) {
+        $request->validate(['member_id' => 'required|uuid|exists:event_participants,member_id']);
+        $evento->participantes()->detach($request->member_id);
+        return response()->json(['message' => 'Participante removido']);
+    }
+}

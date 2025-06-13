@@ -8,6 +8,7 @@
         "php": "^8.2",
         "laravel/framework": "^11.0",
         "laravel/sanctum": "^4.0",
+        "laravel/telescope": "^5.7",
         "laravel/tinker": "^2.9",
         "rakutentech/laravel-request-docs": "^2.41"
     },
