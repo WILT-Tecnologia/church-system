@@ -46,6 +46,7 @@ class DatabaseSeeder extends Seeder
                 MemberOriginSeeder::class,
                 EventTypeSeeder::class,
                 OccupationSeeder::class,
+                MemberSeeder::class,
             ]);
         }
     }

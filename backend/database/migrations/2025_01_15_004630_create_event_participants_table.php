@@ -12,14 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('event_participants', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            // $table->uuid('id')->primary();
             $table->uuid('member_id');
             $table->uuid('event_id');
-            $table->timestamps();
-            $table->softDeletes();
+            $table->primary(['event_id', 'member_id']);
 
-            $table->foreign('member_id')->references('id')->on('members');
-            $table->foreign('event_id')->references('id')->on('events');
+            // $table->foreign('member_id')->references('id')->on('members');
+            $table->foreign('member_id')->references('id')->on('members')->onDelete('cascade');
+            // $table->foreign('event_id')->references('id')->on('events');
+            $table->foreign('event_id')->references('id')->on('events')->onDelete('cascade');
+        
         });
     }
 

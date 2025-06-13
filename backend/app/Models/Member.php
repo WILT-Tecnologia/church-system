@@ -106,6 +106,6 @@ class Member extends Model
 
     public function eventos(): BelongsToMany
     {
-        return $this->belongsToMany(Evento::class, 'event_participants');
+        return $this->belongsToMany(Evento::class, 'event_participants', 'member_id');
     }
 }
