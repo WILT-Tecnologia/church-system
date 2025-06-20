@@ -41,10 +41,11 @@ import { ToastService } from 'app/components/toast/toast.service';
 import { EventCalls, Events } from 'app/model/Events';
 import { EventTypes } from 'app/model/EventTypes';
 import dayjs from 'dayjs';
-import { Observable, of } from 'rxjs';
-import { EventTypesService } from '../../administrative/eventTypes/eventTypes.service';
+import { Observable, of, Subject } from 'rxjs';
+import { EventTypesService } from '../../administrative/event-types/eventTypes.service';
 import { MembersComponent } from '../members/members.component';
 
+import { mergeWith, switchMap } from 'rxjs/operators';
 import { EventsService } from './events.service';
 import { EventsFormComponent } from './shared/events-form/events-form.component';
 
@@ -118,6 +119,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
   ];
   crudConfig!: CrudConfig;
   isMobile: boolean = false;
+  refreshSubject = new Subject<void>();
   currentEvents = signal<EventApi[]>([]);
   calendarVisible = signal(false);
   calendarOptions = signal<CalendarOptions>({
@@ -210,33 +212,15 @@ export class EventsComponent implements OnInit, AfterViewInit {
     }
   }
 
-  loadEventTypes = () => {
-    this.loading.show();
-    this.eventTypesService.getEventTypes().subscribe({
-      next: (eventTypes: EventTypes[]) => {
-        this.eventTypes = eventTypes.filter((et) => et.status);
-        this.tabs = this.eventTypes.map((et) => ({
-          id: et.id,
-          name: et.name,
-          color: et.color,
-        }));
-        this.rendering = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.toast.openError(MESSAGES.LOADING_ERROR);
-        this.loading.hide();
-      },
-      complete: () => this.loading.hide(),
-    });
-  };
-
   findEventsByTabIdAdapter = (tabId: string): Observable<Events[]> => {
     const eventType = this.eventTypes.find((et) => et.id === tabId);
     if (!eventType) {
       return of([]);
     }
-    return this.eventsService.findByEventType(eventType);
+
+    return this.eventsService
+      .findByEventType(eventType)
+      .pipe(mergeWith(this.refreshSubject.pipe(switchMap(() => this.eventsService.findByEventType(eventType)))));
   };
 
   updateCalendarOptions() {
@@ -253,6 +237,10 @@ export class EventsComponent implements OnInit, AfterViewInit {
         height: '70dvh',
       }));
     }
+  }
+
+  refreshData() {
+    this.refreshSubject.next();
   }
 
   showLoading = () => {
@@ -325,6 +313,27 @@ export class EventsComponent implements OnInit, AfterViewInit {
     this.cdr.detectChanges();
   }
 
+  loadEventTypes = () => {
+    this.loading.show();
+    this.eventTypesService.findAll().subscribe({
+      next: (eventTypes: EventTypes[]) => {
+        this.eventTypes = eventTypes.filter((et) => et.status);
+        this.tabs = this.eventTypes.map((et) => ({
+          id: et.id,
+          name: et.name,
+          color: et.color,
+        }));
+        this.rendering = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.toast.openError(MESSAGES.LOADING_ERROR);
+        this.loading.hide();
+      },
+      complete: () => this.loading.hide(),
+    });
+  };
+
   loadEvents = () => {
     this.showLoading();
     this.eventsService.findAll().subscribe({
@@ -334,6 +343,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
         const calendarEvents = this.events.map((event) => ({
           id: event.id ?? '',
           title: event.name,
+          extendedProps: event,
         }));
 
         this.calendarOptions.update((options) => ({
@@ -368,6 +378,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
     modal.afterClosed().subscribe((result) => {
       if (result) {
         this.loadEvents();
+        this.refreshData();
       }
     });
   };
@@ -392,14 +403,13 @@ export class EventsComponent implements OnInit, AfterViewInit {
       `Editando o evento ${event.name}`,
       true,
       true,
-      {
-        event,
-      },
+      { event },
     );
 
     modal.afterClosed().subscribe((result) => {
       if (result) {
         this.loadEvents();
+        this.refreshData();
       }
     });
   };

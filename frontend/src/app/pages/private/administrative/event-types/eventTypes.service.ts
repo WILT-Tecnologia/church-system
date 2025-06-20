@@ -12,26 +12,20 @@ export class EventTypesService {
 
   private api = `${environment.apiUrl}/admin/event-types`;
 
-  getEventTypes(): Observable<EventTypes[]> {
+  findAll(): Observable<EventTypes[]> {
     return this.http.get<EventTypes[]>(this.api);
   }
 
-  getEventTypesById(id: string): Observable<EventTypes> {
+  findById(id: string): Observable<EventTypes> {
     return this.http.get<EventTypes>(`${this.api}/${id}`);
   }
 
-  createEventTypes(eventType: EventTypes): Observable<any> {
+  create(eventType: EventTypes): Observable<any> {
     return this.http.post(this.api, eventType);
   }
 
-  updateEventTypes(
-    eventTypeId: string,
-    eventTypeData: Partial<EventTypes>,
-  ): Observable<EventTypes> {
-    return this.http.put<EventTypes>(
-      `${this.api}/${eventTypeId}`,
-      eventTypeData,
-    );
+  update(eventTypeId: string, eventTypeData: Partial<EventTypes>): Observable<EventTypes> {
+    return this.http.put<EventTypes>(`${this.api}/${eventTypeId}`, eventTypeData);
   }
 
   updatedStatus(id: string, status: boolean): Observable<EventTypes> {
@@ -39,7 +33,7 @@ export class EventTypesService {
     return this.http.put<EventTypes>(`${this.api}/${id}`, statusData);
   }
 
-  deleteEventTypes(eventTypeId: string): Observable<EventTypes> {
-    return this.http.delete<EventTypes>(`${this.api}/${eventTypeId}`);
+  delete(eventType: EventTypes): Observable<EventTypes> {
+    return this.http.delete<EventTypes>(`${this.api}/${eventType.id}`);
   }
 }

@@ -12,26 +12,20 @@ export class MemberOriginService {
 
   private api = `${environment.apiUrl}/admin/member-origins`;
 
-  getMemberOrigins(): Observable<MemberOrigin[]> {
+  findAll(): Observable<MemberOrigin[]> {
     return this.http.get<MemberOrigin[]>(this.api);
   }
 
-  getMemberOriginById(id: string): Observable<MemberOrigin> {
+  findById(id: string): Observable<MemberOrigin> {
     return this.http.get<MemberOrigin>(`${this.api}/${id}`);
   }
 
-  createMemberOrigin(memberOrigin: MemberOrigin): Observable<MemberOrigin> {
+  create(memberOrigin: MemberOrigin): Observable<MemberOrigin> {
     return this.http.post<MemberOrigin>(this.api, memberOrigin);
   }
 
-  updateMemberOrigin(
-    memberOriginId: string,
-    memberOriginData: Partial<MemberOrigin>,
-  ): Observable<MemberOrigin> {
-    return this.http.put<MemberOrigin>(
-      `${this.api}/${memberOriginId}`,
-      memberOriginData,
-    );
+  update(memberOriginId: string, memberOriginData: Partial<MemberOrigin>): Observable<MemberOrigin> {
+    return this.http.put<MemberOrigin>(`${this.api}/${memberOriginId}`, memberOriginData);
   }
 
   updatedStatus(id: string, status: boolean): Observable<MemberOrigin> {
@@ -39,7 +33,7 @@ export class MemberOriginService {
     return this.http.put<MemberOrigin>(`${this.api}/${id}`, statusData);
   }
 
-  deleteMemberOrigin(memberOriginId: string): Observable<MemberOrigin> {
-    return this.http.delete<MemberOrigin>(`${this.api}/${memberOriginId}`);
+  delete(memberOrigin: MemberOrigin): Observable<MemberOrigin> {
+    return this.http.delete<MemberOrigin>(`${this.api}/${memberOrigin.id}`);
   }
 }

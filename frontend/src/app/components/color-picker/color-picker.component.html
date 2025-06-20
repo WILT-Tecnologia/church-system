@@ -1,0 +1,9 @@
+@if (isVisible) {
+  <chrome-picker [control]="control" (click)="$event.stopPropagation()">
+    <mat-divider></mat-divider>
+    <div class="picker-actions">
+      <button mat-stroked-button color="warn" type="button" (click)="discardColor($event)">Cancelar</button>
+      <button mat-flat-button type="button" (click)="applyColor($event)">Aplicar</button>
+    </div>
+  </chrome-picker>
+}

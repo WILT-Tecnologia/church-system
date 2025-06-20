@@ -21,7 +21,7 @@ import { Church } from 'app/model/Church';
 import { Events } from 'app/model/Events';
 import { EventTypes } from 'app/model/EventTypes';
 import { ChurchsService } from 'app/pages/private/administrative/churchs/churchs.service';
-import { EventTypesService } from 'app/pages/private/administrative/eventTypes/eventTypes.service';
+import { EventTypesService } from 'app/pages/private/administrative/event-types/eventTypes.service';
 import { NotificationService } from 'app/services/notification/notification.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 import { provideNgxMask } from 'ngx-mask';
@@ -233,7 +233,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
   };
 
   private findAllEventTypes = () => {
-    this.eventTypesService.getEventTypes().subscribe({
+    this.eventTypesService.findAll().subscribe({
       next: (data) => {
         this.eventType = data;
         this.showAllEventTypes();
@@ -360,7 +360,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
   }
 
   handleCancel = () => {
-    this.dialogRef.close(this.eventForm.value);
+    this.dialogRef.close(false);
   };
 
   handleSubmit = () => {
@@ -418,7 +418,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     this.eventsService.update(events).subscribe({
       next: () => {
         this.notification.onSuccess(MESSAGES.UPDATE_SUCCESS);
-        this.dialogRef.close(true);
+        this.dialogRef.close(this.eventForm.value);
       },
       error: () => {
         this.hideLoading();

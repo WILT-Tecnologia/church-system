@@ -17,27 +17,13 @@
     cursor: pointer;
   }
 
-  .picker {
-    position: absolute;
+  .overlay {
+    position: fixed;
     top: 0;
-    left: 2.5rem;
-    z-index: 1000;
-
-    .buttons {
-      display: flex;
-      gap: 2rem;
-      padding: 2rem;
-      justify-content: flex-end;
-    }
-
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: transparent;
-      z-index: -1;
-    }
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    z-index: -1;
   }
 }

@@ -29,19 +29,19 @@ import { MemberOrigin } from 'app/model/MemberOrigins';
 import { History, Members, StatusMember } from 'app/model/Members';
 import { Ordination } from 'app/model/Ordination';
 import { Person } from 'app/model/Person';
+import { ChurchComponent } from 'app/pages/private/administrative/churchs/church/church.component';
+import { PersonComponent } from 'app/pages/private/administrative/persons/person/person.component';
 import { NavigationService } from 'app/services/navigation/navigation.service';
 import { NotificationService } from 'app/services/notification/notification.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 import dayjs from 'dayjs';
 import { provideNgxMask } from 'ngx-mask';
 import { map, Observable, startWith, Subject } from 'rxjs';
-import { ChurchComponent } from '../../../administrative/churchs/church/church.component';
-import { PersonComponent } from '../../../administrative/persons/person/person.component';
-import { MembersService } from '../members.service';
-import { FamiliesComponent } from '../shared/families/families.component';
-import { HistoryService } from '../shared/history/history.service';
-import { OrdinationsComponent } from '../shared/ordinations/ordinations.component';
-import { StatusMemberComponent } from '../shared/status-member/status-member.component';
+import { MembersService } from '../../members.service';
+import { FamiliesComponent } from '../families/families.component';
+import { HistoryService } from '../history/history.service';
+import { OrdinationsComponent } from '../ordinations/ordinations.component';
+import { StatusMemberComponent } from '../status-member/status-member.component';
 
 @Component({
   selector: 'app-member',
@@ -68,10 +68,10 @@ import { StatusMemberComponent } from '../shared/status-member/status-member.com
     ColumnComponent,
     FamiliesComponent,
     MatDialogModule,
+    MatTooltipModule,
     OrdinationsComponent,
     StatusMemberComponent,
     ActionsComponent,
-    MatTooltipModule,
   ],
 })
 export class MemberComponent implements OnInit, OnDestroy {
@@ -526,12 +526,12 @@ export class MemberComponent implements OnInit, OnDestroy {
       ...stepFourData,
       ...stepFiveData,
       ...stepSixData,
-      member_id: this.memberId, // Include member_id
+      member_id: this.memberId,
     };
   }
 
   handleBack() {
-    this.dialogRef.close(this.memberForm.value);
+    this.dialogRef.close(false);
   }
 
   handleSubmit() {

@@ -1,4 +1,4 @@
-@if ((member && member.length > 0) || rendering) {
+@if ((member && member.length > 0) || handleRendering()) {
   <app-crud
     [fields]="member"
     [dataSourceMat]="dataSourceMat"
@@ -9,8 +9,5 @@
     [actions]="actions"
   ></app-crud>
 } @else {
-  <app-not-found-register
-    [ctaLabel]="'Adicionar'"
-    [addRegisterFn]="addNewMembers"
-  ></app-not-found-register>
+  <app-not-found-register [ctaLabel]="'Adicionar'" [addRegisterFn]="addNewMembers"></app-not-found-register>
 }

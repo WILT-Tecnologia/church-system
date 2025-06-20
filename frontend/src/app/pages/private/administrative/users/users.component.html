@@ -1,4 +1,4 @@
-@if (users && users.length > 0) {
+@if ((users && users.length > 0) || rendering) {
   <app-crud
     [fields]="users"
     [dataSourceMat]="dataSourceMat"

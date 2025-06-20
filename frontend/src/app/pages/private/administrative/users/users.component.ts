@@ -4,10 +4,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import {
-  ActionsProps,
-  CrudComponent,
-} from 'app/components/crud/crud.component';
+import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
@@ -33,8 +30,6 @@ export class UsersComponent implements OnInit {
   actions: ActionsProps[] = [
     {
       type: 'toggle',
-      tooltip: 'Ativa/Desativa o usuário',
-      icon: 'toggle_on',
       activeLabel: 'Ativar',
       inactiveLabel: 'Desativar',
       action: (user: User) => this.toggleStatus(user),
@@ -157,9 +152,7 @@ export class UsersComponent implements OnInit {
 
     this.userService.updatedStatus(user.id, updatedStatus).subscribe({
       next: () => {
-        this.toast.openSuccess(
-          `Usuário ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`,
-        );
+        this.toast.openSuccess(`Usuário ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`);
       },
       error: () => {
         this.loading.hide();

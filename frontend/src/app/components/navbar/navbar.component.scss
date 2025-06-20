@@ -50,7 +50,9 @@
 
 .mat-button-options {
   display: flex;
+  flex-direction: row;
   justify-content: flex-start;
+  align-items: center;
   text-align: left;
   color: var(--text-color);
 
@@ -61,6 +63,19 @@
   &:not(.active-route) {
     color: gray;
   }
+
+  @media screen and (max-width: 768px) {
+    border: none !important;
+    border-radius: 0 !important;
+  }
+}
+
+.icon-text {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .navbar {
@@ -69,7 +84,7 @@
   height: 2.8rem;
   max-width: 100dvw;
   padding: 0 1rem;
-  background: var(--white-color);
+  background-color: var(--white-color);
   z-index: 1;
   box-shadow: 0 0.2rem 0.6rem -0.1rem rgba(0, 0, 0, .12), 0 0 0.1rem 0.1rem rgba(0, 0, 0, .2);
 
@@ -85,41 +100,44 @@
   width: 0.1rem;
 }
 
-.container-section {
+.container-section-one-nav {
+  display: flex;
   align-items: center;
   box-sizing: border-box;
-  display: flex;
+  place-content: center flex-start;
   flex: 1 1 0;
   flex-direction: row;
   margin-left: 1rem;
-  place-content: center flex-start;
 }
 
 .wrapper-buttons {
-  align-items: stretch;
   display: flex;
-  flex: 1 1 0;
   flex-direction: row;
   justify-content: flex-end;
+  align-items: stretch;
+  flex: 1 1 0;
 }
 
 .nav-button {
+  display: flex;
+  justify-content: center;
   align-items: center;
   border-bottom: 0.1rem solid transparent;
   border-radius: 0 !important;
-  display: flex;
   height: 100%;
-  justify-content: center;
-  transition: all .2s ease-in-out;
   color: var(--text-color);
+  transition: all 0.3s ease-in-out;
 
   &.active-route {
-    border-bottom: 3px solid var(--primary-color);
+    border-bottom: 0.2rem solid var(--primary-color);
+    color: var(--primary-color);
   }
 
   &:not(.active-route) {
     color: gray;
   }
+
+
 }
 
 .user-button {
@@ -137,13 +155,12 @@
 
 .container-section-one-nav {
   flex: 1 1 0;
+  display: flex;
   box-sizing: border-box;
   place-content: center flex-start;
   align-items: center;
   flex-direction: row;
-  display: flex
 }
-
 
 .button-text {
   color: var(--primary-color);

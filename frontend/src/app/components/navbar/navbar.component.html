@@ -1,5 +1,5 @@
 <mat-sidenav-container class="sidenav-container">
-  <mat-sidenav #sidenav [disableClose]="false" mode="over" position="end">
+  <mat-sidenav #sidenav [disableClose]="false" class="sidenav" mode="over" position="end">
     <div class="sidebar-header">
       <button class="user-button" color="primary" mat-button type="button">
         <mat-icon>person</mat-icon>
@@ -14,7 +14,12 @@
           (click)="navigateTo(route.path)"
           [ngClass]="{ 'active-route': isActiveRoute(route.path) }"
         >
-          {{ route.label }}
+          <span class="icon-text">
+            @if (route.icon) {
+              <mat-icon color="primary">{{ route.icon }}</mat-icon>
+            }
+            {{ route.label }}
+          </span>
         </button>
       }
     </mat-nav-list>
@@ -26,8 +31,13 @@
           class="mat-button-options"
           (click)="route.path !== 'logout' ? navigateTo(route.path) : logout()"
         >
-          <span [ngClass]="{ logout: route.path === 'logout' }">
-            {{ route.title }}
+          <span class="icon-text">
+            @if (route.icon) {
+              <mat-icon [color]="route.path === 'logout' ? 'warn' : 'primary'">{{ route.icon }}</mat-icon>
+            }
+            <span [ngClass]="{ logout: route.path === 'logout' }">
+              {{ route.title }}
+            </span>
           </span>
         </button>
       }
@@ -45,7 +55,7 @@
       </div>
       <span class="spacer"></span>
       @if (isMobile) {
-        <button (click)="sidenav.toggle()" mat-icon-button color="primary" class="mr-2">
+        <button (click)="sidenav.toggle()" mat-icon-button color="primary">
           <mat-icon>menu</mat-icon>
         </button>
       }
@@ -71,7 +81,7 @@
             class="user-button nav-button"
             mat-button
           >
-            <mat-icon>person</mat-icon>
+            <mat-icon color="primary">person</mat-icon>
             <span class="button-text">{{ userName }}</span>
           </button>
         </div>
@@ -89,15 +99,16 @@
     <button
       (click)="route.path !== 'logout' ? navigateTo(route.path) : logout()"
       mat-menu-item
-      [ngClass]="route.path === 'logout' ? 'logout' : ''"
+      [ngClass]="{ logout: route.path === 'logout' }"
     >
       @if (route.path === 'logout') {
-        <mat-icon [color]="route.path === 'logout' ? 'warn' : ''">logout</mat-icon>
+        <mat-icon [color]="route.path === 'logout' ? 'warn' : 'primary'">logout</mat-icon>
       }
 
       @if (route.path === 'profile') {
-        <mat-icon>person</mat-icon>
+        <mat-icon color="primary">person</mat-icon>
       }
+
       <span>
         {{ route.title }}
       </span>

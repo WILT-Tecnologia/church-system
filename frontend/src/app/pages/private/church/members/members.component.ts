@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, signal, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -12,10 +12,11 @@ import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Families } from 'app/model/Families';
 import { Members } from 'app/model/Members';
-import { MemberComponent } from './member/member.component';
+
 import { MembersService } from './members.service';
 import { HistoryComponent } from './shared/history/history.component';
 import { MemberService } from './shared/member.service';
+import { MemberComponent } from './shared/member/member.component';
 
 @Component({
   selector: 'app-members',
@@ -26,7 +27,7 @@ import { MemberService } from './shared/member.service';
 export class MembersComponent implements OnInit {
   families!: Families[];
   member: Members[] = [];
-  rendering: boolean = true;
+  rendering = signal(true);
   dataSourceMat = new MatTableDataSource<Members>(this.member);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -50,6 +51,7 @@ export class MembersComponent implements OnInit {
       tooltip: 'Excluir',
       icon: 'delete',
       label: 'Excluir',
+      color: 'warn',
       action: (member: Members) => this.deleteMembers(member),
     },
   ];
@@ -67,7 +69,6 @@ export class MembersComponent implements OnInit {
       header: 'Pastor presidente',
       type: 'string',
     },
-    /* { key: 'baptism_date', header: 'Data do batismo', type: 'date' }, */
     { key: 'updated_at', header: 'Última atualização', type: 'datetime' },
   ];
 
@@ -84,6 +85,10 @@ export class MembersComponent implements OnInit {
     this.loadMembers();
   }
 
+  handleRendering = () => {
+    this.rendering.update((prev) => !prev);
+  };
+
   loadMembers = () => {
     this.loading.show();
     this.membersService.getMembers().subscribe({
@@ -92,7 +97,7 @@ export class MembersComponent implements OnInit {
         this.dataSourceMat.data = this.member;
         this.dataSourceMat.paginator = this.paginator;
         this.dataSourceMat.sort = this.sort;
-        this.rendering = false;
+        this.handleRendering();
       },
       error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
       complete: () => this.loading.hide(),

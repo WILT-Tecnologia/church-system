@@ -4,10 +4,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import {
-  ActionsProps,
-  CrudComponent,
-} from 'app/components/crud/crud.component';
+import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
@@ -29,12 +26,9 @@ export class OccupationsComponent implements OnInit {
   dataSourceMat = new MatTableDataSource<Occupation>(this.occupations);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-
   actions: ActionsProps[] = [
     {
       type: 'toggle',
-      tooltip: 'Ativa/Desativa a ocupação',
-      icon: 'toggle_on',
       activeLabel: 'Ativar',
       inactiveLabel: 'Desativar',
       action: (occupation: Occupation) => this.toggleStatus(occupation),
@@ -51,6 +45,7 @@ export class OccupationsComponent implements OnInit {
       tooltip: 'Excluir',
       icon: 'delete',
       label: 'Excluir',
+      color: 'warn',
       action: (occupation: Occupation) => this.handleDelete(occupation),
     },
   ];
@@ -156,22 +151,18 @@ export class OccupationsComponent implements OnInit {
     const updatedStatus = !occupation.status;
     occupation.status = updatedStatus;
 
-    this.occupationsService
-      .updatedStatus(occupation.id, updatedStatus)
-      .subscribe({
-        next: () => {
-          this.toast.openSuccess(
-            `Ocupação ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`,
-          );
-        },
-        error: () => {
-          this.loading.hide();
-          this.toast.openError(MESSAGES.UPDATE_ERROR);
-        },
-        complete: () => {
-          this.loadOccupations();
-          this.loading.hide();
-        },
-      });
+    this.occupationsService.updatedStatus(occupation.id, updatedStatus).subscribe({
+      next: () => {
+        this.toast.openSuccess(`Ocupação ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`);
+      },
+      error: () => {
+        this.loading.hide();
+        this.toast.openError(MESSAGES.UPDATE_ERROR);
+      },
+      complete: () => {
+        this.loadOccupations();
+        this.loading.hide();
+      },
+    });
   };
 }
