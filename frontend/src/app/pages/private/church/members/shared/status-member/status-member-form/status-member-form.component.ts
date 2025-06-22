@@ -9,26 +9,11 @@ import {
   Optional,
   ViewChild,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import {
-  MatAutocompleteModule,
-  MatAutocompleteSelectedEvent,
-} from '@angular/material/autocomplete';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
-import {
-  MAT_DATE_LOCALE,
-  provideNativeDateAdapter,
-} from '@angular/material/core';
-import {
-  MatDatepicker,
-  MatDatepickerModule,
-} from '@angular/material/datepicker';
+import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
+import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -69,11 +54,7 @@ import { StatusMemberService } from '../status-member.service';
     ActionsComponent,
     MatTooltip,
   ],
-  providers: [
-    provideNgxMask(),
-    provideNativeDateAdapter(),
-    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
-  ],
+  providers: [provideNgxMask(), provideNativeDateAdapter(), { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' }],
 })
 export class StatusMemberFormComponent implements OnInit, OnDestroy {
   statusMemberForm: FormGroup;
@@ -82,9 +63,7 @@ export class StatusMemberFormComponent implements OnInit, OnDestroy {
 
   searchMemberSituationControl = new FormControl();
 
-  filterMemberSituation: Observable<MemberSituations[]> = new Observable<
-    MemberSituations[]
-  >();
+  filterMemberSituation: Observable<MemberSituations[]> = new Observable<MemberSituations[]>();
 
   readonly minDate = new Date(1900, 0, 1);
   readonly maxDate = new Date(new Date().getFullYear() + 1, 12, 31);
@@ -105,7 +84,6 @@ export class StatusMemberFormComponent implements OnInit, OnDestroy {
     public data: { status_member: StatusMember },
   ) {
     this.statusMemberForm = this.createForm();
-    console.log(this.data.status_member);
   }
 
   ngOnInit() {
@@ -128,22 +106,10 @@ export class StatusMemberFormComponent implements OnInit, OnDestroy {
   createForm = (): FormGroup => {
     return this.fb.group({
       id: [this.data?.status_member?.id ?? ''],
-      member_id: [
-        this.data?.status_member?.member ?? '',
-        [Validators.required],
-      ],
-      member_situation_id: [
-        this.data?.status_member?.member_situation?.id ?? '',
-        [Validators.required],
-      ],
-      initial_period: [
-        this.data?.status_member?.initial_period ?? '',
-        [Validators.required],
-      ],
-      final_period: [
-        this.data?.status_member?.final_period ?? '',
-        [Validators.required],
-      ],
+      member_id: [this.data?.status_member?.member ?? '', [Validators.required]],
+      member_situation_id: [this.data?.status_member?.member_situation?.id ?? '', [Validators.required]],
+      initial_period: [this.data?.status_member?.initial_period ?? '', [Validators.required]],
+      final_period: [this.data?.status_member?.final_period ?? '', [Validators.required]],
     });
   };
 
@@ -185,22 +151,17 @@ export class StatusMemberFormComponent implements OnInit, OnDestroy {
   }
 
   showAllMembersSituations() {
-    this.filterMemberSituation =
-      this.searchMemberSituationControl.valueChanges.pipe(
-        startWith(''),
-        map((value: any) => {
-          if (typeof value === 'string') {
-            return value;
-          } else {
-            return value ? value.name : '';
-          }
-        }),
-        map((name) =>
-          name.length >= 1
-            ? this._filterMembersSituations(name)
-            : this.membersSituations,
-        ),
-      );
+    this.filterMemberSituation = this.searchMemberSituationControl.valueChanges.pipe(
+      startWith(''),
+      map((value: any) => {
+        if (typeof value === 'string') {
+          return value;
+        } else {
+          return value ? value.name : '';
+        }
+      }),
+      map((name) => (name.length >= 1 ? this._filterMembersSituations(name) : this.membersSituations)),
+    );
   }
 
   private _filterMembersSituations(name: string): MemberSituations[] {
@@ -214,9 +175,7 @@ export class StatusMemberFormComponent implements OnInit, OnDestroy {
     const memberSituations = event.option.value;
 
     this.searchMemberSituationControl.setValue(memberSituations.name);
-    this.statusMemberForm
-      .get('member_situation_id')
-      ?.setValue(memberSituations.id);
+    this.statusMemberForm.get('member_situation_id')?.setValue(memberSituations.id);
   }
 
   handleSubmit() {
@@ -255,21 +214,13 @@ export class StatusMemberFormComponent implements OnInit, OnDestroy {
     if (!statusMember.id) return;
 
     if (statusMember?.member_situation?.id) {
-      this.searchMemberSituationControl.setValue(
-        statusMember?.member_situation?.name,
-      );
-      this.statusMemberForm
-        .get('member_situation_id')
-        ?.setValue(statusMember?.member_situation?.id);
+      this.searchMemberSituationControl.setValue(statusMember?.member_situation?.name);
+      this.statusMemberForm.get('member_situation_id')?.setValue(statusMember?.member_situation?.id);
     }
 
-    const initialPeriod = this.data.status_member.initial_period
-      ? dayjs(statusMember?.initial_period).toDate()
-      : null;
+    const initialPeriod = this.data.status_member.initial_period ? dayjs(statusMember?.initial_period).toDate() : null;
 
-    const finalPeriod = this.data.status_member.final_period
-      ? dayjs(statusMember?.final_period).toDate()
-      : null;
+    const finalPeriod = this.data.status_member.final_period ? dayjs(statusMember?.final_period).toDate() : null;
 
     this.statusMemberForm.patchValue({
       member_id: statusMember?.member,
@@ -286,9 +237,7 @@ export class StatusMemberFormComponent implements OnInit, OnDestroy {
 
   getErrorMessage(controlName: string) {
     const control = this.statusMemberForm.get(controlName);
-    return control?.errors
-      ? this.validationService.getErrorMessage(control)
-      : null;
+    return control?.errors ? this.validationService.getErrorMessage(control) : null;
   }
 
   openCalendarInitial_period(): void {

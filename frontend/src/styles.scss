@@ -1,6 +1,6 @@
-@use 'app/styles/theme'as theme;
-@use '@angular/material'as mat;
-@use 'app/styles/autocomplete-theme'as autocomplete;
+@use 'app/styles/theme' as theme;
+@use '@angular/material' as mat;
+@use 'app/styles/autocomplete-theme' as autocomplete;
 @use 'sass:map';
 
 @include mat.core();
@@ -163,6 +163,10 @@ mat-form-field {
   width: 100%;
 }
 
+.py-4 {
+  padding: 1rem 0;
+}
+
 .reduction {
   max-width: 50% !important;
 
@@ -279,14 +283,16 @@ mat-form-field {
     }
 
     & .fc-button {
-
       border: none !important;
       padding: 8px 16px !important;
       border-radius: 4px !important;
       transition: all 0.1s ease-in-out !important;
       background-color: var(--primary-color) !important;
       color: var(--white-color);
-      box-shadow: 0 1px 1px -1px rgba(0, 0, 0, 0.1), 0 1px 1px 0 rgba(0, 0, 0, 0.1), 0 1px 5px 0 rgba(0, 0, 0, 0.1);
+      box-shadow:
+        0 1px 1px -1px rgba(0, 0, 0, 0.1),
+        0 1px 1px 0 rgba(0, 0, 0, 0.1),
+        0 1px 5px 0 rgba(0, 0, 0, 0.1);
       text-transform: uppercase;
 
       .fc-icon {
@@ -295,14 +301,16 @@ mat-form-field {
 
       &:hover {
         @include mat.elevation(2);
-        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+        box-shadow:
+          0 2px 4px -1px rgba(0, 0, 0, 0.2),
+          0 4px 5px 0 rgba(0, 0, 0, 0.14),
+          0px 1px 10px 0px rgba(0, 0, 0, 0.12);
       }
 
       &:active {
         @include mat.elevation(2);
         border: 0 !important;
         box-shadow: none !important;
-
       }
 
       &:focus {
@@ -315,7 +323,6 @@ mat-form-field {
         background-color: var(--primary-color) !important;
         color: var(--white-color) !important;
         border: 0 !important;
-
 
         &:hover {
           @include mat.elevation(2);

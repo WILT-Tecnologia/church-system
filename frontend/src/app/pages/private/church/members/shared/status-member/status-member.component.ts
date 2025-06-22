@@ -1,27 +1,17 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectorRef,
-  Component,
-  Input,
-  OnInit,
-  PLATFORM_ID,
-  ViewChild,
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import {
-  ActionsProps,
-  CrudComponent,
-} from 'app/components/crud/crud.component';
+import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { StatusMember } from 'app/model/Members';
-import { MemberService } from '../member.service';
+import { MembersService } from '../../members.service';
 import { StatusMemberFormComponent } from './status-member-form/status-member-form.component';
 import { StatusMemberService } from './status-member.service';
 
@@ -32,9 +22,19 @@ import { StatusMemberService } from './status-member.service';
   imports: [CommonModule, NotFoundRegisterComponent, CrudComponent],
 })
 export class StatusMemberComponent implements OnInit {
-  @Input() status_member: StatusMember[] = [];
+  private _status_member: StatusMember[] = [];
+  @Input() set status_member(value: StatusMember | StatusMember[]) {
+    if (value) {
+      this._status_member = Array.isArray(value) ? value : [value];
+      this.dataSourceMat.data = this._status_member;
+    } else {
+      this._status_member = [];
+      this.dataSourceMat.data = [];
+    }
+  }
+  @Output() statusMemberUpdated = new EventEmitter<StatusMember[]>();
   rendering: boolean = true;
-  dataSourceMat = new MatTableDataSource<StatusMember>(this.status_member);
+  dataSourceMat = new MatTableDataSource<StatusMember>(this._status_member);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -51,6 +51,7 @@ export class StatusMemberComponent implements OnInit {
       tooltip: 'Excluir situação do membro',
       icon: 'delete',
       label: 'Excluir',
+      color: 'warn',
       action: (status_member: StatusMember) => this.handleDelete(status_member),
     },
   ];
@@ -71,32 +72,25 @@ export class StatusMemberComponent implements OnInit {
     private toast: ToastService,
     private modalService: ModalService,
     private statusMemberService: StatusMemberService,
-    private memberService: MemberService,
+    private membersService: MembersService,
   ) {}
 
   ngOnInit() {
-    this.loadStatusMember();
+    this.dataSourceMat.paginator = this.paginator;
+    this.dataSourceMat.sort = this.sort;
+    this.rendering = false;
   }
 
-  loadStatusMember = () => {
-    this.loadingService.show();
-    const memberId = this.memberService.getEditingMemberId();
-    this.statusMemberService.getStatusMemberFromMembers(memberId!).subscribe({
-      next: (status_member) => {
-        this.status_member = [status_member];
-        console.log(this.status_member);
-        this.dataSourceMat.data = this.status_member;
-        this.dataSourceMat.paginator = this.paginator;
-        this.dataSourceMat.sort = this.sort;
-        this.rendering = false;
-      },
-      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
-      complete: () => this.loadingService.hide(),
-    });
-  };
+  isValidStatusMember(): boolean {
+    return this._status_member.length > 0;
+  }
+
+  get statusMemberFields(): StatusMember[] {
+    return this._status_member;
+  }
 
   handleCreate = () => {
-    const defaultMemberId = this.memberService.getEditingMemberId();
+    const defaultMemberId = this.membersService.getEditingMemberId();
 
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
@@ -109,7 +103,9 @@ export class StatusMemberComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: StatusMember) => {
       if (result) {
-        this.loadStatusMember();
+        this._status_member = [...this._status_member, result];
+        this.dataSourceMat.data = this._status_member;
+        this.statusMemberUpdated.emit(this._status_member);
       }
     });
   };
@@ -126,7 +122,13 @@ export class StatusMemberComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: StatusMember) => {
       if (result) {
-        this.loadStatusMember();
+        // Atualizar o status_member editado no array
+        const index = this._status_member.findIndex((sm) => sm.id === result.id);
+        if (index !== -1) {
+          this._status_member[index] = result;
+          this.dataSourceMat.data = [...this._status_member];
+          this.statusMemberUpdated.emit(this._status_member);
+        }
       }
     });
   };
@@ -142,19 +144,19 @@ export class StatusMemberComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.loadingService.show();
-        this.statusMemberService
-          .deleteStatusMember(status_member.id)
-          .subscribe({
-            next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
-            error: () => {
-              this.loadingService.hide();
-              this.toast.openError(MESSAGES.DELETE_ERROR);
-            },
-            complete: () => {
-              this.loadStatusMember();
-              this.loadingService.hide();
-            },
-          });
+        this.statusMemberService.delete(status_member.id).subscribe({
+          next: () => {
+            this._status_member = this._status_member.filter((sm) => sm.id !== status_member.id);
+            this.dataSourceMat.data = this._status_member;
+            this.statusMemberUpdated.emit(this._status_member);
+            this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
+          },
+          error: () => {
+            this.loadingService.hide();
+            this.toast.openError(MESSAGES.DELETE_ERROR);
+          },
+          complete: () => this.loadingService.hide(),
+        });
       }
     });
   };

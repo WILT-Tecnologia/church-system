@@ -1,25 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MAT_DATE_LOCALE, MatOptionModule, provideNativeDateAdapter } from '@angular/material/core';
-import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker';
+import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActionsComponent } from 'app/components/actions/actions.component';
-import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
-import { ModalService } from 'app/components/modal/modal.service';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { CivilStatus, ColorRace, Formations } from 'app/model/Auxiliaries';
@@ -29,19 +20,19 @@ import { MemberOrigin } from 'app/model/MemberOrigins';
 import { History, Members, StatusMember } from 'app/model/Members';
 import { Ordination } from 'app/model/Ordination';
 import { Person } from 'app/model/Person';
-import { ChurchComponent } from 'app/pages/private/administrative/churchs/church/church.component';
-import { PersonComponent } from 'app/pages/private/administrative/persons/person/person.component';
 import { NavigationService } from 'app/services/navigation/navigation.service';
 import { NotificationService } from 'app/services/notification/notification.service';
-import { ValidationService } from 'app/services/validation/validation.service';
 import dayjs from 'dayjs';
 import { provideNgxMask } from 'ngx-mask';
-import { map, Observable, startWith, Subject } from 'rxjs';
+import { forkJoin, Subject } from 'rxjs';
 import { MembersService } from '../../members.service';
 import { FamiliesComponent } from '../families/families.component';
 import { HistoryService } from '../history/history.service';
 import { OrdinationsComponent } from '../ordinations/ordinations.component';
 import { StatusMemberComponent } from '../status-member/status-member.component';
+import { AdditionalInformationComponent } from './shared/additional-information/additional-information.component';
+import { IdentificationComponent } from './shared/identification/identification.component';
+import { SpiritualInformationComponent } from './shared/spiritual-information/spiritual-information.component';
 
 @Component({
   selector: 'app-member',
@@ -52,51 +43,29 @@ import { StatusMemberComponent } from '../status-member/status-member.component'
   imports: [
     MatTabsModule,
     MatCardModule,
-    MatIconModule,
-    MatDividerModule,
-    MatRadioModule,
-    MatSelectModule,
-    MatOptionModule,
-    MatCheckboxModule,
-    MatInputModule,
     MatButtonModule,
     MatFormFieldModule,
     MatDatepickerModule,
     MatAutocompleteModule,
     CommonModule,
     ReactiveFormsModule,
-    ColumnComponent,
-    FamiliesComponent,
     MatDialogModule,
-    MatTooltipModule,
+    FamiliesComponent,
     OrdinationsComponent,
     StatusMemberComponent,
     ActionsComponent,
+    IdentificationComponent,
+    AdditionalInformationComponent,
+    SpiritualInformationComponent,
   ],
 })
 export class MemberComponent implements OnInit, OnDestroy {
   memberForm: FormGroup;
   isEditMode: boolean = false;
-  isInitialStepCompleted = false;
+  isInitialStepCompleted = signal(false);
   enableDefinitionForm = signal(false);
   currentStep = 0;
-  isFormationCourseVisible: boolean = false;
-  formationsRequiringCourse: string[] = ['08', '09', '10', '11', '12'];
   memberId: string | null = null;
-
-  searchControlPerson = new FormControl('');
-  searchControlChurch = new FormControl('');
-  searchControlCivilStatus = new FormControl('');
-  searchControlColorRace = new FormControl('');
-  searchControlFormations = new FormControl('');
-  searchControlMemberOrigins = new FormControl('');
-
-  filteredPerson: Observable<Person[]> = new Observable<Person[]>();
-  filteredChurch: Observable<Church[]> = new Observable<Church[]>();
-  filterMemberOrigins: Observable<MemberOrigin[]> = new Observable<MemberOrigin[]>();
-  filteredCivilStatus: Observable<CivilStatus[]> = new Observable<CivilStatus[]>();
-  filteredColorRace: Observable<ColorRace[]> = new Observable<ColorRace[]>();
-  filteredFormations: Observable<Formations[]> = new Observable<Formations[]>();
 
   members: Members[] = [];
   persons: Person[] = [];
@@ -110,14 +79,14 @@ export class MemberComponent implements OnInit, OnDestroy {
   memberOrigins: MemberOrigin[] = [];
   history: History[] = [];
 
-  private readonly _currentDate = new Date();
-  readonly minDate = new Date(1900, 0, 1);
-  readonly maxDate = new Date(this._currentDate);
+  searchControlPerson = new FormControl('');
+  searchControlChurch = new FormControl('');
+  searchControlCivilStatus = new FormControl('');
+  searchControlColorRace = new FormControl('');
+  searchControlFormations = new FormControl('');
+  searchControlMemberOrigins = new FormControl('');
+
   private destroy$ = new Subject<void>();
-  @ViewChild('baptism_date') baptismPicker!: MatDatepicker<Date>;
-  @ViewChild('baptism_holy_spirit_date')
-  baptismHolySpiritPicker!: MatDatepicker<Date>;
-  @ViewChild('receipt_date') receiptDatePicker!: MatDatepicker<Date>;
 
   constructor(
     private fb: FormBuilder,
@@ -126,9 +95,7 @@ export class MemberComponent implements OnInit, OnDestroy {
     private membersService: MembersService,
     private notification: NotificationService,
     private loading: LoadingService,
-    private validationService: ValidationService,
     public navigationService: NavigationService,
-    private modalService: ModalService,
     private dialogRef: MatDialogRef<MemberComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { members: Members },
   ) {
@@ -149,7 +116,234 @@ export class MemberComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  createMemberForm = (): FormGroup =>
+  onFamilyUpdated(families: Families[]) {
+    this.families = families;
+  }
+
+  onOrdinationUpdated(ordinations: Ordination[]) {
+    this.ordinations = ordinations;
+  }
+
+  onStatusMemberUpdated(statusMember: StatusMember[]) {
+    this.status_member = statusMember;
+  }
+
+  onTabChange(index: number) {
+    if (!this.isEditMode || !this.memberId) return;
+
+    this.currentStep = index;
+    this.navigationService.setCurrentStep(index);
+    this.enableDefinitionForm.set(index >= 3);
+    switch (index) {
+      case 3:
+        if (this.families.length === 0) {
+          this.fetchFamilies();
+        }
+        break;
+      case 4:
+        if (this.ordinations.length === 0) {
+          this.fetchOrdinations();
+        }
+        break;
+      case 5:
+        if (this.status_member.length === 0) {
+          this.fetchStatusMember();
+        }
+        break;
+    }
+  }
+
+  getStepFormGroup(step: string): FormGroup {
+    const control = this.memberForm.get(step);
+    if (control instanceof FormGroup) {
+      return control;
+    }
+    throw new Error(`Control ${step} is not a FormGroup`);
+  }
+
+  isTabDisabled(tabIndex: number): boolean {
+    if (this.isInitialStepCompleted() && tabIndex >= 3) {
+      return false;
+    }
+
+    if (this.isEditMode) {
+      return false;
+    }
+
+    return this.currentStep !== tabIndex;
+  }
+
+  onBackStep() {
+    if (this.currentStep > 0) {
+      this.currentStep--;
+    }
+  }
+
+  onNext() {
+    const stepForm = this.getCurrentStepFormGroup(this.currentStep);
+
+    if (stepForm && stepForm.valid) {
+      this.currentStep++;
+    } else {
+      stepForm.markAsTouched();
+      this.toast.openError('Por favor, preencha todos os campos obrigatórios.');
+    }
+  }
+
+  canProceedToNextStep(): boolean {
+    const currentStepGroup = this.getCurrentStepFormGroup();
+    return currentStepGroup ? currentStepGroup.valid : false;
+  }
+
+  handleBack() {
+    this.dialogRef.close(false);
+  }
+
+  finalizeStepThree() {
+    if (this.memberForm.get('stepThree')?.valid) {
+      this.showLoading();
+      const memberData = this.combineStepData();
+
+      if (this.isEditMode && this.memberId) {
+        this.membersService.updateMember(this.memberId, memberData).subscribe({
+          next: () => {
+            this.currentStep = 3;
+            this.isInitialStepCompleted.set(true);
+            this.onSuccessUpdate('Step 3 atualizado com sucesso.', false);
+          },
+          error: () => this.onError(MESSAGES.UPDATE_ERROR),
+          complete: () => this.hideLoading(),
+        });
+      } else {
+        this.membersService.createMember(memberData).subscribe(
+          (newMember) => {
+            this.memberId = newMember.id;
+            this.isEditMode = true;
+            this.isInitialStepCompleted.set(true);
+            this.currentStep = 3;
+            this.enableDefinitionForm.set(true);
+            this.onSuccessUpdate('Membro criado com sucesso. Agora em modo de edição.', false);
+            this.hideLoading();
+          },
+          () => {
+            this.onError(MESSAGES.CREATE_ERROR);
+            this.hideLoading();
+          },
+        );
+      }
+    } else {
+      this.toast.openError('Por favor, preencha todos os campos obrigatórios.');
+    }
+  }
+
+  handleCreate() {
+    this.showLoading();
+    const memberData = this.combineStepData();
+    this.membersService.createMember(memberData).subscribe({
+      next: (newMember) => {
+        this.memberId = newMember.id;
+        this.isEditMode = true;
+        this.isInitialStepCompleted.set(true);
+        this.onSuccessUpdate(MESSAGES.CREATE_SUCCESS);
+        this.membersService.findAll().subscribe((members) => {
+          this.members = members;
+          this.enableDefinitionForm.set(true);
+          this.currentStep = 3;
+        });
+      },
+      error: () => this.onError(MESSAGES.CREATE_ERROR),
+      complete: () => this.hideLoading(),
+    });
+  }
+
+  handleUpdate(memberId: string) {
+    this.showLoading();
+    const memberData = this.combineStepData();
+
+    this.membersService.getMemberById(memberId).subscribe({
+      next: (currentMember) => {
+        const changes = this.detectChanges(currentMember, memberData);
+
+        if (changes.length > 0) {
+          const historyPromises = changes.map((change) => {
+            const historyData: Partial<History> = {
+              member_id: memberId,
+              table_name: 'members',
+              before_situation: change.oldValue || 'N/A',
+              after_situation: change.newValue || 'N/A',
+              change_date: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+            };
+
+            return this.historyService.saveHistory(historyData);
+          });
+
+          Promise.all(historyPromises)
+            .then(() => {
+              this.membersService.updateMember(memberId, memberData).subscribe({
+                next: () => this.onSuccessUpdate(MESSAGES.UPDATE_SUCCESS, true),
+                error: () => this.onError(MESSAGES.UPDATE_ERROR),
+                complete: () => this.hideLoading(),
+              });
+            })
+            .catch((error) => {
+              this.notification.onError(`Erro ao salvar no histórico: ${error}`);
+              this.hideLoading();
+            });
+        } else {
+          this.membersService.updateMember(memberId, memberData).subscribe({
+            next: () => this.onSuccessUpdate(MESSAGES.UPDATE_SUCCESS, true),
+            error: () => this.onError(MESSAGES.UPDATE_ERROR),
+            complete: () => this.hideLoading(),
+          });
+        }
+      },
+      error: () => {
+        this.onError(MESSAGES.UPDATE_ERROR);
+        this.hideLoading();
+      },
+    });
+  }
+
+  private fetchFamilies() {
+    if (!this.memberId) return;
+
+    this.membersService.getFamilyOfMemberId(this.memberId).subscribe({
+      next: (families) => {
+        this.families = families || [];
+      },
+      error: () => {
+        this.toast.openError(MESSAGES.LOADING_ERROR);
+      },
+    });
+  }
+
+  private fetchOrdinations() {
+    if (!this.memberId) return;
+
+    this.membersService.getOrdinationsOfMemberId(this.memberId).subscribe({
+      next: (ordinations) => {
+        this.ordinations = ordinations || [];
+      },
+      error: () => {
+        this.toast.openError(MESSAGES.LOADING_ERROR);
+      },
+    });
+  }
+
+  private fetchStatusMember() {
+    if (!this.memberId) return;
+
+    this.membersService.getStatusMemberId(this.memberId).subscribe({
+      next: (statusMember) => {
+        this.status_member = statusMember ? [statusMember] : [];
+      },
+      error: () => {
+        this.toast.openError(MESSAGES.LOADING_ERROR);
+      },
+    });
+  }
+
+  private createMemberForm = (): FormGroup =>
     this.fb.group({
       stepOne: this.fb.group({
         id: [this.data?.members?.id || ''],
@@ -193,325 +387,64 @@ export class MemberComponent implements OnInit, OnDestroy {
       stepSix: this.fb.group({}),
     });
 
-  showLoading = () => {
+  private showLoading = () => {
     this.loading.show();
   };
 
-  hideLoading = () => {
+  private hideLoading = () => {
     this.loading.hide();
   };
 
   private loadInitialData() {
-    this.membersService.getPersons().subscribe({
-      next: (persons) => {
-        this.persons = persons;
-        this.showAllPerson();
-      },
-      error: () => this.notification.onError(MESSAGES.LOADING_ERROR),
-      complete: () => this.loading.hide(),
-    });
-
-    this.membersService.getChurch().subscribe({
-      next: (churchs) => {
-        this.churchs = churchs;
-        this.showAllChurch();
-      },
-      error: () => this.notification.onError(MESSAGES.LOADING_ERROR),
-      complete: () => this.loading.hide(),
-    });
-
-    this.membersService.getCivilStatus().subscribe({
-      next: (civilStatus) => {
-        this.civilStatus = civilStatus;
-        this.showAllCivilStatus();
-      },
-      error: () => this.notification.onError(MESSAGES.LOADING_ERROR),
-      complete: () => this.loading.hide(),
-    });
-
-    this.membersService.getColorRace().subscribe({
-      next: (colorRace) => {
-        this.colorRace = colorRace;
-        this.showAllColorRace();
-      },
-      error: () => this.notification.onError(MESSAGES.LOADING_ERROR),
-      complete: () => this.loading.hide(),
-    });
-
-    this.membersService.getFormations().subscribe({
-      next: (formations) => {
-        this.formations = formations;
-        this.showAllFormations();
-      },
-      error: () => this.notification.onError(MESSAGES.LOADING_ERROR),
-      complete: () => this.loading.hide(),
-    });
-
-    this.membersService.getMemberOrigins().subscribe({
-      next: (memberOrigin) => {
-        this.memberOrigins = memberOrigin;
-        this.showAllMemberOrigins();
-      },
-      error: () => this.notification.onError(MESSAGES.LOADING_ERROR),
-      complete: () => this.loading.hide(),
-    });
-  }
-
-  showAllPerson() {
-    this.filteredPerson = this.searchControlPerson.valueChanges.pipe(
-      startWith(''),
-      map((value: any) => {
-        if (typeof value === 'string') {
-          return value;
-        } else {
-          return value ? value.name : '';
-        }
-      }),
-      map((name) => (name.length >= 1 ? this.filterPerson(name) : this.persons)),
-    );
-  }
-
-  showAllChurch() {
-    this.filteredChurch = this.searchControlChurch.valueChanges.pipe(
-      startWith(''),
-      map((value: any) => {
-        if (typeof value === 'string') {
-          return value;
-        } else {
-          return value ? value.name : '';
-        }
-      }),
-      map((name) => (name.length >= 1 ? this.filterChurch(name) : this.churchs)),
-    );
-  }
-
-  showAllCivilStatus() {
-    this.filteredCivilStatus = this.searchControlCivilStatus.valueChanges.pipe(
-      startWith(''),
-      map((value: any) => {
-        if (typeof value === 'string') {
-          return value;
-        } else {
-          return value ? value.name : '';
-        }
-      }),
-      map((name) => (name.length >= 1 ? this.filterCivilStatus(name) : this.civilStatus)),
-    );
-  }
-
-  showAllColorRace() {
-    this.filteredColorRace = this.searchControlColorRace.valueChanges.pipe(
-      startWith(''),
-      map((value: any) => {
-        if (typeof value === 'string') {
-          return value;
-        } else {
-          return value ? value.name : '';
-        }
-      }),
-      map((name) => (name.length >= 1 ? this.filterColorRace(name) : this.colorRace)),
-    );
-  }
-
-  showAllFormations() {
-    this.filteredFormations = this.searchControlFormations.valueChanges.pipe(
-      startWith(''),
-      map((value: any) => {
-        if (typeof value === 'string') {
-          return value;
-        } else {
-          return value ? value.name : '';
-        }
-      }),
-      map((name) => (name.length >= 1 ? this.filterFormations(name) : this.formations)),
-    );
-  }
-
-  showAllMemberOrigins() {
-    this.filterMemberOrigins = this.searchControlMemberOrigins.valueChanges.pipe(
-      startWith(''),
-      map((value: any) => {
-        if (typeof value === 'string') {
-          return value;
-        } else {
-          return value ? value.name : '';
-        }
-      }),
-      map((name) => (name.length >= 1 ? this.filterMemberOrigin(name) : this.memberOrigins)),
-    );
-  }
-
-  filterPerson(name: string): Person[] {
-    const value = name.toLowerCase();
-    return this.persons.filter((person) => person.name.toLowerCase().includes(value));
-  }
-
-  filterChurch = (name: string): Church[] => {
-    const value = name.toLowerCase();
-    return this.churchs.filter((church) => church.name.toLowerCase().includes(value));
-  };
-
-  filterMemberOrigin(name: string): MemberOrigin[] {
-    const value = name.toLowerCase();
-    return this.memberOrigins.filter((origin) => origin.name.toLowerCase().includes(value));
-  }
-
-  filterCivilStatus(name: string): CivilStatus[] {
-    const value = name.toLowerCase();
-    return this.civilStatus.filter((option) => option.name.toLowerCase().includes(value));
-  }
-
-  filterColorRace(name: string): ColorRace[] {
-    const value = name.toLowerCase();
-    return this.colorRace.filter((colorRace) => colorRace.name.toLowerCase().includes(value));
-  }
-
-  filterFormations(name: string): Formations[] {
-    const value = name.toLowerCase();
-    return this.formations.filter((formation) => formation.name.toLowerCase().includes(value));
-  }
-
-  onPersonSelected(event: MatAutocompleteSelectedEvent) {
-    const selectedPerson = event.option.value;
-    this.searchControlPerson.setValue(selectedPerson.name);
-    this.memberForm.get('stepOne.person_id')?.setValue(selectedPerson.id);
-  }
-
-  onChurchSelected(event: MatAutocompleteSelectedEvent) {
-    const selectedChurch = event.option.value;
-    this.searchControlChurch.setValue(selectedChurch.name);
-    this.memberForm.get('stepOne.church_id')?.setValue(selectedChurch.id);
-  }
-
-  onCivilStatusSelected(event: MatAutocompleteSelectedEvent) {
-    const selectedCivilStatus = event.option.value;
-    this.searchControlCivilStatus.setValue(selectedCivilStatus.name);
-    this.memberForm.get('stepOne.civil_status_id')?.setValue(selectedCivilStatus.id);
-  }
-
-  onColorRaceSelected(event: MatAutocompleteSelectedEvent) {
-    const selectedColorRace = event.option.value;
-    this.searchControlColorRace.setValue(selectedColorRace.name);
-    this.memberForm.get('stepOne.color_race_id')?.setValue(selectedColorRace.id);
-  }
-
-  onFormationsSelected(event: MatAutocompleteSelectedEvent) {
-    const selectedFormations = event.option.value;
-    this.searchControlFormations.setValue(selectedFormations.name);
-    this.memberForm.get('stepTwo.formation_id')?.setValue(selectedFormations.id);
-    this.onFormationChange(selectedFormations.id, this.formations);
-  }
-
-  onMemberOriginSelected(event: MatAutocompleteSelectedEvent) {
-    const selectedMemberOrigin = event.option.value;
-    this.searchControlMemberOrigins.setValue(selectedMemberOrigin.name);
-    this.memberForm.get('stepThree.member_origin_id')?.setValue(selectedMemberOrigin.id);
-  }
-
-  clearDate(fieldName: string) {
-    this.memberForm.get(fieldName)?.reset();
-  }
-
-  onCheckboxChange(fieldName: string, checkboxControlName: string) {
-    const isChecked = this.memberForm.get(checkboxControlName)?.value;
-    if (!isChecked) {
-      this.memberForm.get(fieldName)?.reset(null);
-    }
-  }
-
-  getErrorMessage(controlName: string) {
-    const control = this.memberForm.get(controlName);
-    return control?.errors ? this.validationService.getErrorMessage(control) : null;
-  }
-
-  isTabDisabled(tabIndex: number): boolean {
-    if (this.isInitialStepCompleted && tabIndex >= 3) {
-      return false;
-    }
-
-    if (this.isEditMode) {
-      return false;
-    }
-
-    return this.currentStep !== tabIndex;
-  }
-
-  onBack() {
-    if (this.currentStep > 0) {
-      this.currentStep--;
-    } else {
-      this.handleBack();
-    }
-  }
-
-  onNext() {
-    const stepForm = this.getCurrentStepFormGroup(this.currentStep);
-
-    if (stepForm && stepForm.valid) {
-      if (this.currentStep === 2) {
-        this.saveStepTwoAndProceed();
-      } else {
-        this.currentStep++;
-      }
-    } else {
-      stepForm.markAsTouched();
-      this.toast.openError('Por favor, preencha todos os campos obrigatórios.');
-    }
-  }
-
-  saveStepTwoAndProceed() {
     this.showLoading();
-    const memberData = this.combineStepData();
+    forkJoin({
+      persons: this.membersService.getPersons(),
+      churchs: this.membersService.getChurch(),
+      civilStatus: this.membersService.getCivilStatus(),
+      colorRace: this.membersService.getColorRace(),
+      formations: this.membersService.getFormations(),
+      memberOrigins: this.membersService.getMemberOrigins(),
+    }).subscribe({
+      next: ({ persons, churchs, civilStatus, colorRace, formations, memberOrigins }) => {
+        this.persons = persons;
+        this.churchs = churchs;
+        this.civilStatus = civilStatus;
+        this.colorRace = colorRace;
+        this.formations = formations;
+        this.memberOrigins = memberOrigins;
 
-    if (this.isEditMode) {
-      this.membersService.updateMember(this.data.members.id, memberData).subscribe({
-        next: (updatedMember) => {
-          this.memberId = updatedMember.id;
-          this.currentStep = 3; // Move to Step 3
-          this.onSuccessUpdate('Dados do Step 2 salvos com sucesso.');
-        },
-        error: () => this.onError(MESSAGES.UPDATE_ERROR),
-        complete: () => this.hideLoading(),
-      });
-    } else {
-      this.membersService.createMember(memberData).subscribe({
-        next: (newMember) => {
-          this.memberId = newMember.id;
-          this.isEditMode = true; // Switch to edit mode after creation
-          this.currentStep = 2; // Move to Step 3
-          this.onSuccessUpdate('Membro criado com sucesso.');
-        },
-        error: () => this.onError(MESSAGES.CREATE_ERROR),
-        complete: () => this.hideLoading(),
-      });
-    }
+        if (this.data?.members) {
+          this.handleEdit();
+        }
+      },
+      error: () => {
+        this.notification.onError(MESSAGES.LOADING_ERROR);
+        this.hideLoading();
+      },
+      complete: () => this.hideLoading(),
+    });
   }
 
-  canProceedToNextStep(): boolean {
-    const currentStepGroup = this.getCurrentStepFormGroup();
-    return currentStepGroup ? currentStepGroup.valid : false;
-  }
-
-  getCurrentStepFormGroup(stepIndex?: number): FormGroup {
-    switch (stepIndex) {
+  private getCurrentStepFormGroup(stepIndex?: number): FormGroup {
+    switch (stepIndex ?? this.currentStep) {
       case 0:
-        return this.memberForm.get('stepOne') as FormGroup;
+        return this.getStepFormGroup('stepOne');
       case 1:
-        return this.memberForm.get('stepTwo') as FormGroup;
+        return this.getStepFormGroup('stepTwo');
       case 2:
-        return this.memberForm.get('stepThree') as FormGroup;
+        return this.getStepFormGroup('stepThree');
       case 3:
-        return this.memberForm.get('stepFour') as FormGroup;
+        return this.getStepFormGroup('stepFour');
       case 4:
-        return this.memberForm.get('stepFive') as FormGroup;
+        return this.getStepFormGroup('stepFive');
       case 5:
-        return this.memberForm.get('stepSix') as FormGroup;
+        return this.getStepFormGroup('stepSix');
       default:
-        return this.memberForm.get('stepOne') as FormGroup;
+        return this.getStepFormGroup('stepOne');
     }
   }
 
-  combineStepData() {
+  private combineStepData() {
     const stepOneData = this.memberForm.get('stepOne')?.value;
     const stepTwoData = this.memberForm.get('stepTwo')?.value;
     const stepThreeData = this.memberForm.get('stepThree')?.value;
@@ -519,10 +452,19 @@ export class MemberComponent implements OnInit, OnDestroy {
     const stepFiveData = this.memberForm.get('stepFive')?.value;
     const stepSixData = this.memberForm.get('stepSix')?.value;
 
+    const formattedStepThreeData = {
+      ...stepThreeData,
+      baptism_date: stepThreeData.baptism_date ? dayjs(stepThreeData.baptism_date).format('YYYY-MM-DD') : null,
+      baptism_holy_spirit_date: stepThreeData.baptism_holy_spirit_date
+        ? dayjs(stepThreeData.baptism_holy_spirit_date).format('YYYY-MM-DD')
+        : null,
+      receipt_date: stepThreeData.receipt_date ? dayjs(stepThreeData.receipt_date).format('YYYY-MM-DD') : null,
+    };
+
     return {
       ...stepOneData,
       ...stepTwoData,
-      ...stepThreeData,
+      ...formattedStepThreeData,
       ...stepFourData,
       ...stepFiveData,
       ...stepSixData,
@@ -530,120 +472,7 @@ export class MemberComponent implements OnInit, OnDestroy {
     };
   }
 
-  handleBack() {
-    this.dialogRef.close(false);
-  }
-
-  handleSubmit() {
-    if (this.memberForm.invalid) return;
-
-    const memberData = this.combineStepData();
-    if (this.isEditMode) {
-      this.handleUpdate(memberData.id || this.memberId!);
-    } else {
-      this.handleCreate();
-    }
-  }
-
-  finalizeStepThree() {
-    if (this.memberForm.get('stepThree')?.valid) {
-      this.showLoading();
-      const memberData = this.combineStepData();
-
-      if (this.isEditMode && this.memberId) {
-        this.membersService.updateMember(this.memberId, memberData).subscribe({
-          next: () => {
-            this.currentStep = 3; // Move to Step 4
-            this.onSuccessUpdate('Step 3 atualizado com sucesso.');
-          },
-          error: () => this.onError(MESSAGES.UPDATE_ERROR),
-          complete: () => this.hideLoading(),
-        });
-      } else {
-        this.membersService.createMember(memberData).subscribe({
-          next: (newMember) => {
-            this.memberId = newMember.id;
-            this.isEditMode = true; // Switch to edit mode
-            this.currentStep = 3; // Move to Step 4
-            this.onSuccessUpdate('Step 3 criado com sucesso.');
-          },
-          error: () => this.onError(MESSAGES.CREATE_ERROR),
-          complete: () => this.hideLoading(),
-        });
-      }
-    } else {
-      this.toast.openError('Por favor, preencha todos os campos obrigatórios.');
-    }
-  }
-
-  handleCreate() {
-    this.showLoading();
-    const memberData = this.combineStepData();
-    this.membersService.createMember(memberData).subscribe({
-      next: (newMember) => {
-        this.memberId = newMember.id;
-        this.isEditMode = true; // Switch to edit mode
-        this.onSuccessUpdate(MESSAGES.CREATE_SUCCESS);
-        this.membersService.getMembers().subscribe((members) => {
-          this.members = members;
-          this.enableDefinitionForm.set(true);
-          this.currentStep = 2; // Move to Step 3
-        });
-      },
-      error: () => this.onError(MESSAGES.CREATE_ERROR),
-      complete: () => this.hideLoading(),
-    });
-  }
-
-  handleUpdate(memberId: string) {
-    this.showLoading();
-    const memberData = this.combineStepData();
-
-    this.membersService.getMemberById(memberId).subscribe({
-      next: (currentMember) => {
-        const changes = this.detectChanges(currentMember, memberData);
-
-        if (changes.length > 0) {
-          const historyPromises = changes.map((change) => {
-            const historyData: Partial<History> = {
-              member_id: memberId,
-              table_name: 'members',
-              before_situation: change.oldValue || 'N/A',
-              after_situation: change.newValue || 'N/A',
-              change_date: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-            };
-
-            return this.historyService.saveHistory(historyData);
-          });
-
-          Promise.all(historyPromises)
-            .then(() => {
-              this.membersService.updateMember(memberId, memberData).subscribe({
-                next: () => this.onSuccessUpdate(MESSAGES.UPDATE_SUCCESS),
-                error: () => this.onError(MESSAGES.UPDATE_ERROR),
-                complete: () => this.hideLoading(),
-              });
-            })
-            .catch((error) => {
-              this.notification.onError(`Erro ao salvar no histórico: ${error}`);
-              this.hideLoading();
-            });
-        } else {
-          this.membersService.updateMember(memberId, memberData).subscribe({
-            next: () => this.onSuccessUpdate(MESSAGES.UPDATE_SUCCESS),
-            error: () => this.onError(MESSAGES.UPDATE_ERROR),
-            complete: () => this.hideLoading(),
-          });
-        }
-      },
-      error: () => {
-        this.onError(MESSAGES.UPDATE_ERROR);
-        this.hideLoading();
-      },
-    });
-  }
-
-  detectChanges(beforeData: any, afterData: any) {
+  private detectChanges(beforeData: any, afterData: any) {
     const changes = [];
 
     for (const key in afterData) {
@@ -664,144 +493,93 @@ export class MemberComponent implements OnInit, OnDestroy {
     return changes;
   }
 
-  handleEdit = () => {
+  private handleEdit = () => {
     if (this.data?.members) {
       this.isEditMode = true;
+      this.isInitialStepCompleted.set(true);
       this.memberId = this.data.members.id;
 
-      const baptismDate = this.data.members.baptism_date ? dayjs(this.data.members.baptism_date).toDate() : null;
-      const baptismHolySpiritDate = this.data.members.baptism_holy_spirit_date
-        ? dayjs(this.data.members.baptism_holy_spirit_date).toDate()
-        : null;
-      const receiptDate = this.data.members.receipt_date ? dayjs(this.data.members.receipt_date).toDate() : null;
-
       this.memberForm.patchValue({
+        stepOne: {
+          id: this.data.members.id,
+          person_id: this.data.members.person?.id || '',
+          church_id: this.data.members.church?.id || '',
+          rg: this.data.members.rg || '',
+          issuing_body: this.data.members.issuing_body || '',
+          civil_status_id: this.data.members.civil_status?.id || '',
+          color_race_id: this.data.members.color_race?.id || '',
+          nationality: this.data.members.nationality || '',
+          naturalness: this.data.members.naturalness || '',
+        },
+        stepTwo: {
+          formation_id: this.data.members.formation?.id || '',
+          formation_course: this.data.members.formation_course || '',
+          profission: this.data.members.profission || '',
+          has_disability: this.data.members.has_disability || false,
+          def_physical: this.data.members.def_physical || false,
+          def_visual: this.data.members.def_visual || false,
+          def_hearing: this.data.members.def_hearing || false,
+          def_intellectual: this.data.members.def_intellectual || false,
+          def_mental: this.data.members.def_mental || false,
+          def_multiple: this.data.members.def_multiple || false,
+          def_other: this.data.members.def_other || false,
+          def_other_description: this.data.members.def_other_description || '',
+        },
         stepThree: {
-          baptism_date: baptismDate,
-          baptism_holy_spirit_date: baptismHolySpiritDate,
-          receipt_date: receiptDate,
+          baptism_date: this.data.members.baptism_date ? dayjs(this.data.members.baptism_date).toDate() : null,
+          baptism_locale: this.data.members.baptism_locale || '',
+          baptism_official: this.data.members.baptism_official || '',
+          baptism_holy_spirit: this.data.members.baptism_holy_spirit || false,
+          baptism_holy_spirit_date: this.data.members.baptism_holy_spirit_date
+            ? dayjs(this.data.members.baptism_holy_spirit_date).toDate()
+            : null,
+          member_origin_id: this.data.members.member_origin?.id || '',
+          receipt_date: this.data.members.receipt_date ? dayjs(this.data.members.receipt_date).toDate() : null,
         },
       });
 
-      this.setValuesAutoComplete();
+      /* Preenche os dados relacionados diretamente do objeto do membro */
+      this.families = this.data.members.families || [];
+      this.ordinations = this.data.members.ordination || [];
+      this.status_member = this.data.members.status_member ? [this.data.members.status_member] : [];
+      this.history = this.data.members.history_member || [];
+
+      this.updateSearchControls();
     }
   };
 
-  setValuesAutoComplete() {
-    if (this.data?.members?.person) {
-      this.searchControlPerson.setValue(this.data.members.person.name);
-      this.memberForm.get('stepOne.person_id')?.setValue(this.data.members.person.id);
-    }
+  private updateSearchControls() {
+    const stepOne = this.memberForm.get('stepOne')?.value;
+    const person = this.persons.find((p) => p.id === stepOne.person_id);
+    const church = this.churchs.find((c) => c.id === stepOne.church_id);
+    const civilStatus = this.civilStatus.find((cs) => cs.id === stepOne.civil_status_id);
+    const colorRace = this.colorRace.find((cr) => cr.id === stepOne.color_race_id);
 
-    if (this.data?.members?.church) {
-      this.searchControlChurch.setValue(this.data.members.church.name);
-      this.memberForm.get('stepOne.church_id')?.setValue(this.data.members.church.id);
-    }
+    this.searchControlPerson.setValue(person?.name || '');
+    this.searchControlChurch.setValue(church?.name || '');
+    this.searchControlCivilStatus.setValue(civilStatus?.name || '');
+    this.searchControlColorRace.setValue(colorRace?.name || '');
 
-    if (this.data?.members?.civil_status) {
-      this.searchControlCivilStatus.setValue(this.data.members.civil_status.name);
-      this.memberForm.get('stepOne.civil_status_id')?.setValue(this.data.members.civil_status.id);
-    }
+    const stepTwo = this.memberForm.get('stepTwo')?.value;
+    const formation = this.formations.find((f) => f.id === stepTwo.formation_id);
+    this.searchControlFormations.setValue(formation?.name || '');
 
-    if (this.data?.members.formation) {
-      this.searchControlFormations.setValue(this.data.members.formation.name);
-      this.memberForm.get('stepTwo.formation_id')?.setValue(this.data.members.formation.id);
-    }
-
-    if (this.data?.members?.color_race) {
-      this.searchControlColorRace.setValue(this.data.members.color_race.name);
-      this.memberForm.get('stepOne.color_race_id')?.setValue(this.data.members.color_race.id);
-    }
-
-    if (this.data?.members.member_origin) {
-      this.searchControlMemberOrigins.setValue(this.data.members.member_origin.name);
-      this.memberForm.get('stepThree.member_origin_id')?.setValue(this.data.members.member_origin.id);
-    }
+    const stepThree = this.memberForm.get('stepThree')?.value;
+    const memberOrigin = this.memberOrigins.find((mo) => mo.id === stepThree.member_origin_id);
+    this.searchControlMemberOrigins.setValue(memberOrigin?.name || '');
   }
 
-  onSuccessCreate(message: string) {
+  private onSuccessUpdate(message: string, closeDialog: boolean = false) {
     this.hideLoading();
     this.toast.openSuccess(message);
-    this.enableDefinitionForm.set(true);
-    this.currentStep = 2; // Move to Step 3
+    if (closeDialog) {
+      this.dialogRef.close(true);
+    }
+    this.navigationService.setCurrentStep(0);
   }
 
-  onSuccessUpdate(message: string) {
-    this.hideLoading();
-    this.toast.openSuccess(message);
-  }
-
-  onError(message: string) {
+  private onError(message: string) {
     this.hideLoading();
     this.toast.openError(message);
-  }
-
-  openAddPersonDialog() {
-    const dialogRef = this.modalService.openModal(
-      `modal-${Math.random()}`,
-      PersonComponent,
-      'Adicionar pessoa',
-      true,
-      true,
-    );
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.membersService.getPersons().subscribe((persons) => {
-          this.persons = persons;
-        });
-      }
-    });
-  }
-
-  openAddChurchDialog() {
-    const dialogRef = this.modalService.openModal(
-      `modal-${Math.random()}`,
-      ChurchComponent,
-      'Adicionar igreja',
-      true,
-      true,
-    );
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.membersService.getChurch().subscribe((churchs) => {
-          this.churchs = churchs;
-        });
-      }
-    });
-  }
-
-  openCalendarBaptismDate(): void {
-    if (this.baptismPicker) {
-      this.baptismPicker.open();
-    }
-  }
-
-  openCalendarBaptismHolySpiritDate(): void {
-    if (this.baptismHolySpiritPicker) {
-      this.baptismHolySpiritPicker.open();
-    }
-  }
-
-  openCalendarReceiptDate(): void {
-    if (this.receiptDatePicker) {
-      this.receiptDatePicker.open();
-    }
-  }
-
-  onFormationChange(selectedFormationId: string, formations: Formations[]) {
-    const selectedFormation = formations.find((f) => f.id === selectedFormationId);
-    const formationCourseControl = this.memberForm.get('stepTwo.formation_course');
-
-    if (selectedFormation && this.formationsRequiringCourse.includes(selectedFormation.codigo)) {
-      this.isFormationCourseVisible = true;
-      formationCourseControl?.setValidators(Validators.required);
-    } else {
-      this.isFormationCourseVisible = false;
-      formationCourseControl?.clearValidators();
-    }
-
-    formationCourseControl?.updateValueAndValidity();
   }
 }

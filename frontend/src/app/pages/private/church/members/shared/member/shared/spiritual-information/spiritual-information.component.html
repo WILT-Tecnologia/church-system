@@ -1,0 +1,217 @@
+<section class="py-4">
+  <mat-card appearance="outlined">
+    <mat-card-content>
+      <div [formGroup]="stepThreeForm">
+        <app-column [columns]="2">
+          <mat-form-field>
+            <mat-label>Data do batismo</mat-label>
+            <input
+              matInput
+              name="baptism_date"
+              [matDatepicker]="baptismPicker"
+              placeholder="dd/mm/aaaa"
+              formControlName="baptism_date"
+              (click)="openCalendarBaptismDate()"
+              [min]="minDate"
+              [max]="maxDate"
+              readonly
+            />
+            <mat-datepicker-toggle matIconSuffix [for]="baptismPicker"></mat-datepicker-toggle>
+            <mat-datepicker #baptismPicker>
+              <mat-datepicker-actions>
+                <button
+                  *ngIf="stepThreeForm.get('baptism_date')?.value"
+                  matTooltip="Limpar a data"
+                  mat-flat-button
+                  matSuffix
+                  matDatepickerToggleIcon
+                  (click)="clearDate('baptism_date')"
+                  type="button"
+                  color="warn"
+                >
+                  <mat-icon>close</mat-icon>
+                  Limpar
+                </button>
+                <button *ngIf="!stepThreeForm.get('baptism_date')?.value" type="button" mat-button matDatepickerCancel>
+                  Cancelar
+                </button>
+                <button
+                  *ngIf="!stepThreeForm.get('baptism_date')?.value"
+                  type="button"
+                  mat-flat-button
+                  matDatepickerApply
+                >
+                  Concluir
+                </button>
+              </mat-datepicker-actions>
+            </mat-datepicker>
+            <mat-error *ngIf="stepThreeForm.get('baptism_date')?.invalid && stepThreeForm.get('baptism_date')?.touched">
+              {{ getErrorMessage('baptism_date') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Oficial do batismo</mat-label>
+            <input matInput formControlName="baptism_official" />
+            <mat-error
+              *ngIf="stepThreeForm.get('baptism_official')?.invalid && stepThreeForm.get('baptism_official')?.touched"
+            >
+              {{ getErrorMessage('baptism_official') }}
+            </mat-error>
+          </mat-form-field>
+        </app-column>
+
+        <app-column>
+          <mat-form-field appearance="fill">
+            <mat-label>Local do batismo</mat-label>
+            <input matInput formControlName="baptism_locale" />
+            <mat-error
+              *ngIf="stepThreeForm.get('baptism_locale')?.invalid && stepThreeForm.get('baptism_locale')?.touched"
+            >
+              {{ getErrorMessage('baptism_locale') }}
+            </mat-error>
+          </mat-form-field>
+        </app-column>
+
+        <app-column [columns]="2">
+          <mat-checkbox
+            color="primary"
+            formControlName="baptism_holy_spirit"
+            (change)="onCheckboxChange('baptism_holy_spirit_date', 'baptism_holy_spirit')"
+          >
+            Batizado pelo Espírito Santo?
+          </mat-checkbox>
+
+          <mat-form-field *ngIf="stepThreeForm.get('baptism_holy_spirit')?.value">
+            <mat-label>Data do batismo no Espírito Santo</mat-label>
+            <input
+              matInput
+              name="baptism_holy_spirit_date"
+              [matDatepicker]="baptismHolySpiritPicker"
+              placeholder="dd/mm/aaaa"
+              formControlName="baptism_holy_spirit_date"
+              (click)="openCalendarBaptismHolySpiritDate()"
+              [min]="minDate"
+              [max]="maxDate"
+              readonly
+            />
+            <mat-datepicker-toggle matIconSuffix [for]="baptismHolySpiritPicker"></mat-datepicker-toggle>
+            <mat-datepicker #baptismHolySpiritPicker>
+              <mat-datepicker-actions>
+                <button
+                  *ngIf="stepThreeForm.get('baptism_holy_spirit_date')?.value"
+                  matTooltip="Limpar a data"
+                  mat-flat-button
+                  matSuffix
+                  matDatepickerToggleIcon
+                  (click)="clearDate('baptism_holy_spirit_date')"
+                  type="button"
+                  color="warn"
+                >
+                  <mat-icon>close</mat-icon>
+                  Limpar
+                </button>
+                <button
+                  *ngIf="!stepThreeForm.get('baptism_holy_spirit_date')?.value"
+                  type="button"
+                  mat-button
+                  matDatepickerCancel
+                >
+                  Cancelar
+                </button>
+                <button
+                  *ngIf="!stepThreeForm.get('baptism_holy_spirit_date')?.value"
+                  type="button"
+                  mat-flat-button
+                  matDatepickerApply
+                >
+                  Concluir
+                </button>
+              </mat-datepicker-actions>
+            </mat-datepicker>
+            <mat-error
+              *ngIf="
+                stepThreeForm.get('baptism_holy_spirit_date')?.invalid &&
+                stepThreeForm.get('baptism_holy_spirit_date')?.touched
+              "
+            >
+              {{ getErrorMessage('baptism_holy_spirit_date') }}
+            </mat-error>
+          </mat-form-field>
+        </app-column>
+
+        <app-column [columns]="2">
+          <mat-form-field>
+            <mat-label>Data da recepção</mat-label>
+            <input
+              matInput
+              name="receipt_date"
+              [matDatepicker]="receiptDatePicker"
+              placeholder="dd/mm/aaaa"
+              formControlName="receipt_date"
+              (click)="openCalendarReceiptDate()"
+              [min]="minDate"
+              [max]="maxDate"
+              readonly
+            />
+            <mat-datepicker-toggle matIconSuffix [for]="receiptDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #receiptDatePicker>
+              <mat-datepicker-actions>
+                <button
+                  *ngIf="stepThreeForm.get('receipt_date')?.value"
+                  matTooltip="Limpar a data"
+                  mat-flat-button
+                  matSuffix
+                  matDatepickerToggleIcon
+                  (click)="clearDate('receipt_date')"
+                  type="button"
+                  color="warn"
+                >
+                  <mat-icon>close</mat-icon>
+                  Limpar
+                </button>
+                <button *ngIf="!stepThreeForm.get('receipt_date')?.value" type="button" mat-button matDatepickerCancel>
+                  Cancelar
+                </button>
+                <button
+                  *ngIf="!stepThreeForm.get('receipt_date')?.value"
+                  type="button"
+                  mat-flat-button
+                  matDatepickerApply
+                >
+                  Concluir
+                </button>
+              </mat-datepicker-actions>
+            </mat-datepicker>
+            <mat-error *ngIf="stepThreeForm.get('receipt_date')?.invalid && stepThreeForm.get('receipt_date')?.touched">
+              {{ getErrorMessage('receipt_date') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Origem do membro</mat-label>
+            <input
+              type="text"
+              matInput
+              [matAutocomplete]="autoMemberOrigin"
+              [formControl]="searchControlMemberOrigins"
+              placeholder="Selecione uma origem do membro"
+              (focus)="showAllMemberOrigins()"
+              required
+            />
+            <mat-autocomplete #autoMemberOrigin="matAutocomplete" (optionSelected)="onMemberOriginSelected($event)">
+              <mat-option *ngFor="let memberOrigin of filterMemberOrigins | async" [value]="memberOrigin">
+                {{ memberOrigin.name }}
+              </mat-option>
+            </mat-autocomplete>
+            <mat-error
+              *ngIf="stepThreeForm.get('member_origin_id')?.invalid && stepThreeForm.get('member_origin_id')?.touched"
+            >
+              {{ getErrorMessage('member_origin_id') }}
+            </mat-error>
+          </mat-form-field>
+        </app-column>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</section>

@@ -1,0 +1,84 @@
+<section class="py-4">
+  <mat-card appearance="outlined">
+    <mat-card-content>
+      <div [formGroup]="stepTwoForm">
+        <app-column>
+          <mat-form-field appearance="fill">
+            <mat-label>Profissão</mat-label>
+            <input matInput formControlName="profission" />
+            <mat-error *ngIf="stepTwoForm.get('profission')?.invalid && stepTwoForm.get('profission')?.touched">
+              {{ getErrorMessage('profission') }}
+            </mat-error>
+          </mat-form-field>
+        </app-column>
+
+        <app-column [columns]="isFormationCourseVisible ? 2 : 1">
+          <mat-form-field appearance="fill">
+            <mat-label>Formação</mat-label>
+            <input
+              type="text"
+              matInput
+              [matAutocomplete]="autoFormation"
+              [formControl]="searchControlFormations"
+              placeholder="Selecione uma formação"
+              (focus)="showAllFormations()"
+              required
+            />
+            <mat-autocomplete #autoFormation="matAutocomplete" (optionSelected)="onFormationsSelected($event)">
+              <mat-option *ngFor="let formation of filteredFormations | async" [value]="formation">
+                {{ formation.name }}
+              </mat-option>
+            </mat-autocomplete>
+            <mat-error *ngIf="stepTwoForm.get('formation_id')?.invalid && stepTwoForm.get('formation_id')?.touched">
+              {{ getErrorMessage('formation_id') }}
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field *ngIf="isFormationCourseVisible">
+            <mat-label>Curso de Formação</mat-label>
+            <input matInput formControlName="formation_course" />
+            <mat-error
+              *ngIf="stepTwoForm.get('formation_course')?.invalid && stepTwoForm.get('formation_course')?.touched"
+            >
+              {{ getErrorMessage('formation_course') }}
+            </mat-error>
+          </mat-form-field>
+        </app-column>
+
+        <app-column [columns]="1">
+          <label id="example-radio-group-label">Possui alguma deficiência ?</label>
+          <mat-radio-group color="primary" aria-label="Possui alguma deficiência" formControlName="has_disability">
+            <mat-radio-button [value]="true">Sim</mat-radio-button>
+            <mat-radio-button [value]="false">Não</mat-radio-button>
+          </mat-radio-group>
+        </app-column>
+
+        <app-column [columns]="1" *ngIf="stepTwoForm.get('has_disability')?.value">
+          <app-column [columns]="4">
+            <div class="checkbox-column">
+              <mat-checkbox color="primary" formControlName="def_hearing">Auditiva</mat-checkbox>
+              <mat-checkbox color="primary" formControlName="def_visual">Visual</mat-checkbox>
+              <mat-checkbox color="primary" formControlName="def_physical">Física</mat-checkbox>
+              <mat-checkbox color="primary" formControlName="def_other">Outra</mat-checkbox>
+            </div>
+            <div class="checkbox-column">
+              <mat-checkbox color="primary" formControlName="def_mental">Mental</mat-checkbox>
+              <mat-checkbox color="primary" formControlName="def_intellectual">Intelectual</mat-checkbox>
+              <mat-checkbox color="primary" formControlName="def_multiple">Múltipla</mat-checkbox>
+            </div>
+          </app-column>
+          <mat-form-field appearance="fill" *ngIf="stepTwoForm.get('def_other')?.value">
+            <mat-label>Descreva a deficiência...</mat-label>
+            <textarea matInput rows="4" formControlName="def_other_description" matTextareaAutosize></textarea>
+            <mat-error
+              *ngIf="
+                stepTwoForm.get('def_other_description')?.invalid && stepTwoForm.get('def_other_description')?.touched
+              "
+            >
+              {{ getErrorMessage('def_other_description') }}
+            </mat-error>
+          </mat-form-field>
+        </app-column>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</section>

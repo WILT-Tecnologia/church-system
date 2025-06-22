@@ -9,17 +9,17 @@ export class NavigationService {
   private current = new BehaviorSubject<number>(0);
   currentStep$ = this.current.asObservable();
 
-  setActiveTab(index: number) {
+  setCurrentStep(index: number) {
     this.current.next(index);
   }
 
   nextTab() {
     const currentIndex = this.current.getValue();
-    this.setActiveTab(currentIndex < 5 ? currentIndex + 1 : currentIndex);
+    this.setCurrentStep(currentIndex < 5 ? currentIndex + 1 : currentIndex);
   }
 
   previousTab() {
     const currentIndex = this.current.getValue();
-    this.setActiveTab(currentIndex > 0 ? currentIndex - 1 : currentIndex);
+    this.setCurrentStep(currentIndex > 0 ? currentIndex - 1 : currentIndex);
   }
 }

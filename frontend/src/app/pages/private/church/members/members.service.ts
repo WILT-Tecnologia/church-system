@@ -5,7 +5,8 @@ import { CivilStatus, ColorRace, Formations } from 'app/model/Auxiliaries';
 import { Church } from 'app/model/Church';
 import { Families } from 'app/model/Families';
 import { MemberOrigin } from 'app/model/MemberOrigins';
-import { Members } from 'app/model/Members';
+import { Members, StatusMember } from 'app/model/Members';
+import { Ordination } from 'app/model/Ordination';
 import { Person } from 'app/model/Person';
 import { environment } from 'environments/environment';
 import { map, Observable } from 'rxjs';
@@ -19,9 +20,26 @@ export class MembersService {
   private api = `${environment.apiUrl}/church/members`;
   private apiAdmin = `${environment.apiUrl}/admin`;
   private apiAux = `${environment.apiUrl}/aux`;
+  private currentEditingMemberId: string | null = null;
+
+  setEditingMemberId(memberId: string | null): string | null {
+    return (this.currentEditingMemberId = memberId);
+  }
+
+  getEditingMemberId(): string | null {
+    return this.currentEditingMemberId;
+  }
 
   getFamilyOfMemberId(memberId: string): Observable<Families[]> {
     return this.http.get<Members>(`${this.api}/${memberId}`).pipe(map((member) => member.families));
+  }
+
+  getOrdinationsOfMemberId(memberId: string): Observable<Ordination[]> {
+    return this.http.get<Members>(`${this.api}/${memberId}`).pipe(map((member) => member.ordination));
+  }
+
+  getStatusMemberId(memberId: string): Observable<StatusMember> {
+    return this.http.get<Members>(`${this.api}/${memberId}`).pipe(map((member) => member.status_member));
   }
 
   getCivilStatus(): Observable<CivilStatus[]> {
@@ -48,7 +66,7 @@ export class MembersService {
     return this.http.get<MemberOrigin[]>(`${this.apiAdmin}/member-origins`);
   }
 
-  getMembers(): Observable<Members[]> {
+  findAll(): Observable<Members[]> {
     return this.http.get<Members[]>(this.api);
   }
 
@@ -64,7 +82,7 @@ export class MembersService {
     return this.http.put<Members>(`${this.api}/${memberId}`, memberData);
   }
 
-  deleteMember(memberId: string): Observable<Members> {
+  delete(memberId: string): Observable<Members> {
     return this.http.delete<Members>(`${this.api}/${memberId}`);
   }
 }

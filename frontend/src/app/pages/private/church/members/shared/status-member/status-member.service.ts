@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MemberSituations } from 'app/model/Auxiliaries';
-import { Members, StatusMember } from 'app/model/Members';
+import { StatusMember } from 'app/model/Members';
 import { environment } from 'environments/environment';
-import { map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -19,35 +19,15 @@ export class StatusMemberService {
     return this.http.get<MemberSituations[]>(`${this.apiAux}/member-situation`);
   }
 
-  getStatusMemberFromMembers(memberId: string): Observable<StatusMember> {
-    return this.http
-      .get<Members>(`${this.memberApi}/${memberId}`)
-      .pipe(map((member) => member.status_member));
-  }
-
-  // findById(id: string): Observable<StatusMember> {
-  //   return this.http.get<StatusMember>(`${this.api}/${id}`);
-  // }
-  //
-  // findAll(): Observable<StatusMember[]> {
-  //   return this.http.get<StatusMember[]>(this.memberApi);
-  // }
-
   create(statusMember: StatusMember): Observable<StatusMember> {
     return this.http.post<StatusMember>(`${this.api}`, statusMember);
   }
 
-  update(
-    statusMemberId: string,
-    statusMemberData: Partial<StatusMember>,
-  ): Observable<StatusMember> {
-    return this.http.put<StatusMember>(
-      `${this.api}/${statusMemberId}`,
-      statusMemberData,
-    );
+  update(statusMemberId: string, statusMemberData: Partial<StatusMember>): Observable<StatusMember> {
+    return this.http.put<StatusMember>(`${this.api}/${statusMemberId}`, statusMemberData);
   }
 
-  deleteStatusMember(statusMemberId: string): Observable<StatusMember> {
+  delete(statusMemberId: string): Observable<StatusMember> {
     return this.http.delete<StatusMember>(`${this.api}/${statusMemberId}`);
   }
 }

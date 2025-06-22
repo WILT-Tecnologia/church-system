@@ -1,7 +1,7 @@
-@if ((families && families.length > 0) || rendering) {
+@if (familiesData && familiesData.length > 0) {
   <app-crud
     [enablePagination]="false"
-    [fields]="families"
+    [fields]="familiesData"
     [dataSourceMat]="dataSourceMat"
     [columnDefinitions]="columnDefinitions"
     [addFn]="handleCreate"

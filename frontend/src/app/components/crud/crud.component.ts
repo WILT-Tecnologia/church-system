@@ -40,7 +40,7 @@ export type ActionsProps = {
   tooltip?: string;
   icon?: string;
   label?: string;
-  color?: string;
+  color?: 'primary' | 'accent' | 'warn';
   inactiveLabel?: string;
   activeLabel?: string;
   action: (element: any) => void;

@@ -9,20 +9,14 @@ import { NoRowComponent } from 'app/components/no-row/no-row.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { History } from 'app/model/Members';
-import { MemberService } from '../member.service';
+import { MembersService } from '../../members.service';
 import { HistoryService } from './history.service';
 
 @Component({
   selector: 'app-history',
   templateUrl: './history.component.html',
   styleUrl: './history.component.scss',
-  imports: [
-    CommonModule,
-    MatIconModule,
-    MatDividerModule,
-    MatButtonModule,
-    NoRowComponent,
-  ],
+  imports: [CommonModule, MatIconModule, MatDividerModule, MatButtonModule, NoRowComponent],
 })
 export class HistoryComponent implements OnInit {
   @Input() history_member: History[] = [];
@@ -32,7 +26,7 @@ export class HistoryComponent implements OnInit {
     private loadingService: LoadingService,
     private toast: ToastService,
     private historyService: HistoryService,
-    private memberService: MemberService,
+    private membersService: MembersService,
     @Inject(MAT_DIALOG_DATA) public data: { history_member: History },
   ) {}
 
@@ -50,7 +44,7 @@ export class HistoryComponent implements OnInit {
 
   loadHistories() {
     this.showLoading();
-    const memberId = this.memberService.getEditingMemberId();
+    const memberId = this.membersService.getEditingMemberId();
     this.historyService.findAll(memberId!).subscribe({
       next: (history_member) => {
         this.history_member = history_member;

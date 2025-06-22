@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -15,7 +15,6 @@ import { Members } from 'app/model/Members';
 
 import { MembersService } from './members.service';
 import { HistoryComponent } from './shared/history/history.component';
-import { MemberService } from './shared/member.service';
 import { MemberComponent } from './shared/member/member.component';
 
 @Component({
@@ -27,7 +26,6 @@ import { MemberComponent } from './shared/member/member.component';
 export class MembersComponent implements OnInit {
   families!: Families[];
   member: Members[] = [];
-  rendering = signal(true);
   dataSourceMat = new MatTableDataSource<Members>(this.member);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -78,26 +76,20 @@ export class MembersComponent implements OnInit {
     private toast: ToastService,
     private membersService: MembersService,
     private modalService: ModalService,
-    private memberService: MemberService,
   ) {}
 
   ngOnInit() {
     this.loadMembers();
   }
 
-  handleRendering = () => {
-    this.rendering.update((prev) => !prev);
-  };
-
   loadMembers = () => {
     this.loading.show();
-    this.membersService.getMembers().subscribe({
+    this.membersService.findAll().subscribe({
       next: (members) => {
         this.member = members;
         this.dataSourceMat.data = this.member;
         this.dataSourceMat.paginator = this.paginator;
         this.dataSourceMat.sort = this.sort;
-        this.handleRendering();
       },
       error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
       complete: () => this.loading.hide(),
@@ -121,7 +113,7 @@ export class MembersComponent implements OnInit {
   };
 
   editMembers = (member: Members) => {
-    this.memberService.setEditingMemberId(member.id);
+    this.membersService.setEditingMemberId(member.id);
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       MemberComponent,
@@ -139,7 +131,7 @@ export class MembersComponent implements OnInit {
   };
 
   handleHistory = (member: Members) => {
-    const memberId = this.memberService.setEditingMemberId(member.id);
+    const memberId = this.membersService.setEditingMemberId(member.id);
 
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
@@ -168,7 +160,7 @@ export class MembersComponent implements OnInit {
     modal.afterClosed().subscribe((result: Members) => {
       if (result) {
         this.loading.show();
-        this.membersService.deleteMember(members.id).subscribe({
+        this.membersService.delete(members.id).subscribe({
           next: () => {
             this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
           },

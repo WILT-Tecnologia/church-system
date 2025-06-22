@@ -1,9 +1,4 @@
-import {
-  CivilStatus,
-  ColorRace,
-  Formations,
-  MemberSituations,
-} from './Auxiliaries';
+import { CivilStatus, ColorRace, Formations, MemberSituations } from './Auxiliaries';
 import { Church } from './Church';
 import { Families } from './Families';
 import { MemberOrigin } from './MemberOrigins';
@@ -32,6 +27,7 @@ export type Members = {
   formation_id: string;
   formation_course: string;
   profission: string;
+  has_disability: boolean;
   def_physical: boolean;
   def_visual: boolean;
   def_hearing: boolean;

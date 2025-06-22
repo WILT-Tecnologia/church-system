@@ -1,26 +1,17 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectorRef,
-  Component,
-  Input,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import {
-  ActionsProps,
-  CrudComponent,
-} from 'app/components/crud/crud.component';
+import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Ordination } from 'app/model/Ordination';
-import { MemberService } from '../member.service';
+import { MembersService } from '../../members.service';
 import { OrdinationFormComponent } from './ordination-form/ordination-form.component';
 import { OrdinationsService } from './ordinations.service';
 
@@ -31,7 +22,12 @@ import { OrdinationsService } from './ordinations.service';
   imports: [CommonModule, NotFoundRegisterComponent, CrudComponent],
 })
 export class OrdinationsComponent implements OnInit {
-  @Input() ordination: Ordination[] = [];
+  private _ordination: Ordination[] = [];
+  @Input() set ordination(value: Ordination[]) {
+    this._ordination = value || [];
+    this.dataSourceMat.data = this._ordination;
+  }
+  @Output() ordinationUpdated = new EventEmitter<Ordination[]>();
   rendering: boolean = true;
   dataSourceMat = new MatTableDataSource<Ordination>(this.ordination);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -67,16 +63,18 @@ export class OrdinationsComponent implements OnInit {
     private toast: ToastService,
     private modal: ModalService,
     private ordinationService: OrdinationsService,
-    private memberService: MemberService,
+    private membersService: MembersService,
   ) {}
 
   ngOnInit() {
-    this.loadOrdinations();
+    this.dataSourceMat.paginator = this.paginator;
+    this.dataSourceMat.sort = this.sort;
+    this.rendering = false;
   }
 
-  loadOrdinations = () => {
+  private loadOrdinations = () => {
     this.loading.show();
-    const memberId = this.memberService.getEditingMemberId();
+    const memberId = this.membersService.getEditingMemberId();
     this.ordinationService.getOrdinationByMemberId(memberId!).subscribe({
       next: (ordination) => {
         this.ordination = ordination;
@@ -84,6 +82,7 @@ export class OrdinationsComponent implements OnInit {
         this.dataSourceMat.paginator = this.paginator;
         this.dataSourceMat.sort = this.sort;
         this.rendering = false;
+        this.ordinationUpdated.emit(this._ordination);
       },
       error: () => {
         this.loading.hide();
@@ -94,7 +93,7 @@ export class OrdinationsComponent implements OnInit {
   };
 
   handleCreate = () => {
-    const defaultMemberId = this.memberService.getEditingMemberId();
+    const defaultMemberId = this.membersService.getEditingMemberId();
 
     const dialogRef = this.modal.openModal(
       `modal-${Math.random()}`,
@@ -109,7 +108,9 @@ export class OrdinationsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: Ordination) => {
       if (result) {
-        this.loadOrdinations();
+        this._ordination = [...this._ordination, result];
+        this.dataSourceMat.data = this._ordination;
+        this.ordinationUpdated.emit(this._ordination);
       }
     });
   };
@@ -129,7 +130,9 @@ export class OrdinationsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: Ordination) => {
       if (result) {
-        this.loadOrdinations();
+        this._ordination = [...this._ordination, result];
+        this.dataSourceMat.data = this._ordination;
+        this.ordinationUpdated.emit(this._ordination);
       }
     });
   };
@@ -148,15 +151,17 @@ export class OrdinationsComponent implements OnInit {
       if (result) {
         this.loading.show();
         this.ordinationService.deleteOrdination(ordination.id).subscribe({
-          next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
+          next: () => {
+            this._ordination = [...this._ordination, result];
+            this.dataSourceMat.data = this._ordination;
+            this.ordinationUpdated.emit(this._ordination);
+            this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
+          },
           error: () => {
             this.loading.hide();
             this.toast.openError(MESSAGES.DELETE_ERROR);
           },
-          complete: () => {
-            this.loadOrdinations();
-            this.loading.hide();
-          },
+          complete: () => this.loading.hide(),
         });
       }
     });
