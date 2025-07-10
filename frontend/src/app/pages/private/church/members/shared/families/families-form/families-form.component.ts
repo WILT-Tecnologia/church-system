@@ -1,17 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnDestroy, OnInit, Optional } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-
-import {
-  MatAutocompleteModule,
-  MatAutocompleteSelectedEvent,
-} from '@angular/material/autocomplete';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -19,6 +9,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { forkJoin, map, Observable, startWith, Subject } from 'rxjs';
+
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
@@ -29,9 +21,9 @@ import { Kinships } from 'app/model/Auxiliaries';
 import { Families } from 'app/model/Families';
 import { Members } from 'app/model/Members';
 import { Person } from 'app/model/Person';
+import { PersonComponent } from 'app/pages/private/administrative/persons/person/person.component';
 import { ValidationService } from 'app/services/validation/validation.service';
-import { forkJoin, map, Observable, startWith, Subject } from 'rxjs';
-import { PersonComponent } from '../../../../../administrative/persons/person/person.component';
+
 import { FamiliesService } from '../families.service';
 
 @Component({
@@ -76,9 +68,7 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
     private validationService: ValidationService,
     private modalService: ModalService,
     private dialogRef: MatDialogRef<FamiliesFormComponent>,
-    @Optional()
-    @Inject(MAT_DIALOG_DATA)
-    public data: { families: Families },
+    @Inject(MAT_DIALOG_DATA) public data: { families: Families },
   ) {
     this.familyForm = this.createForm();
   }
@@ -105,10 +95,7 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
           disabled: true,
         },
       ],
-      kinship_id: [
-        this.data?.families?.kinship?.id ?? '',
-        [Validators.required],
-      ],
+      kinship_id: [this.data?.families?.kinship?.id ?? '', [Validators.required]],
     });
   }
 
@@ -122,9 +109,7 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
           return value ? value.name : '';
         }
       }),
-      map((name) =>
-        name?.length >= 1 ? this._filterPerson(name) : this.persons,
-      ),
+      map((name) => (name?.length >= 1 ? this._filterPerson(name) : this.persons)),
     );
   }
 
@@ -138,9 +123,7 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
           return value ? value.name : '';
         }
       }),
-      map((name) =>
-        name?.length >= 1 ? this._filterKinships(name) : this.kinships,
-      ),
+      map((name) => (name?.length >= 1 ? this._filterKinships(name) : this.kinships)),
     );
   }
 
@@ -164,16 +147,12 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
 
   private _filterPerson(name: string): Person[] {
     const filterValue = name.toLowerCase();
-    return this.persons.filter((person) =>
-      person.name.toLowerCase().includes(filterValue),
-    );
+    return this.persons.filter((person) => person.name.toLowerCase().includes(filterValue));
   }
 
   private _filterKinships(name: string): Kinships[] {
     const filterValue = name.toLowerCase();
-    return this.kinships.filter((kinship) =>
-      kinship.name.toLowerCase().includes(filterValue),
-    );
+    return this.kinships.filter((kinship) => kinship.name.toLowerCase().includes(filterValue));
   }
 
   onPersonSelected(event: MatAutocompleteSelectedEvent) {
@@ -200,16 +179,12 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
 
     if (this.data.families.person) {
       this.searchControlPersons.setValue(this.data?.families?.person?.name);
-      this.familyForm
-        .get('person_id')
-        ?.setValue(this.data?.families?.person?.id);
+      this.familyForm.get('person_id')?.setValue(this.data?.families?.person?.id);
     }
 
     if (this.data.families.kinship) {
       this.searchControlKinship.setValue(this.data?.families?.kinship?.name);
-      this.familyForm
-        .get('kinship_id')
-        ?.setValue(this.data?.families?.kinship?.id);
+      this.familyForm.get('kinship_id')?.setValue(this.data?.families?.kinship?.id);
     }
 
     this.familyForm.patchValue({
@@ -253,15 +228,13 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
 
   getErrorMessage(controlName: string) {
     const control = this.familyForm.get(controlName);
-    return control?.errors
-      ? this.validationService.getErrorMessage(control)
-      : null;
+    return control?.errors ? this.validationService.getErrorMessage(control) : null;
   }
 
   onSuccess(message: string) {
     this.loadingService.hide();
     this.toast.openSuccess(message);
-    this.dialogRef.close(this.familyForm.value);
+    this.dialogRef.close(true);
   }
 
   onError(message: string) {
@@ -270,7 +243,7 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
   }
 
   handleBack() {
-    this.dialogRef.close();
+    this.dialogRef.close(false);
   }
 
   handleSubmit() {
@@ -278,24 +251,24 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
     if (!family) return;
 
     if (this.isEditMode) {
-      this.updateMember(family.id, family);
+      this.handleUpdate(family.id, family);
     } else {
       this.handleCreate(family);
     }
   }
 
-  handleCreate(data: any) {
+  handleCreate(data: Families) {
     this.loadingService.show();
-    this.familiesService.createFamily(data).subscribe({
+    this.familiesService.create(data).subscribe({
       next: () => this.onSuccess(MESSAGES.CREATE_SUCCESS),
       error: () => this.onError(MESSAGES.CREATE_ERROR),
       complete: () => this.loadingService.hide(),
     });
   }
 
-  updateMember(familyId: string, familyData?: any) {
+  handleUpdate(familyId: string, familyData?: Families) {
     this.loadingService.show();
-    this.familiesService.updateFamily(familyId, familyData).subscribe({
+    this.familiesService.update(familyId, familyData!).subscribe({
       next: () => this.onSuccess(MESSAGES.UPDATE_SUCCESS),
       error: () => this.onError(MESSAGES.UPDATE_ERROR),
       complete: () => this.loadingService.hide(),
@@ -303,12 +276,6 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
   }
 
   openAddPersonDialog() {
-    this.modalService.openModal(
-      `modal-${Math.random()}`,
-      PersonComponent,
-      'Adicionar pessoa',
-      true,
-      true,
-    );
+    this.modalService.openModal(`modal-${Math.random()}`, PersonComponent, 'Adicionando pessoa', true, true);
   }
 }

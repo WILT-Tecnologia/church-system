@@ -3,11 +3,11 @@
     [fields]="member"
     [dataSourceMat]="dataSourceMat"
     [columnDefinitions]="columnDefinitions"
-    [addFn]="addNewMembers"
-    [editFn]="editMembers"
-    [deleteFn]="deleteMembers"
+    [addFn]="handleCreate"
+    [editFn]="handleUpdate"
+    [deleteFn]="handleDelete"
     [actions]="actions"
   ></app-crud>
 } @else {
-  <app-not-found-register [ctaLabel]="'Adicionar'" [addRegisterFn]="addNewMembers"></app-not-found-register>
+  <app-not-found-register [ctaLabel]="'Adicionar'" [addRegisterFn]="handleCreate"></app-not-found-register>
 }

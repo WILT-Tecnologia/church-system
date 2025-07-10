@@ -21,6 +21,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltip } from '@angular/material/tooltip';
+import { forkJoin, map, Observable, startWith, Subject } from 'rxjs';
+
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
@@ -31,7 +33,7 @@ import { StatusMember } from 'app/model/Members';
 import { ValidationService } from 'app/services/validation/validation.service';
 import dayjs from 'dayjs';
 import { provideNgxMask } from 'ngx-mask';
-import { forkJoin, map, Observable, startWith, Subject } from 'rxjs';
+
 import { StatusMemberService } from '../status-member.service';
 
 @Component({

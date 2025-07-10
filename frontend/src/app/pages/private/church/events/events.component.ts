@@ -4,8 +4,8 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
-  inject,
   Inject,
+  inject,
   OnInit,
   PLATFORM_ID,
   signal,
@@ -23,6 +23,9 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { Observable, of, Subject } from 'rxjs';
+import { mergeWith, switchMap } from 'rxjs/operators';
+
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, DateSelectArg, EventApi, EventClickArg } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -41,11 +44,9 @@ import { ToastService } from 'app/components/toast/toast.service';
 import { EventCalls, Events } from 'app/model/Events';
 import { EventTypes } from 'app/model/EventTypes';
 import dayjs from 'dayjs';
-import { Observable, of, Subject } from 'rxjs';
+
 import { EventTypesService } from '../../administrative/event-types/eventTypes.service';
 import { MembersComponent } from '../members/members.component';
-
-import { mergeWith, switchMap } from 'rxjs/operators';
 import { EventsService } from './events.service';
 import { EventsFormComponent } from './shared/events-form/events-form.component';
 
@@ -175,7 +176,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
     private format: FormatsPipe,
     private cdr: ChangeDetectorRef,
     private eventTypesService: EventTypesService,
-    @Inject(PLATFORM_ID) private platformId: Object,
+    @Inject(PLATFORM_ID) private platformId: object,
   ) {}
 
   ngOnInit() {

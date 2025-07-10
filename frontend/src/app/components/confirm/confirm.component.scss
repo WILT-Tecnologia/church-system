@@ -16,26 +16,28 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 1rem;
-  flex-shrink: 1;
+  padding: 0 0.5rem;
   background-color: var(--background-color);
   width: 100%;
 
-  &>.title {
+  & > .title {
     font-size: 1rem;
-    font-style: italic;
     font-weight: 700;
-    color: var(--primary-color);
+    color: var(--text-color);
   }
 }
 
 .content {
   flex-grow: 1;
-  padding: 1.5rem;
+  padding: 1rem;
   overflow-y: auto;
 
-  &>.message {
+  & > .message {
     padding: 1rem 0;
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
+}
+
+app-actions {
+  padding: 1rem;
 }

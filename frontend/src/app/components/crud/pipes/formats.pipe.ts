@@ -1,4 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
+
 import dayjs from 'dayjs';
 
 @Pipe({
@@ -17,10 +18,7 @@ export class FormatsPipe implements PipeTransform {
   cnpjFormat(value: string): string {
     if (!value) return '';
     const cnpj = value.replace(/\D+/g, '');
-    return cnpj.replace(
-      /(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,
-      '$1.$2.$3/$4-$5',
-    );
+    return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
   }
 
   cpfFormat(value: string): string {
@@ -55,9 +53,7 @@ export class FormatsPipe implements PipeTransform {
 
     const dateFormatted = dayjs(value).format('DD/MM/YYYY [às] HH:mm:ss');
 
-    return dateFormatted && dayjs(value).isValid()
-      ? dateFormatted
-      : 'Data inválida';
+    return dateFormatted && dayjs(value).isValid() ? dateFormatted : 'Data inválida';
   }
 
   dateFormat(value: string): string {

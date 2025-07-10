@@ -1,10 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+
 import { Kinships } from 'app/model/Auxiliaries';
 import { Families } from 'app/model/Families';
 import { Person } from 'app/model/Person';
 import { environment } from 'environments/environment';
-import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +14,6 @@ export class FamiliesService {
   constructor(private http: HttpClient) {}
 
   private families = `${environment.apiUrl}/church/families`;
-  private members = `${environment.apiUrl}/church/members`;
   private persons = `${environment.apiUrl}/admin/persons`;
   private kinships = `${environment.apiUrl}/aux/kinships`;
 
@@ -25,23 +25,11 @@ export class FamiliesService {
     return this.http.get<Person[]>(this.persons);
   }
 
-  // getMembers(): Observable<Members[]> {
-  //   return this.http.get<Members[]>(this.members);
-  // }
-  //
-  // getFamilies(): Observable<Families[]> {
-  //   return this.http.get<Families[]>(this.families);
-  // }
-  //
-  // getFamily(id: string): Observable<Families> {
-  //   return this.http.get<Families>(`${this.families}/${id}`);
-  // }
-
-  createFamily(family: Families): Observable<Families> {
+  create(family: Families): Observable<Families> {
     return this.http.post<Families>(this.families, family);
   }
 
-  updateFamily(id: string, family: Partial<Families>): Observable<Families> {
+  update(id: string, family: Partial<Families>): Observable<Families> {
     return this.http.patch<Families>(`${this.families}/${id}`, family);
   }
 

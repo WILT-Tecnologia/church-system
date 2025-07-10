@@ -1,10 +1,5 @@
 <form [formGroup]="memberForm" class="form-field-group">
-  <mat-tab-group
-    preserveContent
-    dynamicHeight
-    [(selectedIndex)]="currentStep"
-    (selectedIndexChange)="onTabChange($event)"
-  >
+  <mat-tab-group preserveContent dynamicHeight [(selectedIndex)]="currentStep">
     <mat-tab label="Identificação" [disabled]="isTabDisabled(0)">
       <app-identification
         [stepOneForm]="getStepFormGroup('stepOne')"
@@ -34,30 +29,6 @@
         [searchControlMemberOrigins]="searchControlMemberOrigins"
       ></app-spiritual-information>
     </mat-tab>
-
-    @if (isEditMode) {
-      <mat-tab label="Filiação">
-        <div formGroupName="stepFour">
-          <app-families [families]="families" (familyUpdated)="onFamilyUpdated($event)"></app-families>
-        </div>
-      </mat-tab>
-      <mat-tab label="Ordenação">
-        <div formGroupName="stepFive">
-          <app-ordinations
-            [ordination]="ordinations"
-            (ordinationUpdated)="onOrdinationUpdated($event)"
-          ></app-ordinations>
-        </div>
-      </mat-tab>
-      <mat-tab label="Situação">
-        <div formGroupName="stepSix">
-          <app-status-member
-            [status_member]="status_member"
-            (statusMemberUpdated)="onStatusMemberUpdated($event)"
-          ></app-status-member>
-        </div>
-      </mat-tab>
-    }
   </mat-tab-group>
 
   <app-actions>
@@ -70,38 +41,21 @@
       }
     }
 
-    <!-- Avançar: no modo criação para steps < 2, no modo edição para steps < 5 -->
-    @if ((!isEditMode && currentStep < 2) || (isEditMode && currentStep < 5)) {
-      <button mat-flat-button (click)="onNext()" type="button" color="primary" [disabled]="!canProceedToNextStep()">
-        Avançar
-      </button>
-    }
-
-    <!-- Concluir: no modo criação no step 2 -->
-    @if (!isEditMode && currentStep === 2) {
-      <button
-        mat-flat-button
-        color="primary"
-        type="button"
-        (click)="finalizeStepThree()"
-        [disabled]="memberForm.invalid"
-      >
-        Concluir
-      </button>
-    }
-
-    <!-- Atualizar: no modo edição -->
-    @if (isEditMode && currentStep !== 5) {
-      <button
-        mat-stroked-button
-        color="primary"
-        type="button"
-        (click)="handleUpdate(memberId!)"
-        [disabled]="memberForm.invalid || !memberId"
-      >
-        Atualizar
-      </button>
-    } @else if (isEditMode && currentStep === 5) {
+    @if (!isEditMode) {
+      @if (currentStep < 2) {
+        <button mat-flat-button color="primary" type="button" (click)="onNext()">Proximo</button>
+      } @else {
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          (click)="finalizeStepThree()"
+          [disabled]="memberForm.invalid"
+        >
+          Cadastrar
+        </button>
+      }
+    } @else {
       <button
         mat-flat-button
         color="primary"

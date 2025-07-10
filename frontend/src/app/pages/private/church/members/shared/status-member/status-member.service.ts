@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { map, Observable } from 'rxjs';
+
 import { MemberSituations } from 'app/model/Auxiliaries';
-import { StatusMember } from 'app/model/Members';
+import { Members, StatusMember } from 'app/model/Members';
 import { environment } from 'environments/environment';
-import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -17,6 +18,10 @@ export class StatusMemberService {
 
   getMemberSituations(): Observable<MemberSituations[]> {
     return this.http.get<MemberSituations[]>(`${this.apiAux}/member-situation`);
+  }
+
+  getStatusMemberByMemberId(memberId: string): Observable<StatusMember> {
+    return this.http.get<Members>(`${this.memberApi}/${memberId}`).pipe(map((member) => member.status_member));
   }
 
   create(statusMember: StatusMember): Observable<StatusMember> {

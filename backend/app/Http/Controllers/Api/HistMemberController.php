@@ -16,9 +16,13 @@ class HistMemberController extends Controller
      * Display a listing of the resource.
      */
     public function index() {
-        $histMember = HistMember::with('member')->get();
+        try {
+            $histMember = HistMember::with('member')->get();
 
-        return HistMemberResource::collection($histMember);
+            return HistMemberResource::collection($histMember);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([], 201);
+        }
     }
 
     /**
@@ -34,13 +38,12 @@ class HistMemberController extends Controller
      * Display the specified resource.
      */
     public function show($id) {
-        $histMember = HistMember::with('member')->findOrFail($id);
-
-        /*         if ($histMember->isEmpty()) {
-                    return response()->json(['message' => 'Histórico não encontrado'], 201);
-                } */
-
-        return new HistMemberResource($histMember);
+        try {
+            $histMember = HistMember::with('member')->findOrFail($id);
+            return new HistMemberResource($histMember);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(null, 200);
+        }
     }
 
     /**

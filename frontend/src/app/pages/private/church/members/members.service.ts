@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { CivilStatus, ColorRace, Formations } from 'app/model/Auxiliaries';
+import { map, Observable } from 'rxjs';
 
+import { CivilStatus, ColorRace, Formations } from 'app/model/Auxiliaries';
 import { Church } from 'app/model/Church';
 import { Families } from 'app/model/Families';
 import { MemberOrigin } from 'app/model/MemberOrigins';
@@ -9,7 +10,6 @@ import { Members, StatusMember } from 'app/model/Members';
 import { Ordination } from 'app/model/Ordination';
 import { Person } from 'app/model/Person';
 import { environment } from 'environments/environment';
-import { map, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',

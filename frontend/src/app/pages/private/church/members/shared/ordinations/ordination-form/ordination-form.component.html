@@ -1,8 +1,4 @@
-<form
-  [formGroup]="ordinationForm"
-  (ngSubmit)="handleSubmit()"
-  class="form-field-group"
->
+<form [formGroup]="ordinationForm" (ngSubmit)="handleSubmit()" class="form-field-group">
   <app-column>
     <mat-slide-toggle formControlName="status" color="primary">{{
       ordinationForm.get('status')?.value ? 'Ativado' : 'Desativado'
@@ -21,23 +17,15 @@
         (focus)="showAllOccupations()"
         required
       />
-      <mat-autocomplete
-        #occupation_id="matAutocomplete"
-        (optionSelected)="onSelectedOccupation($event)"
-      >
+      <mat-autocomplete #occupation_id="matAutocomplete" (optionSelected)="onSelectedOccupation($event)">
         @for (occupation of filterOccupations | async; track $index) {
           <mat-option [value]="occupation">
             {{ occupation.name }}
           </mat-option>
         } @empty {
-          <mat-option class="add-option" (click)="openAddOccupationForm()">
-            Adicionar nova ocupação
-          </mat-option>
+          <mat-option class="add-option" (click)="openAddOccupationForm()"> Adicionar nova ocupação </mat-option>
         }
-        @if (
-          ordinationForm.get('occupation_id')?.invalid &&
-          ordinationForm.get('occupation_id')?.touched
-        ) {
+        @if (ordinationForm.get('occupation_id')?.invalid && ordinationForm.get('occupation_id')?.touched) {
           <mat-error>
             {{ getErrorMessage('occupation_id') }}
           </mat-error>
@@ -49,57 +37,27 @@
   <app-column [columns]="2">
     <mat-form-field appearance="fill">
       <mat-label>Data Inicial</mat-label>
-      <input
-        matInput
-        [matDatepicker]="initial_date"
-        formControlName="initial_date"
-        readonly
-      />
-      <mat-datepicker-toggle
-        matSuffix
-        [for]="initial_date"
-      ></mat-datepicker-toggle>
+      <input matInput [matDatepicker]="initial_date" formControlName="initial_date" readonly />
+      <mat-datepicker-toggle matSuffix [for]="initial_date"></mat-datepicker-toggle>
       <mat-datepicker #initial_date></mat-datepicker>
-      <mat-error
-        *ngIf="
-          ordinationForm.get('initial_date')?.invalid &&
-          ordinationForm.get('initial_date')?.touched
-        "
-      >
+      <mat-error *ngIf="ordinationForm.get('initial_date')?.invalid && ordinationForm.get('initial_date')?.touched">
         {{ getErrorMessage('initial_date') }}
       </mat-error>
     </mat-form-field>
     <mat-form-field appearance="fill">
       <mat-label>Data Final</mat-label>
-      <input
-        matInput
-        [matDatepicker]="end_date"
-        formControlName="end_date"
-        readonly
-      />
+      <input matInput [matDatepicker]="end_date" formControlName="end_date" readonly />
       <mat-datepicker-toggle matSuffix [for]="end_date"></mat-datepicker-toggle>
       <mat-datepicker #end_date></mat-datepicker>
-      <mat-error
-        *ngIf="
-          ordinationForm.get('end_date')?.invalid &&
-          ordinationForm.get('end_date')?.touched
-        "
-      >
+      <mat-error *ngIf="ordinationForm.get('end_date')?.invalid && ordinationForm.get('end_date')?.touched">
         {{ getErrorMessage('end_date') }}
       </mat-error>
     </mat-form-field>
   </app-column>
 
   <app-actions>
-    <button type="button" mat-stroked-button color="warn" (click)="onCancel()">
-      Cancelar
-    </button>
-    <button
-      type="submit"
-      mat-flat-button
-      color="primary"
-      [disabled]="ordinationForm.invalid"
-    >
+    <button type="button" mat-stroked-button color="warn" (click)="onCancel()">Cancelar</button>
+    <button type="submit" mat-flat-button color="primary" [disabled]="ordinationForm.invalid">
       {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
     </button>
   </app-actions>

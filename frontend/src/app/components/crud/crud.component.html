@@ -98,6 +98,11 @@
               {{ fields[column.key] ? 'Ativado' : 'Desativado' }}
             </span>
           </ng-container>
+          <ng-container *ngSwitchCase="'YesNo'">
+            <span [ngClass]="fields[column.key] ? 'active' : 'negative'">
+              {{ fields[column.key] ? 'Sim' : 'Não' }}
+            </span>
+          </ng-container>
           <ng-container *ngSwitchCase="'situation'">
             <span
               [ngClass]="{

@@ -7,10 +7,11 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
+import { map, Observable, startWith } from 'rxjs';
+
 import { ColumnComponent } from 'app/components/column/column.component';
 import { Formations } from 'app/model/Auxiliaries';
 import { ValidationService } from 'app/services/validation/validation.service';
-import { map, Observable, startWith } from 'rxjs';
 
 @Component({
   selector: 'app-additional-information',
@@ -45,6 +46,7 @@ export class AdditionalInformationComponent implements OnInit {
     this.initializeForm();
     this.setupAutocomplete();
     this.onFormationChange(this.stepTwoForm.get('formation_id')?.value, this.formations);
+    this.setupDefOtherConditionalValidation();
   }
 
   initializeForm = () => {
@@ -111,5 +113,26 @@ export class AdditionalInformationComponent implements OnInit {
       map((value: any) => (typeof value === 'string' ? value : value?.name || '')),
       map((name) => (name.length >= 1 ? this.filterFormations(name) : this.formations)),
     );
+  }
+
+  private setupDefOtherConditionalValidation() {
+    const defOtherControl = this.stepTwoForm.get('def_other');
+    const defOtherDescControl = this.stepTwoForm.get('def_other_description');
+
+    defOtherControl?.valueChanges.subscribe((value: boolean) => {
+      if (value) {
+        defOtherDescControl?.setValidators([Validators.required, Validators.maxLength(255)]);
+      } else {
+        defOtherDescControl?.clearValidators();
+        defOtherDescControl?.setValue('');
+      }
+      defOtherDescControl?.updateValueAndValidity();
+    });
+
+    // Também já aplica se vier com valor true (ex: modo edição)
+    if (defOtherControl?.value) {
+      defOtherDescControl?.setValidators([Validators.required, Validators.maxLength(255)]);
+      defOtherDescControl?.updateValueAndValidity();
+    }
   }
 }

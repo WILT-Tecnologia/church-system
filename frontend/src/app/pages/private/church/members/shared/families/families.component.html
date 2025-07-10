@@ -1,11 +1,11 @@
 @if (familiesData && familiesData.length > 0) {
   <app-crud
-    [enablePagination]="false"
+    [enablePagination]="true"
     [fields]="familiesData"
     [dataSourceMat]="dataSourceMat"
     [columnDefinitions]="columnDefinitions"
     [addFn]="handleCreate"
-    [editFn]="handleEdit"
+    [editFn]="handleUpdate"
     [deleteFn]="handleDelete"
     [actions]="actions"
   ></app-crud>

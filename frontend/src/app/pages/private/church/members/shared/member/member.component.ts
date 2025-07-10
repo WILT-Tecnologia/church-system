@@ -9,27 +9,24 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTabsModule } from '@angular/material/tabs';
+import { forkJoin, Subject } from 'rxjs';
+
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { CivilStatus, ColorRace, Formations } from 'app/model/Auxiliaries';
 import { Church } from 'app/model/Church';
-import { Families } from 'app/model/Families';
 import { MemberOrigin } from 'app/model/MemberOrigins';
-import { History, Members, StatusMember } from 'app/model/Members';
-import { Ordination } from 'app/model/Ordination';
+import { History, Members } from 'app/model/Members';
 import { Person } from 'app/model/Person';
 import { NavigationService } from 'app/services/navigation/navigation.service';
 import { NotificationService } from 'app/services/notification/notification.service';
 import dayjs from 'dayjs';
 import { provideNgxMask } from 'ngx-mask';
-import { forkJoin, Subject } from 'rxjs';
+
 import { MembersService } from '../../members.service';
-import { FamiliesComponent } from '../families/families.component';
 import { HistoryService } from '../history/history.service';
-import { OrdinationsComponent } from '../ordinations/ordinations.component';
-import { StatusMemberComponent } from '../status-member/status-member.component';
 import { AdditionalInformationComponent } from './shared/additional-information/additional-information.component';
 import { IdentificationComponent } from './shared/identification/identification.component';
 import { SpiritualInformationComponent } from './shared/spiritual-information/spiritual-information.component';
@@ -50,9 +47,6 @@ import { SpiritualInformationComponent } from './shared/spiritual-information/sp
     CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
-    FamiliesComponent,
-    OrdinationsComponent,
-    StatusMemberComponent,
     ActionsComponent,
     IdentificationComponent,
     AdditionalInformationComponent,
@@ -73,9 +67,6 @@ export class MemberComponent implements OnInit, OnDestroy {
   civilStatus: CivilStatus[] = [];
   colorRace: ColorRace[] = [];
   formations: Formations[] = [];
-  families: Families[] = [];
-  ordinations: Ordination[] = [];
-  status_member: StatusMember[] = [];
   memberOrigins: MemberOrigin[] = [];
   history: History[] = [];
 
@@ -116,43 +107,6 @@ export class MemberComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  onFamilyUpdated(families: Families[]) {
-    this.families = families;
-  }
-
-  onOrdinationUpdated(ordinations: Ordination[]) {
-    this.ordinations = ordinations;
-  }
-
-  onStatusMemberUpdated(statusMember: StatusMember[]) {
-    this.status_member = statusMember;
-  }
-
-  onTabChange(index: number) {
-    if (!this.isEditMode || !this.memberId) return;
-
-    this.currentStep = index;
-    this.navigationService.setCurrentStep(index);
-    this.enableDefinitionForm.set(index >= 3);
-    switch (index) {
-      case 3:
-        if (this.families.length === 0) {
-          this.fetchFamilies();
-        }
-        break;
-      case 4:
-        if (this.ordinations.length === 0) {
-          this.fetchOrdinations();
-        }
-        break;
-      case 5:
-        if (this.status_member.length === 0) {
-          this.fetchStatusMember();
-        }
-        break;
-    }
-  }
-
   getStepFormGroup(step: string): FormGroup {
     const control = this.memberForm.get(step);
     if (control instanceof FormGroup) {
@@ -185,7 +139,7 @@ export class MemberComponent implements OnInit, OnDestroy {
     if (stepForm && stepForm.valid) {
       this.currentStep++;
     } else {
-      stepForm.markAsTouched();
+      stepForm.markAllAsTouched();
       this.toast.openError('Por favor, preencha todos os campos obrigatórios.');
     }
   }
@@ -207,7 +161,6 @@ export class MemberComponent implements OnInit, OnDestroy {
       if (this.isEditMode && this.memberId) {
         this.membersService.updateMember(this.memberId, memberData).subscribe({
           next: () => {
-            this.currentStep = 3;
             this.isInitialStepCompleted.set(true);
             this.onSuccessUpdate('Step 3 atualizado com sucesso.', false);
           },
@@ -218,11 +171,7 @@ export class MemberComponent implements OnInit, OnDestroy {
         this.membersService.createMember(memberData).subscribe(
           (newMember) => {
             this.memberId = newMember.id;
-            this.isEditMode = true;
-            this.isInitialStepCompleted.set(true);
-            this.currentStep = 3;
-            this.enableDefinitionForm.set(true);
-            this.onSuccessUpdate('Membro criado com sucesso. Agora em modo de edição.', false);
+            this.onSuccessUpdate('Membro criado com sucesso.', false);
             this.hideLoading();
           },
           () => {
@@ -240,16 +189,8 @@ export class MemberComponent implements OnInit, OnDestroy {
     this.showLoading();
     const memberData = this.combineStepData();
     this.membersService.createMember(memberData).subscribe({
-      next: (newMember) => {
-        this.memberId = newMember.id;
-        this.isEditMode = true;
-        this.isInitialStepCompleted.set(true);
+      next: () => {
         this.onSuccessUpdate(MESSAGES.CREATE_SUCCESS);
-        this.membersService.findAll().subscribe((members) => {
-          this.members = members;
-          this.enableDefinitionForm.set(true);
-          this.currentStep = 3;
-        });
       },
       error: () => this.onError(MESSAGES.CREATE_ERROR),
       complete: () => this.hideLoading(),
@@ -300,45 +241,6 @@ export class MemberComponent implements OnInit, OnDestroy {
       error: () => {
         this.onError(MESSAGES.UPDATE_ERROR);
         this.hideLoading();
-      },
-    });
-  }
-
-  private fetchFamilies() {
-    if (!this.memberId) return;
-
-    this.membersService.getFamilyOfMemberId(this.memberId).subscribe({
-      next: (families) => {
-        this.families = families || [];
-      },
-      error: () => {
-        this.toast.openError(MESSAGES.LOADING_ERROR);
-      },
-    });
-  }
-
-  private fetchOrdinations() {
-    if (!this.memberId) return;
-
-    this.membersService.getOrdinationsOfMemberId(this.memberId).subscribe({
-      next: (ordinations) => {
-        this.ordinations = ordinations || [];
-      },
-      error: () => {
-        this.toast.openError(MESSAGES.LOADING_ERROR);
-      },
-    });
-  }
-
-  private fetchStatusMember() {
-    if (!this.memberId) return;
-
-    this.membersService.getStatusMemberId(this.memberId).subscribe({
-      next: (statusMember) => {
-        this.status_member = statusMember ? [statusMember] : [];
-      },
-      error: () => {
-        this.toast.openError(MESSAGES.LOADING_ERROR);
       },
     });
   }
@@ -433,12 +335,6 @@ export class MemberComponent implements OnInit, OnDestroy {
         return this.getStepFormGroup('stepTwo');
       case 2:
         return this.getStepFormGroup('stepThree');
-      case 3:
-        return this.getStepFormGroup('stepFour');
-      case 4:
-        return this.getStepFormGroup('stepFive');
-      case 5:
-        return this.getStepFormGroup('stepSix');
       default:
         return this.getStepFormGroup('stepOne');
     }
@@ -448,9 +344,6 @@ export class MemberComponent implements OnInit, OnDestroy {
     const stepOneData = this.memberForm.get('stepOne')?.value;
     const stepTwoData = this.memberForm.get('stepTwo')?.value;
     const stepThreeData = this.memberForm.get('stepThree')?.value;
-    const stepFourData = this.memberForm.get('stepFour')?.value;
-    const stepFiveData = this.memberForm.get('stepFive')?.value;
-    const stepSixData = this.memberForm.get('stepSix')?.value;
 
     const formattedStepThreeData = {
       ...stepThreeData,
@@ -465,9 +358,6 @@ export class MemberComponent implements OnInit, OnDestroy {
       ...stepOneData,
       ...stepTwoData,
       ...formattedStepThreeData,
-      ...stepFourData,
-      ...stepFiveData,
-      ...stepSixData,
       member_id: this.memberId,
     };
   }
@@ -538,10 +428,6 @@ export class MemberComponent implements OnInit, OnDestroy {
         },
       });
 
-      /* Preenche os dados relacionados diretamente do objeto do membro */
-      this.families = this.data.members.families || [];
-      this.ordinations = this.data.members.ordination || [];
-      this.status_member = this.data.members.status_member ? [this.data.members.status_member] : [];
       this.history = this.data.members.history_member || [];
 
       this.updateSearchControls();
@@ -572,9 +458,7 @@ export class MemberComponent implements OnInit, OnDestroy {
   private onSuccessUpdate(message: string, closeDialog: boolean = false) {
     this.hideLoading();
     this.toast.openSuccess(message);
-    if (closeDialog) {
-      this.dialogRef.close(true);
-    }
+    this.dialogRef.close(true);
     this.navigationService.setCurrentStep(0);
   }
 

@@ -3,6 +3,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
 import { LoadingService } from 'app/components/loading/loading.service';
@@ -14,8 +15,11 @@ import { Families } from 'app/model/Families';
 import { Members } from 'app/model/Members';
 
 import { MembersService } from './members.service';
+import { FamiliesComponent } from './shared/families/families.component';
 import { HistoryComponent } from './shared/history/history.component';
 import { MemberComponent } from './shared/member/member.component';
+import { OrdinationsComponent } from './shared/ordinations/ordinations.component';
+import { StatusMemberComponent } from './shared/status-member/status-member.component';
 
 @Component({
   selector: 'app-members',
@@ -24,25 +28,46 @@ import { MemberComponent } from './shared/member/member.component';
   imports: [CommonModule, NotFoundRegisterComponent, CrudComponent],
 })
 export class MembersComponent implements OnInit {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
   families!: Families[];
   member: Members[] = [];
   dataSourceMat = new MatTableDataSource<Members>(this.member);
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
   actions: ActionsProps[] = [
-    {
-      type: 'history',
-      tooltip: 'Ver histórico',
-      icon: 'history',
-      label: 'Histórico de mudanças',
-      action: (member: Members) => this.handleHistory(member),
-    },
     {
       type: 'edit',
       tooltip: 'Editar',
       icon: 'edit',
       label: 'Editar',
-      action: (member: Members) => this.editMembers(member),
+      action: (member: Members) => this.handleUpdate(member),
+    },
+    {
+      type: 'filiation',
+      tooltip: 'Filiação',
+      icon: 'family_restroom',
+      label: 'Filiação',
+      action: (member: Members) => this.handleFiliation(member),
+    },
+    {
+      type: 'ordination',
+      tooltip: 'Ordenação',
+      icon: 'church',
+      label: 'Ordenação',
+      action: (member: Members) => this.handleOrdination(member),
+    },
+    {
+      type: 'status',
+      tooltip: 'Situação',
+      icon: 'sensor_occupied',
+      label: 'Situação',
+      action: (member: Members) => this.handleStatusMember(member),
+    },
+    {
+      type: 'history',
+      tooltip: 'Ver log de mudanças',
+      icon: 'history',
+      label: 'Log de mudanças',
+      action: (member: Members) => this.handleHistory(member),
     },
     {
       type: 'delete',
@@ -50,7 +75,7 @@ export class MembersComponent implements OnInit {
       icon: 'delete',
       label: 'Excluir',
       color: 'warn',
-      action: (member: Members) => this.deleteMembers(member),
+      action: (member: Members) => this.handleDelete(member),
     },
   ];
 
@@ -79,10 +104,10 @@ export class MembersComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadMembers();
+    this.findAll();
   }
 
-  loadMembers = () => {
+  private findAll = () => {
     this.loading.show();
     this.membersService.findAll().subscribe({
       next: (members) => {
@@ -96,7 +121,7 @@ export class MembersComponent implements OnInit {
     });
   };
 
-  addNewMembers = () => {
+  handleCreate = () => {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       MemberComponent,
@@ -107,12 +132,12 @@ export class MembersComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: Members) => {
       if (result) {
-        this.loadMembers();
+        this.findAll();
       }
     });
   };
 
-  editMembers = (member: Members) => {
+  handleUpdate = (member: Members) => {
     this.membersService.setEditingMemberId(member.id);
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
@@ -125,31 +150,12 @@ export class MembersComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: Members) => {
       if (result) {
-        this.loadMembers();
+        this.findAll();
       }
     });
   };
 
-  handleHistory = (member: Members) => {
-    const memberId = this.membersService.setEditingMemberId(member.id);
-
-    const dialogRef = this.modalService.openModal(
-      `modal-${Math.random()}`,
-      HistoryComponent,
-      `Histórico do membro: ${member.person.name}`,
-      true,
-      true,
-      { history_member: member, id: memberId },
-    );
-
-    dialogRef.afterClosed().subscribe((result: Members) => {
-      if (result) {
-        this.loadMembers();
-      }
-    });
-  };
-
-  deleteMembers = (members: Members) => {
+  handleDelete = (members: Members) => {
     const modal = this.confirmeService.openConfirm(
       'Atenção!',
       `Tem certeza que deseja excluir o membro ${members.person.name} ?`,
@@ -169,10 +175,83 @@ export class MembersComponent implements OnInit {
             this.toast.openError(MESSAGES.DELETE_ERROR);
           },
           complete: () => {
-            this.loadMembers();
+            this.findAll();
             this.loading.hide();
           },
         });
+      }
+    });
+  };
+
+  handleHistory = (member: Members) => {
+    const memberId = this.membersService.setEditingMemberId(member.id);
+
+    const dialogRef = this.modalService.openModal(
+      `modal-${Math.random()}`,
+      HistoryComponent,
+      `Histórico do membro: ${member.person.name}`,
+      true,
+      true,
+      { history_member: member, id: memberId },
+    );
+
+    dialogRef.afterClosed().subscribe((result: Members) => {
+      if (result) {
+        this.findAll();
+      }
+    });
+  };
+
+  handleFiliation = (member: Members) => {
+    this.membersService.setEditingMemberId(member.id);
+    const dialogRef = this.modalService.openModal(
+      `modal-${Math.random()}`,
+      FamiliesComponent,
+      `Adicionando filiação ao membro: ${member.person.name}`,
+      true,
+      true,
+      { families: member.families, id: member.id },
+    );
+
+    dialogRef.afterClosed().subscribe((result: Members) => {
+      if (result) {
+        this.findAll();
+      }
+    });
+  };
+
+  handleOrdination = (member: Members) => {
+    this.membersService.setEditingMemberId(member.id);
+    const dialogRef = this.modalService.openModal(
+      `modal-${Math.random()}`,
+      OrdinationsComponent,
+      `Adicionando ordenação ao membro: ${member.person.name}`,
+      true,
+      true,
+      { ordinations: member.ordination, id: member.id },
+    );
+
+    dialogRef.afterClosed().subscribe((result: Members) => {
+      if (result) {
+        this.findAll();
+      }
+    });
+  };
+
+  handleStatusMember = (member: Members) => {
+    this.membersService.setEditingMemberId(member.id);
+    const dialogRef = this.modalService.openModal(
+      `modal-${Math.random()}`,
+      StatusMemberComponent,
+      `Alterando status do membro: ${member.person.name}`,
+      true,
+      true,
+      { status_member: member.status_member, id: member.id },
+    );
+
+    dialogRef.afterClosed().subscribe((result: Members) => {
+      if (result) {
+        this.findAll();
       }
     });
   };

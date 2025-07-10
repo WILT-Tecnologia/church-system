@@ -1,5 +1,7 @@
 <div class="wrapper-actions">
-  <mat-divider></mat-divider>
+  @if (enableDivider) {
+    <mat-divider></mat-divider>
+  }
   <div class="container">
     <ng-content></ng-content>
   </div>

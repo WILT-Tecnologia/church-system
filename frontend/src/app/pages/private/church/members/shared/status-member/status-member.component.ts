@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Inject, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
 import { LoadingService } from 'app/components/loading/loading.service';
@@ -11,6 +13,7 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { StatusMember } from 'app/model/Members';
+
 import { MembersService } from '../../members.service';
 import { StatusMemberFormComponent } from './status-member-form/status-member-form.component';
 import { StatusMemberService } from './status-member.service';
@@ -73,12 +76,14 @@ export class StatusMemberComponent implements OnInit {
     private modalService: ModalService,
     private statusMemberService: StatusMemberService,
     private membersService: MembersService,
+    @Inject(MAT_DIALOG_DATA) public data: { status_member: StatusMember[]; id: number },
   ) {}
 
   ngOnInit() {
     this.dataSourceMat.paginator = this.paginator;
     this.dataSourceMat.sort = this.sort;
     this.rendering = false;
+    this.loadStatusMember();
   }
 
   isValidStatusMember(): boolean {
@@ -87,6 +92,22 @@ export class StatusMemberComponent implements OnInit {
 
   get statusMemberFields(): StatusMember[] {
     return this._status_member;
+  }
+
+  loadStatusMember() {
+    this.loadingService.show();
+    const memberId = this.membersService.getEditingMemberId();
+    this.statusMemberService.getStatusMemberByMemberId(memberId!).subscribe({
+      next: (status_member) => {
+        this.status_member = status_member;
+        this.rendering = false;
+      },
+      error: () => {
+        this.loadingService.hide();
+        this.toast.openError(MESSAGES.LOADING_ERROR);
+      },
+      complete: () => this.loadingService.hide(),
+    });
   }
 
   handleCreate = () => {
