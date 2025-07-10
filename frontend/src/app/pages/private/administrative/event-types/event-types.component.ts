@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild } from '@angular/core';
-
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { ActionsProps, ColumnDefinitionsProps, CrudComponent } from 'app/components/crud/crud.component';
 import { LoadingService } from 'app/components/loading/loading.service';
@@ -12,6 +12,7 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { EventTypes } from 'app/model/EventTypes';
+
 import { EventTypeComponent } from './event-type/event-type.component';
 import { EventTypesService } from './eventTypes.service';
 
@@ -36,14 +37,12 @@ export class EventTypesComponent implements OnInit {
     },
     {
       type: 'edit',
-      tooltip: 'Editar',
       icon: 'edit',
       label: 'Editar',
       action: (eventType: EventTypes) => this.handleEdit(eventType),
     },
     {
       type: 'delete',
-      tooltip: 'Excluir',
       icon: 'delete',
       label: 'Excluir',
       color: 'warn',

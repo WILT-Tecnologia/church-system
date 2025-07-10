@@ -26,8 +26,10 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule, SortDirection } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+
 import { FormatValuesPipe } from 'app/components/crud/pipes/format-values.pipe';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
+
 import { ModalService } from '../modal/modal.service';
 import { FilterButtonAdvancedComponent, FilterField } from './filter-button-advanced/filter-button-advanced.component';
 
@@ -134,6 +136,10 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
       this.columnWidths[col.key] = 150;
     });
     this.cd.detectChanges();
+  }
+
+  get tooltipLabel() {
+    return this.actions.length > 0 ? this.actions[0].tooltip : '';
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -274,11 +280,12 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
             return Boolean(dataValue) === Boolean(filterValue);
           case 'date':
             return new Date(dataValue).toDateString() === new Date(filterValue).toDateString();
-          case 'dateRange':
+          case 'dateRange': {
             const dataDate = new Date(dataValue);
             const start = filterValue.start ? new Date(filterValue.start) : null;
             const end = filterValue.end ? new Date(filterValue.end) : null;
             return (!start || dataDate >= start) && (!end || dataDate <= end);
+          }
           case 'range':
             return Number(dataValue) >= Number(filterValue);
           default:

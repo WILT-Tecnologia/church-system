@@ -3,11 +3,9 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import {
-  ActionsProps,
-  CrudComponent,
-} from 'app/components/crud/crud.component';
+import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
@@ -15,6 +13,7 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Person } from 'app/model/Person';
+
 import { PersonComponent } from './person/person.component';
 import { PersonsService } from './persons.service';
 
@@ -31,20 +30,18 @@ export class PersonsComponent implements OnInit {
   dataSourceMat = new MatTableDataSource<Person>(this.persons);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-
   actions: ActionsProps[] = [
     {
       type: 'edit',
-      tooltip: 'Editar',
       icon: 'edit',
       label: 'Editar',
       action: (person: Person) => this.handleEdit(person),
     },
     {
       type: 'delete',
-      tooltip: 'Excluir',
       icon: 'delete',
       label: 'Excluir',
+      color: 'warn',
       action: (person: Person) => this.handleDelete(person),
     },
   ];

@@ -3,6 +3,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
 import { LoadingService } from 'app/components/loading/loading.service';
@@ -11,6 +12,7 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Occupation } from 'app/model/Occupation';
+
 import { OccupationComponent } from './occupation/occupation.component';
 import { OccupationsService } from './occupations.service';
 
@@ -35,14 +37,12 @@ export class OccupationsComponent implements OnInit {
     },
     {
       type: 'edit',
-      tooltip: 'Editar',
       icon: 'edit',
       label: 'Editar',
       action: (occupation: Occupation) => this.handleEdit(occupation),
     },
     {
       type: 'delete',
-      tooltip: 'Excluir',
       icon: 'delete',
       label: 'Excluir',
       color: 'warn',

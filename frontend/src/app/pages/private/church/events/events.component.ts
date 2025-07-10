@@ -84,28 +84,24 @@ export class EventsComponent implements OnInit, AfterViewInit {
   actions: ActionsProps[] = [
     {
       type: 'person_add',
-      tooltip: 'Adicionar membros',
       icon: 'person_add',
-      label: 'Adicionar membros',
+      label: 'Adicionar membros e convidados',
       action: (events: Events) => this.handleAddMembers(events),
     },
     {
       type: 'add_circle',
-      tooltip: 'Nova chamada',
       icon: 'add_circle',
       label: 'Nova chamada',
       action: (events: Events) => this.handleAddMembers(events),
     },
     {
       type: 'edit',
-      tooltip: 'Editar',
       icon: 'edit',
       label: 'Editar',
       action: (events: Events) => this.handleEdit(events),
     },
     {
       type: 'delete',
-      tooltip: 'Excluir',
       icon: 'delete',
       label: 'Excluir',
       color: 'warn',

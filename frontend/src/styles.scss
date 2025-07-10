@@ -374,6 +374,7 @@ mat-form-field {
 .mat-mdc-dialog-surface,
 .mat-expansion-panel,
 .mat-mdc-card-outlined,
+.mat-mdc-card,
 .mat-mdc-button,
 .mat-mdc-outlined-button,
 .mat-mdc-unelevated-button,
@@ -381,6 +382,11 @@ mat-form-field {
 .mat-mdc-fab,
 .mat-mdc-mini-fab {
   border-radius: 0.2rem !important;
+}
+
+.mat-mdc-card-outlined,
+.mat-mdc-card {
+  background-color: var(--white-color) !important;
 }
 
 .mat-mdc-outlined-button {

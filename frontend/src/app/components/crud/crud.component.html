@@ -135,7 +135,7 @@
                   <div class="toggle">
                     <button
                       mat-flat-button
-                      [matTooltip]="action.tooltip || (fields.status ? 'Desativar' : 'Ativar')"
+                      [matTooltip]="tooltipLabel"
                       [color]="fields.status ? 'warn' : 'primary'"
                       (click)="action.action(fields)"
                       type="button"

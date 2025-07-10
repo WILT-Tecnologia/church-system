@@ -36,42 +36,36 @@ export class MembersComponent implements OnInit {
   actions: ActionsProps[] = [
     {
       type: 'edit',
-      tooltip: 'Editar',
       icon: 'edit',
       label: 'Editar',
       action: (member: Members) => this.handleUpdate(member),
     },
     {
       type: 'filiation',
-      tooltip: 'Filiação',
       icon: 'family_restroom',
       label: 'Filiação',
       action: (member: Members) => this.handleFiliation(member),
     },
     {
       type: 'ordination',
-      tooltip: 'Ordenação',
       icon: 'church',
       label: 'Ordenação',
       action: (member: Members) => this.handleOrdination(member),
     },
     {
       type: 'status',
-      tooltip: 'Situação',
       icon: 'sensor_occupied',
       label: 'Situação',
       action: (member: Members) => this.handleStatusMember(member),
     },
     {
       type: 'history',
-      tooltip: 'Ver log de mudanças',
       icon: 'history',
       label: 'Log de mudanças',
       action: (member: Members) => this.handleHistory(member),
     },
     {
       type: 'delete',
-      tooltip: 'Excluir',
       icon: 'delete',
       label: 'Excluir',
       color: 'warn',

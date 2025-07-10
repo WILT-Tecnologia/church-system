@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
 import { LoadingService } from 'app/components/loading/loading.service';
@@ -13,6 +14,7 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { MemberOrigin } from 'app/model/MemberOrigins';
+
 import { MemberOriginFormComponent } from './member-origin-form/member-origin-form.component';
 import { MemberOriginService } from './member-origin.service';
 
@@ -37,14 +39,12 @@ export class MemberOriginComponent implements OnInit {
     },
     {
       type: 'edit',
-      tooltip: 'Editar',
       icon: 'edit',
       label: 'Editar',
       action: (memberOrigin: MemberOrigin) => this.handleEdit(memberOrigin),
     },
     {
       type: 'delete',
-      tooltip: 'Excluir',
       icon: 'delete',
       label: 'Excluir',
       color: 'warn',
