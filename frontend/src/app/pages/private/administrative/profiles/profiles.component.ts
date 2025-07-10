@@ -5,17 +5,16 @@ import { MatCardModule } from '@angular/material/card';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import {
-  ActionsProps,
-  CrudComponent,
-} from 'app/components/crud/crud.component';
+import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Profile } from 'app/model/Profile';
+
 import { ProfileComponent } from './profile/profile.component';
 import { ProfilesService } from './profiles.service';
 
@@ -23,13 +22,7 @@ import { ProfilesService } from './profiles.service';
   selector: 'app-profiles',
   templateUrl: './profiles.component.html',
   styleUrls: ['./profiles.component.scss'],
-  imports: [
-    MatCardModule,
-    MatButtonModule,
-    NotFoundRegisterComponent,
-    CommonModule,
-    CrudComponent,
-  ],
+  imports: [MatCardModule, MatButtonModule, NotFoundRegisterComponent, CommonModule, CrudComponent],
 })
 export class ProfilesComponent implements OnInit {
   profiles: Profile[] = [];
@@ -37,11 +30,9 @@ export class ProfilesComponent implements OnInit {
   dataSourceMat = new MatTableDataSource<Profile>(this.profiles);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-
   actions: ActionsProps[] = [
     {
       type: 'toggle',
-      tooltip: 'Ativa/Desativa o perfil',
       icon: 'toggle_on',
       activeLabel: 'Ativar',
       inactiveLabel: 'Desativar',
@@ -49,16 +40,15 @@ export class ProfilesComponent implements OnInit {
     },
     {
       type: 'edit',
-      tooltip: 'Editar',
       icon: 'edit',
       label: 'Editar',
       action: (profile: Profile) => this.handleEdit(profile),
     },
     {
       type: 'delete',
-      tooltip: 'Excluir',
       icon: 'delete',
       label: 'Excluir',
+      color: 'warn',
       action: (profile: Profile) => this.handleDelete(profile),
     },
   ];
@@ -164,9 +154,7 @@ export class ProfilesComponent implements OnInit {
 
     this.profilesService.updatedStatus(profile.id, updatedStatus).subscribe({
       next: () => {
-        this.toast.openSuccess(
-          `Perfil ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`,
-        );
+        this.toast.openSuccess(`Perfil ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`);
       },
       error: () => {
         this.loading.hide();

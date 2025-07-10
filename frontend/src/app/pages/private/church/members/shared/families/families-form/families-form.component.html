@@ -1,14 +1,6 @@
-<form
-  [formGroup]="familyForm"
-  (ngSubmit)="handleSubmit()"
-  class="form-field-group"
->
+<form [formGroup]="familyForm" (ngSubmit)="handleSubmit()" class="form-field-group">
   <app-column>
-    <mat-checkbox
-      formControlName="is_member"
-      (change)="onCheckboxChange($event.checked)"
-      color="primary"
-    >
+    <mat-checkbox formControlName="is_member" (change)="onCheckboxChange($event.checked)" color="primary">
       A filiação é membro?
     </mat-checkbox>
   </app-column>
@@ -26,24 +18,16 @@
           (focus)="showAllPersons()"
           required
         />
-        <mat-autocomplete
-          #person_id="matAutocomplete"
-          (optionSelected)="onPersonSelected($event)"
-        >
+        <mat-autocomplete #person_id="matAutocomplete" (optionSelected)="onPersonSelected($event)">
           @for (persons of filterPersons | async; track $index) {
             <mat-option [value]="persons">
               {{ persons.name }}
             </mat-option>
           } @empty {
-            <mat-option class="add-option" (click)="openAddPersonDialog()">
-              Adicionar nova pessoa
-            </mat-option>
+            <mat-option class="add-option" (click)="openAddPersonDialog()"> Adicionar nova pessoa </mat-option>
           }
         </mat-autocomplete>
-        @if (
-          familyForm.get('person_id')?.invalid &&
-          familyForm.get('person_id')?.touched
-        ) {
+        @if (familyForm.get('person_id')?.invalid && familyForm.get('person_id')?.touched) {
           <mat-error>
             {{ getErrorMessage('person_id') }}
           </mat-error>
@@ -53,9 +37,7 @@
       <mat-form-field appearance="fill">
         <mat-label>Nome</mat-label>
         <input matInput formControlName="name" required />
-        @if (
-          familyForm.get('name')?.invalid && familyForm.get('name')?.touched
-        ) {
+        @if (familyForm.get('name')?.invalid && familyForm.get('name')?.touched) {
           <mat-error>{{ getErrorMessage('name') }}</mat-error>
         }
       </mat-form-field>
@@ -71,20 +53,14 @@
         (focus)="showAllKinships()"
         required
       />
-      <mat-autocomplete
-        #kinship_id="matAutocomplete"
-        (optionSelected)="onKinshipsSelected($event)"
-      >
+      <mat-autocomplete #kinship_id="matAutocomplete" (optionSelected)="onKinshipsSelected($event)">
         @for (kinships of filterKinships | async; track $index) {
           <mat-option [value]="kinships">
             {{ kinships.name }}
           </mat-option>
         }
       </mat-autocomplete>
-      @if (
-        familyForm.get('kinship_id')?.invalid &&
-        familyForm.get('kinship_id')?.touched
-      ) {
+      @if (familyForm.get('kinship_id')?.invalid && familyForm.get('kinship_id')?.touched) {
         <mat-error>
           {{ getErrorMessage('kinship_id') }}
         </mat-error>
@@ -93,20 +69,8 @@
   </app-column>
 
   <app-actions>
-    <button
-      mat-stroked-button
-      color="warn"
-      type="button"
-      (click)="handleBack()"
-    >
-      Cancelar
-    </button>
-    <button
-      mat-flat-button
-      color="primary"
-      type="submit"
-      [disabled]="familyForm.invalid"
-    >
+    <button mat-stroked-button color="warn" type="button" (click)="handleBack()">Cancelar</button>
+    <button mat-flat-button color="primary" type="submit">
       {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
     </button>
   </app-actions>

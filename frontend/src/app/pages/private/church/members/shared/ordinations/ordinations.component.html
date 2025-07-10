@@ -1,7 +1,7 @@
-@if ((ordination && ordination.length > 0) || rendering) {
+@if ((ordinationData && ordinationData.length > 0) || rendering) {
   <app-crud
-    [enablePagination]="false"
-    [fields]="ordination"
+    [enablePagination]="true"
+    [fields]="ordinationData"
     [dataSourceMat]="dataSourceMat"
     [columnDefinitions]="columnDefinitions"
     [addFn]="handleCreate"

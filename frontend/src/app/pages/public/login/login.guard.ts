@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
+
 import { AuthService } from 'app/services/auth/auth.service';
 
 @Injectable({
@@ -13,7 +14,7 @@ export class LoginGuard implements CanActivate {
 
   canActivate(): boolean {
     if (this.authService.isAuthenticated()) {
-      this.router.navigateByUrl('/dashboard');
+      this.router.navigate(['/dashboard'], { queryParams: { returnUrl: this.router.url } });
       return false;
     }
 

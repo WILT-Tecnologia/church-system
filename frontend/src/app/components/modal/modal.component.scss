@@ -1,4 +1,4 @@
-@use 'app/styles/theme.scss'as theme;
+@use 'app/styles/theme.scss' as theme;
 
 ::ng-deep .cdk-overlay-container {
   backdrop-filter: blur(0.1rem);
@@ -98,11 +98,11 @@
 
 .header {
   align-items: center;
-  background-color: #EAEAEA;
+  background-color: #eaeaea;
   display: flex;
   flex-shrink: 0;
   justify-content: space-between;
-  padding: 0.5rem;
+  padding: 0 0.5rem;
   position: sticky;
   top: 0;
   width: 100%;
@@ -126,6 +126,6 @@
 
 .title {
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 600;
   padding: 0 0.5rem;
 }

@@ -1,28 +1,25 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild } from '@angular/core';
-
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import {
-  ActionsProps,
-  ColumnDefinitionsProps,
-  CrudComponent,
-} from 'app/components/crud/crud.component';
+import { ActionsProps, ColumnDefinitionsProps, CrudComponent } from 'app/components/crud/crud.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { EventTypes } from 'app/model/EventTypes';
-import { EventTypeComponent } from './eventType/eventType.component';
+
+import { EventTypeComponent } from './event-type/event-type.component';
 import { EventTypesService } from './eventTypes.service';
 
 @Component({
-  selector: 'app-eventTypes',
-  templateUrl: './eventTypes.component.html',
-  styleUrls: ['./eventTypes.component.scss'],
+  selector: 'app-event-types',
+  templateUrl: './event-types.component.html',
+  styleUrls: ['./event-types.component.scss'],
   imports: [NotFoundRegisterComponent, CommonModule, CrudComponent],
 })
 export class EventTypesComponent implements OnInit {
@@ -31,25 +28,21 @@ export class EventTypesComponent implements OnInit {
   dataSourceMat = new MatTableDataSource<EventTypes>(this.eventTypes);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-
   actions: ActionsProps[] = [
     {
       type: 'toggle',
-      tooltip: 'Ativar/Desativar',
       activeLabel: 'Ativar',
       inactiveLabel: 'Desativar',
       action: (eventType: EventTypes) => this.toggleStatus(eventType),
     },
     {
       type: 'edit',
-      tooltip: 'Editar',
       icon: 'edit',
       label: 'Editar',
       action: (eventType: EventTypes) => this.handleEdit(eventType),
     },
     {
       type: 'delete',
-      tooltip: 'Excluir',
       icon: 'delete',
       label: 'Excluir',
       color: 'warn',
@@ -77,8 +70,8 @@ export class EventTypesComponent implements OnInit {
     this.loadEventTypes();
   }
 
-  loadEventTypes = () => {
-    this.eventTypesService.getEventTypes().subscribe({
+  private loadEventTypes = () => {
+    this.eventTypesService.findAll().subscribe({
       next: (eventTypes) => {
         this.eventTypes = eventTypes;
         this.dataSourceMat.data = this.eventTypes;
@@ -126,16 +119,11 @@ export class EventTypesComponent implements OnInit {
 
   handleDelete = (eventType: EventTypes) => {
     this.confirmService
-      .openConfirm(
-        'Atenção!',
-        'Tem certeza que deseja excluir este tipo de evento?',
-        'Confirmar',
-        'Cancelar',
-      )
+      .openConfirm('Atenção!', 'Tem certeza que deseja excluir este tipo de evento?', 'Confirmar', 'Cancelar')
       .afterClosed()
       .subscribe((result) => {
         if (result) {
-          this.eventTypesService.deleteEventTypes(eventType.id).subscribe({
+          this.eventTypesService.delete(eventType).subscribe({
             next: () => {
               this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
             },
@@ -156,22 +144,18 @@ export class EventTypesComponent implements OnInit {
     const updatedStatus = !eventType.status;
     eventType.status = updatedStatus;
 
-    this.eventTypesService
-      .updatedStatus(eventType.id, updatedStatus)
-      .subscribe({
-        next: () => {
-          this.toast.openSuccess(
-            `Tipo de evento ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`,
-          );
-        },
-        error: () => {
-          this.loading.hide();
-          this.toast.openError(MESSAGES.UPDATE_ERROR);
-        },
-        complete: () => {
-          this.loadEventTypes();
-          this.loading.hide();
-        },
-      });
+    this.eventTypesService.updatedStatus(eventType.id, updatedStatus).subscribe({
+      next: () => {
+        this.toast.openSuccess(`Tipo de evento ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`);
+      },
+      error: () => {
+        this.loading.hide();
+        this.toast.openError(MESSAGES.UPDATE_ERROR);
+      },
+      complete: () => {
+        this.loadEventTypes();
+        this.loading.hide();
+      },
+    });
   };
 }

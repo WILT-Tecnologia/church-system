@@ -1,0 +1,70 @@
+<form [formGroup]="memberForm" class="form-field-group">
+  <mat-tab-group preserveContent dynamicHeight [(selectedIndex)]="currentStep">
+    <mat-tab label="Identificação" [disabled]="isTabDisabled(0)">
+      <app-identification
+        [stepOneForm]="getStepFormGroup('stepOne')"
+        [persons]="persons"
+        [churchs]="churchs"
+        [civilStatus]="civilStatus"
+        [colorRace]="colorRace"
+        [searchControlPerson]="searchControlPerson"
+        [searchControlChurch]="searchControlChurch"
+        [searchControlCivilStatus]="searchControlCivilStatus"
+        [searchControlColorRace]="searchControlColorRace"
+      ></app-identification>
+    </mat-tab>
+
+    <mat-tab label="Inf. complementares" [disabled]="isTabDisabled(1)">
+      <app-additional-information
+        [stepTwoForm]="getStepFormGroup('stepTwo')"
+        [formations]="formations"
+        [searchControlFormations]="searchControlFormations"
+      ></app-additional-information>
+    </mat-tab>
+
+    <mat-tab label="Inf. espirituais" [disabled]="isTabDisabled(2)">
+      <app-spiritual-information
+        [stepThreeForm]="getStepFormGroup('stepThree')"
+        [memberOrigins]="memberOrigins"
+        [searchControlMemberOrigins]="searchControlMemberOrigins"
+      ></app-spiritual-information>
+    </mat-tab>
+  </mat-tab-group>
+
+  <app-actions>
+    @if (!isEditMode || isEditMode) {
+      @if (currentStep === 0) {
+        <button mat-stroked-button color="warn" type="button" (click)="handleBack()">Cancelar</button>
+      }
+      @if (currentStep > 0) {
+        <button mat-stroked-button color="warn" type="button" (click)="onBackStep()">Voltar</button>
+      }
+    }
+
+    @if (!isEditMode) {
+      @if (currentStep < 2) {
+        <button mat-flat-button color="primary" type="button" (click)="onNext()">Proximo</button>
+      } @else {
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          (click)="finalizeStepThree()"
+          [disabled]="memberForm.invalid"
+        >
+          Cadastrar
+        </button>
+      }
+    } @else {
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        (click)="handleUpdate(memberId!)"
+        [disabled]="memberForm.invalid || !memberId"
+      >
+        Atualizar
+      </button>
+    }
+  </app-actions>
+</form>

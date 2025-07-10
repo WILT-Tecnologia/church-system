@@ -3,17 +3,16 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import {
-  ActionsProps,
-  CrudComponent,
-} from 'app/components/crud/crud.component';
+import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { User } from 'app/model/User';
+
 import { UserFormComponent } from './user-form/user-form.component';
 import { UsersService } from './users.service';
 
@@ -33,24 +32,21 @@ export class UsersComponent implements OnInit {
   actions: ActionsProps[] = [
     {
       type: 'toggle',
-      tooltip: 'Ativa/Desativa o usuário',
-      icon: 'toggle_on',
       activeLabel: 'Ativar',
       inactiveLabel: 'Desativar',
       action: (user: User) => this.toggleStatus(user),
     },
     {
       type: 'edit',
-      tooltip: 'Editar',
       icon: 'edit',
       label: 'Editar',
       action: (user: User) => this.handleEdit(user),
     },
     {
       type: 'delete',
-      tooltip: 'Excluir',
       icon: 'delete',
       label: 'Excluir',
+      color: 'warn',
       action: (user: User) => this.handleDelete(user),
     },
   ];
@@ -157,9 +153,7 @@ export class UsersComponent implements OnInit {
 
     this.userService.updatedStatus(user.id, updatedStatus).subscribe({
       next: () => {
-        this.toast.openSuccess(
-          `Usuário ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`,
-        );
+        this.toast.openSuccess(`Usuário ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`);
       },
       error: () => {
         this.loading.hide();

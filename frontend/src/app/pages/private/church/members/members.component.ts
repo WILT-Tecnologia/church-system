@@ -3,6 +3,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
 import { LoadingService } from 'app/components/loading/loading.service';
@@ -12,10 +13,13 @@ import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Families } from 'app/model/Families';
 import { Members } from 'app/model/Members';
-import { MemberComponent } from './member/member.component';
+
 import { MembersService } from './members.service';
+import { FamiliesComponent } from './shared/families/families.component';
 import { HistoryComponent } from './shared/history/history.component';
-import { MemberService } from './shared/member.service';
+import { MemberComponent } from './shared/member/member.component';
+import { OrdinationsComponent } from './shared/ordinations/ordinations.component';
+import { StatusMemberComponent } from './shared/status-member/status-member.component';
 
 @Component({
   selector: 'app-members',
@@ -24,33 +28,48 @@ import { MemberService } from './shared/member.service';
   imports: [CommonModule, NotFoundRegisterComponent, CrudComponent],
 })
 export class MembersComponent implements OnInit {
-  families!: Families[];
-  member: Members[] = [];
-  rendering: boolean = true;
-  dataSourceMat = new MatTableDataSource<Members>(this.member);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  families!: Families[];
+  member: Members[] = [];
+  dataSourceMat = new MatTableDataSource<Members>(this.member);
   actions: ActionsProps[] = [
     {
+      type: 'edit',
+      icon: 'edit',
+      label: 'Editar',
+      action: (member: Members) => this.handleUpdate(member),
+    },
+    {
+      type: 'filiation',
+      icon: 'family_restroom',
+      label: 'Filiação',
+      action: (member: Members) => this.handleFiliation(member),
+    },
+    {
+      type: 'ordination',
+      icon: 'church',
+      label: 'Ordenação',
+      action: (member: Members) => this.handleOrdination(member),
+    },
+    {
+      type: 'status',
+      icon: 'sensor_occupied',
+      label: 'Situação',
+      action: (member: Members) => this.handleStatusMember(member),
+    },
+    {
       type: 'history',
-      tooltip: 'Ver histórico',
       icon: 'history',
-      label: 'Histórico de mudanças',
+      label: 'Log de mudanças',
       action: (member: Members) => this.handleHistory(member),
     },
     {
-      type: 'edit',
-      tooltip: 'Editar',
-      icon: 'edit',
-      label: 'Editar',
-      action: (member: Members) => this.editMembers(member),
-    },
-    {
       type: 'delete',
-      tooltip: 'Excluir',
       icon: 'delete',
       label: 'Excluir',
-      action: (member: Members) => this.deleteMembers(member),
+      color: 'warn',
+      action: (member: Members) => this.handleDelete(member),
     },
   ];
 
@@ -67,7 +86,6 @@ export class MembersComponent implements OnInit {
       header: 'Pastor presidente',
       type: 'string',
     },
-    /* { key: 'baptism_date', header: 'Data do batismo', type: 'date' }, */
     { key: 'updated_at', header: 'Última atualização', type: 'datetime' },
   ];
 
@@ -77,29 +95,27 @@ export class MembersComponent implements OnInit {
     private toast: ToastService,
     private membersService: MembersService,
     private modalService: ModalService,
-    private memberService: MemberService,
   ) {}
 
   ngOnInit() {
-    this.loadMembers();
+    this.findAll();
   }
 
-  loadMembers = () => {
+  private findAll = () => {
     this.loading.show();
-    this.membersService.getMembers().subscribe({
+    this.membersService.findAll().subscribe({
       next: (members) => {
         this.member = members;
         this.dataSourceMat.data = this.member;
         this.dataSourceMat.paginator = this.paginator;
         this.dataSourceMat.sort = this.sort;
-        this.rendering = false;
       },
       error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
       complete: () => this.loading.hide(),
     });
   };
 
-  addNewMembers = () => {
+  handleCreate = () => {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       MemberComponent,
@@ -110,13 +126,13 @@ export class MembersComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: Members) => {
       if (result) {
-        this.loadMembers();
+        this.findAll();
       }
     });
   };
 
-  editMembers = (member: Members) => {
-    this.memberService.setEditingMemberId(member.id);
+  handleUpdate = (member: Members) => {
+    this.membersService.setEditingMemberId(member.id);
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       MemberComponent,
@@ -128,13 +144,41 @@ export class MembersComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: Members) => {
       if (result) {
-        this.loadMembers();
+        this.findAll();
+      }
+    });
+  };
+
+  handleDelete = (members: Members) => {
+    const modal = this.confirmeService.openConfirm(
+      'Atenção!',
+      `Tem certeza que deseja excluir o membro ${members.person.name} ?`,
+      'Confirmar',
+      'Cancelar',
+    );
+
+    modal.afterClosed().subscribe((result: Members) => {
+      if (result) {
+        this.loading.show();
+        this.membersService.delete(members.id).subscribe({
+          next: () => {
+            this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
+          },
+          error: () => {
+            this.loading.hide();
+            this.toast.openError(MESSAGES.DELETE_ERROR);
+          },
+          complete: () => {
+            this.findAll();
+            this.loading.hide();
+          },
+        });
       }
     });
   };
 
   handleHistory = (member: Members) => {
-    const memberId = this.memberService.setEditingMemberId(member.id);
+    const memberId = this.membersService.setEditingMemberId(member.id);
 
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
@@ -147,35 +191,61 @@ export class MembersComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: Members) => {
       if (result) {
-        this.loadMembers();
+        this.findAll();
       }
     });
   };
 
-  deleteMembers = (members: Members) => {
-    const modal = this.confirmeService.openConfirm(
-      'Atenção!',
-      `Tem certeza que deseja excluir o membro ${members.person.name} ?`,
-      'Confirmar',
-      'Cancelar',
+  handleFiliation = (member: Members) => {
+    this.membersService.setEditingMemberId(member.id);
+    const dialogRef = this.modalService.openModal(
+      `modal-${Math.random()}`,
+      FamiliesComponent,
+      `Adicionando filiação ao membro: ${member.person.name}`,
+      true,
+      true,
+      { families: member.families, id: member.id },
     );
 
-    modal.afterClosed().subscribe((result: Members) => {
+    dialogRef.afterClosed().subscribe((result: Members) => {
       if (result) {
-        this.loading.show();
-        this.membersService.deleteMember(members.id).subscribe({
-          next: () => {
-            this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
-          },
-          error: () => {
-            this.loading.hide();
-            this.toast.openError(MESSAGES.DELETE_ERROR);
-          },
-          complete: () => {
-            this.loadMembers();
-            this.loading.hide();
-          },
-        });
+        this.findAll();
+      }
+    });
+  };
+
+  handleOrdination = (member: Members) => {
+    this.membersService.setEditingMemberId(member.id);
+    const dialogRef = this.modalService.openModal(
+      `modal-${Math.random()}`,
+      OrdinationsComponent,
+      `Adicionando ordenação ao membro: ${member.person.name}`,
+      true,
+      true,
+      { ordinations: member.ordination, id: member.id },
+    );
+
+    dialogRef.afterClosed().subscribe((result: Members) => {
+      if (result) {
+        this.findAll();
+      }
+    });
+  };
+
+  handleStatusMember = (member: Members) => {
+    this.membersService.setEditingMemberId(member.id);
+    const dialogRef = this.modalService.openModal(
+      `modal-${Math.random()}`,
+      StatusMemberComponent,
+      `Alterando status do membro: ${member.person.name}`,
+      true,
+      true,
+      { status_member: member.status_member, id: member.id },
+    );
+
+    dialogRef.afterClosed().subscribe((result: Members) => {
+      if (result) {
+        this.findAll();
       }
     });
   };

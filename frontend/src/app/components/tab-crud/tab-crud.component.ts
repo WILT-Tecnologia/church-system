@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { Observable } from 'rxjs';
+
 import { ActionsProps, ColumnDefinitionsProps, CrudComponent } from '../crud/crud.component';
 import { LoadingService } from '../loading/loading.service';
 import { NotFoundRegisterComponent } from '../not-found-register/not-found-register.component';
@@ -43,12 +44,14 @@ export class TabCrudComponent implements OnInit {
   constructor(
     private loadingService: LoadingService,
     private toastService: ToastService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
     if (this.tabs.length > 0) {
       this.loadTabData(this.tabs[0].id);
     }
+    this.cdr.detectChanges();
   }
 
   onTabChange(index: number) {

@@ -1,4 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
+
 import { FormatsPipe } from './formats.pipe';
 
 @Pipe({
@@ -33,6 +34,8 @@ export class FormatValuesPipe implements PipeTransform {
         return this.formats.SexTransform(value, 'toView');
       case 'boolean':
         return value ? 'Ativado' : 'Desativado';
+      case 'YesNo':
+        return value ? 'Sim' : 'Não';
       case 'string':
         return value || '';
       case 'number':

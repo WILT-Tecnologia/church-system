@@ -3,11 +3,9 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import {
-  ActionsProps,
-  CrudComponent,
-} from 'app/components/crud/crud.component';
+import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
@@ -16,6 +14,7 @@ import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Church } from 'app/model/Church';
 import { NotificationService } from 'app/services/notification/notification.service';
+
 import { ChurchComponent } from './church/church.component';
 import { ChurchsService } from './churchs.service';
 
@@ -35,16 +34,15 @@ export class ChurchsComponent implements OnInit {
   actions: ActionsProps[] = [
     {
       type: 'edit',
-      tooltip: 'Editar',
       icon: 'edit',
       label: 'Editar',
       action: (church: Church) => this.handleEdit(church),
     },
     {
       type: 'delete',
-      tooltip: 'Excluir',
       icon: 'delete',
       label: 'Excluir',
+      color: 'warn',
       action: (church: Church) => this.handleDelete(church),
     },
   ];

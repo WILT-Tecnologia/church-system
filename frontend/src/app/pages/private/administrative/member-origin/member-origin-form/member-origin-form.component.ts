@@ -1,11 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -17,10 +12,10 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { MemberOrigin } from 'app/model/MemberOrigins';
 import { ValidationService } from 'app/services/validation/validation.service';
-import dayjs from 'dayjs';
 import { MemberOriginService } from '../member-origin.service';
 
 @Component({
@@ -44,7 +39,6 @@ import { MemberOriginService } from '../member-origin.service';
 export class MemberOriginFormComponent implements OnInit {
   memberOriginForm: FormGroup;
   isEditMode: boolean = false;
-  memberOriginId: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -59,12 +53,7 @@ export class MemberOriginFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.data && this.data?.memberOrigin) {
-      this.isEditMode = true;
-      this.memberOriginId = this.data.memberOrigin.id;
-      this.memberOriginForm.patchValue(this.data.memberOrigin);
-      this.handleEdit();
-    }
+    this.editMode();
   }
 
   createForm = () => {
@@ -72,26 +61,12 @@ export class MemberOriginFormComponent implements OnInit {
       id: [this.data?.memberOrigin?.id || ''],
       name: [
         this.data?.memberOrigin?.name || '',
-        [
-          Validators.required,
-          Validators.maxLength(255),
-          Validators.minLength(3),
-        ],
+        [Validators.required, Validators.maxLength(255), Validators.minLength(3)],
       ],
-      description: [
-        this.data?.memberOrigin?.description || '',
-        [Validators.maxLength(255)],
-      ],
+      description: [this.data?.memberOrigin?.description || '', [Validators.maxLength(255)]],
       status: [this.data?.memberOrigin?.status || true],
-      updated_at: [this.data?.memberOrigin?.updated_at || ''],
     });
   };
-
-  get pageTitle() {
-    return this.isEditMode
-      ? 'Editando origem de membro'
-      : 'Criando origem de membro';
-  }
 
   getErrorMessage(controlName: string) {
     const control = this.memberOriginForm.get(controlName);
@@ -108,59 +83,44 @@ export class MemberOriginFormComponent implements OnInit {
       return;
     }
     const memberOriginData = this.memberOriginForm.value;
-    this.isEditMode
-      ? this.handleUpdate(memberOriginData.id)
-      : this.handleCreate();
+    this.isEditMode ? this.handleUpdate(memberOriginData.id) : this.handleCreate();
   };
 
-  handleEdit = () => {
-    this.memberOriginService
-      .getMemberOriginById(this.memberOriginId!)
-      .subscribe((memberOrigin: MemberOrigin) => {
+  editMode = () => {
+    if (this.data && this.data?.memberOrigin) {
+      this.isEditMode = true;
+      this.memberOriginService.findById(this.data.memberOrigin.id).subscribe((memberOrigin: MemberOrigin) => {
         this.memberOriginForm.patchValue({
           ...memberOrigin,
-          updated_at: dayjs(memberOrigin.updated_at).format(
-            'DD/MM/YYYY [às] HH:mm:ss',
-          ),
         });
       });
+    }
   };
 
   handleCreate = () => {
     this.loadingService.show();
-    this.memberOriginService
-      .createMemberOrigin(this.memberOriginForm.value)
-      .subscribe({
-        next: () => {
-          this.toast.openSuccess('Origem de membro criada com sucesso!');
-          this.dialogRef.close(this.memberOriginForm.value);
-        },
-        error: () => {
-          this.loadingService.hide();
-          this.toast.openError('Erro ao criar a origem de membro!');
-        },
-        complete: () => {
-          this.loadingService.hide();
-        },
-      });
+    this.memberOriginService.create(this.memberOriginForm.value).subscribe({
+      next: () => {
+        this.toast.openSuccess(MESSAGES.CREATE_SUCCESS);
+        this.dialogRef.close(this.memberOriginForm.value);
+      },
+      error: () => {
+        this.loadingService.hide();
+        this.toast.openError(MESSAGES.CREATE_ERROR);
+      },
+      complete: () => this.loadingService.hide(),
+    });
   };
 
   handleUpdate = (memberOriginId: string) => {
     this.loadingService.show();
-    this.memberOriginService
-      .updateMemberOrigin(memberOriginId!, this.memberOriginForm.value)
-      .subscribe({
-        next: () => {
-          this.toast.openSuccess('Origem de membro atualizada com sucesso!');
-          this.dialogRef.close(this.memberOriginForm.value);
-        },
-        error: () => {
-          this.loadingService.hide();
-          this.toast.openError('Erro ao atualizar a origem de membro!');
-        },
-        complete: () => {
-          this.loadingService.hide();
-        },
-      });
+    this.memberOriginService.update(memberOriginId!, this.memberOriginForm.value).subscribe({
+      next: () => {
+        this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS);
+        this.dialogRef.close(this.memberOriginForm.value);
+      },
+      error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
+      complete: () => this.loadingService.hide(),
+    });
   };
 }

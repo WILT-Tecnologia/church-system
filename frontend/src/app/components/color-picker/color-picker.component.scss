@@ -1,0 +1,19 @@
+:host {
+  display: block;
+}
+
+chrome-picker {
+  margin-bottom: 1rem;
+}
+
+.picker-actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+
+  button {
+    width: 100%;
+  }
+}

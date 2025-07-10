@@ -1,0 +1,131 @@
+<section class="py-4">
+  <mat-card appearance="outlined">
+    <mat-card-content>
+      <div [formGroup]="stepOneForm">
+        <app-column [columns]="2">
+          <mat-form-field appearance="fill">
+            <mat-label>Pessoa</mat-label>
+            <input
+              type="text"
+              matInput
+              [matAutocomplete]="autoPerson"
+              [formControl]="searchControlPerson"
+              placeholder="Selecione uma pessoa"
+              (focus)="showAllPerson()"
+              required
+            />
+            <mat-autocomplete #autoPerson="matAutocomplete" (optionSelected)="onPersonSelected($event)">
+              <mat-option *ngFor="let person of filteredPerson | async" [value]="person">
+                {{ person.name }}
+              </mat-option>
+            </mat-autocomplete>
+            <mat-error *ngIf="stepOneForm.get('person_id')?.invalid && stepOneForm.get('person_id')?.touched">
+              {{ getErrorMessage('person_id') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Igreja</mat-label>
+            <input
+              type="text"
+              matInput
+              [matAutocomplete]="autoChurch"
+              [formControl]="searchControlChurch"
+              placeholder="Selecione uma igreja"
+              (focus)="showAllChurch()"
+              required
+            />
+            <mat-autocomplete #autoChurch="matAutocomplete" (optionSelected)="onChurchSelected($event)">
+              <mat-option *ngFor="let church of filteredChurch | async" [value]="church">
+                {{ church.name }}
+              </mat-option>
+            </mat-autocomplete>
+            <mat-error *ngIf="stepOneForm.get('church_id')?.invalid && stepOneForm.get('church_id')?.touched">
+              {{ getErrorMessage('church_id') }}
+            </mat-error>
+          </mat-form-field>
+        </app-column>
+
+        <app-column [columns]="2">
+          <mat-form-field appearance="fill">
+            <mat-label>RG</mat-label>
+            <input matInput formControlName="rg" maxlength="15" />
+            <mat-error *ngIf="stepOneForm.get('rg')?.invalid && stepOneForm.get('rg')?.touched">
+              {{ getErrorMessage('rg') }}
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="fill">
+            <mat-label>Orgão Expedidor</mat-label>
+            <input matInput formControlName="issuing_body" maxlength="15" />
+            <mat-error *ngIf="stepOneForm.get('issuing_body')?.invalid && stepOneForm.get('issuing_body')?.touched">
+              {{ getErrorMessage('issuing_body') }}
+            </mat-error>
+          </mat-form-field>
+        </app-column>
+
+        <app-column [columns]="2">
+          <mat-form-field appearance="fill">
+            <mat-label>Estado Civil</mat-label>
+            <input
+              type="text"
+              matInput
+              [matAutocomplete]="autoCivilStatus"
+              [formControl]="searchControlCivilStatus"
+              placeholder="Selecione um estado civil"
+              (focus)="showAllCivilStatus()"
+              required
+            />
+            <mat-autocomplete #autoCivilStatus="matAutocomplete" (optionSelected)="onCivilStatusSelected($event)">
+              <mat-option *ngFor="let civilStatus of filteredCivilStatus | async" [value]="civilStatus">
+                {{ civilStatus.name }}
+              </mat-option>
+            </mat-autocomplete>
+            <mat-error
+              *ngIf="stepOneForm.get('civil_status_id')?.invalid && stepOneForm.get('civil_status_id')?.touched"
+            >
+              {{ getErrorMessage('civil_status_id') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Cor/raça</mat-label>
+            <input
+              type="text"
+              matInput
+              [matAutocomplete]="autoColorRace"
+              [formControl]="searchControlColorRace"
+              placeholder="Selecione um Cor/raça"
+              (focus)="showAllColorRace()"
+              required
+            />
+            <mat-autocomplete #autoColorRace="matAutocomplete" (optionSelected)="onColorRaceSelected($event)">
+              <mat-option *ngFor="let colorRace of filteredColorRace | async" [value]="colorRace">
+                {{ colorRace.name }}
+              </mat-option>
+            </mat-autocomplete>
+            <mat-error *ngIf="stepOneForm.get('color_race_id')?.invalid && stepOneForm.get('color_race_id')?.touched">
+              {{ getErrorMessage('color_race_id') }}
+            </mat-error>
+          </mat-form-field>
+        </app-column>
+
+        <app-column [columns]="2">
+          <mat-form-field appearance="fill">
+            <mat-label>Nacionalidade</mat-label>
+            <input matInput formControlName="nationality" />
+            <mat-error *ngIf="stepOneForm.get('nationality')?.invalid && stepOneForm.get('nationality')?.touched">
+              {{ getErrorMessage('nationality') }}
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="fill">
+            <mat-label>Naturalidade</mat-label>
+            <input matInput formControlName="naturalness" />
+            <mat-error *ngIf="stepOneForm.get('naturalness')?.invalid && stepOneForm.get('naturalness')?.touched">
+              {{ getErrorMessage('naturalness') }}
+            </mat-error>
+          </mat-form-field>
+        </app-column>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</section>

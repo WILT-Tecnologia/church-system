@@ -5,17 +5,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import {
-  ActionsProps,
-  CrudComponent,
-} from 'app/components/crud/crud.component';
+import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { MemberOrigin } from 'app/model/MemberOrigins';
+
 import { MemberOriginFormComponent } from './member-origin-form/member-origin-form.component';
 import { MemberOriginService } from './member-origin.service';
 
@@ -23,13 +22,7 @@ import { MemberOriginService } from './member-origin.service';
   selector: 'app-member-origin',
   templateUrl: './member-origin.component.html',
   styleUrls: ['./member-origin.component.scss'],
-  imports: [
-    NotFoundRegisterComponent,
-    MatCardModule,
-    MatIconModule,
-    CommonModule,
-    CrudComponent,
-  ],
+  imports: [NotFoundRegisterComponent, MatCardModule, MatIconModule, CommonModule, CrudComponent],
 })
 export class MemberOriginComponent implements OnInit {
   memberOrigins: MemberOrigin[] = [];
@@ -37,28 +30,24 @@ export class MemberOriginComponent implements OnInit {
   dataSourceMat = new MatTableDataSource<MemberOrigin>(this.memberOrigins);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-
   actions: ActionsProps[] = [
     {
       type: 'toggle',
-      tooltip: 'Ativar/Desativar a origem',
-      icon: 'toggle_on',
       activeLabel: 'Ativar',
       inactiveLabel: 'Desativar',
       action: (memberOrigin: MemberOrigin) => this.toggleStatus(memberOrigin),
     },
     {
       type: 'edit',
-      tooltip: 'Editar',
       icon: 'edit',
       label: 'Editar',
       action: (memberOrigin: MemberOrigin) => this.handleEdit(memberOrigin),
     },
     {
       type: 'delete',
-      tooltip: 'Excluir',
       icon: 'delete',
       label: 'Excluir',
+      color: 'warn',
       action: (memberOrigin: MemberOrigin) => this.handleDelete(memberOrigin),
     },
   ];
@@ -82,8 +71,8 @@ export class MemberOriginComponent implements OnInit {
     this.loadMemberOrigins();
   }
 
-  loadMemberOrigins = () => {
-    this.MemberOriginService.getMemberOrigins().subscribe({
+  private loadMemberOrigins = () => {
+    this.MemberOriginService.findAll().subscribe({
       next: (memberOrigins) => {
         this.memberOrigins = memberOrigins;
         this.dataSourceMat.data = this.memberOrigins;
@@ -144,7 +133,7 @@ export class MemberOriginComponent implements OnInit {
 
     modal.afterClosed().subscribe((result: MemberOrigin) => {
       if (result) {
-        this.MemberOriginService.deleteMemberOrigin(memberOrigin.id).subscribe({
+        this.MemberOriginService.delete(memberOrigin).subscribe({
           next: () => {
             this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
           },
@@ -165,14 +154,9 @@ export class MemberOriginComponent implements OnInit {
     const updatedStatus = !memberOrigin.status;
     memberOrigin.status = updatedStatus;
 
-    this.MemberOriginService.updatedStatus(
-      memberOrigin.id,
-      updatedStatus,
-    ).subscribe({
+    this.MemberOriginService.updatedStatus(memberOrigin.id, updatedStatus).subscribe({
       next: () => {
-        this.toast.openSuccess(
-          `Origem do membro ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`,
-        );
+        this.toast.openSuccess(`Origem do membro ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`);
       },
       error: () => {
         this.loading.hide();

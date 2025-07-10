@@ -1,4 +1,4 @@
-@if (memberOrigins && memberOrigins.length > 0) {
+@if ((memberOrigins && memberOrigins.length > 0) || rendering) {
   <app-crud
     [fields]="memberOrigins"
     [dataSourceMat]="dataSourceMat"
