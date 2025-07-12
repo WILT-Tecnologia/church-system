@@ -46,8 +46,8 @@ import { EventTypes } from 'app/model/EventTypes';
 import dayjs from 'dayjs';
 
 import { EventTypesService } from '../../administrative/event-types/eventTypes.service';
-import { MembersComponent } from '../members/members.component';
 import { EventsService } from './events.service';
+import { AddMembersGuestsComponent } from './shared/add-members-guests/add-members-guests.component';
 import { EventsFormComponent } from './shared/events-form/events-form.component';
 
 @Component({
@@ -86,13 +86,13 @@ export class EventsComponent implements OnInit, AfterViewInit {
       type: 'person_add',
       icon: 'person_add',
       label: 'Adicionar membros e convidados',
-      action: (events: Events) => this.handleAddMembers(events),
+      action: (events: Events) => this.AddMembersGuest(events),
     },
     {
       type: 'add_circle',
       icon: 'add_circle',
       label: 'Nova chamada',
-      action: (events: Events) => this.handleAddMembers(events),
+      action: (events: Events) => this.AddMembersGuest(events),
     },
     {
       type: 'edit',
@@ -380,10 +380,10 @@ export class EventsComponent implements OnInit, AfterViewInit {
     });
   };
 
-  handleAddMembers = (event: Events) => {
+  AddMembersGuest = (event: Events) => {
     this.modal.openModal(
       `modal-${Math.random()}`,
-      MembersComponent,
+      AddMembersGuestsComponent,
       `Adicionar membros no evento ${event.name}`,
       true,
       true,

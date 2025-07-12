@@ -3,6 +3,15 @@ import { EventTypes } from './EventTypes';
 import { Members } from './Members';
 import { User } from './User';
 
+export type EventData = {
+  name: string;
+  date: string;
+  time: string;
+  theme: string;
+  type: string;
+  observations?: string;
+};
+
 export type Events = {
   id: string;
   church?: Church;

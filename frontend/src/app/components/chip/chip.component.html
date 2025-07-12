@@ -1,0 +1,13 @@
+<mat-chip-option
+  [selected]="chip.selected"
+  (click)="toggleSelection()"
+  [disabled]="disabled"
+  [highlighted]="highlighted"
+  [selected]="chip.selected"
+  class="chip-item"
+>
+  <div class="chip-item">
+    <mat-icon>person</mat-icon>
+    <mat-label>{{ chip.name }}</mat-label>
+  </div>
+</mat-chip-option>

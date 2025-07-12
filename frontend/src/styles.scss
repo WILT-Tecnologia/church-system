@@ -69,6 +69,13 @@ app-root {
   font-size: 1.5rem;
   font-weight: bold;
   margin: 1rem 0;
+
+  @media screen and (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
 }
 
 .text-default {
@@ -417,4 +424,8 @@ mat-sidenav {
   width: auto;
   max-width: 50dvw;
   line-height: 2rem;
+}
+
+.mat-mdc-chip-set .mdc-evolution-chip {
+  margin: 0 0.3rem !important;
 }

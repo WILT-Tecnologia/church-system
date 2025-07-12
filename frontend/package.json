@@ -71,7 +71,7 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
-    "postcss": "^8.4.44",
+    "postcss": "^8.5.6",
     "postcss-loader": "^8.1.1",
     "prettier": "^3.5.3",
     "sass": "^1.77.8",

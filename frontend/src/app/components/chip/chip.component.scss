@@ -1,0 +1,36 @@
+.chip-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  width: 100%;
+
+  &.mat-chip {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    text-align: center !important;
+    width: 100% !important;
+  }
+
+  &.mat-chip-selected {
+    background-color: #e0f7fa;
+    color: var(--success-color);
+  }
+
+  &.mat-chip.mat-accent,
+  &.mat-chip.mat-primary {
+    background-color: #e0f7fa;
+    color: var(--success-color);
+  }
+
+  &.mat-chip.mat-warn {
+    background-color: #fce4ec;
+    color: var(--danger-color);
+  }
+}

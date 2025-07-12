@@ -1,0 +1,73 @@
+<div class="container">
+  <app-details-event [event]="EventData"></app-details-event>
+
+  <mat-card appearance="outlined">
+    <mat-card-header>
+      <mat-card-title class="title"
+        >Participantes do evento
+        <span class="subtitle">(Selecione os membros que irão participar do evento)</span></mat-card-title
+      >
+    </mat-card-header>
+    <mat-card-content>
+      <div class="add-participant">
+        <mat-form-field appearance="outline" class="search">
+          <mat-label>Pesquise aqui...</mat-label>
+          <input matInput placeholder="Pesquise aqui..." />
+        </mat-form-field>
+        <button mat-flat-button color="primary">Adicionar</button>
+      </div>
+      <mat-divider class="divider"></mat-divider>
+      <app-column [columns]="2">
+        @for (participant of participants; track $index) {
+          <mat-chip-listbox hideSingleSelectionIndicator="true" class="chip-list">
+            <app-chip
+              [highlighted]="participant.selected"
+              [chip]="participant"
+              (selectionChange)="onSelectionChange($event)"
+              (remove)="onRemove($event)"
+            ></app-chip>
+          </mat-chip-listbox>
+        } @empty {
+          <mat-chip-listbox hideSingleSelectionIndicator="true" class="chip-list">
+            <mat-chip disabled>Não há participantes adicionados!</mat-chip>
+          </mat-chip-listbox>
+        }
+      </app-column>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card appearance="outlined">
+    <mat-card-header>
+      <mat-card-title class="title"
+        >Convidades do evento
+        <span class="subtitle">(Selecione os convidados que irão participar do evento)</span></mat-card-title
+      >
+    </mat-card-header>
+    <mat-card-content>
+      <div class="add-participant">
+        <mat-form-field appearance="outline" class="search">
+          <mat-label>Pesquise aqui...</mat-label>
+          <input matInput placeholder="Pesquise aqui..." />
+        </mat-form-field>
+        <button mat-flat-button color="primary">Adicionar</button>
+      </div>
+      <mat-divider class="divider"></mat-divider>
+      <app-column [columns]="2">
+        @for (guest of guests; track $index) {
+          <mat-chip-listbox hideSingleSelectionIndicator="true" class="chip-list">
+            <app-chip
+              [highlighted]="guest.selected"
+              [chip]="guest"
+              (selectionChange)="onSelectionChange($event)"
+              (remove)="onRemove($event)"
+            ></app-chip>
+          </mat-chip-listbox>
+        } @empty {
+          <mat-chip-listbox hideSingleSelectionIndicator="true" class="chip-list">
+            <mat-chip disabled>Não há convidades adicionados!</mat-chip>
+          </mat-chip-listbox>
+        }
+      </app-column>
+    </mat-card-content>
+  </mat-card>
+</div>
