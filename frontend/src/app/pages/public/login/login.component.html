@@ -1,27 +1,14 @@
 <div class="container">
   <mat-card class="card" appearance="outlined">
     <span class="title">Acessar o sistema</span>
-    <form
-      [formGroup]="loginForm"
-      (ngSubmit)="onSubmit()"
-      class="form-field-group"
-    >
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="form-field-group">
       <app-column>
         <mat-form-field appearance="fill">
           <mat-label>E-mail</mat-label>
-          <input
-            matInput
-            formControlName="email"
-            placeholder="Ex. jhondoe@gmail.com"
-            required
-          />
-          <mat-error
-            *ngIf="
-              loginForm.get('email')?.invalid && loginForm.get('email')?.touched
-            "
-          >{{ getErrorMessage('email') }}
-          </mat-error
-          >
+          <input matInput formControlName="email" placeholder="Ex. jhondoe@gmail.com" required />
+          @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+            <mat-error>{{ getErrorMessage('email') }} </mat-error>
+          }
         </mat-form-field>
       </app-column>
 
@@ -36,34 +23,17 @@
             maxlength="30"
             minlength="8"
           />
-          <button
-            mat-icon-button
-            matSuffix
-            type="button"
-            (click)="toggleHide()"
-          >
+          <button mat-icon-button matSuffix type="button" (click)="toggleHide()">
             <mat-icon>{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
-          <mat-error
-            *ngIf="
-              loginForm.get('password')?.invalid &&
-              loginForm.get('password')?.touched
-            "
-          >{{ getErrorMessage('password') }}
-          </mat-error
-          >
+          @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+            <mat-error>{{ getErrorMessage('password') }} </mat-error>
+          }
         </mat-form-field>
       </app-column>
 
       <app-actions>
-        <button
-          mat-flat-button
-          color="primary"
-          type="submit"
-          [disabled]="loginForm.invalid"
-        >
-          Entrar
-        </button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="loginForm.invalid">Entrar</button>
       </app-actions>
     </form>
   </mat-card>

@@ -1,8 +1,8 @@
-.container {
+.wrapper {
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
   gap: 1rem;
+  padding: 1rem;
 }
 
 .divider {
@@ -34,14 +34,14 @@
   margin-bottom: 1rem;
 }
 
-.add-participant {
+.search-paginator {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: center;
 
   @media screen and (max-width: 768px) {
     flex-direction: column;
-    margin-bottom: 1rem;
   }
 }
 
@@ -69,4 +69,8 @@
 app-chip {
   width: 100% !important;
   max-width: 100% !important;
+}
+
+.actions {
+  padding: 1rem;
 }

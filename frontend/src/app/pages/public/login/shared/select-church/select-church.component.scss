@@ -3,7 +3,7 @@
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  margin: 1rem 0
+  margin: 1rem 0;
 }
 
 .title {
@@ -51,6 +51,16 @@ mat-list-item {
 .item-name {
   font-weight: 600;
   font-size: 1.1rem;
+  color: var(--primary-color);
+
+  @media screen and (max-width: 768px) {
+    font-size: 0.8rem;
+  }
+}
+
+.church-name {
+  font-weight: 600;
+  font-size: 1rem;
   color: var(--primary-color);
 
   @media screen and (max-width: 768px) {

@@ -9,17 +9,9 @@
           <mat-list-item>
             <div class="item-container">
               <div class="item">
-                <span class="text-lg md:text-sm font-semibold" mat-line>{{
-                  church?.name
-                }}</span>
+                <span class="church-name" mat-line>{{ church?.name }}</span>
               </div>
-              <button
-                mat-flat-button
-                color="primary"
-                (click)="selectChurch(church)"
-              >
-                Acessar
-              </button>
+              <button mat-flat-button color="primary" (click)="selectChurch(church)">Acessar</button>
             </div>
           </mat-list-item>
           @if (churches.length - 1) {

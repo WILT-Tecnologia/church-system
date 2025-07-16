@@ -1,36 +1,30 @@
-.chip-item {
+:host .chip-item {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 1.5rem;
+  padding: 2rem 0.5rem;
   font-size: 0.8rem;
   text-transform: uppercase;
   cursor: pointer;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
 
-  &.mat-chip {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    text-align: center !important;
-    width: 100% !important;
-  }
+mat-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 
-  &.mat-chip-selected {
-    background-color: #e0f7fa;
-    color: var(--success-color);
-  }
-
-  &.mat-chip.mat-accent,
-  &.mat-chip.mat-primary {
-    background-color: #e0f7fa;
-    color: var(--success-color);
-  }
-
-  &.mat-chip.mat-warn {
-    background-color: #fce4ec;
-    color: var(--danger-color);
+  @media screen and (max-width: 768px) {
+    font-size: 0.9rem;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    max-width: calc(100% - 2rem);
+    word-break: break-word;
   }
 }

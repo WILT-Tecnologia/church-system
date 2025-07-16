@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
+
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ToastService } from 'app/components/toast/toast.service';
 
@@ -12,11 +13,7 @@ export class NotificationService {
     private toast: ToastService,
   ) {}
 
-  onSuccess<T>(
-    message: string,
-    dialogRef?: MatDialogRef<any>,
-    formValue?: T,
-  ): void {
+  onSuccess<T>(message: string, dialogRef?: MatDialogRef<any>, formValue?: T): void {
     this.loading.hide();
     this.toast.openSuccess(message);
     dialogRef?.close(formValue);

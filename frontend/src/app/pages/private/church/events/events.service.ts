@@ -38,4 +38,12 @@ export class EventsService {
   delete(event: Events): Observable<Events> {
     return this.http.delete<Events>(`${this.apiUrl}/${event.id}`);
   }
+
+  addMembersEvent(eventId: string, payload: { member_id: string }): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/${eventId}/participants`, payload);
+  }
+
+  addGuestsEvent(eventId: string, payload: { member_id: string }): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/${eventId}/participants`, payload);
+  }
 }

@@ -5,7 +5,21 @@
   align-items: center;
   height: 100dvh;
   overflow: hidden !important;
-  background-image: linear-gradient(to right, #03D0FD, #03C4F1, #03B9E6, #03ADDA, #03A2CE, #039AC6, #0393BD, #038BB5, #0385AE, #0380A8, #037AA1, #03759B);
+  background-image: linear-gradient(
+    to right,
+    #03d0fd,
+    #03c4f1,
+    #03b9e6,
+    #03adda,
+    #03a2ce,
+    #039ac6,
+    #0393bd,
+    #038bb5,
+    #0385ae,
+    #0380a8,
+    #037aa1,
+    #03759b
+  );
 }
 
 .card {

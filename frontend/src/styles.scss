@@ -1,3 +1,4 @@
+@use 'app/styles//styles.css';
 @use 'app/styles/theme' as theme;
 @use '@angular/material' as mat;
 @use 'app/styles/autocomplete-theme' as autocomplete;
@@ -44,7 +45,7 @@
   box-sizing: border-box;
   outline: none;
   scroll-behavior: smooth;
-  font-family: 'Geist', 'Roboto', 'Poppins', sans-serif !important;
+  font-family: 'Mulish', 'Geist', 'Roboto', 'Poppins', sans-serif !important;
 }
 
 ::selection {
