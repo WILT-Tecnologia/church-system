@@ -43,7 +43,17 @@ export class EventsService {
     return this.http.post<{ message: string }>(`${this.apiUrl}/${eventId}/participants`, payload);
   }
 
-  addGuestsEvent(eventId: string, payload: { member_id: string }): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.apiUrl}/${eventId}/participants`, payload);
+  removeMemberEvent(eventId: string, member_id: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/${eventId}/participants`, {
+      body: { member_id: member_id },
+    });
+  }
+
+  addGuestsEvent(eventId: string, data: { person_id: string }): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/${eventId}/guests`, { person_id: data.person_id });
+  }
+
+  removeGuestEvent(eventId: string, person_id: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/${eventId}/guests?person_id=${person_id}`);
   }
 }

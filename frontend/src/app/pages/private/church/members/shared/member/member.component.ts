@@ -159,26 +159,33 @@ export class MemberComponent implements OnInit, OnDestroy {
       const memberData = this.combineStepData();
 
       if (this.isEditMode && this.memberId) {
-        this.membersService.updateMember(this.memberId, memberData).subscribe({
-          next: () => {
-            this.isInitialStepCompleted.set(true);
-            this.onSuccessUpdate('Step 3 atualizado com sucesso.', false);
-          },
-          error: () => this.onError(MESSAGES.UPDATE_ERROR),
-          complete: () => this.hideLoading(),
-        });
+        this.handleUpdate(this.memberId);
       } else {
-        this.membersService.createMember(memberData).subscribe(
-          (newMember) => {
+        this.membersService.createMember(memberData).subscribe({
+          next: (newMember) => {
             this.memberId = newMember.id;
-            this.onSuccessUpdate('Membro criado com sucesso.', false);
-            this.hideLoading();
+            // Save creation history
+            const historyData: Partial<History> = {
+              member_id: newMember.id,
+              table_name: 'members',
+              before_situation: 'N/A',
+              after_situation: 'Membro criado',
+              change_date: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+            };
+            this.historyService.saveHistory(historyData).subscribe({
+              next: () => {
+                this.isInitialStepCompleted.set(true);
+                this.onSuccessUpdate('Membro criado com sucesso.', false);
+              },
+              error: () => this.onError('Erro ao salvar histórico de criação.'),
+              complete: () => this.hideLoading(),
+            });
           },
-          () => {
+          error: () => {
             this.onError(MESSAGES.CREATE_ERROR);
             this.hideLoading();
           },
-        );
+        });
       }
     } else {
       this.toast.openError('Por favor, preencha todos os campos obrigatórios.');
@@ -189,11 +196,24 @@ export class MemberComponent implements OnInit, OnDestroy {
     this.showLoading();
     const memberData = this.combineStepData();
     this.membersService.createMember(memberData).subscribe({
-      next: () => {
-        this.onSuccessUpdate(MESSAGES.CREATE_SUCCESS);
+      next: (newMember) => {
+        const historyData: Partial<History> = {
+          member_id: newMember.id,
+          table_name: 'members',
+          before_situation: 'N/A',
+          after_situation: 'Membro criado',
+          change_date: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+        };
+        this.historyService.saveHistory(historyData).subscribe({
+          next: () => this.onSuccessUpdate(MESSAGES.CREATE_SUCCESS),
+          error: () => this.onError('Erro ao salvar histórico de criação.'),
+          complete: () => this.hideLoading(),
+        });
       },
-      error: () => this.onError(MESSAGES.CREATE_ERROR),
-      complete: () => this.hideLoading(),
+      error: () => {
+        this.onError(MESSAGES.CREATE_ERROR);
+        this.hideLoading();
+      },
     });
   }
 
@@ -210,36 +230,62 @@ export class MemberComponent implements OnInit, OnDestroy {
             const historyData: Partial<History> = {
               member_id: memberId,
               table_name: 'members',
-              before_situation: change.oldValue || 'N/A',
-              after_situation: change.newValue || 'N/A',
+              before_situation: change.oldValue,
+              after_situation: change.after_situation,
               change_date: dayjs().format('YYYY-MM-DD HH:mm:ss'),
             };
 
-            return this.historyService.saveHistory(historyData);
+            return this.historyService.saveHistory(historyData).toPromise();
           });
 
           Promise.all(historyPromises)
             .then(() => {
               this.membersService.updateMember(memberId, memberData).subscribe({
                 next: () => this.onSuccessUpdate(MESSAGES.UPDATE_SUCCESS, true),
-                error: () => this.onError(MESSAGES.UPDATE_ERROR),
+                error: (error) => {
+                  console.error('Error updating member:', error);
+                  const errorMessage = error?.error?.message || error?.message || 'Unknown error';
+                  this.onError(MESSAGES.UPDATE_ERROR + `: ${errorMessage}`);
+                  this.hideLoading();
+                },
                 complete: () => this.hideLoading(),
               });
             })
             .catch((error) => {
-              this.notification.onError(`Erro ao salvar no histórico: ${error}`);
-              this.hideLoading();
+              console.error('Error saving history:', error);
+              console.error('Error response:', error?.error);
+              const errorMessage = error?.error?.message || error?.message || 'Unknown error';
+              this.notification.onError(`Member updated, but failed to save history: ${errorMessage}`);
+              // Proceed with update to avoid blocking the user
+              this.membersService.updateMember(memberId, memberData).subscribe({
+                next: () => this.onSuccessUpdate(MESSAGES.UPDATE_SUCCESS, true),
+                error: (error) => {
+                  console.error('Error updating member after history failure:', error);
+                  const updateErrorMessage = error?.error?.message || error?.message || 'Unknown error';
+                  this.onError(MESSAGES.UPDATE_ERROR + `: ${updateErrorMessage}`);
+                  this.hideLoading();
+                },
+                complete: () => this.hideLoading(),
+              });
             });
         } else {
+          // No changes detected, update member without saving history
           this.membersService.updateMember(memberId, memberData).subscribe({
             next: () => this.onSuccessUpdate(MESSAGES.UPDATE_SUCCESS, true),
-            error: () => this.onError(MESSAGES.UPDATE_ERROR),
+            error: (error) => {
+              console.error('Error updating member:', error);
+              const errorMessage = error?.error?.message || error?.message || 'Unknown error';
+              this.onError(MESSAGES.UPDATE_ERROR + `: ${errorMessage}`);
+              this.hideLoading();
+            },
             complete: () => this.hideLoading(),
           });
         }
       },
-      error: () => {
-        this.onError(MESSAGES.UPDATE_ERROR);
+      error: (error) => {
+        console.error('Error fetching member data:', error);
+        const errorMessage = error?.error?.message || error?.message || 'Unknown error';
+        this.onError(MESSAGES.UPDATE_ERROR + `: ${errorMessage}`);
         this.hideLoading();
       },
     });
@@ -364,19 +410,59 @@ export class MemberComponent implements OnInit, OnDestroy {
 
   private detectChanges(beforeData: any, afterData: any) {
     const changes = [];
+    const fieldsToTrack = [
+      'person_id',
+      'church_id',
+      'rg',
+      'issuing_body',
+      'civil_status_id',
+      'color_race_id',
+      'nationality',
+      'naturalness',
+      'formation_id',
+      'formation_course',
+      'profission',
+      'has_disability',
+      'def_physical',
+      'def_visual',
+      'def_hearing',
+      'def_intellectual',
+      'def_mental',
+      'def_multiple',
+      'def_other',
+      'def_other_description',
+      'baptism_date',
+      'baptism_locale',
+      'baptism_official',
+      'baptism_holy_spirit',
+      'baptism_holy_spirit_date',
+      'member_origin_id',
+      'receipt_date',
+    ];
 
-    for (const key in afterData) {
-      if (afterData[key] !== beforeData[key]) {
-        if (
-          (afterData[key] != null || beforeData[key] != null) &&
-          JSON.stringify(afterData[key]) !== JSON.stringify(beforeData[key])
-        ) {
-          changes.push({
-            field: key,
-            oldValue: beforeData[key] ?? 'N/A',
-            newValue: afterData[key] ?? 'N/A',
-          });
-        }
+    for (const field of fieldsToTrack) {
+      let oldValue = beforeData[field];
+      let newValue = afterData[field];
+
+      // Handle date fields
+      if (field.includes('_date')) {
+        oldValue = oldValue ? dayjs(oldValue).format('YYYY-MM-DD') : null;
+        newValue = newValue ? dayjs(newValue).format('YYYY-MM-DD') : null;
+      }
+
+      // Only record changes if the new value is different, valid, and not an empty string
+      if (
+        oldValue !== newValue &&
+        newValue !== '' && // Skip empty strings
+        !(oldValue == null && newValue == null) && // Skip if both are null
+        (newValue != null || oldValue != null) // Ensure at least one value exists
+      ) {
+        changes.push({
+          field,
+          oldValue: oldValue ?? 'N/A',
+          newValue: newValue ?? 'N/A',
+          after_situation: oldValue ? 'N/A' : newValue,
+        });
       }
     }
 

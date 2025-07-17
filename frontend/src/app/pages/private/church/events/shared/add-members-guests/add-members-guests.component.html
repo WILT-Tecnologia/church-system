@@ -1,11 +1,29 @@
 <form [formGroup]="participantAndGuestForm">
   <div class="wrapper">
-    <app-details-event [event]="EventData"></app-details-event>
+    <mat-card appearance="outlined" class="participants-list">
+      <mat-card-header>
+        <mat-card-title>Participantes Adicionados</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-chip-listbox>
+          @for (participant of data.event.participantAndGuests; track $index) {
+            <mat-chip class="p-4">
+              {{ participant.name }} ({{ isParticipantMember(participant) ? 'Membro' : 'Convidado' }})
+              <button matChipRemove (click)="removeParticipant(participant)">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip>
+          } @empty {
+            <mat-chip disabled>Nenhum participante adicionado</mat-chip>
+          }
+        </mat-chip-listbox>
+      </mat-card-content>
+    </mat-card>
 
     <mat-card appearance="outlined">
       <mat-card-header>
         <mat-card-title class="title">
-          Participantes do evento
+          Adicionar Membros
           <span class="subtitle">(Selecione os membros que participarão do evento)</span>
         </mat-card-title>
       </mat-card-header>
@@ -24,16 +42,9 @@
           ></app-paginator>
         </div>
         <mat-divider class="divider"></mat-divider>
-        <app-column [columns]="2">
+        <app-column [columns]="3">
           @for (member of paginatedMembers; track member.id) {
-            <mat-chip-listbox hideSingleSelectionIndicator="true" class="chip-list">
-              <app-chip
-                [highlighted]="member.selected"
-                [chip]="member"
-                (selectionChange)="onMemberSelectionChange($event)"
-                (remove)="onMemberRemove($event)"
-              ></app-chip>
-            </mat-chip-listbox>
+            <app-chip [chip]="member" (selectionChange)="onMemberSelectionChange($event)"></app-chip>
           } @empty {
             <mat-chip-listbox hideSingleSelectionIndicator="true" class="chip-list">
               <mat-chip disabled>Nenhum participante encontrado!</mat-chip>
@@ -49,7 +60,7 @@
     <mat-card appearance="outlined">
       <mat-card-header>
         <mat-card-title class="title">
-          Convidados do evento
+          Adicionar Convidados
           <span class="subtitle">(Selecione os convidados que participarão do evento)</span>
         </mat-card-title>
       </mat-card-header>
@@ -68,16 +79,9 @@
           ></app-paginator>
         </div>
         <mat-divider class="divider"></mat-divider>
-        <app-column [columns]="2">
+        <app-column [columns]="3">
           @for (guest of paginatedGuests; track guest.id) {
-            <mat-chip-listbox hideSingleSelectionIndicator="true" class="chip-list">
-              <app-chip
-                [highlighted]="guest.selected"
-                [chip]="guest"
-                (selectionChange)="onGuestSelectionChange($event)"
-                (remove)="onGuestRemove($event)"
-              ></app-chip>
-            </mat-chip-listbox>
+            <app-chip [chip]="guest" (selectionChange)="onGuestSelectionChange($event)"></app-chip>
           } @empty {
             <mat-chip-listbox hideSingleSelectionIndicator="true" class="chip-list">
               <mat-chip disabled>Nenhum convidado encontrado!</mat-chip>

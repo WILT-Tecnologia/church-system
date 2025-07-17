@@ -130,7 +130,7 @@
               <mat-icon>more_vert</mat-icon>
             </button>
             <mat-menu #menu="matMenu">
-              @for (action of actions; track action.type) {
+              @for (action of actions; track $index) {
                 @if (action.type === 'toggle') {
                   <div class="toggle">
                     <button
@@ -157,7 +157,7 @@
                     type="button"
                   >
                     @if (action.icon) {
-                      <mat-icon [color]="action.color || 'primary'">
+                      <mat-icon [color]="action.color || 'primary'" [ariaRowIndex]="action.type">
                         {{ action.icon }}
                       </mat-icon>
                     }

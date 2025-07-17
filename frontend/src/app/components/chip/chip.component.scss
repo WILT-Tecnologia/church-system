@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 2rem 0.5rem;
+  padding: 2rem 0;
   font-size: 0.8rem;
   text-transform: uppercase;
   cursor: pointer;
@@ -21,7 +21,6 @@ mat-label {
 
   @media screen and (max-width: 768px) {
     font-size: 0.9rem;
-    white-space: normal;
     overflow: visible;
     text-overflow: clip;
     max-width: calc(100% - 2rem);

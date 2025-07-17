@@ -4,11 +4,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+
 import { LoadingService } from 'app/components/loading/loading.service';
 import { NoRowComponent } from 'app/components/no-row/no-row.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { History } from 'app/model/Members';
+
 import { MembersService } from '../../members.service';
 import { HistoryService } from './history.service';
 
@@ -45,7 +47,7 @@ export class HistoryComponent implements OnInit {
   loadHistories() {
     this.showLoading();
     const memberId = this.membersService.getEditingMemberId();
-    this.historyService.findAll(memberId!).subscribe({
+    this.membersService.getHistMember(memberId!).subscribe({
       next: (history_member) => {
         this.history_member = history_member;
         this.rendering = false;

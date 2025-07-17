@@ -20,6 +20,8 @@ export type Events = {
   event_type_id: string;
   name: string;
   obs?: string;
+  participants?: Members[];
+  guests?: Guest[];
   participantAndGuests?: ParticipantAndGuest[];
   created_at?: string;
   updated_at?: string;
@@ -47,10 +49,12 @@ export type ParticipantAndGuest = {
   id: string;
   name: string;
   selected: boolean;
+  isGuest?: boolean;
 };
 
 export type Guest = {
   id: string;
+  person_id?: string;
   name: string;
   phone_one: string;
   phone_two: string;

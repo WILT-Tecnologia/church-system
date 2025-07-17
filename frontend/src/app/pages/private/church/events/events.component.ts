@@ -85,13 +85,19 @@ export class EventsComponent implements OnInit, AfterViewInit {
     {
       type: 'person_add',
       icon: 'person_add',
-      label: 'Adicionar membros e convidados',
+      label: 'Adicionar participantes',
       action: (events: Events) => this.AddMembersGuest(events),
     },
     {
       type: 'add_circle',
       icon: 'add_circle',
-      label: 'Nova chamada',
+      label: 'Criar chamada do dia',
+      action: (events: Events) => this.AddMembersGuest(events),
+    },
+    {
+      type: 'add_circle',
+      icon: 'add_circle',
+      label: 'Realizar chamada',
       action: (events: Events) => this.AddMembersGuest(events),
     },
     {

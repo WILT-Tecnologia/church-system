@@ -19,19 +19,11 @@ import { LoadingService } from 'app/components/loading/loading.service';
 import { PaginatorComponent } from 'app/components/paginator/paginator.component';
 import { SearchComponent } from 'app/components/search/search.component';
 import { ToastService } from 'app/components/toast/toast.service';
-import { EventData, Events } from 'app/model/Events';
+import { EventData, Events, ParticipantAndGuest } from 'app/model/Events';
 
 import { MembersService } from '../../../members/members.service';
 import { EventsService } from '../../events.service';
 import { GuestsService } from '../guests/guests.service';
-import { ParticipantsService } from './service/participants.service';
-import { DetailsEventComponent } from './shared/details-event/details-event.component';
-
-interface ParticipantAndGuest {
-  id: string;
-  name: string;
-  selected: boolean;
-}
 
 @Component({
   selector: 'app-add-members-guests',
@@ -48,7 +40,6 @@ interface ParticipantAndGuest {
     CommonModule,
     MatDividerModule,
     MatPaginatorModule,
-    DetailsEventComponent,
     SearchComponent,
     ChipComponent,
     ColumnComponent,
@@ -66,7 +57,6 @@ export class AddMembersGuestsComponent implements OnInit {
     private eventsService: EventsService,
     private toast: ToastService,
     private loading: LoadingService,
-    private participantsService: ParticipantsService,
     private dialogRef: MatDialogRef<AddMembersGuestsComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { event: Events },
   ) {
@@ -84,6 +74,8 @@ export class AddMembersGuestsComponent implements OnInit {
   participantAndGuestForm: FormGroup;
   members: ParticipantAndGuest[] = [];
   guests: ParticipantAndGuest[] = [];
+  allMembers: ParticipantAndGuest[] = [];
+  allGuests: ParticipantAndGuest[] = [];
   filteredMembers: ParticipantAndGuest[] = [];
   filteredGuests: ParticipantAndGuest[] = [];
   paginatedMembers: ParticipantAndGuest[] = [];
@@ -92,10 +84,8 @@ export class AddMembersGuestsComponent implements OnInit {
   guestPageIndex: number = 0;
   pageSize: number = 6;
   pageSizeOptions: number[] = [6, 12, 24, 48];
-  private addedParticipantIds: string[] = [];
 
   ngOnInit() {
-    this.addedParticipantIds = this.participantsService.getParticipantIds(this.data.event.id);
     this.findAll();
   }
 
@@ -105,49 +95,61 @@ export class AddMembersGuestsComponent implements OnInit {
     });
   };
 
-  async findAll() {
+  findAll() {
     this.loading.show();
-    const existingParticipantIds = [
-      ...(this.data.event.participantAndGuests?.map((p) => p.id) || []),
-      ...this.addedParticipantIds,
-    ];
+    this.eventsService.findById(this.data.event.id).subscribe({
+      next: (event) => {
+        this.data.event = {
+          ...event,
+          participantAndGuests: [
+            ...(event.participants?.map((p) => ({
+              id: p.id ?? '',
+              name: p.person?.name || 'Nome não disponível',
+              selected: false,
+              isGuest: false,
+            })) || []),
+            ...(event.guests?.map((g) => ({
+              id: g.person_id ?? g.id ?? '',
+              name: g.name || 'Nome não disponível',
+              selected: false,
+              isGuest: true,
+            })) || []),
+          ],
+        };
 
-    this.membersService.findAll().subscribe({
-      next: (members) => {
-        this.members = members
-          .filter((member) => !existingParticipantIds.includes(member.id))
-          .map((member) => ({
-            id: member.id,
-            name: member?.person?.name || 'Nome não disponível',
-            selected: false,
-          }));
-        this.filteredMembers = this.members;
-        this.updatePaginatedMembers();
-        this.loading.hide();
-      },
-      error: (error) => {
-        console.error('Erro ao carregar membros:', error);
-        this.toast.openError('Erro ao carregar membros');
-        this.loading.hide();
-      },
-    });
+        forkJoin([this.membersService.findAll(), this.guestsService.findAll()]).subscribe({
+          next: ([members, guests]) => {
+            this.allMembers = members.map((member) => ({
+              id: member.id,
+              name: member?.person?.name || 'Nome não disponível',
+              selected: false,
+              isGuest: false,
+            }));
+            this.allGuests = guests.map((guest) => ({
+              id: guest.id, // Guest ID from guests table
+              name: guest?.name || 'Nome não disponível',
+              selected: false,
+              isGuest: true,
+            }));
 
-    this.guestsService.findAll().subscribe({
-      next: (guests) => {
-        this.guests = guests
-          .filter((guest) => !existingParticipantIds.includes(guest.id))
-          .map((guest) => ({
-            id: guest.id,
-            name: guest?.name || 'Nome não disponível',
-            selected: false,
-          }));
-        this.filteredGuests = this.guests;
-        this.updatePaginatedGuests();
-        this.loading.hide();
+            const existingParticipantIds = (this.data.event.participantAndGuests ?? []).map((p) => p.id);
+            this.members = this.allMembers.filter((member) => !existingParticipantIds.includes(member.id));
+            this.guests = this.allGuests.filter((guest) => !existingParticipantIds.includes(guest.id));
+
+            this.filteredMembers = [...this.members];
+            this.filteredGuests = [...this.guests];
+            this.updatePaginatedMembers();
+            this.updatePaginatedGuests();
+            this.loading.hide();
+          },
+          error: () => {
+            this.toast.openError('Erro ao carregar membros ou convidados');
+            this.loading.hide();
+          },
+        });
       },
-      error: (error) => {
-        console.error('Erro ao carregar convidados:', error);
-        this.toast.openError('Erro ao carregar convidados');
+      error: () => {
+        this.toast.openError('Erro ao carregar evento');
         this.loading.hide();
       },
     });
@@ -162,7 +164,9 @@ export class AddMembersGuestsComponent implements OnInit {
   }
 
   applyGuestFilter(searchTerm: string) {
-    this.filteredGuests = this.guests.filter((guest) => guest.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    this.filteredGuests = this.guests.filter((guest) =>
+      guest.name.toLowerCase().includes(searchTerm.trim().toLowerCase()),
+    );
     this.guestPageIndex = 0;
     this.updatePaginatedGuests();
   }
@@ -207,18 +211,6 @@ export class AddMembersGuestsComponent implements OnInit {
     this.updatePaginatedGuests();
   }
 
-  onMemberRemove(id: string) {
-    this.members = this.members.filter((member) => member.id !== id);
-    this.filteredMembers = this.filteredMembers.filter((member) => member.id !== id);
-    this.updatePaginatedMembers();
-  }
-
-  onGuestRemove(id: string) {
-    this.guests = this.guests.filter((guest) => guest.id !== id);
-    this.filteredGuests = this.filteredGuests.filter((guest) => guest.id !== id);
-    this.updatePaginatedGuests();
-  }
-
   submitMember() {
     const selectedMembers = this.members.filter((member) => member.selected);
     if (selectedMembers.length === 0) {
@@ -232,20 +224,16 @@ export class AddMembersGuestsComponent implements OnInit {
     forkJoin(requests).subscribe({
       next: () => {
         this.toast.openSuccess(`${selectedMembers.length} membro(s) adicionado(s) com sucesso`);
-        const selectedIds = selectedMembers.map((member) => member.id);
-        this.addedParticipantIds = [...this.addedParticipantIds, ...selectedIds];
-        selectedIds.forEach((id) => this.participantsService.addParticipant(this.data.event.id, id));
-        this.members = this.members.filter((member) => !selectedIds.includes(member.id));
-        this.filteredMembers = this.filteredMembers.filter((member) => !selectedIds.includes(member.id));
         this.data.event.participantAndGuests = [
-          ...(this.data.event.participantAndGuests || []),
-          ...selectedMembers.map((member) => ({ ...member, selected: false })),
+          ...(this.data.event.participantAndGuests ?? []),
+          ...selectedMembers.map((member) => ({ ...member, selected: false, isGuest: false })),
         ];
+        this.members = this.members.filter((member) => !member.selected);
+        this.filteredMembers = this.filteredMembers.filter((member) => !member.selected);
         this.updatePaginatedMembers();
         this.loading.hide();
       },
-      error: (error) => {
-        console.error('Erro ao adicionar membros:', error);
+      error: () => {
         this.toast.openError('Erro ao adicionar membros');
         this.loading.hide();
       },
@@ -260,28 +248,78 @@ export class AddMembersGuestsComponent implements OnInit {
     }
     this.loading.show();
     const requests = selectedGuests.map((guest) =>
-      this.eventsService.addGuestsEvent(this.data.event.id, { member_id: guest.id }),
+      this.eventsService.addGuestsEvent(this.data.event.id, { person_id: guest.id }),
     );
     forkJoin(requests).subscribe({
       next: () => {
         this.toast.openSuccess(`${selectedGuests.length} convidado(s) adicionado(s) com sucesso`);
-        const selectedIds = selectedGuests.map((guest) => guest.id);
-        this.addedParticipantIds = [...this.addedParticipantIds, ...selectedIds];
-        selectedIds.forEach((id) => this.participantsService.addParticipant(this.data.event.id, id));
-        this.guests = this.guests.filter((guest) => !selectedIds.includes(guest.id));
-        this.filteredGuests = this.filteredGuests.filter((guest) => !selectedIds.includes(guest.id));
         this.data.event.participantAndGuests = [
-          ...(this.data.event.participantAndGuests || []),
-          ...selectedGuests.map((guest) => ({ ...guest, selected: false })),
+          ...(this.data.event.participantAndGuests ?? []),
+          ...selectedGuests.map((guest) => ({
+            id: guest.id,
+            name: guest.name,
+            selected: false,
+            isGuest: true,
+          })),
         ];
+        this.guests = this.guests.filter((guest) => !guest.selected);
+        this.filteredGuests = this.filteredGuests.filter((guest) => !guest.selected);
         this.updatePaginatedGuests();
         this.loading.hide();
       },
-      error: (error) => {
-        console.error('Erro ao adicionar convidados:', error);
+      error: () => {
         this.toast.openError('Erro ao adicionar convidados');
         this.loading.hide();
       },
     });
+  }
+
+  removeParticipant(participant: ParticipantAndGuest) {
+    this.loading.show();
+    const isGuest = participant.isGuest ?? false;
+    if (!participant.id) {
+      this.toast.openError('ERRO: Participante não encontrado');
+      this.loading.hide();
+      return;
+    }
+    const request = isGuest
+      ? this.eventsService.removeGuestEvent(this.data.event.id, participant.id)
+      : this.eventsService.removeMemberEvent(this.data.event.id, participant.id);
+    request.subscribe({
+      next: () => {
+        this.toast.openSuccess(`${isGuest ? 'Convidado' : 'Membro'} removido com sucesso`);
+        this.data.event.participantAndGuests = (this.data.event.participantAndGuests ?? []).filter(
+          (p) => p.id !== participant.id,
+        );
+        if (!isGuest) {
+          const member = this.allMembers.find((m) => m.id === participant.id);
+          if (member) {
+            this.members = [...this.members, { ...member, selected: false, isGuest: false }];
+            this.filteredMembers = [...this.filteredMembers, { ...member, selected: false, isGuest: false }];
+            this.updatePaginatedMembers();
+          }
+        } else {
+          const guest = this.allGuests.find((g) => g.id === participant.id);
+          if (guest) {
+            this.guests = [...this.guests, { ...guest, selected: false, isGuest: true }];
+            this.filteredGuests = [...this.filteredGuests, { ...guest, selected: false, isGuest: true }];
+            this.updatePaginatedGuests();
+          }
+        }
+        this.loading.hide();
+      },
+      error: () => {
+        this.toast.openError(`Não foi possível remover ${isGuest ? 'convidado' : 'membro'}`);
+        this.loading.hide();
+      },
+    });
+  }
+
+  isParticipantMember(participant: ParticipantAndGuest): boolean {
+    return this.allMembers.some((member) => member.id === participant.id);
+  }
+
+  closeDialog() {
+    this.dialogRef.close();
   }
 }
