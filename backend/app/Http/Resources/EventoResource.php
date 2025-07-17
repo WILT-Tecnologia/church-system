@@ -21,6 +21,7 @@ class EventoResource extends JsonResource
             'name' => $this->name,
             'obs' => $this->obs,
             'participants' => MemberResource::collection($this->whenLoaded('participantes')),
+            'guests' => GuestResource::collection($this->guests) ,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
