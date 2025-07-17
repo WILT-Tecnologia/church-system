@@ -75,7 +75,7 @@ class EventoController extends Controller
     }
 
     public function removerConvidado(Request $request, Evento $evento) {
-        $request->validate(['member_id' => 'required|uuid|exists:persons,person_id']);
+        $request->validate(['person_id' => 'required|uuid|exists:persons,id']);
         $evento->guests()->detach($request->person_id);
         return response()->json(['message' => 'Convidado removido']);
     }

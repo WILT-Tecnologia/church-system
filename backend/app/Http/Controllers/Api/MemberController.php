@@ -15,7 +15,7 @@ class MemberController extends Controller
      */
 
     public function index() {
-        $members = Member::with(['families', 'ordination', 'statusMember', 'histMembers'])->get();
+        $members = Member::with(['families', 'ordination', 'statusMember', 'histMembers'])->orderBy('created_at', 'desc')->get();
         return MemberResource::collection($members);
     }
 
