@@ -58,4 +58,18 @@ class EventoController extends Controller
         $evento->participantes()->detach($request->member_id);
         return response()->json(['message' => 'Participante removido']);
     }
+
+    public function adicionarConvidado(Request $request, Evento $evento) {
+        $request->validate(['person_id' => 'required|uuid|exists:persons,id']);
+        // dd($request->member_id)
+        $evento->guests()->syncWithoutDetaching($request->person_id);
+        // $evento->participantes()->syncWithoutDetaching([$request->participante_id]);
+        return response()->json(['message' => 'Convidado adicionado']);
+    }
+
+    public function removerConvidado(Request $request, Evento $evento) {
+        $request->validate(['member_id' => 'required|uuid|exists:persons,person_id']);
+        $evento->guests()->detach($request->person_id);
+        return response()->json(['message' => 'Convidado removido']);
+    }
 }
