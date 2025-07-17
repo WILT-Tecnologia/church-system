@@ -66,4 +66,9 @@ class Person extends Model
     public function family(): BelongsTo {
         return $this->belongsTo(Family::class);
     }
+
+    public function eventos(): BelongsToMany
+    {
+        return $this->belongsToMany(Evento::class, 'events_guests', 'person_id');
+    }
 }

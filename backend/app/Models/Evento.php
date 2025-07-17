@@ -41,4 +41,9 @@ class Evento extends Model
         return $this->belongsToMany(Member::class, 'event_participants', 'event_id');
     }
 
+    public function guests(): BelongsToMany
+    {
+        return $this->belongsToMany(Person::class, 'events_guests', 'event_id');
+    }
+
 }
