@@ -1,4 +1,3 @@
-@use 'app/styles//styles.css';
 @use 'app/styles/theme' as theme;
 @use '@angular/material' as mat;
 @use 'app/styles/autocomplete-theme' as autocomplete;
@@ -17,26 +16,25 @@
   @include mat.color-variants-backwards-compatibility(theme.$light-theme);
   @include autocomplete.autocomplete-theme();
 
-  & {
-    --primary-color: #{mat.get-theme-color(theme.$light-theme, primary, 50)};
-    --primary-color-dark: #{mat.get-theme-color(theme.$light-theme, primary, 40)};
-    --secondary-color: #{mat.get-theme-color(theme.$light-theme, secondary)};
-    --tertiary-color: #{mat.get-theme-color(theme.$light-theme, tertiary)};
-    --neutral-40: #{mat.get-theme-color(theme.$light-theme, neutral, 40)};
-    --grey-very-light: #{theme.$greyVeryLight};
-    --grey-light: #{theme.$greyLight};
-    --grey-main: #{theme.$greyMain};
-    --grey-dark: #{theme.$greyDark};
-    --text-color: #{theme.$textColor};
-    --error-color: #{theme.$error};
-    --danger-color: #{theme.$danger};
-    --success-color: #{theme.$success};
-    --warning-color: #{theme.$warning};
-    --hover-color: #{theme.$hover};
-    --separator-color: #{theme.$separator};
-    --white-color: #{theme.$white};
-    --background-color: #{theme.$backgroundColor};
-  }
+  --primary-color: #{mat.get-theme-color(theme.$light-theme, primary, 50)};
+  --primary-color-light: #{mat.get-theme-color(theme.$light-theme, primary, 90)};
+  --primary-color-dark: #{mat.get-theme-color(theme.$light-theme, primary, 40)};
+  --secondary-color: #{mat.get-theme-color(theme.$light-theme, secondary)};
+  --tertiary-color: #{mat.get-theme-color(theme.$light-theme, tertiary)};
+  --neutral-40: #{mat.get-theme-color(theme.$light-theme, neutral, 40)};
+  --grey-very-light: #{theme.$greyVeryLight};
+  --grey-light: #{theme.$greyLight};
+  --grey-main: #{theme.$greyMain};
+  --grey-dark: #{theme.$greyDark};
+  --text-color: #{theme.$textColor};
+  --error-color: #{theme.$error};
+  --danger-color: #{theme.$danger};
+  --success-color: #{theme.$success};
+  --warning-color: #{theme.$warning};
+  --hover-color: #{theme.$hover};
+  --separator-color: #{theme.$separator};
+  --white-color: #{theme.$white};
+  --background-color: #{theme.$backgroundColor};
 }
 
 *:not(mat-icon) {
@@ -54,8 +52,7 @@
 }
 
 html,
-body,
-app-root {
+body {
   background-color: var(--background-color);
   color: var(--text-color);
   margin: 0;

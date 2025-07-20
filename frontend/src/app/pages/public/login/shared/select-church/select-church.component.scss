@@ -59,8 +59,10 @@ mat-list-item {
 }
 
 .church-name {
-  font-weight: 600;
   font-size: 1rem;
+  font-weight: 600;
+  vertical-align: middle;
+  white-space: pre-wrap;
   color: var(--primary-color);
 
   @media screen and (max-width: 768px) {

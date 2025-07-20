@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+
 import { Color, PieChartModule, ScaleType } from '@swimlane/ngx-charts';
 
 type SimpleProps = {
@@ -8,12 +9,12 @@ type SimpleProps = {
 }[];
 
 @Component({
-    selector: 'app-dashboard',
-    templateUrl: './dashboard.component.html',
-    styleUrls: ['./dashboard.component.scss'],
-    imports: [CommonModule, PieChartModule]
+  selector: 'app-admin-dashboard',
+  templateUrl: './app-admin-dashboard.component.html',
+  styleUrls: ['./app-admin-dashboard.component.scss'],
+  imports: [CommonModule, PieChartModule],
 })
-export class DashboardComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit {
   scaleType: ScaleType = ScaleType.Ordinal;
   single: SimpleProps = [
     {

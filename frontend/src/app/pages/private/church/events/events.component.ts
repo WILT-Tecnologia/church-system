@@ -26,7 +26,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Observable, of, Subject } from 'rxjs';
 import { mergeWith, switchMap } from 'rxjs/operators';
 
-import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
+import { FullCalendarModule, FullCalendarComponent } from '@fullcalendar/angular';
 import { CalendarOptions, DateSelectArg, EventApi, EventClickArg } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';

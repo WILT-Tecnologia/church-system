@@ -20,6 +20,7 @@ import { EventTypesService } from './eventTypes.service';
   selector: 'app-event-types',
   templateUrl: './event-types.component.html',
   styleUrls: ['./event-types.component.scss'],
+  standalone: true,
   imports: [NotFoundRegisterComponent, CommonModule, CrudComponent],
 })
 export class EventTypesComponent implements OnInit {

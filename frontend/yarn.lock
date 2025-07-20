@@ -2396,10 +2396,10 @@
   resolved "https://registry.npmjs.org/@socket.io/component-emitter/-/component-emitter-3.1.2.tgz"
   integrity sha512-9BCxFwvbGg/RsZK9tjXd8s4UcwR0MWeFQ1XEKIQVVvAGJyINdrqKMcTRyLoK8Rse1GjzLV9cwjWV1olXRWEXVA==
 
-"@swimlane/ngx-charts@^21.1.2":
-  version "21.1.2"
-  resolved "https://registry.npmjs.org/@swimlane/ngx-charts/-/ngx-charts-21.1.2.tgz"
-  integrity sha512-Cb5+zxupyVWoBHAR3APLRLCJS/oC72t6QMHI60cELZVLHhxP69lbI3VMXWvpjOr2Cxgc38Md9WkfAHvGAUSy1A==
+"@swimlane/ngx-charts@22.0.0":
+  version "22.0.0"
+  resolved "https://registry.yarnpkg.com/@swimlane/ngx-charts/-/ngx-charts-22.0.0.tgz#01216ec667521eca94dc8da1867a18efca680c1a"
+  integrity sha512-ibWGGhzyA1RmNEFaQjDw0eXoLJN4gtngha0oZnZCDdqg1hPpWa/di9UXXTfRvotvzcfP4DdDJRbHvy0dnQrOWQ==
   dependencies:
     d3-array "^3.2.0"
     d3-brush "^3.0.0"

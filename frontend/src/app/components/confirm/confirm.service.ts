@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+
 import { ConfirmComponent } from './confirm.component';
 
 @Injectable({
@@ -27,15 +28,21 @@ export class ConfirmService {
     disableClose: boolean = true,
     customClassContainer: string = '',
   ) {
-    const isMobile = window.innerWidth <= 768;
+    const isMobile = window.innerWidth <= 768 || window.innerHeight <= 600;
+    const panelClasses = Array.isArray(customClassContainer)
+      ? [...customClassContainer, 'responsive-modal']
+      : customClassContainer
+        ? [customClassContainer, 'responsive-modal']
+        : ['responsive-modal'];
 
-    return this.dialog.open<ConfirmComponent>(ConfirmComponent, {
-      minWidth: isMobile ? '95dvw' : '30dvw',
-      maxWidth: isMobile ? '95dvw' : '30dvw',
+    const dialogConfig: MatDialogConfig = {
+      width: '35dvw',
+      maxWidth: '100dvw',
+      maxHeight: '40dvh',
       role: 'dialog',
       autoFocus: false,
       disableClose: disableClose,
-      panelClass: customClassContainer ? customClassContainer : 'modal',
+      panelClass: panelClasses,
       data: {
         title,
         message,
@@ -45,6 +52,13 @@ export class ConfirmService {
         disableClose,
         customClassContainer,
       },
-    });
+    };
+
+    if (isMobile) {
+      dialogConfig.width = '100dvw';
+      dialogConfig.height = '100dvh';
+    }
+
+    return this.dialog.open<ConfirmComponent>(ConfirmComponent, dialogConfig);
   }
 }

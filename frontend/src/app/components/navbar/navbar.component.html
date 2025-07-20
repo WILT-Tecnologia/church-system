@@ -1,59 +1,121 @@
 <mat-sidenav-container class="sidenav-container">
-  <mat-sidenav #sidenav [disableClose]="false" class="sidenav" mode="over" position="end">
-    <div class="sidebar-header">
-      <button class="user-button" color="primary" mat-button type="button">
-        <mat-icon>person</mat-icon>
-        <span class="button-text">{{ userName }}</span>
-      </button>
-    </div>
-    <mat-nav-list class="mat-nav-list-options">
-      @for (route of routesGlobal; track $index) {
-        <button
-          mat-list-item
-          class="mat-button-options"
-          (click)="navigateTo(route.path)"
-          [ngClass]="{ 'active-route': isActiveRoute(route.path) }"
-        >
-          <span class="icon-text">
-            @if (route.icon) {
-              <mat-icon color="primary">{{ route.icon }}</mat-icon>
-            }
-            {{ route.label }}
-          </span>
-        </button>
-      }
-    </mat-nav-list>
-    <mat-divider></mat-divider>
-    <mat-nav-list>
-      @for (route of routesUser; track $index) {
-        <button
-          mat-list-item
-          class="mat-button-options"
-          (click)="route.path !== 'logout' ? navigateTo(route.path) : logout()"
-        >
-          <span class="icon-text">
-            @if (route.icon) {
-              <mat-icon [color]="route.path === 'logout' ? 'warn' : 'primary'">{{ route.icon }}</mat-icon>
-            }
-            <span [ngClass]="{ logout: route.path === 'logout' }">
-              {{ route.title }}
-            </span>
-          </span>
-        </button>
-      }
-    </mat-nav-list>
-  </mat-sidenav>
+  @if (isChurchSelected()) {
+    <!-- Desktop Sidebar -->
+    <mat-sidenav
+      #desktopSidenav
+      [disableClose]="false"
+      class="desktop-sidenav"
+      mode="side"
+      [opened]="isSidebarOpen && !isMobile"
+      [style.display]="isMobile ? 'none' : 'block'"
+    >
+      <div class="sidebar-header">
+        <div class="logo-container">
+          <app-logo></app-logo>
+        </div>
+        <span class="church-name">{{ selectedChurchName }}</span>
+      </div>
+      <mat-divider></mat-divider>
 
+      <mat-accordion>
+        @for (section of allRoutes; track $index) {
+          <mat-expansion-panel [expanded]="isRouteInSection(section.path)" (opened)="setStep($index)">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon>{{ section.icon }}</mat-icon>
+                <span class="panel-title">{{ section.label }}</span>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-nav-list>
+              @if (section.items) {
+                @for (route of section.items; track $index) {
+                  <button
+                    mat-list-item
+                    class="mat-button-options"
+                    (click)="navigateTo(section.path + '/' + route.path)"
+                    [ngClass]="{ 'active-route': isActiveRoute(section.path + '/' + route.path) }"
+                  >
+                    <span class="icon-text">
+                      <mat-icon>{{ route.icon }}</mat-icon>
+                      <span class="menu-text">{{ route.label }}</span>
+                    </span>
+                  </button>
+                }
+              }
+            </mat-nav-list>
+          </mat-expansion-panel>
+        }
+      </mat-accordion>
+    </mat-sidenav>
+  }
+
+  @if (isChurchSelected()) {
+    <!-- Mobile Sidenav -->
+    <mat-sidenav #sidenav [disableClose]="false" class="sidenav" mode="over" position="end">
+      <div class="sidebar-header">
+        <div class="logo-container">
+          <app-logo></app-logo>
+        </div>
+        <span class="church-name">{{ selectedChurchName }}</span>
+        <button class="user-button" color="primary" mat-button type="button" [matMenuTriggerFor]="userMenu">
+          <mat-icon>person</mat-icon>
+          <span class="button-text">{{ userName }}</span>
+        </button>
+      </div>
+      <mat-divider></mat-divider>
+
+      <mat-accordion>
+        @for (section of allRoutes; track $index) {
+          <mat-expansion-panel [expanded]="isRouteInSection(section.path)" (opened)="setStep($index)">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon>{{ section.icon }}</mat-icon>
+                <span class="panel-title">{{ section.label }}</span>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-nav-list>
+              @if (section.items) {
+                @for (route of section.items; track $index) {
+                  <button
+                    mat-list-item
+                    class="mat-button-options"
+                    (click)="navigateTo(section.path + '/' + route.path); sidenav.close()"
+                    [ngClass]="{ 'active-route': isActiveRoute(section.path + '/' + route.path) }"
+                  >
+                    <span class="icon-text">
+                      <mat-icon>{{ route.icon }}</mat-icon>
+                      <span class="menu-text">{{ route.label }}</span>
+                    </span>
+                  </button>
+                }
+              }
+            </mat-nav-list>
+          </mat-expansion-panel>
+        }
+      </mat-accordion>
+    </mat-sidenav>
+  }
+
+  <!-- Navbar -->
   <mat-sidenav-content class="sidenav-content">
     <mat-toolbar class="navbar">
       <div class="container-section-one-nav">
-        @if (isChurchSelected()) {
-          <app-logo></app-logo>
-          <span class="separator"></span>
-          <span class="text-default">Church System</span>
+        @if (isChurchSelected() && !isMobile) {
+          <button (click)="toggleSidebarDesktop()" mat-icon-button color="primary">
+            <mat-icon>{{ isSidebarOpen ? 'menu_open' : 'menu' }}</mat-icon>
+          </button>
         }
+        <div class="breadcrumb">
+          @for (segment of breadcrumb; track $index) {
+            <span>
+              {{ segment }}
+            </span>
+            @if ($index != breadcrumb.length - 1) {
+              <span class="breadcrumb-separator">/</span>
+            }
+          }
+        </div>
       </div>
-      <span class="spacer"></span>
       @if (isMobile) {
         <button (click)="sidenav.toggle()" mat-icon-button color="primary">
           <mat-icon>menu</mat-icon>
@@ -61,26 +123,7 @@
       }
       @if (isLoggedIn && !isMobile) {
         <div class="wrapper-buttons">
-          @if (isChurchSelected()) {
-            @for (route of routesGlobal; track $index) {
-              <button
-                (click)="navigateTo(route.path)"
-                color="primary"
-                mat-button
-                class="nav-button"
-                [ngClass]="{ 'active-route': isActiveRoute(route.path) }"
-              >
-                {{ route.label }}
-              </button>
-            }
-          }
-          <button
-            color="primary"
-            type="button"
-            [matMenuTriggerFor]="userMenu"
-            class="user-button nav-button"
-            mat-button
-          >
+          <button color="primary" type="button" [matMenuTriggerFor]="userMenu" class="user-button" mat-button>
             <mat-icon color="primary">person</mat-icon>
             <span class="button-text">{{ userName }}</span>
           </button>
@@ -88,30 +131,25 @@
       }
     </mat-toolbar>
 
+    <!-- Main Content -->
     <div class="main-content">
       <router-outlet></router-outlet>
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>
 
+<!-- User Menu -->
 <mat-menu #userMenu="matMenu" xPosition="before">
-  @for (route of routesUser; track $index) {
-    <button
-      (click)="route.path !== 'logout' ? navigateTo(route.path) : logout()"
-      mat-menu-item
-      [ngClass]="{ logout: route.path === 'logout' }"
-    >
-      @if (route.path === 'logout') {
-        <mat-icon [color]="route.path === 'logout' ? 'warn' : 'primary'">logout</mat-icon>
-      }
-
-      @if (route.path === 'profile') {
-        <mat-icon color="primary">person</mat-icon>
-      }
-
-      <span>
-        {{ route.title }}
-      </span>
-    </button>
+  @for (route of userRoutes; track $index) {
+    @for (route of route.items; track $index) {
+      <button
+        mat-menu-item
+        (click)="route.path !== 'logout' ? navigateTo(route.path) : logout()"
+        [class]="{ 'active-route': isActiveRoute(route.path) }"
+      >
+        <mat-icon [color]="route.path === 'logout' ? 'warn' : 'primary'">{{ route.icon }}</mat-icon>
+        <span [class]="route.path === 'logout' ? 'logout' : 'button-text'">{{ route.label }}</span>
+      </button>
+    }
   }
 </mat-menu>

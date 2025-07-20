@@ -5,21 +5,6 @@
   align-items: center;
   height: 100dvh;
   overflow: hidden !important;
-  background-image: linear-gradient(
-    to right,
-    #03d0fd,
-    #03c4f1,
-    #03b9e6,
-    #03adda,
-    #03a2ce,
-    #039ac6,
-    #0393bd,
-    #038bb5,
-    #0385ae,
-    #0380a8,
-    #037aa1,
-    #03759b
-  );
 }
 
 .card {
@@ -47,5 +32,17 @@
   @media screen and (max-width: 768px) {
     font-size: 1.5rem;
     margin: 0.5rem 0;
+  }
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+
+  & > button {
+    width: 100%;
   }
 }

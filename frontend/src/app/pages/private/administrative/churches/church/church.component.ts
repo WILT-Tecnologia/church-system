@@ -1,29 +1,10 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Inject,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import {
-  MatAutocompleteModule,
-  MatAutocompleteSelectedEvent,
-} from '@angular/material/autocomplete';
+import { ChangeDetectionStrategy, Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import {
-  MatDatepicker,
-  MatDatepickerModule,
-} from '@angular/material/datepicker';
+import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -45,17 +26,9 @@ import { CepService } from 'app/services/search-cep/search-cep.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 import { cnpjValidator } from 'app/services/validators/cnpj-validator';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
-import {
-  debounceTime,
-  distinctUntilChanged,
-  map,
-  Observable,
-  startWith,
-  Subject,
-  takeUntil,
-} from 'rxjs';
+import { debounceTime, distinctUntilChanged, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
 import { PersonsService } from '../../persons/persons.service';
-import { ChurchsService } from '../churchs.service';
+import { ChurchsService } from '../churches.service';
 
 @Component({
   selector: 'app-church',
@@ -137,12 +110,8 @@ export class ChurchComponent implements OnInit, OnDestroy {
       this.isEditMode = true;
 
       if (this.data?.church?.responsible) {
-        this.searchResponsibleControl.setValue(
-          this.data.church.responsible.name,
-        );
-        this.churchForm
-          .get('responsible_id')
-          ?.setValue(this.data.church.responsible.id);
+        this.searchResponsibleControl.setValue(this.data.church.responsible.name);
+        this.churchForm.get('responsible_id')?.setValue(this.data.church.responsible.id);
       }
 
       this.churchForm.patchValue({
@@ -155,51 +124,18 @@ export class ChurchComponent implements OnInit, OnDestroy {
   createForm = () => {
     return this.fb.group({
       id: [this.data?.church?.id ?? ''],
-      responsible_id: [
-        this.data?.church?.responsible?.id ?? '',
-        [Validators.required],
-      ],
-      name: [
-        this.data?.church?.name ?? '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
-      email: [
-        this.data?.church?.email ?? '',
-        [Validators.required, Validators.email],
-      ],
-      cnpj: [
-        this.data?.church?.cnpj ?? '',
-        [Validators.required, cnpjValidator],
-      ],
+      responsible_id: [this.data?.church?.responsible?.id ?? '', [Validators.required]],
+      name: [this.data?.church?.name ?? '', [Validators.required, Validators.maxLength(255)]],
+      email: [this.data?.church?.email ?? '', [Validators.required, Validators.email]],
+      cnpj: [this.data?.church?.cnpj ?? '', [Validators.required, cnpjValidator]],
       cep: [this.data?.church?.cep ?? '', [Validators.required]],
-      street: [
-        this.data?.church?.street ?? '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
-      number: [
-        this.data?.church?.number ?? '',
-        [Validators.required, Validators.maxLength(10)],
-      ],
-      complement: [
-        this.data?.church?.complement ?? '',
-        [Validators.maxLength(255)],
-      ],
-      district: [
-        this.data?.church?.district ?? '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
-      city: [
-        this.data?.church?.city ?? '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
-      state: [
-        this.data?.church?.state ?? '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
-      country: [
-        this.data?.church?.country ?? '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
+      street: [this.data?.church?.street ?? '', [Validators.required, Validators.maxLength(255)]],
+      number: [this.data?.church?.number ?? '', [Validators.required, Validators.maxLength(10)]],
+      complement: [this.data?.church?.complement ?? '', [Validators.maxLength(255)]],
+      district: [this.data?.church?.district ?? '', [Validators.required, Validators.maxLength(255)]],
+      city: [this.data?.church?.city ?? '', [Validators.required, Validators.maxLength(255)]],
+      state: [this.data?.church?.state ?? '', [Validators.required, Validators.maxLength(255)]],
+      country: [this.data?.church?.country ?? '', [Validators.required, Validators.maxLength(255)]],
       logo: [this.data?.church?.logo ?? ''],
       favicon: [this.data?.church?.favicon ?? ''],
       background: [this.data?.church?.background ?? ''],
@@ -217,9 +153,7 @@ export class ChurchComponent implements OnInit, OnDestroy {
           return value ? value.name : '';
         }
       }),
-      map((name) =>
-        name.length >= 1 ? this._filterResponsables(name) : this.responsible,
-      ),
+      map((name) => (name.length >= 1 ? this._filterResponsables(name) : this.responsible)),
     );
   };
 
@@ -233,17 +167,13 @@ export class ChurchComponent implements OnInit, OnDestroy {
           return value ? value.name : '';
         }
       }),
-      map((name) =>
-        name.length >= 1 ? this._filterResponsables(name) : this.responsible,
-      ),
+      map((name) => (name.length >= 1 ? this._filterResponsables(name) : this.responsible)),
     );
   }
 
   private _filterResponsables(name: string): Person[] {
     const filterValue = name.toLowerCase();
-    return this.responsible.filter((responsible) =>
-      responsible.name.toLowerCase().includes(filterValue),
-    );
+    return this.responsible.filter((responsible) => responsible.name.toLowerCase().includes(filterValue));
   }
 
   onResponsibleSelected(event: MatAutocompleteSelectedEvent) {
@@ -287,9 +217,7 @@ export class ChurchComponent implements OnInit, OnDestroy {
       control?.markAsTouched();
     });
 
-    const isIdentificationValid = identificationFields.every(
-      (field) => this.churchForm.get(field)?.valid,
-    );
+    const isIdentificationValid = identificationFields.every((field) => this.churchForm.get(field)?.valid);
 
     if (isIdentificationValid) {
       this.tabGroup.selectedIndex = 1;
@@ -308,11 +236,7 @@ export class ChurchComponent implements OnInit, OnDestroy {
     this.loading.show();
     this.churchsService.createChurch(data).subscribe({
       next: () => {
-        this.notificationService.onSuccess(
-          MESSAGES.CREATE_SUCCESS,
-          this.dialogRef,
-          this.churchForm.value,
-        );
+        this.notificationService.onSuccess(MESSAGES.CREATE_SUCCESS, this.dialogRef, this.churchForm.value);
       },
       error: () => {
         this.notificationService.onError(MESSAGES.CREATE_ERROR);
@@ -325,11 +249,7 @@ export class ChurchComponent implements OnInit, OnDestroy {
     this.loading.show();
     this.churchsService.updateChurch(churchId, data).subscribe({
       next: () => {
-        this.notificationService.onSuccess(
-          MESSAGES.CREATE_SUCCESS,
-          this.dialogRef,
-          this.churchForm.value,
-        );
+        this.notificationService.onSuccess(MESSAGES.CREATE_SUCCESS, this.dialogRef, this.churchForm.value);
       },
       error: () => {
         this.notificationService.onError(MESSAGES.CREATE_ERROR);
@@ -343,11 +263,7 @@ export class ChurchComponent implements OnInit, OnDestroy {
 
     this.churchForm
       .get('cep')
-      ?.valueChanges.pipe(
-        debounceTime(300),
-        distinctUntilChanged(),
-        takeUntil(this.destroy$),
-      )
+      ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe((cep: string) => {
         if (cep.length === 8 && cep !== previousCepValue) {
           this.searchCep(cep);

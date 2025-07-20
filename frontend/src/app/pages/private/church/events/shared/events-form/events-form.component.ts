@@ -22,7 +22,7 @@ import { MESSAGES } from 'app/components/toast/messages';
 import { Church } from 'app/model/Church';
 import { Events } from 'app/model/Events';
 import { EventTypes } from 'app/model/EventTypes';
-import { ChurchsService } from 'app/pages/private/administrative/churchs/churchs.service';
+import { ChurchsService } from 'app/pages/private/administrative/churches/churches.service';
 import { EventTypesService } from 'app/pages/private/administrative/event-types/eventTypes.service';
 import { NotificationService } from 'app/services/notification/notification.service';
 import { ValidationService } from 'app/services/validation/validation.service';

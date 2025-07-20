@@ -4,8 +4,8 @@
   justify-content: center;
   align-items: center;
   position: relative;
-  height: 100dvh;
-  width: 100dvw;
+  height: 100%;
+  width: 100%;
   background-color: var(--white-color);
   overflow: hidden;
 }
@@ -36,7 +36,7 @@
 }
 
 .title-404 {
-  font-size: 1.875rem;;
+  font-size: 1.875rem;
   color: var(--text-color);
   margin: 0.83rem 0;
 }

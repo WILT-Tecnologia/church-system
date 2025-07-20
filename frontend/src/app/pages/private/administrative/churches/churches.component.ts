@@ -16,16 +16,16 @@ import { Church } from 'app/model/Church';
 import { NotificationService } from 'app/services/notification/notification.service';
 
 import { ChurchComponent } from './church/church.component';
-import { ChurchsService } from './churchs.service';
+import { ChurchsService } from './churches.service';
 
 @Component({
   selector: 'app-churchs',
-  templateUrl: './churchs.component.html',
-  styleUrls: ['./churchs.component.scss'],
+  templateUrl: './churches.component.html',
+  styleUrls: ['./churches.component.scss'],
   imports: [NotFoundRegisterComponent, CrudComponent, CommonModule],
   providers: [FormatsPipe],
 })
-export class ChurchsComponent implements OnInit {
+export class ChurchesComponent implements OnInit {
   churchs: Church[] = [];
   rendering: boolean = true;
   dataSourceMat = new MatTableDataSource<Church>(this.churchs);
