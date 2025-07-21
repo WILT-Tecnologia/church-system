@@ -26,7 +26,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Observable, of, Subject } from 'rxjs';
 import { mergeWith, switchMap } from 'rxjs/operators';
 
-import { FullCalendarModule, FullCalendarComponent } from '@fullcalendar/angular';
+import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, DateSelectArg, EventApi, EventClickArg } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -48,7 +48,9 @@ import dayjs from 'dayjs';
 import { EventTypesService } from '../../administrative/event-types/eventTypes.service';
 import { EventsService } from './events.service';
 import { AddMembersGuestsComponent } from './shared/add-members-guests/add-members-guests.component';
+import { CreateCallComponent } from './shared/create-call/create-call.component';
 import { EventsFormComponent } from './shared/events-form/events-form.component';
+import { MakeCallComponent } from './shared/make-call/make-call.component';
 
 @Component({
   selector: 'app-events',
@@ -86,19 +88,19 @@ export class EventsComponent implements OnInit, AfterViewInit {
       type: 'person_add',
       icon: 'person_add',
       label: 'Adicionar participantes',
-      action: (events: Events) => this.AddMembersGuest(events),
+      action: (events: Events) => this.addMembersGuest(events),
     },
     {
       type: 'add_circle',
       icon: 'add_circle',
       label: 'Criar chamada do dia',
-      action: (events: Events) => this.AddMembersGuest(events),
+      action: (events: Events) => this.handleCreateCall(events),
     },
     {
       type: 'add_circle',
       icon: 'add_circle',
       label: 'Realizar chamada',
-      action: (events: Events) => this.AddMembersGuest(events),
+      action: (events: Events) => this.handleMakeCall(events),
     },
     {
       type: 'edit',
@@ -246,11 +248,11 @@ export class EventsComponent implements OnInit, AfterViewInit {
     this.refreshSubject.next();
   }
 
-  showLoading = () => {
+  private showLoading = () => {
     this.loading.show();
   };
 
-  hideLoading = () => {
+  private hideLoading = () => {
     this.loading.hide();
   };
 
@@ -266,7 +268,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
     }, 0);
   };
 
-  handleCalendarToggle = () => {
+  private handleCalendarToggle = () => {
     this.calendarVisible.update((bool) => !bool);
     setTimeout(() => {
       if (this.calendarVisible() && this.calendarComponent?.getApi()) {
@@ -276,7 +278,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
     }, 0);
   };
 
-  handleWeekendsToggle = () => {
+  private handleWeekendsToggle = () => {
     this.calendarOptions.update((options) => ({
       ...options,
       weekends: !options.weekends,
@@ -288,7 +290,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
     }, 0);
   };
 
-  handleDateSelect(selectInfo: DateSelectArg) {
+  private handleDateSelect(selectInfo: DateSelectArg) {
     const modal = this.modal.openModal(`modal-${Math.random()}`, EventsFormComponent, 'Adicionar evento', true, true, {
       event: {
         start_date: dayjs(selectInfo.startStr).format('DD/MM/YYYY'),
@@ -304,19 +306,19 @@ export class EventsComponent implements OnInit, AfterViewInit {
     });
   }
 
-  handleRemoveEventCalendar(clickInfo: EventClickArg) {
+  private handleRemoveEventCalendar(clickInfo: EventClickArg) {
     const event = this.events.find((e) => e.id === clickInfo.event.id);
     if (event) {
       this.handleDelete(event);
     }
   }
 
-  handleEvents(events: EventApi[]) {
+  private handleEvents(events: EventApi[]) {
     this.currentEvents.set(events);
     this.cdr.detectChanges();
   }
 
-  loadEventTypes = () => {
+  private loadEventTypes = () => {
     this.loading.show();
     this.eventTypesService.findAll().subscribe({
       next: (eventTypes: EventTypes[]) => {
@@ -337,7 +339,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
     });
   };
 
-  loadEvents = () => {
+  private loadEvents = () => {
     this.showLoading();
     this.eventsService.findAll().subscribe({
       next: (events) => {
@@ -375,18 +377,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
     });
   };
 
-  handleCreate = () => {
-    const modal = this.modal.openModal(`modal-${Math.random()}`, EventsFormComponent, 'Adicionar evento', true, true);
-
-    modal.afterClosed().subscribe((result) => {
-      if (result) {
-        this.loadEvents();
-        this.refreshData();
-      }
-    });
-  };
-
-  AddMembersGuest = (event: Events) => {
+  private addMembersGuest = (event: Events) => {
     this.modal.openModal(
       `modal-${Math.random()}`,
       AddMembersGuestsComponent,
@@ -397,6 +388,43 @@ export class EventsComponent implements OnInit, AfterViewInit {
       '',
       true,
     );
+  };
+
+  private handleCreateCall = (event: Events) => {
+    this.modal.openModal(
+      `modal-${Math.random()}`,
+      CreateCallComponent,
+      `Criando a chamada do dia para o evento ${event.name}`,
+      true,
+      true,
+      { event },
+      '',
+      true,
+    );
+  };
+
+  private handleMakeCall = (event: Events) => {
+    this.modal.openModal(
+      `modal-${Math.random()}`,
+      MakeCallComponent,
+      `Fazendo a chamada para o evento ${event.name}`,
+      true,
+      true,
+      { event },
+      '',
+      true,
+    );
+  };
+
+  handleCreate = () => {
+    const modal = this.modal.openModal(`modal-${Math.random()}`, EventsFormComponent, 'Adicionar evento', true, true);
+
+    modal.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loadEvents();
+        this.refreshData();
+      }
+    });
   };
 
   handleEdit = (event: Events) => {

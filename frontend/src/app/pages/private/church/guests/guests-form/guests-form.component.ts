@@ -1,34 +1,18 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  Inject,
-  OnDestroy,
-  OnInit,
-  Optional,
-  ViewChild,
-} from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { Component, Inject, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
-import {
-  MAT_DATE_LOCALE,
-  provideNativeDateAdapter,
-} from '@angular/material/core';
-import {
-  MatDatepicker,
-  MatDatepickerModule,
-} from '@angular/material/datepicker';
+import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
+import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
+import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
@@ -41,7 +25,7 @@ import { CepService } from 'app/services/search-cep/search-cep.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 import { phoneValidator } from 'app/services/validators/phone-validator';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
-import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+
 import { GuestsService } from '../guests.service';
 
 @Component({
@@ -104,44 +88,17 @@ export class GuestsFormComponent implements OnInit, OnDestroy {
   createForm = (): FormGroup => {
     return this.fb.group({
       id: [this.data?.guest?.id ?? ''],
-      name: [
-        this.data?.guest?.name ?? '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
-      phone_one: [
-        this.data?.guest?.phone_one ?? '',
-        [Validators.required, phoneValidator()],
-      ],
+      name: [this.data?.guest?.name ?? '', [Validators.required, Validators.maxLength(255)]],
+      phone_one: [this.data?.guest?.phone_one ?? '', [Validators.required, phoneValidator()]],
       phone_two: [this.data?.guest?.phone_two ?? '', [phoneValidator()]],
       cep: [this.data?.guest?.cep ?? '', [Validators.required]],
-      street: [
-        this.data?.guest?.street ?? '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
-      number: [
-        this.data?.guest?.number ?? '',
-        [Validators.required, Validators.maxLength(10)],
-      ],
-      complement: [
-        this.data?.guest?.complement ?? '',
-        [Validators.maxLength(255)],
-      ],
-      district: [
-        this.data?.guest?.district ?? '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
-      city: [
-        this.data?.guest?.city ?? '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
-      state: [
-        this.data?.guest?.state ?? '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
-      country: [
-        this.data?.guest?.country ?? '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
+      street: [this.data?.guest?.street ?? '', [Validators.required, Validators.maxLength(255)]],
+      number: [this.data?.guest?.number ?? '', [Validators.required, Validators.maxLength(10)]],
+      complement: [this.data?.guest?.complement ?? '', [Validators.maxLength(255)]],
+      district: [this.data?.guest?.district ?? '', [Validators.required, Validators.maxLength(255)]],
+      city: [this.data?.guest?.city ?? '', [Validators.required, Validators.maxLength(255)]],
+      state: [this.data?.guest?.state ?? '', [Validators.required, Validators.maxLength(255)]],
+      country: [this.data?.guest?.country ?? '', [Validators.required, Validators.maxLength(255)]],
     });
   };
 
@@ -153,9 +110,7 @@ export class GuestsFormComponent implements OnInit, OnDestroy {
 
   getErrorMessage(controlName: string): string | null {
     const control = this.guestForm.get(controlName);
-    return control?.errors
-      ? this.validationService.getErrorMessage(control)
-      : null;
+    return control?.errors ? this.validationService.getErrorMessage(control) : null;
   }
 
   initialSearchCep() {
@@ -163,11 +118,7 @@ export class GuestsFormComponent implements OnInit, OnDestroy {
 
     this.guestForm
       .get('cep')
-      ?.valueChanges.pipe(
-        debounceTime(300),
-        distinctUntilChanged(),
-        takeUntil(this.destroy$),
-      )
+      ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe((cep: string) => {
         if (cep.length === 8 && cep !== previousCepValue) {
           this.searchCep(cep);
@@ -204,9 +155,7 @@ export class GuestsFormComponent implements OnInit, OnDestroy {
       control?.markAsTouched();
     });
 
-    const isIdentificationValid = identificationFields.every(
-      (field) => this.guestForm.get(field)?.valid,
-    );
+    const isIdentificationValid = identificationFields.every((field) => this.guestForm.get(field)?.valid);
 
     if (isIdentificationValid) {
       this.tabGroup.selectedIndex = 1;
@@ -239,15 +188,10 @@ export class GuestsFormComponent implements OnInit, OnDestroy {
     this.loading.show();
     this.guestsService.create(data).subscribe({
       next: (guest) => {
-        this.notification.onSuccess(
-          MESSAGES.CREATE_SUCCESS,
-          this.dialogRef,
-          this.guestForm.value,
-        );
+        this.notification.onSuccess(MESSAGES.CREATE_SUCCESS, this.dialogRef, this.guestForm.value);
         this.dialogRef.close(guest);
       },
-      error: (err) =>
-        this.notification.onError(err.error.message ?? MESSAGES.CREATE_ERROR),
+      error: (err) => this.notification.onError(err.error.message ?? MESSAGES.CREATE_ERROR),
       complete: () => this.loading.hide(),
     });
   };
@@ -257,15 +201,10 @@ export class GuestsFormComponent implements OnInit, OnDestroy {
     this.guestsService.update(id, data).subscribe({
       next: (guest) => {
         this.loading.hide();
-        this.notification.onSuccess(
-          MESSAGES.UPDATE_SUCCESS,
-          this.dialogRef,
-          this.guestForm.value,
-        );
+        this.notification.onSuccess(MESSAGES.UPDATE_SUCCESS, this.dialogRef, this.guestForm.value);
         this.dialogRef.close(guest);
       },
-      error: (err) =>
-        this.notification.onError(err.error.message ?? MESSAGES.UPDATE_ERROR),
+      error: (err) => this.notification.onError(err.error.message ?? MESSAGES.UPDATE_ERROR),
       complete: () => this.loading.hide(),
     });
   };

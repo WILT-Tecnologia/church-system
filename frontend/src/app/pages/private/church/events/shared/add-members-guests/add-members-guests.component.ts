@@ -21,9 +21,9 @@ import { SearchComponent } from 'app/components/search/search.component';
 import { ToastService } from 'app/components/toast/toast.service';
 import { EventData, Events, ParticipantAndGuest } from 'app/model/Events';
 
+import { GuestsService } from '../../../guests/guests.service';
 import { MembersService } from '../../../members/members.service';
 import { EventsService } from '../../events.service';
-import { GuestsService } from '../guests/guests.service';
 
 @Component({
   selector: 'app-add-members-guests',
