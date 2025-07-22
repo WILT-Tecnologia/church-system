@@ -133,7 +133,7 @@ export const routes: Routes = [
       {
         path: 'guests',
         component: GuestsComponent,
-        title: 'Convidados',
+        title: 'Visitantes',
         pathMatch: 'full',
         canActivate: [AuthGuard],
       },

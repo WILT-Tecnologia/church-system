@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CreateCallComponent } from './create-call.component';
+import { CreateCallToDayComponent } from './create-call-to-day.component';
 
-describe('CreateCallComponent', () => {
-  let component: CreateCallComponent;
-  let fixture: ComponentFixture<CreateCallComponent>;
+describe('CreateCallToDayComponent', () => {
+  let component: CreateCallToDayComponent;
+  let fixture: ComponentFixture<CreateCallToDayComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CreateCallComponent]
+      imports: [CreateCallToDayComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(CreateCallComponent);
+    fixture = TestBed.createComponent(CreateCallToDayComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -52,7 +52,11 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.loginForm = this.createForm();
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    if (this.authService.isAuthenticated() && localStorage.getItem('selectedChurch')) {
+      this.router.navigateByUrl('/church/dashboard');
+    }
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();

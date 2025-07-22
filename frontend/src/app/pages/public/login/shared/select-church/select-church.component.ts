@@ -6,6 +6,7 @@ import { MatListModule } from '@angular/material/list';
 import { Router } from '@angular/router';
 
 import { Church } from 'app/model/Church';
+import { ChurchsService } from 'app/pages/private/administrative/churches/churches.service';
 
 @Component({
   selector: 'app-select-church',
@@ -19,6 +20,7 @@ export class SelectChurchComponent implements OnInit {
 
   constructor(
     private router: Router,
+    private churchService: ChurchsService,
     @Inject(PLATFORM_ID) private platformId: object,
   ) {}
 
@@ -46,16 +48,12 @@ export class SelectChurchComponent implements OnInit {
   }
 
   selectChurch(church: Church): Promise<boolean> {
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('selectedChurch', church.id);
-    }
+    this.churchService.setSelectedChurch(church);
     return this.router.navigateByUrl('/church/dashboard');
   }
 
   clearSelectedChurch(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem('selectedChurch');
-    }
+    this.churchService.clearSelectedChurch();
     this.selectedChurchId = null;
   }
 }

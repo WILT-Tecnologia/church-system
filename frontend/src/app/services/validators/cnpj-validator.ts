@@ -1,8 +1,6 @@
 import { AbstractControl, ValidationErrors } from '@angular/forms';
 
-export function cnpjValidator(
-  control: AbstractControl,
-): ValidationErrors | null {
+export function cnpjValidator(control: AbstractControl): ValidationErrors | null {
   const cnpj = control.value;
 
   if (!cnpj) {

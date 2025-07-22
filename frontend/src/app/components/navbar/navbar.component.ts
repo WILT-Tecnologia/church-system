@@ -78,34 +78,20 @@ export class NavbarComponent implements OnInit {
   ngOnInit() {
     this.getData();
     this.initializeRoutes();
+    this.getChurch();
+    this.getUsername();
+    this.getRouteEvents();
 
     if (isPlatformBrowser(this.platformId)) {
       this.isMobile = window.innerWidth <= this.windowLength;
     }
-
-    this.authService.user$.subscribe((user) => {
-      this.userName = user ? user.name : null;
-    });
-
-    this.churchService.getChurch().subscribe((churches) => {
-      const selectedChurch = churches.find((church) => church.id === localStorage.getItem('selectedChurch'));
-      if (selectedChurch) {
-        this.selectedChurchId = selectedChurch.id;
-        this.selectedChurchName = selectedChurch.name;
-      } else {
-        this.selectedChurchId = null;
-        this.selectedChurchName = 'Igreja Não Selecionada';
-      }
-    });
-
-    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
-      this.updateBreadcrumbFromRoute();
-    });
   }
 
   private initializeRoutes() {
     const iconMap: { [key: string]: string } = {
       dashboard: 'dashboard',
+      administrative: 'settings',
+      church: 'church',
       members: 'people',
       guests: 'people',
       events: 'event',
@@ -161,27 +147,58 @@ export class NavbarComponent implements OnInit {
     }
   }
 
-  getData() {
-    this.authService.isLoggedIn$.subscribe((isLoggedIn) => {
-      if (isLoggedIn) {
-        const user = this.authService.getUser();
-        this.userName = user ? user.name : null;
-        this.isLoggedIn = true;
+  private async getRouteEvents() {
+    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
+      this.updateBreadcrumbFromRoute();
+    });
+  }
+
+  private async getUsername() {
+    this.authService.user$.subscribe((user) => {
+      this.userName = user ? user.name : null;
+    });
+  }
+
+  private async getChurch() {
+    this.churchService.getSelectedChurch().subscribe((church) => {
+      if (church) {
+        this.selectedChurchId = church.id;
+        this.selectedChurchName = church.name;
+      } else {
+        this.selectedChurchId = null;
+        this.selectedChurchName = '';
       }
     });
   }
 
+  private async getData() {
+    this.authService.isLoggedIn$.subscribe({
+      next: () => {
+        const user = this.authService.getUser();
+        this.userName = user ? user.name : null;
+        this.isLoggedIn = true;
+      },
+      error: () => {
+        this.isLoggedIn = false;
+      },
+      complete: () => {
+        this.hideLoading();
+        if (this.isLoggedIn === false) this.router.navigateByUrl('login');
+        if (this.isLoggedIn === true) {
+          this.getChurch();
+        }
+      },
+    });
+  }
+
   isActiveRoute(path: string): boolean {
-    const isActive = this.router.isActive(path, {
+    return this.router.isActive(path, {
       paths: 'exact',
       queryParams: 'ignored',
       fragment: 'ignored',
       matrixParams: 'ignored',
     });
-
-    return isActive;
   }
-
   isRouteInSection(section: string): boolean {
     const currentUrl = this.router.url;
     if (section === 'administrative' && currentUrl.startsWith('/administrative')) return true;
@@ -223,10 +240,6 @@ export class NavbarComponent implements OnInit {
 
   private hideLoading() {
     this.loading.hide();
-  }
-
-  toggleSidebar() {
-    this.isSidebarMinimized = !this.isSidebarMinimized;
   }
 
   toggleSidebarDesktop() {

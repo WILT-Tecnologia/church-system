@@ -34,7 +34,6 @@ export class AuthService {
     } else {
       this.isLoggedInSubject.next(false);
       this.userSubject.next(null);
-      this.router.navigateByUrl('/login');
     }
   }
 
@@ -53,15 +52,6 @@ export class AuthService {
           this.router.navigateByUrl('/dashboard');
         }),
       );
-  }
-
-  validateToken(): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/user`).pipe(
-      tap((user) => {
-        this.userSubject.next(user);
-        localStorage.setItem('user', JSON.stringify(user));
-      }),
-    );
   }
 
   getToken(): string | null {

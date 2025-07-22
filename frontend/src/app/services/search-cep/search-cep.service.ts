@@ -1,8 +1,9 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { catchError, finalize, Observable, of, throwError } from 'rxjs';
+
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ToastService } from 'app/components/toast/toast.service';
-import { catchError, finalize, Observable, of, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',

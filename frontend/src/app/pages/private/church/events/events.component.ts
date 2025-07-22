@@ -48,7 +48,7 @@ import dayjs from 'dayjs';
 import { EventTypesService } from '../../administrative/event-types/eventTypes.service';
 import { EventsService } from './events.service';
 import { AddMembersGuestsComponent } from './shared/add-members-guests/add-members-guests.component';
-import { CreateCallComponent } from './shared/create-call/create-call.component';
+import { CreateCallToDayComponent } from './shared/create-call-to-day/create-call-to-day.component';
 import { EventsFormComponent } from './shared/events-form/events-form.component';
 import { MakeCallComponent } from './shared/make-call/make-call.component';
 
@@ -393,7 +393,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
   private handleCreateCall = (event: Events) => {
     this.modal.openModal(
       `modal-${Math.random()}`,
-      CreateCallComponent,
+      CreateCallToDayComponent,
       `Criando a chamada do dia para o evento ${event.name}`,
       true,
       true,

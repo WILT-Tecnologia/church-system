@@ -97,7 +97,7 @@
   justify-content: flex-start;
   align-items: center;
   text-align: left;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1.5rem;
   border: none !important;
   font-size: 0.8rem;
   border-radius: 0.5rem !important;
@@ -105,14 +105,11 @@
 
   &.active-route {
     background-color: var(--background-color) !important;
+    box-shadow: 0 0.1rem 0.5rem 0.3rem rgba(0, 0, 0, 0.2) inset !important;
   }
 
   &:not(.active-route) {
-    color: var(--primary-color);
-  }
-
-  @media screen and (max-width: 768px) {
-    border: none !important;
+    color: var(--grey-light) !important;
   }
 }
 

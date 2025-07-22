@@ -25,6 +25,6 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.isLoggedIn$ = this.authService.isLoggedIn;
-    this.loadingService.hide();
+    setTimeout(() => this.loadingService.hide);
   }
 }
