@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { ConfirmService } from 'app/components/confirm/confirm.service';
@@ -6,8 +7,9 @@ import { ActionsProps, ColumnDefinitionsProps, CrudComponent } from 'app/compone
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
+import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
-import { CallToDay } from 'app/model/Events';
+import { CallToDay, Events } from 'app/model/Events';
 
 import { CallToDayService } from './call-to-day.service';
 import { CreateCallToDayComponent } from './shared/create-call-to-day/create-call-to-day.component';
@@ -26,7 +28,8 @@ export class CallToDayComponent implements OnInit {
     private modal: ModalService,
     private callToDayService: CallToDayService,
     private cdr: ChangeDetectorRef,
-    @Inject(PLATFORM_ID) private platformId: object,
+    private dialogRef: MatDialogRef<CallToDayComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { event: Events },
   ) {}
 
   callToDay: CallToDay[] = [];
@@ -58,15 +61,27 @@ export class CallToDayComponent implements OnInit {
     this.loadCallToDay();
   }
 
+  private onError(message: string) {
+    this.loading.hide();
+    this.toast.openError(message);
+    this.cdr.detectChanges();
+  }
+
+  private onSuccess(message: string) {
+    this.loading.hide();
+    this.toast.openSuccess(message);
+    this.cdr.detectChanges();
+  }
+
   private loadCallToDay() {
-    this.callToDayService.findAll().subscribe({
+    this.callToDayService.findAll(this.data?.event?.id).subscribe({
       next: (callToDay) => {
         this.callToDay = callToDay;
-        this.cdr.detectChanges();
+        this.dataSourceMat = new MatTableDataSource<CallToDay>(this.callToDay);
       },
-      error: (error) => {
+      error: () => {
         this.loading.hide();
-        this.toast.openError(error);
+        this.onError(MESSAGES.LOADING_ERROR);
       },
       complete: () => this.loading.hide(),
     });
@@ -95,9 +110,7 @@ export class CallToDayComponent implements OnInit {
       'Editar chamada do dia',
       true,
       true,
-      {
-        callToDay,
-      },
+      { callToDay },
     );
 
     modal.afterClosed().subscribe((result) => {
@@ -114,7 +127,7 @@ export class CallToDayComponent implements OnInit {
       .subscribe({
         next: () => {
           this.loading.show();
-          this.callToDayService.delete(callToDay.id).subscribe({
+          this.callToDayService.delete(this.data.event.id, callToDay.id).subscribe({
             next: () => {
               this.loading.hide();
               this.toast.openSuccess('Evento excluido com sucesso!');

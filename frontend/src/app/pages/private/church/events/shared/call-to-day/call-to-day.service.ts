@@ -11,25 +11,25 @@ import { environment } from 'environments/environment';
 export class CallToDayService {
   constructor(private http: HttpClient) {}
 
-  private apiUrl = `${environment.apiUrl}/eventos`;
+  private apiUrl = `${environment.apiUrl}/church/eventos`;
 
-  findAll(): Observable<CallToDay[]> {
-    return this.http.get<CallToDay[]>(this.apiUrl);
+  findAll(eventId: string): Observable<CallToDay[]> {
+    return this.http.get<CallToDay[]>(`${this.apiUrl}/${eventId}/calls`);
   }
 
-  findById(id: string): Observable<CallToDay> {
-    return this.http.get<CallToDay>(`${this.apiUrl}/${id}`);
+  findById(eventId: string, callId: string): Observable<CallToDay> {
+    return this.http.get<CallToDay>(`${this.apiUrl}/${eventId}/calls/${callId}`);
   }
 
-  create(callToDay: Partial<CallToDay>): Observable<CallToDay> {
-    return this.http.post<CallToDay>(this.apiUrl, callToDay);
+  create(eventId: string, callToDay: Partial<CallToDay>): Observable<CallToDay> {
+    return this.http.post<CallToDay>(`${this.apiUrl}/${eventId}/calls`, callToDay);
   }
 
-  update(id: string, callToDay: Partial<CallToDay>): Observable<CallToDay> {
-    return this.http.put<CallToDay>(`${this.apiUrl}/${id}`, callToDay);
+  update(eventId: string, callId: string, callToDay: Partial<CallToDay>): Observable<CallToDay> {
+    return this.http.put<CallToDay>(`${this.apiUrl}/${eventId}/calls/${callId}`, callToDay);
   }
 
-  delete(id: string): Observable<CallToDay> {
-    return this.http.delete<CallToDay>(`${this.apiUrl}/${id}`);
+  delete(eventId: string, callId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${eventId}/calls/${callId}`);
   }
 }

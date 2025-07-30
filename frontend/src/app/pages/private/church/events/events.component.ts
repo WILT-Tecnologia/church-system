@@ -25,7 +25,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Observable, of, Subject } from 'rxjs';
+import { forkJoin, Observable, of, Subject } from 'rxjs';
 import { debounceTime, mergeWith, switchMap, takeUntil } from 'rxjs/operators';
 
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
@@ -104,7 +104,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       type: 'add_circle',
       icon: 'add_circle',
       label: 'Chamadas do dia',
-      action: (calltoDay: CallToDay) => this.handleCreateCall(calltoDay),
+      action: (events: Events) => this.handleCreateCall(events),
     },
     {
       type: 'add_circle',
@@ -223,15 +223,15 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.loadEventTypes();
     this.loadEvents();
+
     this.breakpointObserver
       .observe([Breakpoints.Handset])
       .pipe(debounceTime(100), takeUntil(this.destroy$))
       .subscribe((result) => {
         this.isMobile = result.matches;
         this.updateCalendarOptions();
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       });
 
     this.calendarToggleSubject.pipe(debounceTime(100), takeUntil(this.destroy$)).subscribe(() => {
@@ -240,7 +240,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
         calendarApi.render();
         calendarApi.updateSize();
       }
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     });
 
     this.refreshSubject.pipe(debounceTime(300), takeUntil(this.destroy$)).subscribe(() => this.loadEvents());
@@ -260,7 +260,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       const calendarApi = this.calendarComponent.getApi();
       calendarApi.render();
       calendarApi.updateSize();
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     }
   }
 
@@ -276,7 +276,10 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     return this.eventsService
       .findByEventType(eventType)
-      .pipe(mergeWith(this.refreshSubject.pipe(switchMap(() => this.eventsService.findByEventType(eventType)))));
+      .pipe(
+        mergeWith(this.refreshSubject.pipe(switchMap(() => this.eventsService.findByEventType(eventType)))),
+        takeUntil(this.destroy$),
+      );
   };
 
   updateCalendarOptions() {
@@ -301,6 +304,15 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   handleEnableCalendar = () => {
     this.calendarVisible.update((calendarVisible) => !calendarVisible);
     this.calendarToggleSubject.next();
+    if (this.calendarVisible() && this.calendarComponent?.getApi()) {
+      const calendarApi = this.calendarComponent.getApi();
+      const existingEventIds = new Set(calendarApi.getEvents().map((e) => e.id));
+      const newEvents = this.mapEvents(this.events).filter((e) => !existingEventIds.has(e.id));
+      newEvents.forEach((event) => calendarApi.addEvent(event));
+      calendarApi.render();
+      calendarApi.updateSize();
+      this.cdr.detectChanges();
+    }
   };
 
   private handleWeekendsToggle = () => {
@@ -311,7 +323,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.calendarComponent?.getApi()) {
       const calendarApi = this.calendarComponent.getApi();
       calendarApi.render();
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     }
   };
 
@@ -342,52 +354,46 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private handleEvents(events: EventApi[]) {
     this.currentEvents.set(events);
-    this.cdr.markForCheck();
-  }
-
-  private loadEventTypes() {
-    this.eventTypesService.findAll().subscribe({
-      next: (eventTypes: EventTypes[]) => {
-        this.eventTypes = eventTypes.filter((et) => et.status);
-        this.tabs = this.eventTypes.map((et) => ({
-          id: et.id,
-          name: et.name,
-          color: et.color,
-        }));
-        this.rendering = false;
-        this.cdr.markForCheck();
-      },
-      error: () => {
-        this.hideLoading();
-        this.toast.openError(MESSAGES.LOADING_ERROR);
-      },
-      complete: () => this.hideLoading(),
-    });
+    this.cdr.detectChanges();
   }
 
   private loadEvents() {
-    this.eventsService.findAll().subscribe({
-      next: (events: Events[]) => {
-        this.events = events;
-        if (this.calendarComponent?.getApi()) {
-          const calendarApi = this.calendarComponent.getApi();
-          const existingEventIds = new Set(calendarApi.getEvents().map((e) => e.id));
-          const newEvents = this.mapEvents(events).filter((e) => !existingEventIds.has(e.id));
-          newEvents.forEach((event) => calendarApi.addEvent(event));
-          if (this.calendarVisible()) {
+    forkJoin({
+      events: this.eventsService.findAll(),
+      eventTypes: this.eventTypesService.findAll(),
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: ({ events, eventTypes }) => {
+          this.eventTypes = eventTypes.filter((et) => et.status);
+          this.tabs = this.eventTypes.map((et) => ({
+            id: et.id,
+            name: et.name,
+            color: et.color,
+          }));
+
+          this.events = events;
+
+          if (this.calendarVisible() && this.calendarComponent?.getApi()) {
+            const calendarApi = this.calendarComponent.getApi();
+            const existingEventIds = new Set(calendarApi.getEvents().map((e) => e.id));
+            const newEvents = this.mapEvents(events).filter((e) => !existingEventIds.has(e.id));
+            newEvents.forEach((event) => calendarApi.addEvent(event));
             calendarApi.render();
             calendarApi.updateSize();
           }
-        }
-        this.rendering = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.hideLoading();
-        this.toast.openError(MESSAGES.LOADING_ERROR);
-      },
-      complete: () => this.hideLoading(),
-    });
+
+          this.rendering = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.hideLoading();
+          this.toast.openError(MESSAGES.LOADING_ERROR);
+          this.rendering = false;
+          this.cdr.detectChanges();
+        },
+        complete: () => this.hideLoading(),
+      });
   }
 
   private mapEvents(events: Events[]): any[] {
@@ -427,14 +433,14 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   };
 
-  private handleCreateCall = (calltoDay: CallToDay) => {
+  private handleCreateCall = (event: Events) => {
     this.modal.openModal(
       `modal-${Math.random()}`,
       CallToDayComponent,
-      `Criando a chamada do dia para o evento ${calltoDay?.event?.name}`,
+      `Criando a chamada do dia para o evento ${event?.name}`,
       true,
       true,
-      { calltoDay },
+      { event },
       '',
       true,
     );
@@ -540,12 +546,12 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onEventHover(eventId: string) {
     this.hoveredEventId = eventId;
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
   }
 
   onEventLeave() {
     this.hoveredEventId = null;
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
   }
 
   private convertToISODate(dateInput: string | Date, timeInput?: string): string {

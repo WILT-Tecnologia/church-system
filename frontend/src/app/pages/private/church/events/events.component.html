@@ -38,13 +38,17 @@
 
   <div [class.expanded]="!calendarVisibleValue()">
     @if (!calendarVisibleValue()) {
-      @if (eventTypes && eventTypes.length > 0) {
+      @if (rendering) {
+        <div class="loading">Carregando eventos...</div>
+      } @else if (eventTypes && eventTypes.length > 0) {
         <app-tab-crud
           [tabs]="eventTypes"
           [crudConfig]="crudConfig"
           [dataService]="findEventsByTabIdAdapter"
           [handleCreate]="handleCreate"
         ></app-tab-crud>
+      } @else {
+        <div>Nenhum tipo de evento disponível.</div>
       }
     }
   </div>
