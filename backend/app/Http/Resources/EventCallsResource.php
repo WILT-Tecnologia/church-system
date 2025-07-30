@@ -14,9 +14,17 @@ class EventCallsResource extends JsonResource
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array {
+
         return [
             'id' => $this->id,
-            'event' => new EventsResource($this->event),
+            'church' => [
+                'id' => $this->evento->church->id,
+                'name' => $this->evento->church->name
+            ],
+            'event' => [
+                'id' => $this->evento->id,
+                'name' => $this->evento->name
+            ],
             'theme' => $this->theme,
             'start_date' => $this->start_date ? Carbon::parse($this->start_date)->format('Y-m-d') : null,
             'end_date' => $this->end_date ? Carbon::parse($this->end_date)->format('Y-m-d') : null,
