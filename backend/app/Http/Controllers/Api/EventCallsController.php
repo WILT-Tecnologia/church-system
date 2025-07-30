@@ -14,7 +14,8 @@ class EventCallsController extends Controller
      * Display a listing of the resource.
      */
     public function index() {
-        return EventCallsResource::collection(EventCall::all());
+        $eventCalls = EventCall::all();
+        return EventCallsResource::collection($eventCalls);
     }
 
     /**
