@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [env('URL_CLIENT', 'http://localhost:3000'), 'http://localhost:4200'],
+    'allowed_origins' => [env('URL_CLIENT'), 'http://localhost:3000', 'http://localhost:4200'],
 
     'allowed_origins_patterns' => [],
 

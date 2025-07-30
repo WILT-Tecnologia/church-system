@@ -42,7 +42,7 @@ class LoginController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Email ou senha inválidos'
-            ], 404);
+            ], 401);
         }
     }
 
