@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Evento extends Model
@@ -44,6 +45,11 @@ class Evento extends Model
     public function guests(): BelongsToMany
     {
         return $this->belongsToMany(Person::class, 'events_guests', 'event_id');
+    }
+
+    public function eventCalls(): HasMany
+    {
+        return $this->hasMany(EventCall::class);
     }
 
 }

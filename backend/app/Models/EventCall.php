@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class EventCalls extends Model
+class EventCall extends Model
 {
     use HasFactory;
     use HasUuids;
@@ -36,7 +36,7 @@ class EventCalls extends Model
         'end_time' => 'string',
     ];
 
-    public function event(): BelongsTo {
+    public function evento(): BelongsTo {
         return $this->belongsTo(Evento::class, 'event_id', 'id');
     }
 
