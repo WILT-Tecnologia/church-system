@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
-import { MatListItem, MatNavList } from '@angular/material/list';
+import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenav, MatSidenavContainer, MatSidenavContent } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -44,10 +44,9 @@ type RouteSection = RouteProps;
     MatSidenavContainer,
     MatSidenavContent,
     MatSidenav,
-    MatNavList,
-    MatListItem,
-    RouterOutlet,
     MatExpansionModule,
+    MatListModule,
+    RouterOutlet,
   ],
 })
 export class NavbarComponent implements OnInit {

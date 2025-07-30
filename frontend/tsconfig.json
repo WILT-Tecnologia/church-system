@@ -4,7 +4,17 @@
   "compilerOptions": {
     "baseUrl": "./src/",
     "paths": {
-      "@/*": ["./src/*"]
+      "@app": ["./src/app/*"],
+      "@shared": ["./src/app/shared/*"],
+      "@pages": ["./src/app/pages/*"],
+      "@services": ["./src/app/services/*"],
+      "@models": ["./src/app/models/*"],
+      "@enums": ["./src/app/enums/*"],
+      "@components": ["./src/app/components/*"],
+      "@pipes": ["./src/app/pipes/*"],
+      "@directives": ["./src/app/directives/*"],
+      "@styles": ["./src/styles/*"],
+      "@environments": ["./src/environments/*"]
     },
     "outDir": "./dist/out-tsc",
     "strict": true,

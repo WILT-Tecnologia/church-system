@@ -117,17 +117,17 @@
 .active-route {
   color: var(--grey-light) !important;
 
-  .menu-text:not(.active-route) {
-    font-weight: bold;
+  * > :not(.active-route) {
+    font-weight: bold !important;
     color: var(--primary-color) !important;
   }
-}
 
-.active-route mat-icon {
-  color: var(--primary-color);
+  * > mat-icon {
+    color: var(--primary-color);
 
-  &:not(.active-route mat-icon) {
-    color: var(--grey-light);
+    * > :not(.active-route mat-icon) {
+      color: var(--grey-light);
+    }
   }
 }
 

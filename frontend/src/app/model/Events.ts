@@ -13,6 +13,7 @@ export type EventData = {
 };
 
 export type Events = {
+  callToDay: CallToDay;
   id: string;
   church?: Church;
   church_id: string;
@@ -31,7 +32,7 @@ export type Events = {
   combinedUpdatedByAndUpdatedAt?: string;
 };
 
-export type EventCalls = {
+export type CallToDay = {
   id: string;
   event: Events;
   event_id: string;
@@ -41,8 +42,6 @@ export type EventCalls = {
   start_time: string;
   end_time: string;
   location: string;
-  created_at: string;
-  updated_at: string;
 };
 
 export type ParticipantAndGuest = {

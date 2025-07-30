@@ -109,17 +109,6 @@ export class PersonComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.checkEditMode();
     this.loadUsers();
-    this.filterUsers = this.searchUserControl.valueChanges.pipe(
-      startWith(''),
-      map((value: any) => {
-        if (typeof value === 'string') {
-          return value;
-        } else {
-          return value ? value.name : '';
-        }
-      }),
-      map((name) => (name.length >= 1 ? this._filterUsers(name) : this.user)),
-    );
     this.initialSearchCep();
   }
 

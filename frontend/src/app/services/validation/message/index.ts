@@ -10,5 +10,6 @@ export const messages = {
   pattern: 'O campo deve seguir seu padrão de validação.',
   invalidDate: 'Data inválida (use dd/mm/aaaa)',
   invalidTime: 'Hora inválida (use HH:mm)',
-  invalidDateTimeRange: 'A data e hora final não podem ser anteriores à data e hora inicial.',
+  invalidDateRange: 'Data final deve ser posterior à data inicial.',
+  invalidTimeRange: 'Hora final deve ser posterior à hora inicial.',
 };

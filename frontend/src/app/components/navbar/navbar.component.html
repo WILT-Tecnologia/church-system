@@ -33,7 +33,7 @@
                     mat-list-item
                     class="mat-button-options"
                     (click)="navigateTo(section.path + '/' + route.path)"
-                    [ngClass]="{ 'active-route': isActiveRoute(section.path + '/' + route.path) }"
+                    [class]="{ 'active-route': isActiveRoute(section.path + '/' + route.path) }"
                   >
                     <span class="icon-text">
                       <mat-icon>{{ route.icon }}</mat-icon>
@@ -80,7 +80,7 @@
                     mat-list-item
                     class="mat-button-options"
                     (click)="navigateTo(section.path + '/' + route.path); sidenav.close()"
-                    [ngClass]="{ 'active-route': isActiveRoute(section.path + '/' + route.path) }"
+                    [class]="{ 'active-route': isActiveRoute(section.path + '/' + route.path) }"
                   >
                     <span class="icon-text">
                       <mat-icon>{{ route.icon }}</mat-icon>

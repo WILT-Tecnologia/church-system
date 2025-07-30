@@ -2,10 +2,12 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   Inject,
   inject,
+  OnDestroy,
   OnInit,
   PLATFORM_ID,
   signal,
@@ -24,7 +26,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Observable, of, Subject } from 'rxjs';
-import { mergeWith, switchMap } from 'rxjs/operators';
+import { debounceTime, mergeWith, switchMap, takeUntil } from 'rxjs/operators';
 
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, DateSelectArg, EventApi, EventClickArg } from '@fullcalendar/core';
@@ -41,21 +43,28 @@ import { ModalService } from 'app/components/modal/modal.service';
 import { CrudConfig, TabConfig, TabCrudComponent } from 'app/components/tab-crud/tab-crud.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
-import { EventCalls, Events } from 'app/model/Events';
+import { CallToDay, Events } from 'app/model/Events';
 import { EventTypes } from 'app/model/EventTypes';
 import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
 import { EventTypesService } from '../../administrative/event-types/eventTypes.service';
 import { EventsService } from './events.service';
 import { AddMembersGuestsComponent } from './shared/add-members-guests/add-members-guests.component';
-import { CreateCallToDayComponent } from './shared/create-call-to-day/create-call-to-day.component';
+import { CallToDayComponent } from './shared/call-to-day/call-to-day.component';
 import { EventsFormComponent } from './shared/events-form/events-form.component';
 import { MakeCallComponent } from './shared/make-call/make-call.component';
+
+//
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 
 @Component({
   selector: 'app-events',
   templateUrl: './events.component.html',
   styleUrls: ['./events.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     MatPaginatorModule,
@@ -75,13 +84,14 @@ import { MakeCallComponent } from './shared/make-call/make-call.component';
   ],
   providers: [FormatsPipe],
 })
-export class EventsComponent implements OnInit, AfterViewInit {
+export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   breakpointObserver = inject(BreakpointObserver);
   events: Events[] = [];
+  callToDays: CallToDay[] = [];
   eventTypes: EventTypes[] = [];
   tabs: TabConfig[] = [];
   rendering: boolean = true;
-  @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
+  @ViewChild('calendar', { static: false }) calendarComponent!: FullCalendarComponent;
   @ViewChild('eventContent') eventContent!: TemplateRef<any>;
   actions: ActionsProps[] = [
     {
@@ -93,8 +103,8 @@ export class EventsComponent implements OnInit, AfterViewInit {
     {
       type: 'add_circle',
       icon: 'add_circle',
-      label: 'Criar chamada do dia',
-      action: (events: Events) => this.handleCreateCall(events),
+      label: 'Chamadas do dia',
+      action: (calltoDay: CallToDay) => this.handleCreateCall(calltoDay),
     },
     {
       type: 'add_circle',
@@ -124,9 +134,22 @@ export class EventsComponent implements OnInit, AfterViewInit {
   ];
   crudConfig!: CrudConfig;
   isMobile: boolean = false;
-  refreshSubject = new Subject<void>();
+  private destroy$ = new Subject<void>();
+  private refreshSubject = new Subject<void>();
+  private calendarToggleSubject = new Subject<void>();
   currentEvents = signal<EventApi[]>([]);
   calendarVisible = signal(false);
+  calendarVisibleValue = this.calendarVisible.asReadonly();
+  hoveredEventId: string | null = null;
+  private eventCache = new Map<string, any>();
+  private mobileCalendarOptions: CalendarOptions = {
+    initialView: 'listWeek',
+    height: 'auto',
+  };
+  private desktopCalendarOptions: CalendarOptions = {
+    initialView: 'dayGridMonth',
+    height: '70dvh',
+  };
   calendarOptions = signal<CalendarOptions>({
     plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
     headerToolbar: {
@@ -153,7 +176,6 @@ export class EventsComponent implements OnInit, AfterViewInit {
     },
     initialDate: dayjs().format('YYYY-MM-DD'),
     locale: 'pt-br',
-    initialView: 'dayGridMonth',
     weekends: true,
     editable: false,
     selectable: true,
@@ -167,8 +189,25 @@ export class EventsComponent implements OnInit, AfterViewInit {
     select: this.handleDateSelect.bind(this),
     eventClick: this.handleRemoveEventCalendar.bind(this),
     eventsSet: this.handleEvents.bind(this),
-    height: '70dvh',
     eventContent: this.eventContent,
+    events: (fetchInfo, successCallback, failureCallback) => {
+      this.eventsService
+        .findAll()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (events: Events[]) => {
+            const calendarEvents = this.mapEvents(events).filter((event) => {
+              const callToDay = event.extendedProps.callToDay;
+              if (!callToDay || !callToDay.start_date) return false;
+              const start = dayjs(callToDay.start_date);
+              const end = callToDay.end_date ? dayjs(callToDay.end_date) : start;
+              return start.isSameOrAfter(fetchInfo.startStr) && end.isSameOrBefore(fetchInfo.endStr);
+            });
+            successCallback(calendarEvents);
+          },
+          error: (err: Error) => failureCallback(err),
+        });
+    },
   });
 
   constructor(
@@ -186,10 +225,26 @@ export class EventsComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.loadEventTypes();
     this.loadEvents();
-    this.breakpointObserver.observe([Breakpoints.Handset]).subscribe((result) => {
-      this.isMobile = result.matches;
-      this.updateCalendarOptions();
+    this.breakpointObserver
+      .observe([Breakpoints.Handset])
+      .pipe(debounceTime(100), takeUntil(this.destroy$))
+      .subscribe((result) => {
+        this.isMobile = result.matches;
+        this.updateCalendarOptions();
+        this.cdr.markForCheck();
+      });
+
+    this.calendarToggleSubject.pipe(debounceTime(100), takeUntil(this.destroy$)).subscribe(() => {
+      if (this.calendarVisible() && this.calendarComponent?.getApi()) {
+        const calendarApi = this.calendarComponent.getApi();
+        calendarApi.render();
+        calendarApi.updateSize();
+      }
+      this.cdr.markForCheck();
     });
+
+    this.refreshSubject.pipe(debounceTime(300), takeUntil(this.destroy$)).subscribe(() => this.loadEvents());
+
     this.crudConfig = {
       columnDefinitions: this.columnDefinitions,
       actions: this.actions,
@@ -201,20 +256,17 @@ export class EventsComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      setTimeout(() => {
-        if (this.calendarComponent && this.calendarComponent.getApi()) {
-          const calendarApi = this.calendarComponent.getApi();
-          calendarApi.render();
-          calendarApi.updateSize();
-        }
-        const buttons = document.querySelectorAll('.fc-button');
-        buttons.forEach((btn) => {
-          btn.classList.add('mat-raised-button', 'mat-primary');
-        });
-        this.cdr.detectChanges();
-      }, 0);
+    if (isPlatformBrowser(this.platformId) && this.calendarComponent?.getApi()) {
+      const calendarApi = this.calendarComponent.getApi();
+      calendarApi.render();
+      calendarApi.updateSize();
+      this.cdr.markForCheck();
     }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   findEventsByTabIdAdapter = (tabId: string): Observable<Events[]> => {
@@ -222,26 +274,16 @@ export class EventsComponent implements OnInit, AfterViewInit {
     if (!eventType) {
       return of([]);
     }
-
     return this.eventsService
       .findByEventType(eventType)
       .pipe(mergeWith(this.refreshSubject.pipe(switchMap(() => this.eventsService.findByEventType(eventType)))));
   };
 
   updateCalendarOptions() {
-    if (this.isMobile) {
-      this.calendarOptions.update((options) => ({
-        ...options,
-        initialView: 'listWeek',
-        height: 'auto',
-      }));
-    } else {
-      this.calendarOptions.update((options) => ({
-        ...options,
-        initialView: 'dayGridMonth',
-        height: '70dvh',
-      }));
-    }
+    this.calendarOptions.update((options) => ({
+      ...options,
+      ...(this.isMobile ? this.mobileCalendarOptions : this.desktopCalendarOptions),
+    }));
   }
 
   refreshData() {
@@ -258,24 +300,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
 
   handleEnableCalendar = () => {
     this.calendarVisible.update((calendarVisible) => !calendarVisible);
-    setTimeout(() => {
-      if (this.calendarVisible() && this.calendarComponent?.getApi()) {
-        const calendarApi = this.calendarComponent.getApi();
-        calendarApi.render();
-        calendarApi.updateSize();
-      }
-      this.cdr.detectChanges();
-    }, 0);
-  };
-
-  private handleCalendarToggle = () => {
-    this.calendarVisible.update((bool) => !bool);
-    setTimeout(() => {
-      if (this.calendarVisible() && this.calendarComponent?.getApi()) {
-        this.calendarComponent.getApi().render();
-      }
-      this.cdr.detectChanges();
-    }, 0);
+    this.calendarToggleSubject.next();
   };
 
   private handleWeekendsToggle = () => {
@@ -283,11 +308,11 @@ export class EventsComponent implements OnInit, AfterViewInit {
       ...options,
       weekends: !options.weekends,
     }));
-    setTimeout(() => {
-      if (this.calendarComponent?.getApi()) {
-        this.calendarComponent.getApi().render();
-      }
-    }, 0);
+    if (this.calendarComponent?.getApi()) {
+      const calendarApi = this.calendarComponent.getApi();
+      calendarApi.render();
+      this.cdr.markForCheck();
+    }
   };
 
   private handleDateSelect(selectInfo: DateSelectArg) {
@@ -295,15 +320,17 @@ export class EventsComponent implements OnInit, AfterViewInit {
       event: {
         start_date: dayjs(selectInfo.startStr).format('DD/MM/YYYY'),
         end_date: dayjs(selectInfo.endStr).format('DD/MM/YYYY'),
-        allDay: selectInfo.allDay,
       },
     });
 
-    modal.afterClosed().subscribe((result) => {
-      if (result) {
-        this.loadEvents();
-      }
-    });
+    modal
+      .afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((result) => {
+        if (result) {
+          this.loadEvents();
+        }
+      });
   }
 
   private handleRemoveEventCalendar(clickInfo: EventClickArg) {
@@ -315,11 +342,10 @@ export class EventsComponent implements OnInit, AfterViewInit {
 
   private handleEvents(events: EventApi[]) {
     this.currentEvents.set(events);
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
   }
 
-  private loadEventTypes = () => {
-    this.loading.show();
+  private loadEventTypes() {
     this.eventTypesService.findAll().subscribe({
       next: (eventTypes: EventTypes[]) => {
         this.eventTypes = eventTypes.filter((et) => et.status);
@@ -329,43 +355,30 @@ export class EventsComponent implements OnInit, AfterViewInit {
           color: et.color,
         }));
         this.rendering = false;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: () => {
+        this.hideLoading();
         this.toast.openError(MESSAGES.LOADING_ERROR);
-        this.loading.hide();
       },
-      complete: () => this.loading.hide(),
+      complete: () => this.hideLoading(),
     });
-  };
+  }
 
-  private loadEvents = () => {
-    this.showLoading();
+  private loadEvents() {
     this.eventsService.findAll().subscribe({
-      next: (events) => {
+      next: (events: Events[]) => {
         this.events = events;
-
-        const calendarEvents = this.events.map((event) => ({
-          id: event.id ?? '',
-          title: event.name,
-          extendedProps: event,
-        }));
-
-        this.calendarOptions.update((options) => ({
-          ...options,
-          events: calendarEvents,
-        }));
-
         if (this.calendarComponent?.getApi()) {
           const calendarApi = this.calendarComponent.getApi();
-          calendarApi.removeAllEvents();
-          calendarApi.addEventSource(calendarEvents);
+          const existingEventIds = new Set(calendarApi.getEvents().map((e) => e.id));
+          const newEvents = this.mapEvents(events).filter((e) => !existingEventIds.has(e.id));
+          newEvents.forEach((event) => calendarApi.addEvent(event));
           if (this.calendarVisible()) {
             calendarApi.render();
             calendarApi.updateSize();
           }
         }
-
         this.rendering = false;
         this.cdr.detectChanges();
       },
@@ -375,7 +388,31 @@ export class EventsComponent implements OnInit, AfterViewInit {
       },
       complete: () => this.hideLoading(),
     });
-  };
+  }
+
+  private mapEvents(events: Events[]): any[] {
+    return events.map((event) => {
+      if (this.eventCache.has(event.id ?? '')) {
+        return this.eventCache.get(event.id ?? '');
+      }
+
+      const callToDay = event.callToDay || null;
+      const mapped = {
+        id: event.id ?? '',
+        title: event.name,
+        start: callToDay?.start_date ? this.convertToISODate(callToDay.start_date, callToDay.start_time) : undefined,
+        end: callToDay?.end_date ? this.convertToISODate(callToDay.end_date, callToDay.end_time) : undefined,
+        extendedProps: {
+          eventType: event.eventType,
+          callToDay: callToDay || null,
+          obs: event.obs,
+          tooltip: this.formatTooltip({ event, callToDay }),
+        },
+      };
+      this.eventCache.set(event.id ?? '', mapped);
+      return mapped;
+    });
+  }
 
   private addMembersGuest = (event: Events) => {
     this.modal.openModal(
@@ -390,14 +427,14 @@ export class EventsComponent implements OnInit, AfterViewInit {
     );
   };
 
-  private handleCreateCall = (event: Events) => {
+  private handleCreateCall = (calltoDay: CallToDay) => {
     this.modal.openModal(
       `modal-${Math.random()}`,
-      CreateCallToDayComponent,
-      `Criando a chamada do dia para o evento ${event.name}`,
+      CallToDayComponent,
+      `Criando a chamada do dia para o evento ${calltoDay?.event?.name}`,
       true,
       true,
-      { event },
+      { calltoDay },
       '',
       true,
     );
@@ -418,13 +455,15 @@ export class EventsComponent implements OnInit, AfterViewInit {
 
   handleCreate = () => {
     const modal = this.modal.openModal(`modal-${Math.random()}`, EventsFormComponent, 'Adicionar evento', true, true);
-
-    modal.afterClosed().subscribe((result) => {
-      if (result) {
-        this.loadEvents();
-        this.refreshData();
-      }
-    });
+    modal
+      .afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((result) => {
+        if (result) {
+          this.loadEvents();
+          this.refreshData();
+        }
+      });
   };
 
   handleEdit = (event: Events) => {
@@ -436,101 +475,93 @@ export class EventsComponent implements OnInit, AfterViewInit {
       true,
       { event },
     );
-
-    modal.afterClosed().subscribe((result) => {
-      if (result) {
-        this.loadEvents();
-        this.refreshData();
-      }
-    });
+    modal
+      .afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((result) => {
+        if (result) {
+          this.loadEvents();
+          this.refreshData();
+        }
+      });
   };
 
   handleDelete = (event: Events) => {
     this.confirmService
       .openConfirm('Excluir evento', `Tem certeza que deseja excluir o evento ${event.name}?`, 'Confirmar', 'Cancelar')
       .afterClosed()
+      .pipe(takeUntil(this.destroy$))
       .subscribe((result) => {
         if (result) {
           this.showLoading();
-          this.eventsService.delete(event).subscribe({
-            next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
-            error: () => this.toast.openError(MESSAGES.DELETE_ERROR),
-            complete: () => {
-              this.loadEvents();
-              this.hideLoading();
-            },
-          });
+          this.eventsService
+            .delete(event)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+              next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
+              error: () => this.toast.openError(MESSAGES.DELETE_ERROR),
+              complete: () => {
+                this.loadEvents();
+                this.hideLoading();
+              },
+            });
         }
       });
   };
 
-  formatTooltip(event: any): string {
-    const events: Events = event.extendedProps;
-    const eventCalls: EventCalls = event.extendedProps;
-    if (!events || !eventCalls) {
-      this.toast.openError('Evento ou detalhes da chamada não encontrados');
+  formatTooltip(data: { event: Events; callToDay: CallToDay | null }): string {
+    const { event, callToDay } = data;
+    if (!event || !callToDay) {
       return 'Evento ou detalhes da chamada não encontrados';
     }
-
-    if (!events.eventType) {
-      this.toast.openError('Tipo de evento não encontrado');
+    if (!event.eventType) {
       return 'Tipo de evento não especificado';
     }
-
-    if (!eventCalls.start_date && !eventCalls.end_date) {
-      this.toast.openError('Data de início e fim não especificadas');
+    if (!callToDay.start_date && !callToDay.end_date) {
       return 'Data de início e fim não especificadas';
     }
     const lines = [
-      `Tipo: ${events.eventType}`,
-      `Início: ${eventCalls.start_date ? this.format.dateFormat(eventCalls.start_date) : 'Não especificado'}${eventCalls.start_time ? ' às ' + eventCalls.start_time : ''}`,
-      `Fim: ${eventCalls.end_date ? this.format.dateFormat(eventCalls.end_date) : 'Não especificado'}${eventCalls.end_time ? ' às ' + eventCalls.end_time : ''}`,
+      `Tipo: ${event.eventType.name}`,
+      `Início: ${callToDay.start_date ? this.format.dateFormat(callToDay.start_date) : 'Não especificado'}${callToDay.start_time ? ' às ' + callToDay.start_time : ''}`,
+      `Fim: ${callToDay.end_date ? this.format.dateFormat(callToDay.end_date) : 'Não especificado'}${callToDay.end_time ? ' às ' + callToDay.end_time : ''}`,
     ];
-    if (eventCalls.location) {
-      lines.push(`Local: ${eventCalls.location}`);
+    if (callToDay.location) {
+      lines.push(`Local: ${callToDay.location}`);
     }
-    if (events.obs) {
-      lines.push(`Observação: ${events.obs}`);
+    if (event.obs) {
+      lines.push(`Observação: ${event.obs}`);
     }
     return lines.join('\n');
   }
 
-  private convertToISODate = (dateInput: string | Date, timeInput?: string): string => {
+  isHovered(eventId: string): boolean {
+    return this.hoveredEventId === eventId;
+  }
+
+  onEventHover(eventId: string) {
+    this.hoveredEventId = eventId;
+    this.cdr.markForCheck();
+  }
+
+  onEventLeave() {
+    this.hoveredEventId = null;
+    this.cdr.markForCheck();
+  }
+
+  private convertToISODate(dateInput: string | Date, timeInput?: string): string {
     try {
-      if (dateInput instanceof Date) {
-        return timeInput ? dayjs(dateInput).format('YYYY-MM-DD') + `T${timeInput}:00Z` : dateInput.toISOString();
-      }
-
-      if (!dateInput) {
-        console.warn('Data vazia, usando data atual');
-        return dayjs().toISOString();
-      }
-
-      let parsedDate: dayjs.Dayjs;
-
-      if (/^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
-        parsedDate = dayjs(dateInput, 'YYYY-MM-DD');
-      } else if (/^\d{2}\/\d{2}\/\d{4}( \d{2}:\d{2})?$/.test(dateInput)) {
-        parsedDate = dayjs(dateInput, ['DD/MM/YYYY', 'DD/MM/YYYY HH:mm']);
-      } else {
-        console.error('Formato de data não reconhecido:', dateInput);
-        return dayjs().toISOString();
-      }
-
+      const parsedDate = dayjs(dateInput);
       if (!parsedDate.isValid()) {
-        console.error('Data inválida:', dateInput);
         return dayjs().toISOString();
       }
-
       if (timeInput) {
         const timeFormatted = timeInput.includes(':') ? timeInput : `${timeInput}:00`;
         return parsedDate.format('YYYY-MM-DD') + `T${timeFormatted}:00Z`;
       }
-
       return parsedDate.toISOString();
-    } catch (error) {
-      console.error('Erro ao converter data:', dateInput, error);
+    } catch (error: any) {
+      this.toast.openError(error);
       return dayjs().toISOString();
     }
-  };
+  }
 }
