@@ -5,8 +5,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableDataSource } from '@angular/material/table';
 
-import { ColumnDefinitionsProps, TableField } from '../crud/crud.component';
+import { TableField } from '../crud/crud.component';
 import { FormatsPipe } from '../crud/pipes/formats.pipe';
+import { ColumnDefinitionsProps } from '../crud/types';
 
 @Component({
   selector: 'app-search',

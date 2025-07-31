@@ -3,9 +3,9 @@
     [fields]="callToDay"
     [dataSourceMat]="dataSourceMat"
     [columnDefinitions]="columnDefinitions"
-    [addFn]="onCreate"
+    (add)="createCallToDay()"
     [actions]="actions"
   ></app-crud>
 } @else {
-  <app-not-found-register [addRegisterFn]="onCreate"></app-not-found-register>
+  <app-not-found-register (add)="createCallToDay()"></app-not-found-register>
 }

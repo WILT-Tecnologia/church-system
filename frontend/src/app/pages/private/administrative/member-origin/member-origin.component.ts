@@ -7,7 +7,8 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
+import { CrudComponent } from 'app/components/crud/crud.component';
+import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
@@ -25,11 +26,25 @@ import { MemberOriginService } from './member-origin.service';
   imports: [NotFoundRegisterComponent, MatCardModule, MatIconModule, CommonModule, CrudComponent],
 })
 export class MemberOriginComponent implements OnInit {
+  constructor(
+    private toast: ToastService,
+    private loading: LoadingService,
+    private modal: ModalService,
+    private confirmService: ConfirmService,
+    private MemberOriginService: MemberOriginService,
+  ) {}
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
   memberOrigins: MemberOrigin[] = [];
   rendering: boolean = true;
   dataSourceMat = new MatTableDataSource<MemberOrigin>(this.memberOrigins);
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  columnDefinitions: ColumnDefinitionsProps[] = [
+    { key: 'status', header: 'Situação', type: 'boolean' },
+    { key: 'name', header: 'Origem', type: 'string' },
+    { key: 'description', header: 'Descrição', type: 'string' },
+    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
+  ];
   actions: ActionsProps[] = [
     {
       type: 'toggle',
@@ -51,21 +66,6 @@ export class MemberOriginComponent implements OnInit {
       action: (memberOrigin: MemberOrigin) => this.handleDelete(memberOrigin),
     },
   ];
-
-  columnDefinitions = [
-    { key: 'status', header: 'Situação', type: 'boolean' },
-    { key: 'name', header: 'Origem', type: 'string' },
-    { key: 'description', header: 'Descrição', type: 'string' },
-    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
-  ];
-
-  constructor(
-    private toast: ToastService,
-    private loading: LoadingService,
-    private modal: ModalService,
-    private confirmService: ConfirmService,
-    private MemberOriginService: MemberOriginService,
-  ) {}
 
   ngOnInit() {
     this.loadMemberOrigins();
@@ -90,7 +90,7 @@ export class MemberOriginComponent implements OnInit {
     });
   };
 
-  handleCreate = () => {
+  onCreate = () => {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       MemberOriginFormComponent,
@@ -150,7 +150,7 @@ export class MemberOriginComponent implements OnInit {
     });
   };
 
-  toggleStatus = (memberOrigin: MemberOrigin) => {
+  toggleStatus(memberOrigin: MemberOrigin) {
     const updatedStatus = !memberOrigin.status;
     memberOrigin.status = updatedStatus;
 
@@ -167,5 +167,5 @@ export class MemberOriginComponent implements OnInit {
         this.loading.hide();
       },
     });
-  };
+  }
 }

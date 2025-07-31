@@ -3,11 +3,10 @@
     [fields]="users"
     [dataSourceMat]="dataSourceMat"
     [columnDefinitions]="columnDefinitions"
-    [addFn]="handleCreate"
-    [editFn]="handleEdit"
-    [deleteFn]="handleDelete"
+    (add)="onCreate()"
+    (toggle)="toggleStatus($any($event))"
     [actions]="actions"
   ></app-crud>
 } @else {
-  <app-not-found-register [addRegisterFn]="handleCreate"></app-not-found-register>
+  <app-not-found-register (add)="onCreate()"></app-not-found-register>
 }

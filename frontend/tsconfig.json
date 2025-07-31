@@ -6,15 +6,16 @@
     "paths": {
       "@app": ["./src/app/*"],
       "@shared": ["./src/app/shared/*"],
-      "@pages": ["./src/app/pages/*"],
+      "@page": ["./src/app/page/*"],
+      "@core": ["./src/app/core/*"],
+      "@components": ["./src/app/components/*"],
       "@services": ["./src/app/services/*"],
       "@models": ["./src/app/models/*"],
-      "@enums": ["./src/app/enums/*"],
-      "@components": ["./src/app/components/*"],
-      "@pipes": ["./src/app/pipes/*"],
+      "@environments": ["./src/environments/*"],
+      "@assets": ["./src/assets/*"],
+      "@styles": ["./src/styles.scss/*"],
       "@directives": ["./src/app/directives/*"],
-      "@styles": ["./src/styles/*"],
-      "@environments": ["./src/environments/*"]
+      "@pipes": ["./src/app/pipes/*"]
     },
     "outDir": "./dist/out-tsc",
     "strict": true,

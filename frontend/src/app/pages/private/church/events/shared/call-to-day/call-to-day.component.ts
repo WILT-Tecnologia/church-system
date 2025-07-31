@@ -3,7 +3,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { ActionsProps, ColumnDefinitionsProps, CrudComponent } from 'app/components/crud/crud.component';
+import { CrudComponent } from 'app/components/crud/crud.component';
+import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
@@ -34,6 +35,13 @@ export class CallToDayComponent implements OnInit {
 
   callToDay: CallToDay[] = [];
   dataSourceMat = new MatTableDataSource<CallToDay>(this.callToDay);
+  columnDefinitions: ColumnDefinitionsProps[] = [
+    { key: 'event.name', header: 'Igreja', type: 'string' },
+    { key: 'start_date', header: 'Data inicial', type: 'date' },
+    { key: 'start_time', header: 'Hora inicial', type: 'hour' },
+    { key: 'end_date', header: 'Data final', type: 'date' },
+    { key: 'end_time', header: 'Hora final', type: 'hour' },
+  ];
   actions: ActionsProps[] = [
     {
       type: 'edit',
@@ -48,13 +56,6 @@ export class CallToDayComponent implements OnInit {
       color: 'warn',
       action: (callToDay: CallToDay) => this.onDelete(callToDay),
     },
-  ];
-  columnDefinitions: ColumnDefinitionsProps[] = [
-    { key: 'event.name', header: 'Igreja', type: 'string' },
-    { key: 'start_date', header: 'Data inicial', type: 'date' },
-    { key: 'start_time', header: 'Hora inicial', type: 'hour' },
-    { key: 'end_date', header: 'Data final', type: 'date' },
-    { key: 'end_time', header: 'Hora final', type: 'hour' },
   ];
 
   ngOnInit() {
@@ -87,13 +88,14 @@ export class CallToDayComponent implements OnInit {
     });
   }
 
-  onCreate() {
+  createCallToDay() {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       CreateCallToDayComponent,
       'Criar chamada do dia',
       true,
       true,
+      {},
     );
 
     modal.afterClosed().subscribe((result) => {

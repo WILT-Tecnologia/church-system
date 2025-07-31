@@ -3,11 +3,9 @@
     [fields]="persons"
     [dataSourceMat]="dataSourceMat"
     [columnDefinitions]="columnDefinitions"
-    [addFn]="handleCreate"
-    [editFn]="handleEdit"
-    [deleteFn]="handleDelete"
+    (add)="onCreate()"
     [actions]="actions"
   ></app-crud>
 } @else {
-  <app-not-found-register [addRegisterFn]="handleCreate"></app-not-found-register>
+  <app-not-found-register (add)="onCreate()"></app-not-found-register>
 }

@@ -5,8 +5,9 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
+import { CrudComponent } from 'app/components/crud/crud.component';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
+import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
@@ -26,11 +27,27 @@ import { ChurchsService } from './churches.service';
   providers: [FormatsPipe],
 })
 export class ChurchesComponent implements OnInit {
+  constructor(
+    private churchsService: ChurchsService,
+    private toast: ToastService,
+    private loading: LoadingService,
+    private confirmService: ConfirmService,
+    private modalService: ModalService,
+    private notification: NotificationService,
+  ) {}
+
   churchs: Church[] = [];
   rendering: boolean = true;
   dataSourceMat = new MatTableDataSource<Church>(this.churchs);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  columnDefinitions: ColumnDefinitionsProps[] = [
+    { key: 'name', header: 'Nome', type: 'string' },
+    { key: 'email', header: 'Email', type: 'string' },
+    { key: 'cnpj', header: 'CNPJ', type: 'cnpj' },
+    { key: 'responsible.name', header: 'Responsável', type: 'string' },
+    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
+  ];
   actions: ActionsProps[] = [
     {
       type: 'edit',
@@ -46,23 +63,6 @@ export class ChurchesComponent implements OnInit {
       action: (church: Church) => this.handleDelete(church),
     },
   ];
-
-  columnDefinitions = [
-    { key: 'name', header: 'Nome', type: 'string' },
-    { key: 'email', header: 'Email', type: 'string' },
-    { key: 'cnpj', header: 'CNPJ', type: 'cnpj' },
-    { key: 'responsible.name', header: 'Responsável', type: 'string' },
-    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
-  ];
-
-  constructor(
-    private churchsService: ChurchsService,
-    private toast: ToastService,
-    private loading: LoadingService,
-    private confirmService: ConfirmService,
-    private modalService: ModalService,
-    private notification: NotificationService,
-  ) {}
 
   ngOnInit() {
     this.loadChurch();
@@ -83,7 +83,7 @@ export class ChurchesComponent implements OnInit {
     });
   };
 
-  handleCreate = () => {
+  onCreate = () => {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       ChurchComponent,

@@ -6,7 +6,8 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { ActionsProps, ColumnDefinitionsProps, CrudComponent } from 'app/components/crud/crud.component';
+import { CrudComponent } from 'app/components/crud/crud.component';
+import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
@@ -25,12 +26,28 @@ import { OrdinationsService } from './ordinations.service';
   imports: [CommonModule, NotFoundRegisterComponent, CrudComponent],
 })
 export class OrdinationsComponent implements OnInit {
-  private _ordination: Ordination[] = [];
+  constructor(
+    private confirmService: ConfirmService,
+    private loading: LoadingService,
+    private toast: ToastService,
+    private modal: ModalService,
+    private ordinationService: OrdinationsService,
+    private membersService: MembersService,
+    @Inject(MAT_DIALOG_DATA) public data: { ordinations: Ordination[]; id: number },
+  ) {}
+
   @Output() ordinationUpdated = new EventEmitter<Ordination[]>();
-  rendering: boolean = true;
-  dataSourceMat = new MatTableDataSource<Ordination>(this._ordination);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  private ordination: Ordination[] = [];
+  rendering: boolean = true;
+  dataSourceMat = new MatTableDataSource<Ordination>(this.ordination);
+  columnDefinitions: ColumnDefinitionsProps[] = [
+    { key: 'status', header: 'Status', type: 'boolean' },
+    { key: 'occupation.name', header: 'Ocupação', type: 'string' },
+    { key: 'initial_date', header: 'Data Inicial', type: 'date' },
+    { key: 'end_date', header: 'Data Final', type: 'date' },
+  ];
   actions: ActionsProps[] = [
     {
       type: 'edit',
@@ -47,22 +64,6 @@ export class OrdinationsComponent implements OnInit {
       action: (ordination: Ordination) => this.handleDelete(ordination),
     },
   ];
-  columnDefinitions: ColumnDefinitionsProps[] = [
-    { key: 'status', header: 'Status', type: 'boolean' },
-    { key: 'occupation.name', header: 'Ocupação', type: 'string' },
-    { key: 'initial_date', header: 'Data Inicial', type: 'date' },
-    { key: 'end_date', header: 'Data Final', type: 'date' },
-  ];
-
-  constructor(
-    private confirmService: ConfirmService,
-    private loading: LoadingService,
-    private toast: ToastService,
-    private modal: ModalService,
-    private ordinationService: OrdinationsService,
-    private membersService: MembersService,
-    @Inject(MAT_DIALOG_DATA) public data: { ordinations: Ordination[]; id: number },
-  ) {}
 
   ngOnInit() {
     this.dataSourceMat.paginator = this.paginator;
@@ -72,7 +73,7 @@ export class OrdinationsComponent implements OnInit {
   }
 
   get ordinationData(): Ordination[] {
-    return this._ordination;
+    return this.ordination;
   }
 
   private loadOrdinations = () => {
@@ -80,12 +81,12 @@ export class OrdinationsComponent implements OnInit {
     const memberId = this.membersService.getEditingMemberId();
     this.ordinationService.getOrdinationByMemberId(memberId!).subscribe({
       next: (ordination) => {
-        this._ordination = ordination;
-        this.dataSourceMat.data = this._ordination;
+        this.ordination = ordination;
+        this.dataSourceMat.data = this.ordination;
         this.dataSourceMat.paginator = this.paginator;
         this.dataSourceMat.sort = this.sort;
         this.rendering = false;
-        this.ordinationUpdated.emit(this._ordination);
+        this.ordinationUpdated.emit(this.ordination);
       },
       error: () => {
         this.loading.hide();
@@ -95,7 +96,7 @@ export class OrdinationsComponent implements OnInit {
     });
   };
 
-  handleCreate = () => {
+  onCreate = () => {
     const defaultMemberId = this.membersService.getEditingMemberId();
 
     const dialogRef = this.modal.openModal(

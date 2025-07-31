@@ -5,7 +5,8 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { ActionsProps, ColumnDefinitionsProps, CrudComponent } from 'app/components/crud/crud.component';
+import { CrudComponent } from 'app/components/crud/crud.component';
+import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
@@ -24,11 +25,26 @@ import { EventTypesService } from './eventTypes.service';
   imports: [NotFoundRegisterComponent, CommonModule, CrudComponent],
 })
 export class EventTypesComponent implements OnInit {
+  constructor(
+    private toast: ToastService,
+    private loading: LoadingService,
+    private confirmService: ConfirmService,
+    private modalService: ModalService,
+    private eventTypesService: EventTypesService,
+  ) {}
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
   eventTypes: EventTypes[] = [];
   rendering: boolean = true;
   dataSourceMat = new MatTableDataSource<EventTypes>(this.eventTypes);
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  columnDefinitions: ColumnDefinitionsProps[] = [
+    { key: 'status', header: 'Status', type: 'boolean' },
+    { key: 'name', header: 'Nome', type: 'string' },
+    { key: 'color', header: 'Cor', type: 'color' },
+    { key: 'description', header: 'Descrição', type: 'string' },
+    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
+  ];
   actions: ActionsProps[] = [
     {
       type: 'toggle',
@@ -51,22 +67,6 @@ export class EventTypesComponent implements OnInit {
     },
   ];
 
-  columnDefinitions: ColumnDefinitionsProps[] = [
-    { key: 'status', header: 'Status', type: 'boolean' },
-    { key: 'name', header: 'Nome', type: 'string' },
-    { key: 'color', header: 'Cor', type: 'color' },
-    { key: 'description', header: 'Descrição', type: 'string' },
-    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
-  ];
-
-  constructor(
-    private toast: ToastService,
-    private loading: LoadingService,
-    private confirmService: ConfirmService,
-    private modalService: ModalService,
-    private eventTypesService: EventTypesService,
-  ) {}
-
   ngOnInit() {
     this.loadEventTypes();
   }
@@ -85,7 +85,7 @@ export class EventTypesComponent implements OnInit {
     });
   };
 
-  handleCreate = () => {
+  onCreate = () => {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       EventTypeComponent,
@@ -141,7 +141,7 @@ export class EventTypesComponent implements OnInit {
       });
   };
 
-  toggleStatus = (eventType: EventTypes) => {
+  toggleStatus(eventType: EventTypes) {
     const updatedStatus = !eventType.status;
     eventType.status = updatedStatus;
 
@@ -158,5 +158,5 @@ export class EventTypesComponent implements OnInit {
         this.loading.hide();
       },
     });
-  };
+  }
 }

@@ -4,11 +4,12 @@
   padding: 1rem;
 
   & > button {
-    min-width: 20rem;
+    min-width: 25rem;
+  }
 
-    @media screen and (max-width: 768px) {
-      margin: 1rem 0;
-      min-width: 20rem;
+  @media screen and (max-width: 768px) {
+    & > button {
+      min-width: 100%;
       width: 100%;
     }
   }
@@ -40,19 +41,41 @@
 
 .search-container {
   display: flex;
+  flex-direction: row;
   justify-content: center;
   padding: 1rem;
 
   @media screen and (max-width: 768px) {
     flex-direction: column;
+    justify-content: center;
+    flex-wrap: wrap;
   }
 }
 
 .search {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: center;
   margin-right: 1rem;
-  width: 20rem;
+  width: 25rem;
 
   @media screen and (max-width: 768px) {
+    width: 100%;
+  }
+}
+
+.search-advanced {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 1rem;
+  margin-right: 1rem;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+    flex-wrap: wrap;
     width: 100%;
   }
 }
@@ -63,30 +86,18 @@
   gap: 0.5rem;
 }
 
-.action-button {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 1rem;
-  margin: 1rem;
-}
-
-.mat-table-responsive {
-  display: block;
-  overflow: auto;
+.findDataButton {
   width: 100%;
+
+  & > button {
+    width: 100%;
+  }
 }
 
 .mat-table-responsive table {
-  width: 100%;
-  border-spacing: 0;
   border-collapse: collapse;
-}
-
-.mat-header-bold {
-  font-weight: bold;
-  color: var(--primary-color);
+  border-spacing: 0;
+  width: 100%;
 }
 
 .mat-header-cell,
@@ -94,14 +105,14 @@
 .rows,
 td,
 th {
-  width: 5dvw !important;
-  max-width: 40dvw !important;
+  width: 5dvw;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 
   @media screen and (max-width: 1280px) {
     font-size: 0.8rem;
+    max-width: 100dvw;
     padding: 0.5rem;
   }
 }
@@ -111,6 +122,7 @@ th {
 }
 
 .mat-header-cell {
+  background-color: var(--hover-color);
   font-weight: bold;
 }
 
@@ -122,13 +134,21 @@ th {
 }
 
 .actions-cell {
+  overflow: hidden;
   position: relative;
   width: 5dvw;
-  overflow: hidden;
 }
 
 .rows:hover .actions-cell {
   width: 5dvw;
+}
+
+.rows.clickable {
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
 }
 
 .actions-container {
@@ -137,12 +157,6 @@ th {
   justify-content: flex-end;
   transition: opacity 0.3s ease-in-out;
 
-  & > button > mat-icon {
-    align-items: center;
-    display: flex;
-    justify-content: center;
-  }
-
   @media screen and (max-width: 1280px) {
     display: block;
   }
@@ -150,6 +164,13 @@ th {
 
 .rows:hover .actions-container {
   display: flex;
+}
+
+.actions-container > button > mat-icon {
+  align-items: center;
+  display: flex;
+  font-size: 1.18rem;
+  justify-content: center;
 }
 
 .paginator {
@@ -171,16 +192,41 @@ th {
   color: grey;
 }
 
-.negative {
-  color: var(--error-color);
-}
-
 .delete {
   color: var(--error-color);
 }
 
 .mat-mdc-row {
   color: var(--text-color) !important;
+}
+
+.filter-button {
+  transition: box-shadow 0.3s ease;
+}
+
+.filter-button.selected {
+  background-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1) inset;
+}
+
+button.active {
+  background-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1) inset;
+}
+
+.status-warning {
+  color: var(--warning-color);
+  font-weight: 500;
+}
+
+.status-blue {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.status-success {
+  color: var(--success-color);
+  font-weight: 500;
 }
 
 .color-display {

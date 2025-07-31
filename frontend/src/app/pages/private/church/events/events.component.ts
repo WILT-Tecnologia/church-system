@@ -1,5 +1,5 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { AsyncPipe, CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -25,7 +25,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { forkJoin, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, forkJoin, Observable, of, Subject } from 'rxjs';
 import { debounceTime, mergeWith, switchMap, takeUntil } from 'rxjs/operators';
 
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
@@ -36,11 +36,12 @@ import listPlugin from '@fullcalendar/list';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/crud.component';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
+import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
-import { CrudConfig, TabConfig, TabCrudComponent } from 'app/components/tab-crud/tab-crud.component';
+import { TabCrudComponent } from 'app/components/tab-crud/tab-crud.component';
+import { CrudConfig, TabConfig } from 'app/components/tab-crud/types';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { CallToDay, Events } from 'app/model/Events';
@@ -56,7 +57,6 @@ import { CallToDayComponent } from './shared/call-to-day/call-to-day.component';
 import { EventsFormComponent } from './shared/events-form/events-form.component';
 import { MakeCallComponent } from './shared/make-call/make-call.component';
 
-//
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 
@@ -81,18 +81,38 @@ dayjs.extend(isSameOrBefore);
     MatMenuModule,
     FullCalendarModule,
     TabCrudComponent,
+    AsyncPipe,
   ],
   providers: [FormatsPipe],
 })
 export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
+  constructor(
+    private toast: ToastService,
+    private loading: LoadingService,
+    private confirmService: ConfirmService,
+    private modal: ModalService,
+    private eventsService: EventsService,
+    private format: FormatsPipe,
+    private cdr: ChangeDetectorRef,
+    private eventTypesService: EventTypesService,
+    @Inject(PLATFORM_ID) private platformId: object,
+  ) {
+    this.findEventsByTabIdAdapter = this.findEventsByTabIdAdapter.bind(this);
+  }
+
+  @ViewChild('calendar', { static: false }) calendarComponent!: FullCalendarComponent;
+  @ViewChild('eventContent') eventContent!: TemplateRef<any>;
   breakpointObserver = inject(BreakpointObserver);
   events: Events[] = [];
   callToDays: CallToDay[] = [];
-  eventTypes: EventTypes[] = [];
+  eventTypes = new BehaviorSubject<EventTypes[]>([]);
   tabs: TabConfig[] = [];
-  rendering: boolean = true;
-  @ViewChild('calendar', { static: false }) calendarComponent!: FullCalendarComponent;
-  @ViewChild('eventContent') eventContent!: TemplateRef<any>;
+  columnDefinitions: ColumnDefinitionsProps[] = [
+    { key: 'church.name', header: 'Igreja', type: 'string' },
+    { key: 'eventType.name', header: 'Tipo do evento', type: 'string' },
+    { key: 'name', header: 'Nome', type: 'string' },
+    { key: 'obs', header: 'Observação', type: 'string' },
+  ];
   actions: ActionsProps[] = [
     {
       type: 'person_add',
@@ -126,12 +146,6 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       action: (events: Events) => this.handleDelete(events),
     },
   ];
-  columnDefinitions: ColumnDefinitionsProps[] = [
-    { key: 'church.name', header: 'Igreja', type: 'string' },
-    { key: 'eventType.name', header: 'Tipo do evento', type: 'string' },
-    { key: 'name', header: 'Nome', type: 'string' },
-    { key: 'obs', header: 'Observação', type: 'string' },
-  ];
   crudConfig!: CrudConfig;
   isMobile: boolean = false;
   private destroy$ = new Subject<void>();
@@ -142,6 +156,8 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   calendarVisibleValue = this.calendarVisible.asReadonly();
   hoveredEventId: string | null = null;
   private eventCache = new Map<string, any>();
+  rendering = signal(true);
+  private initialTabLoadSubject = new Subject<string>();
   private mobileCalendarOptions: CalendarOptions = {
     initialView: 'listWeek',
     height: 'auto',
@@ -210,18 +226,6 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     },
   });
 
-  constructor(
-    private toast: ToastService,
-    private loading: LoadingService,
-    private confirmService: ConfirmService,
-    private modal: ModalService,
-    private eventsService: EventsService,
-    private format: FormatsPipe,
-    private cdr: ChangeDetectorRef,
-    private eventTypesService: EventTypesService,
-    @Inject(PLATFORM_ID) private platformId: object,
-  ) {}
-
   ngOnInit() {
     this.loadEvents();
 
@@ -244,6 +248,23 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.refreshSubject.pipe(debounceTime(300), takeUntil(this.destroy$)).subscribe(() => this.loadEvents());
+
+    this.initialTabLoadSubject
+      .pipe(
+        switchMap((tabId) => this.findEventsByTabIdAdapter(tabId)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: () => {
+          this.rendering.set(false);
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.rendering.set(false);
+          this.toast.openError(MESSAGES.LOADING_ERROR);
+          this.cdr.detectChanges();
+        },
+      });
 
     this.crudConfig = {
       columnDefinitions: this.columnDefinitions,
@@ -270,16 +291,21 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   findEventsByTabIdAdapter = (tabId: string): Observable<Events[]> => {
-    const eventType = this.eventTypes.find((et) => et.id === tabId);
-    if (!eventType) {
-      return of([]);
-    }
-    return this.eventsService
-      .findByEventType(eventType)
-      .pipe(
-        mergeWith(this.refreshSubject.pipe(switchMap(() => this.eventsService.findByEventType(eventType)))),
-        takeUntil(this.destroy$),
-      );
+    return this.eventTypes.pipe(
+      switchMap((eventTypes) => {
+        const eventType = eventTypes.find((et) => et.id === tabId);
+        if (!eventType) {
+          console.warn('Event type not found for tabId:', tabId);
+          return of([]);
+        }
+        return this.eventsService
+          .findByEventType(eventType)
+          .pipe(
+            mergeWith(this.refreshSubject.pipe(switchMap(() => this.eventsService.findByEventType(eventType)))),
+            takeUntil(this.destroy$),
+          );
+      }),
+    );
   };
 
   updateCalendarOptions() {
@@ -293,15 +319,15 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.refreshSubject.next();
   }
 
-  private showLoading = () => {
+  private showLoading() {
     this.loading.show();
-  };
+  }
 
-  private hideLoading = () => {
+  private hideLoading() {
     this.loading.hide();
-  };
+  }
 
-  handleEnableCalendar = () => {
+  handleEnableCalendar() {
     this.calendarVisible.update((calendarVisible) => !calendarVisible);
     this.calendarToggleSubject.next();
     if (this.calendarVisible() && this.calendarComponent?.getApi()) {
@@ -313,9 +339,9 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       calendarApi.updateSize();
       this.cdr.detectChanges();
     }
-  };
+  }
 
-  private handleWeekendsToggle = () => {
+  private handleWeekendsToggle() {
     this.calendarOptions.update((options) => ({
       ...options,
       weekends: !options.weekends,
@@ -325,7 +351,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       calendarApi.render();
       this.cdr.detectChanges();
     }
-  };
+  }
 
   private handleDateSelect(selectInfo: DateSelectArg) {
     const modal = this.modal.openModal(`modal-${Math.random()}`, EventsFormComponent, 'Adicionar evento', true, true, {
@@ -358,6 +384,8 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private loadEvents() {
+    this.showLoading();
+    this.rendering.set(true);
     forkJoin({
       events: this.eventsService.findAll(),
       eventTypes: this.eventTypesService.findAll(),
@@ -365,14 +393,23 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: ({ events, eventTypes }) => {
-          this.eventTypes = eventTypes.filter((et) => et.status);
-          this.tabs = this.eventTypes.map((et) => ({
-            id: et.id,
-            name: et.name,
-            color: et.color,
-          }));
+          this.eventTypes.next(eventTypes.filter((et) => et.status));
+          this.tabs = eventTypes
+            .filter((et) => et.status)
+            .map((et) => ({
+              id: et.id,
+              name: et.name,
+              color: et.color,
+            }));
 
           this.events = events;
+
+          if (this.tabs.length > 0 && !this.calendarVisible()) {
+            this.initialTabLoadSubject.next(this.tabs[0].id);
+          } else {
+            this.rendering.set(false);
+            this.cdr.detectChanges();
+          }
 
           if (this.calendarVisible() && this.calendarComponent?.getApi()) {
             const calendarApi = this.calendarComponent.getApi();
@@ -382,17 +419,17 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
             calendarApi.render();
             calendarApi.updateSize();
           }
-
-          this.rendering = false;
           this.cdr.detectChanges();
         },
         error: () => {
           this.hideLoading();
+          this.rendering.set(false);
           this.toast.openError(MESSAGES.LOADING_ERROR);
-          this.rendering = false;
           this.cdr.detectChanges();
         },
-        complete: () => this.hideLoading(),
+        complete: () => {
+          this.hideLoading();
+        },
       });
   }
 
@@ -420,7 +457,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private addMembersGuest = (event: Events) => {
+  private addMembersGuest(event: Events) {
     this.modal.openModal(
       `modal-${Math.random()}`,
       AddMembersGuestsComponent,
@@ -431,9 +468,9 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       '',
       true,
     );
-  };
+  }
 
-  private handleCreateCall = (event: Events) => {
+  private handleCreateCall(event: Events) {
     this.modal.openModal(
       `modal-${Math.random()}`,
       CallToDayComponent,
@@ -444,9 +481,9 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       '',
       true,
     );
-  };
+  }
 
-  private handleMakeCall = (event: Events) => {
+  private handleMakeCall(event: Events) {
     this.modal.openModal(
       `modal-${Math.random()}`,
       MakeCallComponent,
@@ -457,9 +494,9 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       '',
       true,
     );
-  };
+  }
 
-  handleCreate = () => {
+  handleCreate() {
     const modal = this.modal.openModal(`modal-${Math.random()}`, EventsFormComponent, 'Adicionar evento', true, true);
     modal
       .afterClosed()
@@ -470,9 +507,9 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
           this.refreshData();
         }
       });
-  };
+  }
 
-  handleEdit = (event: Events) => {
+  handleEdit(event: Events) {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       EventsFormComponent,
@@ -490,9 +527,9 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
           this.refreshData();
         }
       });
-  };
+  }
 
-  handleDelete = (event: Events) => {
+  handleDelete(event: Events) {
     this.confirmService
       .openConfirm('Excluir evento', `Tem certeza que deseja excluir o evento ${event.name}?`, 'Confirmar', 'Cancelar')
       .afterClosed()
@@ -513,7 +550,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
             });
         }
       });
-  };
+  }
 
   formatTooltip(data: { event: Events; callToDay: CallToDay | null }): string {
     const { event, callToDay } = data;

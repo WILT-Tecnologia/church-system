@@ -5,23 +5,25 @@
       <mat-divider></mat-divider>
     </div>
     <div class="changes-wrapper">
-      <div class="change-card" *ngFor="let change of history_member">
-        <div class="change-card-content">
-          <div class="change-info">
-            <p>
-              <span class="label">Situação anterior:</span>
-              {{ change.before_situation || 'N/A' }}
-            </p>
-            <p>
-              <span class="label">Agora:</span>
-              {{ change.after_situation }}
-            </p>
+      @for (change of history_member; track $index) {
+        <div class="change-card">
+          <div class="change-card-content">
+            <div class="change-info">
+              <p>
+                <span class="label">Situação anterior:</span>
+                {{ change.before_situation || 'N/A' }}
+              </p>
+              <p>
+                <span class="label">Agora:</span>
+                {{ change.after_situation }}
+              </p>
+            </div>
+            <span class="change-date">
+              {{ change.change_date | date: 'dd/MM/yyyy HH:mm:ss' }}
+            </span>
           </div>
-          <span class="change-date">
-            {{ change.change_date | date: 'dd/MM/yyyy HH:mm:ss' }}
-          </span>
         </div>
-      </div>
+      }
     </div>
   </div>
 } @else {
