@@ -10,6 +10,7 @@
         [matAutocomplete]="autoEventType"
         [formControl]="searchEventControl"
         (focus)="filteredEvents()"
+        [disabled]="isEditMode()"
       />
       <mat-autocomplete #autoEventType="matAutocomplete" (optionSelected)="onSelectedEvents($event)">
         @for (event of filterEvents | async; track $index) {

@@ -13,17 +13,17 @@ export type EventData = {
 };
 
 export type Events = {
-  callToDay: CallToDay;
   id: string;
   church?: Church;
-  church_id: string;
   eventType?: EventTypes;
+  church_id: string;
   event_type_id: string;
   name: string;
   obs?: string;
   participants?: Members[];
   guests?: Guest[];
   participantAndGuests?: ParticipantAndGuest[];
+  callToDay?: CallToDay;
   created_at?: string;
   updated_at?: string;
   created_by?: User;

@@ -295,7 +295,6 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       switchMap((eventTypes) => {
         const eventType = eventTypes.find((et) => et.id === tabId);
         if (!eventType) {
-          console.warn('Event type not found for tabId:', tabId);
           return of([]);
         }
         return this.eventsService
@@ -461,7 +460,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.modal.openModal(
       `modal-${Math.random()}`,
       AddMembersGuestsComponent,
-      `Adicionar membros no evento ${event.name}`,
+      `Adicionar membros no evento ${event?.name}`,
       true,
       true,
       { event },
@@ -478,8 +477,6 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       true,
       true,
       { event },
-      '',
-      true,
     );
   }
 
@@ -491,8 +488,6 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       true,
       true,
       { event },
-      '',
-      true,
     );
   }
 

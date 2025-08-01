@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, Inject, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,6 +23,8 @@ import { EventsService } from 'app/pages/private/church/events/events.service';
 import { NotificationService } from 'app/services/notification/notification.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 import { provideNgxMask } from 'ngx-mask';
+
+import { CallToDayService } from '../../call-to-day.service';
 
 @Component({
   selector: 'app-create-call-to-day',
@@ -58,24 +60,32 @@ export class CreateCallToDayComponent implements OnInit, OnDestroy {
     private notification: NotificationService,
     private eventsService: EventsService,
     private dialogRef: MatDialogRef<CreateCallToDayComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { calltoDay: CallToDay },
+    @Inject(MAT_DIALOG_DATA) public data: { calltoDay?: CallToDay; event?: Events },
   ) {
     this.callToDayForm = this.onForm();
   }
 
+  @ViewChild('endDatePicker') endDatePicker!: MatDatepicker<Date>;
+  @ViewChild('startDatePicker') startDatePicker!: MatDatepicker<Date>;
   callToDayForm: FormGroup;
   readonly minDate = new Date(1900, 0, 1);
   private destroy$ = new Subject<void>();
+  private callToDayService = inject(CallToDayService);
   searchEventControl = new FormControl('');
   filterEvents: Observable<Events[]> = new Observable<Events[]>();
-  @ViewChild('startDatePicker') startDatePicker!: MatDatepicker<Date>;
-  @ViewChild('endDatePicker') endDatePicker!: MatDatepicker<Date>;
   isEditMode = signal(false);
   events: Events[] = [];
 
   ngOnInit() {
-    this.loadEvents();
-    this.filteredEvents();
+    if (this.data?.calltoDay) {
+      this.isEditMode.set(true);
+    }
+    if (this.data?.event) {
+      this.events = [this.data.event];
+      this.setupForm();
+    } else {
+      this.loadEvents();
+    }
   }
 
   ngOnDestroy() {
@@ -118,36 +128,48 @@ export class CreateCallToDayComponent implements OnInit, OnDestroy {
   }
 
   private loadEvents() {
-    if (this.events.length > 0) {
+    if (this.events.length > 0 || this.data?.event) {
       this.filteredEvents();
       return;
     }
 
-    this.eventsService
-      .findAll()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (events) => {
-          this.events = events;
-          this.setupForm();
-        },
-        error: () => this.notification.onError(MESSAGES.LOADING_ERROR),
-      });
+    if (this.data?.event) {
+      this.callToDayService
+        .findAll(this.data?.event?.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            const selectedEvent = this.events.find((event) => event.id === this.data?.event?.id) as Events;
+
+            this.events = [selectedEvent];
+            this.setupForm();
+          },
+          error: () => this.notification.onError(MESSAGES.LOADING_ERROR),
+        });
+    }
   }
 
   private setupForm() {
-    if (this.data?.calltoDay?.event_id) {
-      const selectedEvent = this.events.find((event) => event.id === this.data.calltoDay.event_id);
+    if (this.data?.calltoDay || this.data?.event) {
+      const selectedEvent = this.events.find((event) => event.id === this.data?.event?.id) as Events;
+
       if (selectedEvent) {
         this.searchEventControl.setValue(selectedEvent.name);
         this.callToDayForm.get('event_id')?.setValue(selectedEvent.id);
+        this.callToDayForm.get('event_id')?.disable();
+        this.searchEventControl.disable();
       }
     }
   }
 
   private createCallToDay(data: CallToDay) {
-    this.eventsService
-      .create(data)
+    const eventId = this.data?.event?.id;
+    if (!eventId) {
+      this.notification.onError('Evento não encontrato!');
+      return;
+    }
+    this.callToDayService
+      .create(eventId, data)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
@@ -159,15 +181,23 @@ export class CreateCallToDayComponent implements OnInit, OnDestroy {
   }
 
   private updateCallToDay(data: CallToDay) {
-    this.eventsService
-      .update(data)
+    const eventId = this.data?.event?.id;
+    const callId = this.data?.calltoDay?.id;
+    if (!eventId || !callId) {
+      this.notification.onError('Evento ou chamada não encontrada!');
+      return;
+    }
+    this.callToDayService
+      .update(eventId, callId, data)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           this.notification.onSuccess(MESSAGES.UPDATE_SUCCESS);
           this.dialogRef.close(true);
         },
-        error: () => this.notification.onError(MESSAGES.UPDATE_ERROR),
+        error: (error) => {
+          this.notification.onError(error?.error?.error || MESSAGES.UPDATE_ERROR);
+        },
       });
   }
 
@@ -178,7 +208,7 @@ export class CreateCallToDayComponent implements OnInit, OnDestroy {
       const userTimezoneOffset = dateWithoutTimezone.getTimezoneOffset() * 60000;
       return new Date(dateWithoutTimezone.getTime() + userTimezoneOffset);
     } catch (e) {
-      console.error('Error initializing date:', e);
+      this.notification.onError(`Error initializing date:${e}`);
       return null;
     }
   }
@@ -260,6 +290,7 @@ export class CreateCallToDayComponent implements OnInit, OnDestroy {
 
     const formValues = {
       ...this.callToDayForm.value,
+      event_id: this.data?.event?.id,
       start_date: this.formatDate(this.callToDayForm.value.start_date),
       end_date: this.formatDate(this.callToDayForm.value.end_date),
       start_time: this.formatTime(this.callToDayForm.value.start_time),

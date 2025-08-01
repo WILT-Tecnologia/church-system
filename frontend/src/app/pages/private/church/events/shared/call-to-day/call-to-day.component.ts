@@ -36,7 +36,9 @@ export class CallToDayComponent implements OnInit {
   callToDay: CallToDay[] = [];
   dataSourceMat = new MatTableDataSource<CallToDay>(this.callToDay);
   columnDefinitions: ColumnDefinitionsProps[] = [
-    { key: 'event.name', header: 'Igreja', type: 'string' },
+    { key: 'event.name', header: 'Evento', type: 'string' },
+    { key: 'church.name', header: 'Igreja', type: 'string' },
+    { key: 'theme', header: 'Tema', type: 'string' },
     { key: 'start_date', header: 'Data inicial', type: 'date' },
     { key: 'start_time', header: 'Hora inicial', type: 'hour' },
     { key: 'end_date', header: 'Data final', type: 'date' },
@@ -79,6 +81,7 @@ export class CallToDayComponent implements OnInit {
       next: (callToDay) => {
         this.callToDay = callToDay;
         this.dataSourceMat = new MatTableDataSource<CallToDay>(this.callToDay);
+        this.cdr.detectChanges();
       },
       error: () => {
         this.loading.hide();
@@ -95,7 +98,7 @@ export class CallToDayComponent implements OnInit {
       'Criar chamada do dia',
       true,
       true,
-      {},
+      { event: this.data.event },
     );
 
     modal.afterClosed().subscribe((result) => {
@@ -105,14 +108,14 @@ export class CallToDayComponent implements OnInit {
     });
   }
 
-  private onEdit(callToDay: CallToDay) {
+  private onEdit(calltoDay: CallToDay) {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       CreateCallToDayComponent,
       'Editar chamada do dia',
       true,
       true,
-      { callToDay },
+      { calltoDay, event: this.data.event },
     );
 
     modal.afterClosed().subscribe((result) => {
@@ -127,19 +130,24 @@ export class CallToDayComponent implements OnInit {
       .openConfirm('Excluir a chamada do dia', 'Tem certeza que deseja excluir?', 'Confirmar', 'Cancelar')
       .afterClosed()
       .subscribe({
-        next: () => {
-          this.loading.show();
-          this.callToDayService.delete(this.data.event.id, callToDay.id).subscribe({
-            next: () => {
-              this.loading.hide();
-              this.toast.openSuccess('Evento excluido com sucesso!');
-              this.loadCallToDay();
-            },
-            error: (error) => {
-              this.loading.hide();
-              this.toast.openError(error);
-            },
-          });
+        next: (confirmed) => {
+          if (confirmed) {
+            const eventId = this.data?.event?.id;
+            if (!eventId || !callToDay.id) {
+              this.onError('Evento ou chamada não encontrada!');
+              return;
+            }
+            this.loading.show();
+            this.callToDayService.delete(eventId, callToDay.id).subscribe({
+              next: () => {
+                this.onSuccess('Chamada do dia excluída com sucesso!');
+                this.loadCallToDay();
+              },
+              error: (error) => {
+                this.onError(error?.error?.error || MESSAGES.DELETE_ERROR);
+              },
+            });
+          }
         },
       });
   }
