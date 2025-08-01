@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EventCall extends Model
@@ -38,6 +39,11 @@ class EventCall extends Model
 
     public function evento(): BelongsTo {
         return $this->belongsTo(Evento::class, 'event_id', 'id');
+    }
+
+    public function frequencies(): HasMany
+    {
+        return $this->hasMany(Frequency::class);
     }
 
 }

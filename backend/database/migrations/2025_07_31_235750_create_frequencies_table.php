@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('frequencies', function (Blueprint $table) {
             $table->uuid('id');
             $table->uuid('event_call_id');
-            $table->uuid('membro_id');
-            $table->uuid('guest_id');
-            $table->boolean('present');
+            $table->uuid('membro_id')->nullable();
+            $table->uuid('guest_id')->nullable();
+            $table->boolean('present')->default(false);
             $table->timestamps();
 
             $table->foreign('event_call_id')->references('id')->on('events_calls')->onDelete('cascade');
