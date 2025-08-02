@@ -460,7 +460,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.modal.openModal(
       `modal-${Math.random()}`,
       AddMembersGuestsComponent,
-      `Adicionar membros no evento ${event?.name}`,
+      `Adicionar participantes no evento ${event?.name}`,
       true,
       true,
       { event },
@@ -473,7 +473,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.modal.openModal(
       `modal-${Math.random()}`,
       CallToDayComponent,
-      `Criando a chamada do dia para o evento ${event?.name}`,
+      `Chamadas do dia para o evento ${event?.name}`,
       true,
       true,
       { event },
@@ -484,7 +484,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.modal.openModal(
       `modal-${Math.random()}`,
       MakeCallComponent,
-      `Fazendo a chamada para o evento ${event.name}`,
+      `Chamada para o evento ${event.name}`,
       true,
       true,
       { event },
