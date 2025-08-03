@@ -12,9 +12,14 @@ class ChurchController extends Controller
 {
 
     public function index() {
-        $church = Church::with('responsible')->get()->sortBy('name');
+        $churches = Church::with('responsible')
+            ->withCount('members')
+            ->get()
+            ->sortBy('name');
 
-        return response()->json(ChurchResource::collection($church));
+        $church = ChurchResource::collection($churches);
+
+        return response()->json($church);
     }
 
     public function store(StoreChurchRequest $request) {
