@@ -12,6 +12,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
+import { debounceTime, distinctUntilChanged, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
+
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
@@ -26,7 +28,7 @@ import { CepService } from 'app/services/search-cep/search-cep.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 import { cnpjValidator } from 'app/services/validators/cnpj-validator';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
-import { debounceTime, distinctUntilChanged, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
+
 import { PersonsService } from '../../persons/persons.service';
 import { ChurchsService } from '../churches.service';
 
@@ -55,18 +57,6 @@ import { ChurchsService } from '../churches.service';
   providers: [provideNgxMask()],
 })
 export class ChurchComponent implements OnInit, OnDestroy {
-  churchForm: FormGroup;
-  church: Church[] = [];
-  responsible: Person[] = [];
-  isEditMode: boolean = false;
-
-  searchResponsibleControl = new FormControl('');
-  filterResponsable: Observable<Person[]> = new Observable<Person[]>();
-
-  private destroy$ = new Subject<void>();
-  @ViewChild(MatDatepicker) picker!: MatDatepicker<Date>;
-  @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;
-
   constructor(
     private personService: PersonsService,
     private churchsService: ChurchsService,
@@ -83,6 +73,18 @@ export class ChurchComponent implements OnInit, OnDestroy {
     this.churchForm = this.createForm();
   }
 
+  churchForm: FormGroup;
+  church: Church[] = [];
+  responsible: Person[] = [];
+  isEditMode: boolean = false;
+
+  searchResponsibleControl = new FormControl('');
+  filterResponsable: Observable<Person[]> = new Observable<Person[]>();
+
+  private destroy$ = new Subject<void>();
+  @ViewChild(MatDatepicker) picker!: MatDatepicker<Date>;
+  @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;
+
   ngOnInit() {
     this.checkEditMode();
     this.loadResponsibles();
@@ -93,6 +95,24 @@ export class ChurchComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  createForm() {
+    return this.fb.group({
+      id: [this.data?.church?.id ?? ''],
+      responsible_id: [this.data?.church?.responsible?.id ?? '', [Validators.required]],
+      name: [this.data?.church?.name ?? '', [Validators.required, Validators.maxLength(255)]],
+      email: [this.data?.church?.email ?? '', [Validators.required, Validators.email]],
+      cnpj: [this.data?.church?.cnpj ?? '', [Validators.required, cnpjValidator]],
+      cep: [this.data?.church?.cep ?? '', [Validators.required]],
+      street: [this.data?.church?.street ?? '', [Validators.required, Validators.maxLength(255)]],
+      number: [this.data?.church?.number ?? '', [Validators.required, Validators.maxLength(10)]],
+      complement: [this.data?.church?.complement ?? '', [Validators.maxLength(255)]],
+      district: [this.data?.church?.district ?? '', [Validators.required, Validators.maxLength(255)]],
+      city: [this.data?.church?.city ?? '', [Validators.required, Validators.maxLength(255)]],
+      state: [this.data?.church?.state ?? '', [Validators.required, Validators.maxLength(255)]],
+      country: [this.data?.church?.country ?? '', [Validators.required, Validators.maxLength(255)]],
+    });
   }
 
   private loadResponsibles() {
@@ -121,29 +141,7 @@ export class ChurchComponent implements OnInit, OnDestroy {
     }
   }
 
-  createForm = () => {
-    return this.fb.group({
-      id: [this.data?.church?.id ?? ''],
-      responsible_id: [this.data?.church?.responsible?.id ?? '', [Validators.required]],
-      name: [this.data?.church?.name ?? '', [Validators.required, Validators.maxLength(255)]],
-      email: [this.data?.church?.email ?? '', [Validators.required, Validators.email]],
-      cnpj: [this.data?.church?.cnpj ?? '', [Validators.required, cnpjValidator]],
-      cep: [this.data?.church?.cep ?? '', [Validators.required]],
-      street: [this.data?.church?.street ?? '', [Validators.required, Validators.maxLength(255)]],
-      number: [this.data?.church?.number ?? '', [Validators.required, Validators.maxLength(10)]],
-      complement: [this.data?.church?.complement ?? '', [Validators.maxLength(255)]],
-      district: [this.data?.church?.district ?? '', [Validators.required, Validators.maxLength(255)]],
-      city: [this.data?.church?.city ?? '', [Validators.required, Validators.maxLength(255)]],
-      state: [this.data?.church?.state ?? '', [Validators.required, Validators.maxLength(255)]],
-      country: [this.data?.church?.country ?? '', [Validators.required, Validators.maxLength(255)]],
-      logo: [this.data?.church?.logo ?? ''],
-      favicon: [this.data?.church?.favicon ?? ''],
-      background: [this.data?.church?.background ?? ''],
-      color: [this.data?.church?.color ?? ''],
-    });
-  };
-
-  showAllResponsibles = () => {
+  showAllResponsibles() {
     this.filterResponsable = this.searchResponsibleControl.valueChanges.pipe(
       startWith(''),
       map((value: any) => {
@@ -155,7 +153,7 @@ export class ChurchComponent implements OnInit, OnDestroy {
       }),
       map((name) => (name.length >= 1 ? this._filterResponsables(name) : this.responsible)),
     );
-  };
+  }
 
   private initialFilterResponsibles() {
     this.filterResponsable = this.searchResponsibleControl.valueChanges.pipe(
@@ -187,7 +185,7 @@ export class ChurchComponent implements OnInit, OnDestroy {
     return control ? this.validationService.getErrorMessage(control) : null;
   }
 
-  handleSubmit = () => {
+  handleSubmit() {
     this.churchForm.markAllAsTouched();
 
     if (this.churchForm.invalid) {
@@ -207,9 +205,9 @@ export class ChurchComponent implements OnInit, OnDestroy {
     } else {
       this.handleCreate(sanitizeChurchValues);
     }
-  };
+  }
 
-  handleNext = () => {
+  handleNext() {
     const identificationFields = ['responsible_id', 'name', 'email', 'cnpj'];
 
     identificationFields.forEach((field) => {
@@ -222,17 +220,17 @@ export class ChurchComponent implements OnInit, OnDestroy {
     if (isIdentificationValid) {
       this.tabGroup.selectedIndex = 1;
     }
-  };
+  }
 
-  handleBack = () => {
+  handleBack() {
     this.tabGroup.selectedIndex = 0;
-  };
+  }
 
   handleCancel() {
     this.dialogRef.close();
   }
 
-  handleCreate = (data: any) => {
+  handleCreate(data: Church) {
     this.loading.show();
     this.churchsService.createChurch(data).subscribe({
       next: () => {
@@ -243,9 +241,9 @@ export class ChurchComponent implements OnInit, OnDestroy {
       },
       complete: () => this.loading.hide(),
     });
-  };
+  }
 
-  handleUpdate = (churchId: string, data: any) => {
+  handleUpdate(churchId: string, data: Church) {
     this.loading.show();
     this.churchsService.updateChurch(churchId, data).subscribe({
       next: () => {
@@ -256,7 +254,7 @@ export class ChurchComponent implements OnInit, OnDestroy {
       },
       complete: () => this.loading.hide(),
     });
-  };
+  }
 
   initialSearchCep() {
     let previousCepValue = this.churchForm.get('cep')?.value;

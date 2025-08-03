@@ -46,6 +46,7 @@ export class ChurchesComponent implements OnInit {
     { key: 'email', header: 'Email', type: 'string' },
     { key: 'cnpj', header: 'CNPJ', type: 'cnpj' },
     { key: 'responsible.name', header: 'Responsável', type: 'string' },
+    { key: 'members_count', header: 'Quantidade de Membros', type: 'number' },
     { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
   ];
   actions: ActionsProps[] = [

@@ -48,7 +48,6 @@ export class ProfilesComponent implements OnInit {
   actions: ActionsProps[] = [
     {
       type: 'toggle',
-      icon: 'toggle_on',
       activeLabel: 'Ativar',
       inactiveLabel: 'Desativar',
       action: (profile: Profile) => this.toggleStatus(profile),
@@ -72,7 +71,7 @@ export class ProfilesComponent implements OnInit {
     this.loadProfiles();
   }
 
-  loadProfiles = () => {
+  loadProfiles() {
     this.profilesService.getProfiles().subscribe({
       next: (profiles) => {
         this.profiles = profiles;
@@ -87,9 +86,9 @@ export class ProfilesComponent implements OnInit {
       },
       complete: () => this.loading.hide(),
     });
-  };
+  }
 
-  onCreate = () => {
+  onCreate() {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       ProfileComponent,
@@ -103,7 +102,7 @@ export class ProfilesComponent implements OnInit {
         this.loadProfiles();
       }
     });
-  };
+  }
 
   handleEdit = (profile: Profile) => {
     const modal = this.modal.openModal(
@@ -122,7 +121,7 @@ export class ProfilesComponent implements OnInit {
     });
   };
 
-  handleDelete = (profile: Profile) => {
+  handleDelete(profile: Profile) {
     const modal = this.confirmModal.openConfirm(
       'Confirmar exclusão',
       `Tem certeza que deseja excluir o perfil ${profile.name}?`,
@@ -145,9 +144,9 @@ export class ProfilesComponent implements OnInit {
         });
       }
     });
-  };
+  }
 
-  toggleStatus = (profile: Profile) => {
+  toggleStatus(profile: Profile) {
     this.loading.show();
     const updatedStatus = !profile.status;
     profile.status = updatedStatus;
@@ -165,5 +164,5 @@ export class ProfilesComponent implements OnInit {
         this.loading.hide();
       },
     });
-  };
+  }
 }

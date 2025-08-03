@@ -22,6 +22,7 @@
   --secondary-color: #{mat.get-theme-color(theme.$light-theme, secondary)};
   --tertiary-color: #{mat.get-theme-color(theme.$light-theme, tertiary)};
   --neutral-40: #{mat.get-theme-color(theme.$light-theme, neutral, 40)};
+  --neutral-50: #{mat.get-theme-color(theme.$light-theme, neutral, 50)};
   --grey-very-light: #{theme.$greyVeryLight};
   --grey-light: #{theme.$greyLight};
   --grey-main: #{theme.$greyMain};
@@ -32,6 +33,7 @@
   --success-color: #{theme.$success};
   --warning-color: #{theme.$warning};
   --hover-color: #{theme.$hover};
+  --info-color: #{mat.get-theme-color(theme.$light-theme, tertiary, 50)};
   --separator-color: #{theme.$separator};
   --white-color: #{theme.$white};
   --background-color: #{theme.$backgroundColor};
@@ -44,7 +46,7 @@
   outline: none;
   scroll-behavior: smooth;
   font-family: 'Mulish', 'Roboto', 'Poppins', sans-serif !important;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 ::selection {
@@ -56,11 +58,12 @@ html,
 body {
   background-color: var(--background-color);
   color: var(--text-color);
+  font-size: 1rem;
   margin: 0;
-  overflow: hidden;
   padding: 0;
   height: 100vh;
   width: 100vw;
+  overflow: hidden;
 }
 
 .title {
@@ -77,25 +80,43 @@ body {
   }
 }
 
+.subtitle {
+  color: var(--neutral-50);
+  font-size: 0.9rem;
+  margin: 1rem 0;
+}
+
 .text-default {
   color: var(--text-color);
   font-size: 1rem;
 }
 
-.white {
+.text-neutral {
+  color: var(--neutral-40);
+}
+
+.white-color {
   color: var(--white-color);
 }
 
-.success {
+.success-color {
   color: var(--success-color);
 }
 
-.danger {
+.danger-color {
   color: var(--danger-color);
 }
 
-.warning {
+.warning-color {
   color: var(--warning-color);
+}
+
+.info-color {
+  color: var(--info-color);
+}
+
+.primary-color-dark {
+  color: var(--primary-color-dark);
 }
 
 .spacer {
@@ -108,6 +129,10 @@ body {
 
 .p-2 {
   padding: 2rem;
+}
+
+.w-full {
+  width: 100% !important;
 }
 
 .cep-field {

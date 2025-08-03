@@ -245,8 +245,6 @@ button.active {
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 0.25rem;
-  box-shadow:
-    0 0.2rem 0.6rem 0rem rgba(0, 0, 0, 0.12),
-    0 0 0.1rem 0.1rem rgba(0, 0, 0, 0.12);
+  border: 0.1rem solid var(--neutral-40);
   flex-shrink: 0;
 }

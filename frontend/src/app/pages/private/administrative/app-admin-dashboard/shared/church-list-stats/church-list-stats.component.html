@@ -1,0 +1,31 @@
+<mat-card appearance="outlined" class="mat-card-grid">
+  <mat-card-header class="card-header">
+    <mat-card-title class="title">Igrejas</mat-card-title>
+    <button mat-button (click)="accessRoute.emit()">
+      Acessar
+      <mat-icon>church</mat-icon>
+    </button>
+  </mat-card-header>
+  <mat-divider />
+  <mat-card-content>
+    <app-column [columns]="6">
+      @for (church of churchs(); track church.id) {
+        <mat-card appearance="outlined" class="custom-shadow-card">
+          <mat-card-header>
+            <img
+              mat-card-avatar
+              [src]="church.logo || 'assets/img.png'"
+              alt="{{ church.name }} logo"
+              class="church-logo"
+            />
+            <mat-card-title class="church-name">{{ church.name }}</mat-card-title>
+          </mat-card-header>
+          <mat-divider></mat-divider>
+          <mat-card-content>
+            <p><mat-icon>group</mat-icon> {{ church.members_count }} membros</p>
+          </mat-card-content>
+        </mat-card>
+      }
+    </app-column>
+  </mat-card-content>
+</mat-card>

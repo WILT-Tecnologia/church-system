@@ -11,7 +11,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "serve:ssr:client": "node dist/client/server/server.mjs",
-    "postinstall": "node patch-fullcalendar.js"
+    "postinstall": "node patch-fullcalendar.js",
+    "doc": "compodoc -p tsconfig.doc.json --language pt-BR -s -r 9999 --watch --theme laravel"
   },
   "private": true,
   "dependencies": {

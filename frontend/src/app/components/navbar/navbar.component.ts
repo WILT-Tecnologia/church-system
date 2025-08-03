@@ -28,6 +28,10 @@ type RouteProps = {
 
 type RouteSection = RouteProps;
 
+type IconMapProps = {
+  [key: string]: string;
+};
+
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -87,7 +91,7 @@ export class NavbarComponent implements OnInit {
   }
 
   private initializeRoutes() {
-    const iconMap: { [key: string]: string } = {
+    const iconMap: IconMapProps = {
       dashboard: 'dashboard',
       administrative: 'settings',
       church: 'church',
@@ -104,6 +108,7 @@ export class NavbarComponent implements OnInit {
       'member-origins': 'person_add',
       users: 'people',
       profiles: 'person',
+      permissions: 'key_vertical',
     };
 
     const mainSections = ['church', 'administrative'];

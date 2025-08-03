@@ -7,6 +7,7 @@ import { ChurchesComponent } from './pages/private/administrative/churches/churc
 import { EventTypesComponent } from './pages/private/administrative/event-types/event-types.component';
 import { MemberOriginComponent } from './pages/private/administrative/member-origin/member-origin.component';
 import { OccupationsComponent } from './pages/private/administrative/occupations/occupations.component';
+import { PermissionsComponent } from './pages/private/administrative/permissions/permissions.component';
 import { PersonsComponent } from './pages/private/administrative/persons/persons.component';
 import { ProfilesComponent } from './pages/private/administrative/profiles/profiles.component';
 import { UsersComponent } from './pages/private/administrative/users/users.component';
@@ -99,6 +100,13 @@ export const routes: Routes = [
         path: 'profiles',
         component: ProfilesComponent,
         title: 'Perfis',
+        canActivate: [AuthGuard],
+        pathMatch: 'full',
+      },
+      {
+        path: 'permissions',
+        component: PermissionsComponent,
+        title: 'Permissões',
         canActivate: [AuthGuard],
         pathMatch: 'full',
       },

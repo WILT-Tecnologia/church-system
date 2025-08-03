@@ -89,9 +89,25 @@
           @case ('number') {
             {{ fields | formatValues: column.key : column.type }}
           }
+          @case ('color') {
+            <div class="color-display">
+              <div class="color-box" [ngStyle]="{ 'background-color': fields[column.key] }"></div>
+            </div>
+          }
           @case ('boolean') {
             <span [class]="fields[column.key] ? 'active' : 'inactive'">
               {{ fields[column.key] ? 'Ativado' : 'Desativado' }}
+            </span>
+          }
+          @case ('YesNo') {
+            <span
+              [ngClass]="{
+                'status-warning': fields[column.key] === 'Pendente',
+                'status-blue': fields[column.key] === 'Em análise',
+                'status-success': fields[column.key] === 'Verificado',
+              }"
+            >
+              {{ fields[column.key] }}
             </span>
           }
           @case ('situation') {

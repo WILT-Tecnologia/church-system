@@ -1,58 +1,67 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 
-import { Color, PieChartModule, ScaleType } from '@swimlane/ngx-charts';
+import { ColumnComponent } from 'app/components/column/column.component';
 
-type SimpleProps = {
-  name: string;
-  value: number;
-}[];
+import { ChurchsService } from '../churches/churches.service';
+import { UsersService } from '../users/users.service';
+import { DashboardStatsService } from './dashboard-stats.service';
+import { ChurchListStatsComponent } from './shared/church-list-stats/church-list-stats.component';
+import { ChurchStatsComponent } from './shared/church-stats/church-stats.component';
+import { DashboardHeaderComponent } from './shared/dashboard-header/dashboard-header.component';
+import { ChurchStats, DashboardStats } from './shared/types';
+import { UserStatsComponent } from './shared/user-stats/user-stats.component';
 
 @Component({
   selector: 'app-admin-dashboard',
   templateUrl: './app-admin-dashboard.component.html',
   styleUrls: ['./app-admin-dashboard.component.scss'],
-  imports: [CommonModule, PieChartModule],
+  imports: [
+    DashboardHeaderComponent,
+    UserStatsComponent,
+    ColumnComponent,
+    ChurchStatsComponent,
+    ChurchListStatsComponent,
+  ],
 })
 export class AdminDashboardComponent implements OnInit {
-  scaleType: ScaleType = ScaleType.Ordinal;
-  single: SimpleProps = [
-    {
-      name: 'Germany',
-      value: 894,
-    },
-    {
-      name: 'USA',
-      value: 500,
-    },
-    {
-      name: 'France',
-      value: 720,
-    },
-    {
-      name: 'UK',
-      value: 620,
-    },
-  ];
+  dashboardStats = signal<DashboardStats>({
+    totalUsers: 0,
+    totalUsersActive: 0,
+    totalNewUsers: 0,
+    totalUsersActiviedPercentage: 0,
+    totalUsersPercentage: 0,
+    totalNewUsersPercentage: 0,
+  });
 
-  view: [number, number] = [1000, 600];
+  churchStats = signal<ChurchStats>({
+    totalChurches: 0,
+    totalChurchPercentage: 0,
+    totalNewChurches: 0,
+    totalNewChurchPercentage: 0,
+  });
 
-  // options
-  gradient: boolean = true;
-  showLegend: boolean = true;
-  showLabels: boolean = true;
-  isDoughnut: boolean = false;
+  private usersService = inject(UsersService);
+  private churchService = inject(ChurchsService);
+  private statsService = inject(DashboardStatsService);
+  private router = inject(Router);
 
-  colorScheme: Color = {
-    name: 'vivid',
-    selectable: true,
-    domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA'],
-    group: ScaleType.Ordinal,
-  };
-
-  constructor() {
-    Object.assign(this.single);
+  ngOnInit() {
+    this.loadData();
   }
 
-  ngOnInit() {}
+  private loadData() {
+    forkJoin([this.usersService.getUsers(), this.churchService.getChurch()]).subscribe(([users, churches]) => {
+      const stats = this.statsService.calculateUserStats(users);
+      const churchData = this.statsService.calculateChurchStats(churches);
+
+      this.dashboardStats.set(stats);
+      this.churchStats.set(churchData);
+    });
+  }
+
+  accessRoute(pathName: string) {
+    this.router.navigate([pathName]);
+  }
 }
