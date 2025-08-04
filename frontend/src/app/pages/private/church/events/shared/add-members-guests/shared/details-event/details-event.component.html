@@ -6,13 +6,13 @@
     <div class="event-details">
       <app-column [columns]="1">
         <app-column [columns]="2">
-          <p><strong>Evento:</strong> {{ event?.name }}</p>
-          <p><strong>Data:</strong> {{ event?.date | date: 'dd/MM/yyyy' }} às {{ event?.time }}</p>
-          <p><strong>Tema:</strong> {{ event?.theme }}</p>
-          <p><strong>Tipo de evento:</strong> {{ event?.type }}</p>
+          <p><strong>Evento:</strong> {{ event()?.name }}</p>
+          <p><strong>Data:</strong> {{ event()?.date | date: 'dd/MM/yyyy' }} às {{ event()?.time }}</p>
+          <p><strong>Tema:</strong> {{ event()?.theme }}</p>
+          <p><strong>Tipo de evento:</strong> {{ event()?.type }}</p>
         </app-column>
-        @if (event?.observations) {
-          <p><strong>Observações:</strong> {{ event?.observations }}</p>
+        @if (event()?.observations) {
+          <p><strong>Observações:</strong> {{ event()?.observations }}</p>
         }
       </app-column>
     </div>

@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 
 import { ColumnComponent } from 'app/components/column/column.component';
@@ -12,5 +12,5 @@ import { EventData } from 'app/model/Events';
   imports: [MatCardModule, ColumnComponent, DatePipe],
 })
 export class DetailsEventComponent {
-  @Input() event: EventData | null = null;
+  event = input<EventData | null>();
 }

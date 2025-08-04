@@ -1,1 +1,53 @@
-<p>make-call works!</p>
+<div class="make-call-container">
+  <mat-card appearance="outlined" class="event-details">
+    <mat-card-header>
+      <mat-card-title>Chamada para o Evento</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if (event) {
+        <app-details-event [event]="{ date: event.date, time: event.time, theme: event.theme, type: event.type }"></app-details-event>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card appearance="outlined" class="participants">
+    <mat-card-header>
+      <mat-card-title>Participantes do Evento</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if (event) {
+        <app-add-members-guests [event]="event""></app-add-members-guests>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card appearance="outlined" class="call-to-day">
+    <mat-card-header>
+      <mat-card-title>Chamadas do Dia</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <app-column [columns]="1">
+        @if (callToDays && callToDays.length > 0) {
+          @for (call of callToDays; track call.id) {
+            <mat-card appearance="outlined" class="call-item">
+              <mat-card-content>
+                <p><strong>Tema:</strong> {{ call.theme || 'Não especificado' }}</p>
+                <p>
+                  <strong>Data Inicial:</strong> {{ call.start_date | date: 'dd/MM/yyyy' }} às {{ call.start_time }}
+                </p>
+                <p><strong>Data Final:</strong> {{ call.end_date | date: 'dd/MM/yyyy' }} às {{ call.end_time }}</p>
+                <p><strong>Local:</strong> {{ call.location || 'Não especificado' }}</p>
+              </mat-card-content>
+            </mat-card>
+          }
+        } @else {
+          <p>Nenhuma chamada do dia registrada para este evento.</p>
+        }
+      </app-column>
+    </mat-card-content>
+  </mat-card>
+
+  <app-column [columns]="1" class="actions">
+    <button mat-stroked-button color="warn" (click)="closeDialog()">Fechar</button>
+  </app-column>
+</div>

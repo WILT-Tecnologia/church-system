@@ -4,6 +4,8 @@ import { Members } from './Members';
 import { User } from './User';
 
 export type EventData = {
+  event: Events;
+  event_id: string;
   name: string;
   date: string;
   time: string;
