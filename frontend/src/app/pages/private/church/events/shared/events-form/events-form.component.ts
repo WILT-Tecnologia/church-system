@@ -22,7 +22,7 @@ import { MESSAGES } from 'app/components/toast/messages';
 import { Church } from 'app/model/Church';
 import { Events } from 'app/model/Events';
 import { EventTypes } from 'app/model/EventTypes';
-import { ChurchsService } from 'app/pages/private/administrative/churchs/churchs.service';
+import { ChurchsService } from 'app/pages/private/administrative/churches/churches.service';
 import { EventTypesService } from 'app/pages/private/administrative/event-types/eventTypes.service';
 import { NotificationService } from 'app/services/notification/notification.service';
 import { ValidationService } from 'app/services/validation/validation.service';
@@ -31,7 +31,11 @@ import { provideNgxMask } from 'ngx-mask';
 import { EventsService } from '../../events.service';
 
 @Component({
+  selector: 'app-events-form',
+  styleUrl: './events-form.component.scss',
+  templateUrl: './events-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [provideNgxMask(), provideNativeDateAdapter(), { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' }],
   imports: [
     MatButtonModule,
     MatInputModule,
@@ -49,10 +53,6 @@ import { EventsService } from '../../events.service';
     CommonModule,
     ColumnComponent,
   ],
-  providers: [provideNgxMask(), provideNativeDateAdapter(), { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' }],
-  selector: 'app-events-form',
-  styleUrl: './events-form.component.scss',
-  templateUrl: './events-form.component.html',
 })
 export class EventsFormComponent implements OnInit, OnDestroy {
   eventForm: FormGroup;

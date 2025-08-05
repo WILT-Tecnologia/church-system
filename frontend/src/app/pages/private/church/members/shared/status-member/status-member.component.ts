@@ -6,7 +6,8 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
+import { CrudComponent } from 'app/components/crud/crud.component';
+import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
@@ -36,11 +37,19 @@ export class StatusMemberComponent implements OnInit {
     }
   }
   @Output() statusMemberUpdated = new EventEmitter<StatusMember[]>();
-  rendering: boolean = true;
-  dataSourceMat = new MatTableDataSource<StatusMember>(this._status_member);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-
+  rendering: boolean = true;
+  dataSourceMat = new MatTableDataSource<StatusMember>(this._status_member);
+  columnDefinitions: ColumnDefinitionsProps[] = [
+    {
+      key: 'member_situation.name',
+      header: 'Situação do membro',
+      type: 'string',
+    },
+    { key: 'initial_period', header: 'Data Inicial', type: 'date' },
+    { key: 'final_period', header: 'Data Final', type: 'date' },
+  ];
   actions: ActionsProps[] = [
     {
       type: 'edit',
@@ -57,16 +66,6 @@ export class StatusMemberComponent implements OnInit {
       color: 'warn',
       action: (status_member: StatusMember) => this.handleDelete(status_member),
     },
-  ];
-
-  columnDefinitions = [
-    {
-      key: 'member_situation.name',
-      header: 'Situação do membro',
-      type: 'string',
-    },
-    { key: 'initial_period', header: 'Data Inicial', type: 'date' },
-    { key: 'final_period', header: 'Data Final', type: 'date' },
   ];
 
   constructor(
@@ -110,7 +109,7 @@ export class StatusMemberComponent implements OnInit {
     });
   }
 
-  handleCreate = () => {
+  onCreate = () => {
     const defaultMemberId = this.membersService.getEditingMemberId();
 
     const dialogRef = this.modalService.openModal(

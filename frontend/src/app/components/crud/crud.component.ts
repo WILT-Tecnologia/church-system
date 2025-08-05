@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
-  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
@@ -32,27 +31,11 @@ import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 
 import { ModalService } from '../modal/modal.service';
 import { FilterButtonAdvancedComponent, FilterField } from './filter-button-advanced/filter-button-advanced.component';
+import { ActionsProps, ColumnDefinitionsProps } from './types';
 
 export interface TableField {
   [key: string]: any;
 }
-
-export type ActionsProps = {
-  type: string;
-  tooltip?: string;
-  icon?: string;
-  label?: string;
-  color?: 'primary' | 'accent' | 'warn';
-  inactiveLabel?: string;
-  activeLabel?: string;
-  action: (element: any) => void;
-};
-
-export type ColumnDefinitionsProps = {
-  key: string;
-  header: string;
-  type: string;
-};
 
 @Pipe({ name: 'hasNonToggleActions', standalone: true })
 export class HasNonToggleActionsPipe implements PipeTransform {
@@ -85,15 +68,21 @@ export class HasNonToggleActionsPipe implements PipeTransform {
   providers: [FormatsPipe],
 })
 export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
+  constructor(
+    private format: FormatsPipe,
+    private modalService: ModalService,
+  ) {}
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
   @Input() fields: TableField[] = [];
-  @Input() ctaLabel!: string;
+  @Input() ctaLabel: string = 'Adicionar';
   @Input() columnDefinitions: ColumnDefinitionsProps[] = [];
   @Input() enableFilterAdvanced: boolean = false;
   @Input() enablePagination: boolean = true;
   @Input() enableToggleStatus: boolean = false;
   @Input() enableAddButtonAdd: boolean = true;
   @Input() enableRowClickDialog: boolean = false;
-  @Input() modalTitle: string = 'Detalhes do Registro';
   @Input() tooltipText: string = '';
   @Input() length: string = '0';
   @Input() pageSize: number = 25;
@@ -105,59 +94,48 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() filterFields: FilterField[] = [];
   @Input() actions!: ActionsProps[];
   @Input() dataSourceMat = new MatTableDataSource<any>([]);
+  @Input() modalTitle: string = 'Detalhes do Registro';
   @Input() modalComponent: Type<any> | null = null;
-  @Input() applyFilterFn!: (event: any) => void;
-  @Input() actionFn!: (element?: any) => void;
-  @Input() addFn!: () => void;
-  @Input() editFn!: (element: any) => void;
-  @Input() deleteFn!: (element: any) => void;
-  @Input() toggleFn!: (element: any) => void;
-  @Input() findDataFn!: (element?: any) => void;
+  @Input() findDataLabel: string = 'Atualizar';
+  @Input() showFindDataButton: boolean = false;
+
+  @Output() actionEvent = new EventEmitter<any>();
+  @Output() add = new EventEmitter<void>();
+  @Output() edit = new EventEmitter<any>();
+  @Output() delete = new EventEmitter<any>();
+  @Output() toggle = new EventEmitter<any>();
+  @Output() findData = new EventEmitter<void>();
   @Output() page = new EventEmitter<Event>();
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+
   displayedColumns: string[] = [];
   currentPageIndex: number = 0;
-  showFilter: boolean = false;
+  showFilter = signal(false);
   buttonSelected = signal(false);
-  columnWidths: { [key: string]: number } = {};
-
-  constructor(
-    private format: FormatsPipe,
-    private cd: ChangeDetectorRef,
-    private modalService: ModalService,
-  ) {}
 
   ngOnInit() {
     this.dataSourceMat.data = this.fields;
-    this.displayedColumns = this.columnDefinitions.map((col) => col.key).concat('actions');
+    this.displayedColumns = this.columnDefinitions.map((col) => col.key);
+    if (this.actions && this.actions.length > 0) {
+      this.displayedColumns.push('actions');
+    }
     this.dataSourceMat.filterPredicate = this.createFilter();
-    this.columnDefinitions.forEach((col) => {
-      this.columnWidths[col.key] = 150;
-    });
-    this.cd.detectChanges();
-  }
-
-  get tooltipLabel() {
-    return this.actions.length > 0 ? this.actions[0].tooltip : '';
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['fields']) {
       this.dataSourceMat.data = this.fields;
-      // Process actions to handle dynamic labels (e.g., for toggle)
-      this.actions = this.actions.map((action) => ({
-        ...action,
-        label: action.type === 'toggle' ? this.getToggleLabel(action) : action.label,
-      }));
     }
+
     if (this.paginator) {
       this.dataSourceMat.paginator = this.paginator;
       this.paginator.length = this.fields.length;
     }
 
     if (changes['columnDefinitions']) {
-      this.displayedColumns = this.columnDefinitions.map((col) => col.key).concat('actions');
+      this.displayedColumns = this.columnDefinitions.map((col) => col.key);
+      if (this.actions && this.actions.length > 0) {
+        this.displayedColumns.push('actions');
+      }
     }
   }
 
@@ -191,10 +169,13 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
     this.filterPredicate();
   }
 
+  get tooltipLabel() {
+    return this.actions && this.actions.length > 0 ? this.actions[0].tooltip : '';
+  }
+
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
     this.dataSourceMat.filterPredicate = this.createFilter();
-    this.filterPredicate();
     this.dataSourceMat.filter = filterValue;
 
     if (this.dataSourceMat.paginator) {
@@ -221,7 +202,7 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-  createFilter(_filterValues: any = {}): (data: any, filter: string) => boolean {
+  private createFilter(_filterValues: any = {}): (data: any, filter: string) => boolean {
     return (data: any, filter: string): boolean => {
       if (!filter) {
         return true;
@@ -312,13 +293,13 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-  toggleFilter = () => {
-    this.showFilter = !this.showFilter;
+  toggleFilter() {
+    this.showFilter.update((value) => !value);
     this.buttonSelected.update((prev) => !prev);
-  };
+  }
 
-  private getToggleLabel(action: ActionsProps): string {
-    return action.inactiveLabel || 'Desativar';
+  action(element: any) {
+    this.actionEvent.emit(element);
   }
 
   private normalizeString(value: any): string {
@@ -326,18 +307,6 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
-  }
-
-  private normalizedFilter(filter: any, data: any): boolean {
-    const normalizedFilter = this.normalizeString(filter);
-    return this.columnDefinitions.some((column) => {
-      const value = this.format.getNestedValue(data, column.key);
-      if (value !== null && value !== undefined) {
-        const normalizedValue = this.normalizeString(value);
-        return normalizedValue.includes(normalizedFilter);
-      }
-      return false;
-    });
   }
 
   private filterPredicate() {

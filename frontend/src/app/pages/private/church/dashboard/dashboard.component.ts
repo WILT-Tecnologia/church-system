@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
+
 import { Color, PieChartModule, ScaleType } from '@swimlane/ngx-charts';
 
 type SimpleProps = {
@@ -7,15 +7,17 @@ type SimpleProps = {
   value: number;
 }[];
 
+type ViewProps = [number, number];
+
 @Component({
-    selector: 'app-dashboard-church',
-    templateUrl: './dashboard.component.html',
-    styleUrls: ['./dashboard.component.scss'],
-    imports: [MatButtonModule, PieChartModule]
+  selector: 'app-dashboard-church',
+  templateUrl: './dashboard.component.html',
+  styleUrls: ['./dashboard.component.scss'],
+  imports: [PieChartModule],
 })
 export class DashboardComponent implements OnInit {
   scaleType: ScaleType = ScaleType.Ordinal;
-  single: SimpleProps = [
+  results: SimpleProps = [
     {
       name: 'Germany',
       value: 894,
@@ -34,7 +36,7 @@ export class DashboardComponent implements OnInit {
     },
   ];
 
-  view: [number, number] = [1000, 600];
+  view: ViewProps = [600, 600];
 
   // options
   gradient: boolean = true;
@@ -45,11 +47,11 @@ export class DashboardComponent implements OnInit {
   colorScheme: Color = {
     name: 'vivid',
     selectable: true,
-    domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA'],
+    domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA', '#FF0000', '#0000FF'],
     group: ScaleType.Ordinal,
   };
   constructor() {
-    Object.assign(this.single);
+    Object.assign(this.results);
   }
 
   ngOnInit() {}

@@ -1,0 +1,94 @@
+<mat-card appearance="outlined" class="mat-card-grid">
+  <mat-card-header class="card-header">
+    <mat-card-title class="user-title">Usuários</mat-card-title>
+    <button mat-button (click)="accessRoute.emit()">
+      Acessar
+      <mat-icon>person</mat-icon>
+    </button>
+  </mat-card-header>
+  <mat-divider />
+  <mat-card-content>
+    <app-column [columns]="3">
+      <!-- Total de usuários Card -->
+      <mat-card appearance="outlined" class="custom-shadow-card">
+        <mat-card-content class="card-content">
+          <span class="quantity-value">{{ stats().totalUsers }}</span>
+          <span class="card-title text-neutral">Total de usuários</span>
+          <span
+            class="percentage"
+            [class]="{
+              'danger-color': stats().totalUsersPercentage < 0,
+              'success-color': stats().totalUsersPercentage > 0,
+              'info-color': stats().totalUsersPercentage === 0,
+            }"
+          >
+            <mat-icon>
+              {{
+                stats().totalUsersPercentage > 0
+                  ? 'trending_up'
+                  : stats().totalUsersPercentage < 0
+                    ? 'trending_down'
+                    : 'trending_flat'
+              }}
+            </mat-icon>
+            <app-percentage-message [message]="stats().totalUsersPercentage + '% vs mês anterior'" />
+          </span>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Usuários Ativos Card -->
+      <mat-card appearance="outlined" class="custom-shadow-card">
+        <mat-card-content class="card-content">
+          <span class="quantity-value">{{ stats().totalUsersActive }}</span>
+          <span class="card-title text-neutral">Usuários ativos</span>
+          <span
+            class="percentage"
+            [class]="{
+              'danger-color': stats().totalUsersActiviedPercentage < 0,
+              'success-color': stats().totalUsersActiviedPercentage > 0,
+              'info-color': stats().totalUsersActiviedPercentage === 0,
+            }"
+          >
+            <mat-icon>
+              {{
+                stats().totalUsersActiviedPercentage > 0
+                  ? 'trending_up'
+                  : stats().totalUsersActiviedPercentage < 0
+                    ? 'trending_down'
+                    : 'trending_flat'
+              }}
+            </mat-icon>
+            <app-percentage-message [message]="stats().totalUsersActiviedPercentage + '% vs mês anterior'" />
+          </span>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Novos Usuários Card -->
+      <mat-card appearance="outlined" class="custom-shadow-card">
+        <mat-card-content class="card-content">
+          <span class="quantity-value">{{ stats().totalNewUsers }}</span>
+          <span class="card-title text-neutral">Novos Usuários</span>
+          <span
+            class="percentage"
+            [class]="{
+              'danger-color': stats().totalNewUsersPercentage < 0,
+              'success-color': stats().totalNewUsersPercentage > 0,
+              'info-color': stats().totalNewUsersPercentage === 0,
+            }"
+          >
+            <mat-icon>
+              {{
+                stats().totalNewUsersPercentage > 0
+                  ? 'trending_up'
+                  : stats().totalNewUsersPercentage < 0
+                    ? 'trending_down'
+                    : 'trending_flat'
+              }}
+            </mat-icon>
+            <app-percentage-message [message]="stats().totalNewUsersPercentage + '% vs mês anterior'" />
+          </span>
+        </mat-card-content>
+      </mat-card>
+    </app-column>
+  </mat-card-content>
+</mat-card>

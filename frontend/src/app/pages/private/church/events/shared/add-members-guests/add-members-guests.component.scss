@@ -1,0 +1,80 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.divider {
+  display: none;
+  margin: 1.5rem 0;
+  border-top-color: var(--separator-color) !important;
+
+  @media screen and (max-width: 768px) {
+    display: block;
+  }
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+
+  @media screen and (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+.subtitle {
+  color: var(--grey-light);
+  font-size: 0.7rem;
+  margin-bottom: 1rem;
+}
+
+.search-paginator {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.search {
+  width: 20dvw;
+  max-width: 100%;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+  }
+}
+
+.chip-list {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100% !important;
+  max-width: 100% !important;
+
+  mat-chip-listbox {
+    width: 100%;
+  }
+}
+
+.p-4 {
+  margin: 0.1rem !important;
+}
+
+app-chip {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.actions {
+  padding: 1rem;
+}

@@ -1,158 +1,159 @@
 @use 'sass:map';
-@use '@angular/material'as mat;
+@use '@angular/material' as mat;
 
-$primary: #0393BE;
-$secondary: #0DBF87;
-$success: #23BF6A;
-$warning: #FFB946;
-$danger: #F16F6F;
-$error: #BA1A1A;
+$primary: #0393be;
+$secondary: #0dbf87;
+$success: #23bf6a;
+$warning: #ffb946;
+$danger: #f16f6f;
+$error: #ba1a1a;
 
-$white: #FFFFFF;
-$backgroundColor: #DCDCDC;
-$separator: #C7C7C7;
-$textColor: #4D4D4D;
+$white: #ffffff;
+$backgroundColor: #dcdcdc;
+$separator: #c7c7c7;
+$textColor: #4d4d4d;
 $hover: #e9e9e9;
 
-// Primary Color
-$primaryDark: #03759B;
-$primaryLight: #03D0FD;
-
-// Secondary Color
-$secondaryDark: #079A5C;
-$secondaryLight: #B6ECDB;
-
 // Error Color
-$errorDark: #A63535;
-$errorLight: #F16F6F;
+$errorDark: #a63535;
+$errorLight: #f16f6f;
 
 // Greys
-$greyMain: #4D4D4D;
+$greyVeryLight: #a2a2a2;
 $greyLight: #808080;
-$greyVeryLight: #A2A2A2;
-$greyDark: #1A1A1A;
+$greyMain: #4d4d4d;
+$greyDark: #1a1a1a;
 
 // Note: Color palettes are generated from primary: #0393BE, secondary: #0DBF87, tertiary: #5f78bf
-$_palettes: (primary: (0: #000000,
-    10: #001F2A,
+$_palettes: (
+  primary: (
+    0: #000000,
+    10: #001f2a,
     20: #003547,
     25: #004156,
-    30: #004D65,
+    30: #004d65,
     35: #005975,
     40: #006685,
-    50: #0081A7,
-    60: #1F9CC7,
-    70: #49B7E3,
-    80: #6DD2FF,
-    90: #BFE9FF,
-    95: #E1F4FF,
-    98: #F4FAFF,
-    99: #FAFCFF,
-    100: #FFFFFF,
+    50: #0393be,
+    60: #1f9cc7,
+    70: #49b7e3,
+    80: #6dd2ff,
+    90: #bfe9ff,
+    95: #e1f4ff,
+    98: #f4faff,
+    99: #fafcff,
+    100: #ffffff,
   ),
-  secondary: (0: #000000,
+  secondary: (
+    0: #000000,
     10: #002114,
     20: #003825,
-    25: #00452E,
+    25: #00452e,
     30: #005137,
-    35: #005F41,
-    40: #006C4A,
-    50: #00885F,
-    60: #00A574,
-    70: #18C28A,
-    80: #48DFA4,
-    90: #6AFCBF,
-    95: #BEFFDC,
-    98: #E8FFF0,
-    99: #F4FFF6,
-    100: #FFFFFF,
+    35: #005f41,
+    40: #006c4a,
+    50: #00885f,
+    60: #00a574,
+    70: #18c28a,
+    80: #48dfa4,
+    90: #6afcbf,
+    95: #beffdc,
+    98: #e8fff0,
+    99: #f4fff6,
+    100: #ffffff,
   ),
-  tertiary: (0: #000000,
-    10: #00184A,
-    20: #0A2C6F,
-    25: #1A377B,
+  tertiary: (
+    0: #000000,
+    10: #00184a,
+    20: #0a2c6f,
+    25: #1a377b,
     30: #284387,
-    35: #354F93,
-    40: #425BA0,
-    50: #5B74BB,
-    60: #758ED7,
-    70: #90A9F4,
-    80: #B3C5FF,
-    90: #DBE1FF,
-    95: #EEF0FF,
-    98: #FAF8FF,
-    99: #FEFBFF,
-    100: #FFFFFF,
+    35: #354f93,
+    40: #425ba0,
+    50: #5b74bb,
+    60: #758ed7,
+    70: #90a9f4,
+    80: #b3c5ff,
+    90: #dbe1ff,
+    95: #eef0ff,
+    98: #faf8ff,
+    99: #fefbff,
+    100: #ffffff,
   ),
-  neutral: (0: #000000,
-    10: #171C1F,
-    20: #2C3134,
-    25: #373C3F,
-    30: #43474A,
-    35: #4E5356,
-    40: #5A5F62,
-    50: #73787B,
-    60: #8D9195,
-    70: #A7ACAF,
-    80: #C3C7CB,
-    90: #DFE3E7,
-    95: #EDF1F5,
-    98: #F6FAFD,
-    99: #FAFCFF,
-    100: #FFFFFF,
-    4: #0A0F11,
-    6: #0F1417,
-    12: #1B2023,
-    17: #262B2E,
+  neutral: (
+    0: #000000,
+    10: #171c1f,
+    20: #2c3134,
+    25: #373c3f,
+    30: #43474a,
+    35: #4e5356,
+    40: #5a5f62,
+    50: #73787b,
+    60: #8d9195,
+    70: #a7acaf,
+    80: #c3c7cb,
+    90: #dfe3e7,
+    95: #edf1f5,
+    98: #f6fafd,
+    99: #fafcff,
+    100: #ffffff,
+    4: #0a0f11,
+    6: #0f1417,
+    12: #1b2023,
+    17: #262b2e,
     22: #313538,
-    24: #353A3D,
-    87: #D6DADE,
-    92: #E5E9EC,
-    94: #EAEEF2,
-    96: #F0F4F8,
+    24: #353a3d,
+    87: #d6dade,
+    92: #e5e9ec,
+    94: #eaeef2,
+    96: #f0f4f8,
   ),
-  neutral-variant: (0: #000000,
-    10: #131D22,
+  neutral-variant: (
+    0: #000000,
+    10: #131d22,
     20: #283237,
-    25: #333D42,
-    30: #3E484E,
-    35: #4A545A,
+    25: #333d42,
+    30: #3e484e,
+    35: #4a545a,
     40: #566066,
-    50: #6E797F,
+    50: #6e797f,
     60: #889299,
-    70: #A2ADB3,
-    80: #BDC8CF,
-    90: #D9E4EB,
-    95: #E8F2F9,
-    98: #F4FAFF,
-    99: #FAFCFF,
-    100: #FFFFFF,
+    70: #a2adb3,
+    80: #bdc8cf,
+    90: #d9e4eb,
+    95: #e8f2f9,
+    98: #f4faff,
+    99: #fafcff,
+    100: #ffffff,
   ),
-  error: (0: #000000,
+  error: (
+    0: #000000,
     10: #410002,
     20: #690005,
-    25: #7E0007,
-    30: #93000A,
-    35: #A80710,
-    40: #BA1A1A,
-    50: #DE3730,
-    60: #FF5449,
-    70: #FF897D,
-    80: #FFB4AB,
-    90: #FFDAD6,
-    95: #FFEDEA,
-    98: #FFF8F7,
-    99: #FFFBFF,
-    100: #FFFFFF,
+    25: #7e0007,
+    30: #93000a,
+    35: #a80710,
+    40: #ba1a1a,
+    50: #de3730,
+    60: #ff5449,
+    70: #ff897d,
+    80: #ffb4ab,
+    90: #ffdad6,
+    95: #ffedea,
+    98: #fff8f7,
+    99: #fffbff,
+    100: #ffffff,
   ),
 );
 
-$_rest: (neutral: map.get($_palettes, neutral),
+$_rest: (
+  neutral: map.get($_palettes, neutral),
   neutral-variant: map.get($_palettes, neutral-variant),
   error: map.get($_palettes, error),
 );
 
-$_rest: (secondary: map.get($_palettes, secondary),
+$_rest: (
+  secondary: map.get($_palettes, secondary),
   neutral: map.get($_palettes, neutral),
   neutral-variant: map.get($_palettes, neutral-variant),
   error: map.get($_palettes, error),
@@ -161,20 +162,29 @@ $_primary: map.merge(map.get($_palettes, primary), $_rest);
 $_secondary: map.merge(map.get($_palettes, secondary), $_rest);
 $_tertiary: map.merge(map.get($_palettes, tertiary), $_rest);
 
-
-$light-theme: mat.define-theme((color: (theme-type: light,
+$light-theme: mat.define-theme(
+  (
+    color: (
+      theme-type: light,
       primary: $_primary,
       tertiary: $_tertiary,
       use-system-variables: true,
     ),
-    typography: (use-system-variables: true,
+    typography: (
+      use-system-variables: true,
     ),
-  ));
-$dark-theme: mat.define-theme((color: (theme-type: dark,
+  )
+);
+$dark-theme: mat.define-theme(
+  (
+    color: (
+      theme-type: dark,
       primary: $_primary,
       tertiary: $_tertiary,
       use-system-variables: true,
     ),
-    typography: (use-system-variables: true,
+    typography: (
+      use-system-variables: true,
     ),
-  ));
+  )
+);

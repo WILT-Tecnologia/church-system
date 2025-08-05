@@ -1,17 +1,24 @@
 :host {
   display: block;
   width: 100%;
+  max-width: 100%;
   margin: 0.5rem 0;
 }
 
 .grid {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(var(--columns, 1), 1fr);
-}
+  width: 100%;
+  grid-template-columns: repeat(var(--columns, 12), minmax(0, 1fr));
 
-@media screen and (max-width: 768px) {
-  .grid {
-    grid-template-columns: 1fr;
+  @for $i from 1 through 12 {
+    &.grid-cols-#{$i} {
+      --columns: #{$i};
+    }
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: minmax(0, 1fr);
+    --columns: 1;
   }
 }

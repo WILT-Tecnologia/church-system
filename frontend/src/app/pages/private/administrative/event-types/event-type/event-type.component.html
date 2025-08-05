@@ -1,5 +1,5 @@
-<form [formGroup]="eventTypeForm" (ngSubmit)="handleSubmit()" class="form-field-group wrapper">
-  <app-column>
+<form [formGroup]="eventTypeForm" (ngSubmit)="handleSubmit()" class="form-field-group">
+  <app-column [columns]="1">
     <mat-slide-toggle formControlName="status" color="primary">
       {{ eventTypeForm.get('status')?.value ? 'Ativado' : 'Desativado' }}
     </mat-slide-toggle>
@@ -33,10 +33,10 @@
       }
     </div>
   </app-column>
-  <app-column>
+  <app-column [columns]="1">
     <mat-form-field appearance="fill">
       <mat-label>Descrição</mat-label>
-      <textarea matInput rows="7" formControlName="description"></textarea>
+      <textarea matInput rows="4" formControlName="description"></textarea>
       <mat-error *ngIf="eventTypeForm.get('description')?.invalid && eventTypeForm.get('description')?.touched">
         {{ getErrorMessage('description') }}
       </mat-error>

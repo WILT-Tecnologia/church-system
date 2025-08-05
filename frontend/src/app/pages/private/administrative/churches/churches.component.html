@@ -1,0 +1,11 @@
+@if ((churchs && churchs.length > 0) || rendering) {
+  <app-crud
+    [fields]="churchs"
+    [dataSourceMat]="dataSourceMat"
+    [columnDefinitions]="columnDefinitions"
+    (add)="onCreate()"
+    [actions]="actions"
+  ></app-crud>
+} @else {
+  <app-not-found-register (add)="onCreate()"></app-not-found-register>
+}

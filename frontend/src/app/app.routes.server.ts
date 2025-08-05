@@ -14,12 +14,12 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client,
   },
   {
-    path: 'church',
+    path: 'church/**',
     renderMode: RenderMode.Prerender,
   },
   {
-    path: 'administrative',
-    renderMode: RenderMode.Server,
+    path: 'administrative/**',
+    renderMode: RenderMode.Prerender,
   },
   {
     path: '**',

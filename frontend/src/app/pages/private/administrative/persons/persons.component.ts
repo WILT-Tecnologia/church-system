@@ -5,8 +5,9 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
+import { CrudComponent } from 'app/components/crud/crud.component';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
+import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
@@ -25,11 +26,28 @@ import { PersonsService } from './persons.service';
   providers: [FormatsPipe],
 })
 export class PersonsComponent implements OnInit {
+  constructor(
+    private toast: ToastService,
+    private loading: LoadingService,
+    private confirmService: ConfirmService,
+    private modalService: ModalService,
+    private personsService: PersonsService,
+  ) {}
+
   persons: Person[] = [];
   rendering: boolean = true;
   dataSourceMat = new MatTableDataSource<Person>(this.persons);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  columnDefinitions: ColumnDefinitionsProps[] = [
+    { key: 'name', header: 'Nome', type: 'string' },
+    { key: 'cpf', header: 'CPF', type: 'cpf' },
+    { key: 'email', header: 'Email', type: 'string' },
+    { key: 'birth_date', header: 'Data de Nascimento', type: 'date' },
+    { key: 'sex', header: 'Sexo', type: 'sex' },
+    { key: 'phone_one', header: 'Celular', type: 'phone' },
+    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
+  ];
   actions: ActionsProps[] = [
     {
       type: 'edit',
@@ -45,24 +63,6 @@ export class PersonsComponent implements OnInit {
       action: (person: Person) => this.handleDelete(person),
     },
   ];
-
-  columnDefinitions = [
-    { key: 'name', header: 'Nome', type: 'string' },
-    { key: 'cpf', header: 'CPF', type: 'cpf' },
-    { key: 'email', header: 'Email', type: 'string' },
-    { key: 'birth_date', header: 'Data de Nascimento', type: 'date' },
-    { key: 'sex', header: 'Sexo', type: 'sex' },
-    { key: 'phone_one', header: 'Celular', type: 'phone' },
-    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
-  ];
-
-  constructor(
-    private toast: ToastService,
-    private loading: LoadingService,
-    private confirmService: ConfirmService,
-    private modalService: ModalService,
-    private personsService: PersonsService,
-  ) {}
 
   ngOnInit() {
     this.loadPersons();
@@ -81,7 +81,7 @@ export class PersonsComponent implements OnInit {
     });
   };
 
-  handleCreate = () => {
+  onCreate = () => {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       PersonComponent,

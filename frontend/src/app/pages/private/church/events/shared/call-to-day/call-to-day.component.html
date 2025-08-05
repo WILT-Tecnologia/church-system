@@ -1,0 +1,11 @@
+@if (callToDay && callToDay.length > 0) {
+  <app-crud
+    [fields]="callToDay"
+    [dataSourceMat]="dataSourceMat"
+    [columnDefinitions]="columnDefinitions"
+    (add)="createCallToDay()"
+    [actions]="actions"
+  ></app-crud>
+} @else {
+  <app-not-found-register (add)="createCallToDay()"></app-not-found-register>
+}

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
@@ -7,6 +7,4 @@ import { MatDividerModule } from '@angular/material/divider';
   styleUrl: './actions.component.scss',
   imports: [MatDividerModule],
 })
-export class ActionsComponent {
-  @Input() enableDivider: boolean = true;
-}
+export class ActionsComponent {}

@@ -1,3 +1,11 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
 .wrapper {
   display: flex;
   flex-direction: column;
@@ -5,12 +13,11 @@
   margin: 0 auto;
   width: 100%;
   max-width: 40dvw;
-  padding: 3rem;
   border-radius: 1rem !important;
   box-shadow: 0 0 1rem 0.2rem rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
 
   @media screen and (max-width: 768px) {
-    padding: 1.5rem;
     max-width: 100%;
     border-radius: 0.5rem !important;
   }

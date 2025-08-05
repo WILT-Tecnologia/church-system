@@ -1,4 +1,4 @@
-.wrapper-actions {
+:host {
   display: flex;
   flex-direction: column;
 }
@@ -10,8 +10,9 @@
   margin-top: 1rem;
   gap: 1rem;
   width: 100%;
+  max-width: 100%;
 
-  ::ng-deep>*:only-child {
+  ::ng-deep > *:only-child {
     margin-left: auto;
     margin-right: auto;
   }
@@ -20,9 +21,9 @@
     width: 100%;
     flex-direction: column-reverse;
 
-    ::ng-deep>*:only-child {
-      margin-left: auto;
-      margin-right: auto;
+    & > button {
+      width: 100%;
+      max-width: 100%;
     }
   }
 }

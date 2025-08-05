@@ -51,4 +51,9 @@ class Church extends Model
     public function evento(): HasMany {
         return $this->hasMany(Evento::class);
     }
+
+    public function getMembersCountAttribute(): int
+    {
+        return $this->members()->count();
+    }
 }

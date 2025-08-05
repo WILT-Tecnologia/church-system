@@ -1,21 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
 @Component({
   selector: 'app-column',
+  standalone: true,
   templateUrl: './column.component.html',
-  styleUrls: ['./column.component.scss'],
+  styleUrl: './column.component.scss',
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ColumnComponent {
-  private _columns = 1;
+  columns = input(1, {
+    transform: (value: number) => Math.max(1, Math.min(value, 12)),
+  });
 
-  @Input()
-  set columns(value: number) {
-    this._columns = Math.max(1, Math.min(12, Math.floor(value)));
-  }
-
-  get columns(): number {
-    return this._columns;
-  }
+  gridClass = computed(() => ({
+    grid: true,
+    [`grid-cols-${this.columns()}`]: true,
+  }));
 }

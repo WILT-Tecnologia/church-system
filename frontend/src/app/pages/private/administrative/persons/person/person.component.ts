@@ -1,34 +1,11 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Inject,
-  OnDestroy,
-  OnInit,
-  Optional,
-  ViewChild,
-} from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import {
-  MatAutocompleteModule,
-  MatAutocompleteSelectedEvent,
-} from '@angular/material/autocomplete';
+import { ChangeDetectionStrategy, Component, Inject, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import {
-  MAT_DATE_LOCALE,
-  provideNativeDateAdapter,
-} from '@angular/material/core';
-import {
-  MatDatepicker,
-  MatDatepickerModule,
-} from '@angular/material/datepicker';
+import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
+import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -37,6 +14,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import { MatTooltip } from '@angular/material/tooltip';
+import { debounceTime, distinctUntilChanged, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
+
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
@@ -53,15 +32,7 @@ import { ValidationService } from 'app/services/validation/validation.service';
 import { cpfValidator } from 'app/services/validators/cpf-validator';
 import { phoneValidator } from 'app/services/validators/phone-validator';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
-import {
-  debounceTime,
-  distinctUntilChanged,
-  map,
-  Observable,
-  startWith,
-  Subject,
-  takeUntil,
-} from 'rxjs';
+
 import { UsersService } from '../../users/users.service';
 import { PersonsService } from '../persons.service';
 
@@ -138,17 +109,6 @@ export class PersonComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.checkEditMode();
     this.loadUsers();
-    this.filterUsers = this.searchUserControl.valueChanges.pipe(
-      startWith(''),
-      map((value: any) => {
-        if (typeof value === 'string') {
-          return value;
-        } else {
-          return value ? value.name : '';
-        }
-      }),
-      map((name) => (name.length >= 1 ? this._filterUsers(name) : this.user)),
-    );
     this.initialSearchCep();
   }
 
@@ -160,59 +120,23 @@ export class PersonComponent implements OnInit, OnDestroy {
   createForm = (): FormGroup => {
     return this.fb.group({
       id: [this.data?.person?.id ?? ''],
-      user_id: [
-        this.data?.person?.user?.id ?? '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
+      user_id: [this.data?.person?.user?.id ?? '', [Validators.required, Validators.maxLength(255)]],
       image: [this.data?.person?.image ?? ''],
-      name: [
-        this.data?.person?.name ?? '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
-      cpf: [
-        this.data?.person?.cpf ?? '',
-        [Validators.required, cpfValidator()],
-      ],
+      name: [this.data?.person?.name ?? '', [Validators.required, Validators.maxLength(255)]],
+      cpf: [this.data?.person?.cpf ?? '', [Validators.required, cpfValidator()]],
       birth_date: [this.data?.person?.birth_date ?? '', [Validators.required]],
-      email: [
-        this.data?.person?.email ?? '',
-        [Validators.required, Validators.email],
-      ],
-      phone_one: [
-        this.data?.person?.phone_one ?? '',
-        [Validators.required, phoneValidator()],
-      ],
+      email: [this.data?.person?.email ?? '', [Validators.required, Validators.email]],
+      phone_one: [this.data?.person?.phone_one ?? '', [Validators.required, phoneValidator()]],
       phone_two: [this.data?.person?.phone_two ?? '', [phoneValidator()]],
       sex: [this.data?.person?.sex ?? '', [Validators.required]],
       cep: [this.data?.person?.cep ?? '', [Validators.required]],
-      street: [
-        this.data?.person?.street ?? '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
-      number: [
-        this.data?.person?.number ?? '',
-        [Validators.required, Validators.maxLength(10)],
-      ],
-      complement: [
-        this.data?.person?.complement ?? '',
-        [Validators.maxLength(255)],
-      ],
-      district: [
-        this.data?.person?.district ?? '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
-      city: [
-        this.data?.person?.city ?? '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
-      state: [
-        this.data?.person?.state ?? '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
-      country: [
-        this.data?.person?.country ?? '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
+      street: [this.data?.person?.street ?? '', [Validators.required, Validators.maxLength(255)]],
+      number: [this.data?.person?.number ?? '', [Validators.required, Validators.maxLength(10)]],
+      complement: [this.data?.person?.complement ?? '', [Validators.maxLength(255)]],
+      district: [this.data?.person?.district ?? '', [Validators.required, Validators.maxLength(255)]],
+      city: [this.data?.person?.city ?? '', [Validators.required, Validators.maxLength(255)]],
+      state: [this.data?.person?.state ?? '', [Validators.required, Validators.maxLength(255)]],
+      country: [this.data?.person?.country ?? '', [Validators.required, Validators.maxLength(255)]],
     });
   };
 
@@ -225,14 +149,9 @@ export class PersonComponent implements OnInit, OnDestroy {
         this.personForm.get('user_id')?.setValue(this.data.person.user.id);
       }
 
-      const birthDate = this.data.person.birth_date
-        ? new Date(this.data.person.birth_date)
-        : null;
+      const birthDate = this.data.person.birth_date ? new Date(this.data.person.birth_date) : null;
 
-      const sexValue = this.formats.SexTransform(
-        this.data.person.sex,
-        'toModel',
-      );
+      const sexValue = this.formats.SexTransform(this.data.person.sex, 'toModel');
 
       this.personForm.patchValue({
         birth_date: birthDate,
@@ -243,9 +162,7 @@ export class PersonComponent implements OnInit, OnDestroy {
 
   getErrorMessage(controlName: string): string | null {
     const control = this.personForm.get(controlName);
-    return control?.errors
-      ? this.validationService.getErrorMessage(control)
-      : null;
+    return control?.errors ? this.validationService.getErrorMessage(control) : null;
   }
 
   clearDate() {
@@ -260,7 +177,7 @@ export class PersonComponent implements OnInit, OnDestroy {
 
   showAllUsers() {
     this.filterUsers = this.searchUserControl.valueChanges.pipe(
-      startWith(this.searchUserControl.value),
+      startWith(''),
       map((value: any) => {
         if (typeof value === 'string') {
           return value;
@@ -284,9 +201,7 @@ export class PersonComponent implements OnInit, OnDestroy {
 
   private _filterUsers(name: string): User[] {
     const filterValue = name.toLowerCase();
-    return this.user.filter((user) =>
-      user.name.toLowerCase().includes(filterValue),
-    );
+    return this.user.filter((user) => user.name.toLowerCase().includes(filterValue));
   }
 
   onUserSelected(event: MatAutocompleteSelectedEvent) {
@@ -300,11 +215,7 @@ export class PersonComponent implements OnInit, OnDestroy {
 
     this.personForm
       .get('cep')
-      ?.valueChanges.pipe(
-        debounceTime(300),
-        distinctUntilChanged(),
-        takeUntil(this.destroy$),
-      )
+      ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe((cep: string) => {
         if (cep.length === 8 && cep !== previousCepValue) {
           this.searchCep(cep);
@@ -336,25 +247,14 @@ export class PersonComponent implements OnInit, OnDestroy {
 
   handleNext = () => {
     // Marcar os campos da aba "Identificação" como tocados para exibir erros
-    const identificationFields = [
-      'user_id',
-      'name',
-      'cpf',
-      'birth_date',
-      'email',
-      'phone_one',
-      'phone_two',
-      'sex',
-    ];
+    const identificationFields = ['user_id', 'name', 'cpf', 'birth_date', 'email', 'phone_one', 'phone_two', 'sex'];
 
     identificationFields.forEach((field) => {
       const control = this.personForm.get(field);
       control?.markAsTouched();
     });
 
-    const isIdentificationValid = identificationFields.every(
-      (field) => this.personForm.get(field)?.valid,
-    );
+    const isIdentificationValid = identificationFields.every((field) => this.personForm.get(field)?.valid);
 
     if (isIdentificationValid) {
       this.tabGroup.selectedIndex = 1;
@@ -397,14 +297,8 @@ export class PersonComponent implements OnInit, OnDestroy {
   handleCreate = (data: Person) => {
     this.loading.show();
     this.personService.createPerson(data).subscribe({
-      next: () =>
-        this.notification.onSuccess(
-          MESSAGES.CREATE_SUCCESS,
-          this.dialogRef,
-          this.personForm.value,
-        ),
-      error: (error) =>
-        this.notification.onError(error.error.message ?? MESSAGES.CREATE_ERROR),
+      next: () => this.notification.onSuccess(MESSAGES.CREATE_SUCCESS, this.dialogRef, this.personForm.value),
+      error: (error) => this.notification.onError(error.error.message ?? MESSAGES.CREATE_ERROR),
       complete: () => this.loading.hide(),
     });
   };
@@ -412,14 +306,8 @@ export class PersonComponent implements OnInit, OnDestroy {
   handleUpdate = (personId: string, data: Person) => {
     this.loading.show();
     this.personService.updatePerson(personId, data).subscribe({
-      next: () =>
-        this.notification.onSuccess(
-          MESSAGES.UPDATE_SUCCESS,
-          this.dialogRef,
-          this.personForm.value,
-        ),
-      error: (error) =>
-        this.notification.onError(error.error.message ?? MESSAGES.UPDATE_ERROR),
+      next: () => this.notification.onSuccess(MESSAGES.UPDATE_SUCCESS, this.dialogRef, this.personForm.value),
+      error: (error) => this.notification.onError(error.error.message ?? MESSAGES.UPDATE_ERROR),
       complete: () => this.loading.hide(),
     });
   };

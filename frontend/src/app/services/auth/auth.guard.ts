@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 import { map, Observable, take } from 'rxjs';
+
 import { AuthService } from './auth.service';
 
 @Injectable({
@@ -16,11 +17,7 @@ export class AuthGuard implements CanActivate {
     return this.authService.isLoggedIn$.pipe(
       take(1),
       map((isAuthenticated) => {
-        if (
-          isAuthenticated &&
-          this.authService.isAuthenticated() &&
-          localStorage.getItem('selectedChurch')
-        ) {
+        if (isAuthenticated && this.authService.isAuthenticated() && localStorage.getItem('selectedChurch')) {
           return true;
         } else {
           this.authService.clearAuth();

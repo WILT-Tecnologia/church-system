@@ -9,21 +9,29 @@
     <p class="message">{{ data.message }}</p>
   </div>
 
-  <app-actions [enableDivider]="false">
+  <app-actions>
     @if (data.reverseBtn) {
-      <button mat-flat-button color="primary" [mat-dialog-close]="true">
-        {{ data.btnOkText }}
-      </button>
-      <button mat-stroked-button color="warn" [mat-dialog-close]="false">
-        {{ data.btnCancelText }}
-      </button>
+      <ng-container button>
+        <button mat-flat-button color="primary" [mat-dialog-close]="true">
+          {{ data.btnOkText }}
+        </button>
+      </ng-container>
+      <ng-container button>
+        <button mat-stroked-button color="warn" [mat-dialog-close]="false">
+          {{ data.btnCancelText }}
+        </button>
+      </ng-container>
     } @else {
-      <button mat-stroked-button color="warn" [mat-dialog-close]="false">
-        {{ data.btnCancelText }}
-      </button>
-      <button mat-flat-button color="primary" [mat-dialog-close]="true">
-        {{ data.btnOkText }}
-      </button>
+      <ng-container button>
+        <button mat-stroked-button color="warn" [mat-dialog-close]="false">
+          {{ data.btnCancelText }}
+        </button>
+      </ng-container>
+      <ng-container button>
+        <button mat-flat-button color="primary" [mat-dialog-close]="true">
+          {{ data.btnOkText }}
+        </button>
+      </ng-container>
     }
   </app-actions>
 </div>

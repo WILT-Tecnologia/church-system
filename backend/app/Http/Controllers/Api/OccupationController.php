@@ -14,16 +14,15 @@ class OccupationController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        return OccupationResource::collection(Occupation::all());
+    public function index() {
+        $occupations = Occupation::orderBy('status', 'desc')->orderBy('name')->get();
+        return OccupationResource::collection($occupations);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreOccupationRequest $request)
-    {
+    public function store(StoreOccupationRequest $request) {
         $occupation = Occupation::create($request->validated());
 
         return new OccupationResource($occupation);
@@ -32,16 +31,14 @@ class OccupationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Occupation $occupation)
-    {
+    public function show(Occupation $occupation) {
         return new OccupationResource($occupation);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateOccupationRequest $request, Occupation $occupation)
-    {
+    public function update(UpdateOccupationRequest $request, Occupation $occupation) {
         $occupation->update($request->validated());
 
         return new OccupationResource($occupation);
@@ -50,8 +47,7 @@ class OccupationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Occupation $occupation)
-    {
+    public function destroy(Occupation $occupation) {
         $occupation->delete();
 
         return response()->json([], 204);

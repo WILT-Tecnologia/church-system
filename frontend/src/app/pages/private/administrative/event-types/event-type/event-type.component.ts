@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+
 import { ColorPickerControl } from '@iplab/ngx-color-picker';
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColorPickerComponent } from 'app/components/color-picker/color-picker.component';
@@ -18,6 +19,7 @@ import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { EventTypes } from 'app/model/EventTypes';
 import { ValidationService } from 'app/services/validation/validation.service';
+
 import { EventTypesService } from '../eventTypes.service';
 
 @Component({
@@ -64,7 +66,7 @@ export class EventTypeComponent implements OnInit {
     this.chromeControl.setValueFrom(this.eventTypeForm.get('color')?.value || '#ffffff');
   }
 
-  private createForm = () => {
+  private createForm() {
     return this.fb.group({
       id: [this.data?.eventType?.id || ''],
       name: [
@@ -76,7 +78,7 @@ export class EventTypeComponent implements OnInit {
       color: [this.data?.eventType?.color || '#ffffff'],
       updated_at: [this.data?.eventType?.updated_at || ''],
     });
-  };
+  }
 
   getErrorMessage(controlName: string) {
     const control = this.eventTypeForm.get(controlName);
@@ -98,70 +100,74 @@ export class EventTypeComponent implements OnInit {
     this.isVisible = false;
   }
 
-  handleSubmit = () => {
+  handleSubmit() {
     if (this.eventTypeForm.invalid) {
       return;
     }
 
     const eventTypeData = this.eventTypeForm.value;
-    this.isEditMode ? this.handleUpdate(eventTypeData) : this.handleCreate();
-  };
+    if (this.isEditMode) {
+      this.handleUpdate(eventTypeData);
+    } else {
+      this.handleCreate();
+    }
+  }
 
-  handleBack = () => {
+  handleBack() {
     this.dialogRef.close(false);
-  };
+  }
 
-  private showLoading = () => {
+  private showLoading() {
     this.loadingService.show();
-  };
+  }
 
-  private hideLoading = () => {
+  private hideLoading() {
     this.loadingService.hide();
-  };
+  }
 
-  private onSuccess = (message: string) => {
+  private onSuccess(message: string) {
     this.hideLoading();
     this.toast.openSuccess(message);
     this.dialogRef.close(this.eventTypeForm.value);
-  };
+  }
 
-  private onError = (message: string) => {
+  private onError(message: string) {
     this.hideLoading();
     this.toast.openError(message);
-  };
+  }
 
-  private modeEdit = () => {
+  private modeEdit() {
     if (this.data && this.data.eventType) {
       this.isEditMode = true;
       this.eventTypeForm.patchValue(this.data.eventType);
       this.handleEditMode();
     }
-  };
+  }
 
-  private handleEditMode = () => {
+  private handleEditMode() {
     this.eventTypesService.findById(this.data.eventType.id).subscribe((eventType: EventTypes) => {
       this.eventTypeForm.patchValue({
         ...eventType,
       });
       this.chromeControl.setValueFrom(eventType.color || '#ffffff');
     });
-  };
+  }
 
-  private handleCreate = () => {
+  private handleCreate() {
     this.showLoading();
     this.eventTypesService.create(this.eventTypeForm.value).subscribe({
       next: () => this.onSuccess(MESSAGES.CREATE_SUCCESS),
       error: () => this.onError(MESSAGES.CREATE_ERROR),
       complete: () => this.hideLoading(),
     });
-  };
+  }
 
-  private handleUpdate = (eventType: EventTypes) => {
+  private handleUpdate(eventType: EventTypes) {
     this.showLoading();
     this.eventTypesService.update(eventType.id, this.eventTypeForm.value).subscribe({
       next: () => this.onSuccess(MESSAGES.UPDATE_SUCCESS),
       error: () => this.onError(MESSAGES.UPDATE_ERROR),
       complete: () => this.hideLoading(),
     });
-  };
+  }
 }

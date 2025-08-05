@@ -1,19 +1,19 @@
 <div class="wrapper">
   <div class="calendar-actions">
-    @if (calendarVisible()) {
+    @if (calendarVisibleValue()) {
       <button mat-flat-button color="primary" (click)="handleCreate()">
         <mat-icon>add</mat-icon>
         Novo Evento
       </button>
     }
     <button mat-stroked-button color="primary" (click)="handleEnableCalendar()">
-      <mat-icon>{{ calendarVisible() ? 'view_list' : 'calendar_month' }}</mat-icon>
-      {{ calendarVisible() ? 'Ver na Lista' : 'Ver no Calendário' }}
+      <mat-icon>{{ calendarVisibleValue() ? 'view_list' : 'calendar_month' }}</mat-icon>
+      {{ calendarVisibleValue() ? 'Ver na Lista' : 'Ver no Calendário' }}
     </button>
   </div>
 
-  <div class="container" [class.expanded]="calendarVisible()">
-    @if (calendarVisible()) {
+  <div class="container" [class.expanded]="calendarVisibleValue()">
+    @if (calendarVisibleValue()) {
       <app-column>
         <div class="full-calendar-container mat-elevation-z3">
           <full-calendar #calendar [options]="calendarOptions()">
@@ -36,16 +36,18 @@
     }
   </div>
 
-  <div class="container" [class.expanded]="!calendarVisible()">
-    @if (!calendarVisible()) {
-      @if (eventTypes && eventTypes.length > 0) {
-        <app-tab-crud
-          [tabs]="eventTypes"
-          [crudConfig]="crudConfig"
-          [dataService]="findEventsByTabIdAdapter"
-          [handleCreate]="handleCreate"
-        ></app-tab-crud>
-      }
+  <div [class.expanded]="!calendarVisibleValue()">
+    @if (!calendarVisibleValue()) {
+      <ng-container *ngIf="eventTypes | async as eventTypesValue">
+        @if (eventTypesValue.length > 0) {
+          <app-tab-crud
+            [tabs]="eventTypesValue"
+            [crudConfig]="crudConfig"
+            [dataService]="findEventsByTabIdAdapter"
+            (addFn)="handleCreate()"
+          ></app-tab-crud>
+        }
+      </ng-container>
     }
   </div>
 </div>

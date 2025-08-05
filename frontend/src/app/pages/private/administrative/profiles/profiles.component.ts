@@ -7,7 +7,8 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
+import { CrudComponent } from 'app/components/crud/crud.component';
+import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
@@ -25,15 +26,28 @@ import { ProfilesService } from './profiles.service';
   imports: [MatCardModule, MatButtonModule, NotFoundRegisterComponent, CommonModule, CrudComponent],
 })
 export class ProfilesComponent implements OnInit {
+  constructor(
+    private modal: ModalService,
+    private confirmModal: ConfirmService,
+    private toast: ToastService,
+    private loading: LoadingService,
+    private profilesService: ProfilesService,
+  ) {}
+
   profiles: Profile[] = [];
   rendering: boolean = true;
   dataSourceMat = new MatTableDataSource<Profile>(this.profiles);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  columnDefinitions: ColumnDefinitionsProps[] = [
+    { key: 'status', header: 'Situação', type: 'boolean' },
+    { key: 'name', header: 'Cargo', type: 'string' },
+    { key: 'description', header: 'Descrição', type: 'string' },
+    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
+  ];
   actions: ActionsProps[] = [
     {
       type: 'toggle',
-      icon: 'toggle_on',
       activeLabel: 'Ativar',
       inactiveLabel: 'Desativar',
       action: (profile: Profile) => this.toggleStatus(profile),
@@ -53,26 +67,11 @@ export class ProfilesComponent implements OnInit {
     },
   ];
 
-  columnDefinitions = [
-    { key: 'status', header: 'Situação', type: 'boolean' },
-    { key: 'name', header: 'Cargo', type: 'string' },
-    { key: 'description', header: 'Descrição', type: 'string' },
-    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
-  ];
-
-  constructor(
-    private modal: ModalService,
-    private confirmModal: ConfirmService,
-    private toast: ToastService,
-    private loading: LoadingService,
-    private profilesService: ProfilesService,
-  ) {}
-
   ngOnInit() {
     this.loadProfiles();
   }
 
-  loadProfiles = () => {
+  loadProfiles() {
     this.profilesService.getProfiles().subscribe({
       next: (profiles) => {
         this.profiles = profiles;
@@ -87,9 +86,9 @@ export class ProfilesComponent implements OnInit {
       },
       complete: () => this.loading.hide(),
     });
-  };
+  }
 
-  handleCreate = () => {
+  onCreate() {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       ProfileComponent,
@@ -103,7 +102,7 @@ export class ProfilesComponent implements OnInit {
         this.loadProfiles();
       }
     });
-  };
+  }
 
   handleEdit = (profile: Profile) => {
     const modal = this.modal.openModal(
@@ -122,7 +121,7 @@ export class ProfilesComponent implements OnInit {
     });
   };
 
-  handleDelete = (profile: Profile) => {
+  handleDelete(profile: Profile) {
     const modal = this.confirmModal.openConfirm(
       'Confirmar exclusão',
       `Tem certeza que deseja excluir o perfil ${profile.name}?`,
@@ -145,9 +144,9 @@ export class ProfilesComponent implements OnInit {
         });
       }
     });
-  };
+  }
 
-  toggleStatus = (profile: Profile) => {
+  toggleStatus(profile: Profile) {
     this.loading.show();
     const updatedStatus = !profile.status;
     profile.status = updatedStatus;
@@ -165,5 +164,5 @@ export class ProfilesComponent implements OnInit {
         this.loading.hide();
       },
     });
-  };
+  }
 }

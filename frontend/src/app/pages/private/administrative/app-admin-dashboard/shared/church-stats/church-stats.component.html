@@ -1,0 +1,67 @@
+<mat-card appearance="outlined" class="mat-card-grid">
+  <mat-card-header class="card-header">
+    <mat-card-title class="user-title">Igrejas</mat-card-title>
+    <button mat-button (click)="accessRoute.emit()">
+      Acessar
+      <mat-icon>person</mat-icon>
+    </button>
+  </mat-card-header>
+  <mat-divider></mat-divider>
+  <mat-card-content>
+    <app-column [columns]="2">
+      <!-- Total de Igrejas Card -->
+      <mat-card appearance="outlined" class="custom-shadow-card">
+        <mat-card-content class="card-content">
+          <span class="quantity-value">{{ stats().totalNewChurches }}</span>
+          <span class="card-title text-neutral">Novas igrejas cadastradas</span>
+          <span
+            class="percentage"
+            [class]="{
+              'danger-color': stats().totalNewChurchPercentage < 0,
+              'success-color': stats().totalNewChurchPercentage > 0,
+              'info-color': stats().totalNewChurchPercentage === 0,
+            }"
+          >
+            <mat-icon>
+              {{
+                stats().totalNewChurchPercentage > 0
+                  ? 'trending_up'
+                  : stats().totalNewChurchPercentage < 0
+                    ? 'trending_down'
+                    : 'trending_flat'
+              }}
+            </mat-icon>
+            <app-percentage-message [message]="stats().totalNewChurchPercentage + '% vs mês anterior'" />
+          </span>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Novas igrejas -->
+      <mat-card appearance="outlined" class="custom-shadow-card">
+        <mat-card-content class="card-content">
+          <span class="quantity-value">{{ stats().totalChurches }}</span>
+          <span class="card-title text-neutral">Igrejas cadastradas</span>
+          <span
+            class="percentage"
+            [class]="{
+              'danger-color': stats().totalChurchPercentage < 0,
+              'success-color': stats().totalChurchPercentage > 0,
+              'info-color': stats().totalChurchPercentage === 0,
+            }"
+          >
+            <mat-icon>
+              {{
+                stats().totalChurchPercentage > 0
+                  ? 'trending_up'
+                  : stats().totalChurchPercentage < 0
+                    ? 'trending_down'
+                    : 'trending_flat'
+              }}
+            </mat-icon>
+            <app-percentage-message [message]="stats().totalChurchPercentage + '% vs mês anterior'" />
+          </span>
+        </mat-card-content>
+      </mat-card>
+    </app-column>
+  </mat-card-content>
+</mat-card>

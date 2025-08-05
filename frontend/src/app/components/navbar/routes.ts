@@ -1,27 +1,28 @@
-const GLOBAL = [
+type RouteProps = {
+  path: string;
+  icon: string;
+  label: string;
+  items?: RouteProps[];
+};
+
+const USER: RouteProps[] = [
   {
-    path: 'church',
-    icon: 'church',
-    label: 'Igreja',
-  },
-  {
-    path: 'administrative',
-    icon: 'admin_panel_settings',
-    label: 'Administrativo',
+    path: 'account',
+    icon: 'settings',
+    label: 'Conta',
+    items: [
+      {
+        path: 'profile',
+        icon: 'person',
+        label: 'Perfil',
+      },
+      {
+        path: 'logout',
+        icon: 'logout',
+        label: 'Sair',
+      },
+    ],
   },
 ];
 
-const USER = [
-  {
-    path: 'profile',
-    icon: 'person',
-    title: 'Perfil',
-  },
-  {
-    path: 'logout',
-    icon: 'logout',
-    title: 'Sair',
-  },
-];
-
-export { GLOBAL, USER };
+export { USER };

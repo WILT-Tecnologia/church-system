@@ -46,10 +46,17 @@ class EventoController extends Controller
     }
 
     public function adicionarParticipante(Request $request, Evento $evento) {
-        $request->validate(['member_id' => 'required|uuid|exists:members,id']);
-        // dd($request->member_id)
-        $evento->participantes()->syncWithoutDetaching($request->member_id);
-        // $evento->participantes()->syncWithoutDetaching([$request->participante_id]);
+        $request->validate([
+            'member_id' => 'nullable|uuid|exists:members,id',
+            'guest_id' => 'nullable|uuid|exists:guests,id',
+        ]);
+
+        $id = $request->input('member_id') ?? $request->input('guest_id');
+        if (!$id) {
+            return response()->json(['message' => 'ID de membro ou convidado é obrigatório'], 422);
+        }
+
+        $evento->participantes()->syncWithoutDetaching([$id]);
         return response()->json(['message' => 'Participante adicionado']);
     }
 
@@ -68,7 +75,7 @@ class EventoController extends Controller
     }
 
     public function removerConvidado(Request $request, Evento $evento) {
-        $request->validate(['member_id' => 'required|uuid|exists:persons,person_id']);
+        $request->validate(['person_id' => 'required|uuid|exists:persons,id']);
         $evento->guests()->detach($request->person_id);
         return response()->json(['message' => 'Convidado removido']);
     }

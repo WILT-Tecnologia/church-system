@@ -1,0 +1,20 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title class="title">Detalhes do evento</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="event-details">
+      <app-column [columns]="1">
+        <app-column [columns]="2">
+          <p><strong>Evento:</strong> {{ event()?.name }}</p>
+          <p><strong>Data:</strong> {{ event()?.date | date: 'dd/MM/yyyy' }} às {{ event()?.time }}</p>
+          <p><strong>Tema:</strong> {{ event()?.theme }}</p>
+          <p><strong>Tipo de evento:</strong> {{ event()?.type }}</p>
+        </app-column>
+        @if (event()?.observations) {
+          <p><strong>Observações:</strong> {{ event()?.observations }}</p>
+        }
+      </app-column>
+    </div>
+  </mat-card-content>
+</mat-card>

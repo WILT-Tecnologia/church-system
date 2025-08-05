@@ -1,16 +1,16 @@
 {
-    "private": true,
-    "type": "module",
-    "scripts": {
-        "docker:dev": "sudo chmod -R 777 .docker/postgres/dbdata ; sudo chown -R 999:999 .docker/postgres/dbdata ; docker compose -f ./docker-compose.yml up --build",
-        "docker:dev:down": "docker compose down",
-        "dev": "php artisan migrate && php artisan serve",
-        "build": "vite build",
-        "seed": "php artisan migrate:fresh --seed && php artisan serve"
-    },
-    "devDependencies": {
-        "axios": "^1.6.4",
-        "laravel-vite-plugin": "^1.0",
-        "vite": "^5.0"
-    }
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "docker:dev": "sudo chmod -R 777 .docker/postgres/dbdata ; sudo chown -R 999:999 .docker/postgres/dbdata ; docker compose -f ./docker-compose.yml up --build",
+    "docker:dev:down": "docker compose down",
+    "dev": "php artisan migrate && php artisan serve",
+    "build": "vite build",
+    "seed": "php artisan migrate:fresh --seed && php artisan serve"
+  },
+  "devDependencies": {
+    "axios": "^1.6.4",
+    "laravel-vite-plugin": "^1.0",
+    "vite": "^5.0"
+  }
 }

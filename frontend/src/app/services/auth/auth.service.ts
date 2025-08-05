@@ -2,10 +2,11 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+
 import { Church } from 'app/model/Church';
 import { User } from 'app/model/User';
 import { environment } from 'environments/environment';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -33,14 +34,10 @@ export class AuthService {
     } else {
       this.isLoggedInSubject.next(false);
       this.userSubject.next(null);
-      this.router.navigateByUrl('/login');
     }
   }
 
-  login(
-    email: string,
-    password: string,
-  ): Observable<{ token: string; user: User; churches: Church[] }> {
+  login(email: string, password: string): Observable<{ token: string; user: User; churches: Church[] }> {
     return this.http
       .post<{
         token: string;
@@ -55,15 +52,6 @@ export class AuthService {
           this.router.navigateByUrl('/dashboard');
         }),
       );
-  }
-
-  validateToken(): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/user`).pipe(
-      tap((user) => {
-        this.userSubject.next(user);
-        localStorage.setItem('user', JSON.stringify(user));
-      }),
-    );
   }
 
   getToken(): string | null {
@@ -90,13 +78,16 @@ export class AuthService {
   }
 
   logout(): Promise<void> {
-    return new Promise(async (resolve) => {
+    return new Promise((resolve) => {
       if (isPlatformBrowser(this.platformId)) {
         this.clearAuth();
-        await this.router.navigateByUrl('/login');
-        window.location.reload();
+        this.router.navigateByUrl('/login').then(() => {
+          window.location.reload();
+          resolve();
+        });
+      } else {
+        resolve();
       }
-      resolve();
     });
   }
 

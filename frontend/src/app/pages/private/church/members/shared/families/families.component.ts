@@ -6,7 +6,8 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { ActionsProps, ColumnDefinitionsProps, CrudComponent } from 'app/components/crud/crud.component';
+import { CrudComponent } from 'app/components/crud/crud.component';
+import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
@@ -31,6 +32,11 @@ export class FamiliesComponent implements OnInit {
   @Output() familyUpdated = new EventEmitter<Families[]>();
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  columnDefinitions: ColumnDefinitionsProps[] = [
+    { key: 'is_member', header: 'A filiação é membro?', type: 'YesNo' },
+    { key: 'combinedName', header: 'Nome', type: 'string' },
+    { key: 'kinship.name', header: 'Parentesco', type: 'string' },
+  ];
   actions: ActionsProps[] = [
     {
       type: 'edit',
@@ -46,11 +52,6 @@ export class FamiliesComponent implements OnInit {
       label: 'Excluir',
       action: (family: Families) => this.handleDelete(family),
     },
-  ];
-  columnDefinitions: ColumnDefinitionsProps[] = [
-    { key: 'is_member', header: 'A filiação é membro?', type: 'YesNo' },
-    { key: 'combinedName', header: 'Nome', type: 'string' },
-    { key: 'kinship.name', header: 'Parentesco', type: 'string' },
   ];
 
   constructor(
@@ -95,7 +96,7 @@ export class FamiliesComponent implements OnInit {
     }
   };
 
-  handleCreate = () => {
+  onCreate = () => {
     const defaultMemberId = this.membersService.getEditingMemberId();
 
     const dialogRef = this.modal.openModal(

@@ -31,6 +31,7 @@ class ChurchResource extends JsonResource
             'favicon' => $this->favicon,
             'background' => $this->background,
             'color' => $this->color,
+            'members_count' => $this->members_count ?? 0,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];

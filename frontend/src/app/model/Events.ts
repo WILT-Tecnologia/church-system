@@ -3,14 +3,29 @@ import { EventTypes } from './EventTypes';
 import { Members } from './Members';
 import { User } from './User';
 
+export type EventData = {
+  event: Events;
+  event_id: string;
+  name: string;
+  date: string;
+  time: string;
+  theme: string;
+  type: string;
+  observations?: string;
+};
+
 export type Events = {
   id: string;
   church?: Church;
-  church_id: string;
   eventType?: EventTypes;
+  church_id: string;
   event_type_id: string;
   name: string;
   obs?: string;
+  participants?: Members[];
+  guests?: Guest[];
+  participantAndGuests?: ParticipantAndGuest[];
+  callToDay?: CallToDay;
   created_at?: string;
   updated_at?: string;
   created_by?: User;
@@ -19,7 +34,7 @@ export type Events = {
   combinedUpdatedByAndUpdatedAt?: string;
 };
 
-export type EventCalls = {
+export type CallToDay = {
   id: string;
   event: Events;
   event_id: string;
@@ -29,12 +44,18 @@ export type EventCalls = {
   start_time: string;
   end_time: string;
   location: string;
-  created_at: string;
-  updated_at: string;
+};
+
+export type ParticipantAndGuest = {
+  id: string;
+  name: string;
+  selected: boolean;
+  isGuest?: boolean;
 };
 
 export type Guest = {
   id: string;
+  person_id?: string;
   name: string;
   phone_one: string;
   phone_two: string;

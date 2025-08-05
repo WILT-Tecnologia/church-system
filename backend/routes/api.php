@@ -12,6 +12,8 @@ Route::prefix('auth')->middleware('auth:sanctum')->group(function () {
     Route::post('/logout/{user}', [loginController::class, 'logout']);
 });
 
+Route::post('/users/{userId}/change-password', [LoginController::class, 'change_password'])->middleware('auth:sanctum');
+
 Route::prefix('admin')->middleware(['cors', 'auth:sanctum'])->group(function () {
     Route::apiResource('users', \App\Http\Controllers\Api\UserController::class);
     Route::apiResource('profiles', \App\Http\Controllers\Api\ProfileController::class);

@@ -1,18 +1,8 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectorRef,
-  Component,
-  Inject,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import {
-  MAT_DIALOG_DATA,
-  MatDialogModule,
-  MatDialogRef,
-} from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -39,7 +29,7 @@ type ModalProps = {
     CommonModule,
   ],
 })
-export class ModalComponent implements OnInit {
+export class ModalComponent implements OnInit, AfterViewInit {
   isFullscreen: boolean = false;
 
   @ViewChild('customContent', { static: false }) customContent: any;
@@ -56,9 +46,7 @@ export class ModalComponent implements OnInit {
 
   ngAfterViewInit() {
     setTimeout(() => {
-      const dialogContainer = document.querySelector(
-        '.mat-dialog-container',
-      ) as HTMLElement;
+      const dialogContainer = document.querySelector('.mat-dialog-container') as HTMLElement;
       if (dialogContainer) {
         this.dialogRef.updatePosition();
         this.cdr.detectChanges();

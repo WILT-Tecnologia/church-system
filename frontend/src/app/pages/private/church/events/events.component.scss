@@ -1,6 +1,7 @@
 .wrapper {
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .container {
@@ -49,6 +50,13 @@
 }
 
 .full-calendar-event {
-  color: #ffffff;
+  color: var(--white-color);
   width: 100%;
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+  font-size: 16px;
+  color: #666;
 }

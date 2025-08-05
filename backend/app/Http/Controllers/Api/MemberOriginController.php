@@ -14,16 +14,15 @@ class MemberOriginController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        return MemberOriginResource::collection(MemberOrigin::all());
+    public function index() {
+        $memberOrigin = MemberOrigin::orderBy('status', 'desc')->orderBy('name')->get();
+        return MemberOriginResource::collection($memberOrigin);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreMemberOriginRequest $request)
-    {
+    public function store(StoreMemberOriginRequest $request) {
         $memberOrigin = MemberOrigin::create($request->validated());
 
         return new MemberOriginResource($memberOrigin);
@@ -32,16 +31,14 @@ class MemberOriginController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(MemberOrigin $memberOrigin)
-    {
+    public function show(MemberOrigin $memberOrigin) {
         return new MemberOriginResource($memberOrigin);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateMemberOriginRequest $request, MemberOrigin $memberOrigin)
-    {
+    public function update(UpdateMemberOriginRequest $request, MemberOrigin $memberOrigin) {
         $memberOrigin->update($request->validated());
 
         return new MemberOriginResource($memberOrigin);
@@ -50,8 +47,7 @@ class MemberOriginController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(MemberOrigin $memberOrigin)
-    {
+    public function destroy(MemberOrigin $memberOrigin) {
         $memberOrigin->delete();
 
         return response()->json([], 204);

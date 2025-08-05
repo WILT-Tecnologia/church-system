@@ -1,6 +1,6 @@
 @if (enableAddButtonAdd) {
   <div class="add-button">
-    <button type="button" mat-flat-button color="primary" (click)="addFn()">
+    <button type="button" mat-flat-button color="primary" (click)="add.emit()">
       {{ ctaLabel || 'Adicionar' }}
     </button>
   </div>
@@ -12,7 +12,7 @@
         <mat-form-field appearance="fill">
           <div class="search-icon-input">
             <mat-icon>search</mat-icon>
-            <input matInput (input)="applyFilter($event)" placeholder="Digite para pesquisar" />
+            <input (input)="applyFilter($event)" matInput placeholder="Digite para pesquisar" />
           </div>
         </mat-form-field>
       </div>
@@ -29,8 +29,12 @@
           <mat-icon>filter_alt</mat-icon>
         </button>
       }
-      @if (!!findDataFn) {
-        <button mat-stroked-button color="primary" (click)="findDataFn()">Atualizar</button>
+      @if (showFindDataButton && findData.observers.length > 0) {
+        <div class="findDataButton">
+          <button mat-stroked-button color="primary" (click)="findData.emit()">
+            {{ findDataLabel }}
+          </button>
+        </div>
       }
     </div>
     @if (enablePagination) {
@@ -44,10 +48,10 @@
       ></mat-paginator>
     }
   </div>
-  @if (enableFilterAdvanced && showFilter) {
+  @if (enableFilterAdvanced && !!showFilter()) {
     <app-filter-button-advanced
       [fields]="filterFields"
-      [applyFilter]="applyFilterFn"
+      [applyFilter]="applyFilter"
       (filterChange)="applyAdvancedFilter($event)"
     ></app-filter-button-advanced>
   }
@@ -60,50 +64,42 @@
         {{ column.header }}
       </th>
       <td *matCellDef="let fields" [title]="fields | formatValues: column.key : column.type" mat-cell>
-        <ng-container [ngSwitch]="column.type">
-          <ng-container *ngSwitchCase="'date'">
+        @switch (column.type) {
+          @case ('date') {
             {{ fields | formatValues: column.key : column.type }}
-          </ng-container>
-          <ng-container *ngSwitchCase="'string'">
+          }
+          @case ('string') {
             {{ fields | formatValues: column.key : column.type }}
-          </ng-container>
-          <ng-container *ngSwitchCase="'cpf'">
+          }
+          @case ('cpf') {
             {{ fields | formatValues: column.key : column.type }}
-          </ng-container>
-          <ng-container *ngSwitchCase="'cnpj'">
+          }
+          @case ('cnpj') {
             {{ fields | formatValues: column.key : column.type }}
-          </ng-container>
-          <ng-container *ngSwitchCase="'datetime'">
+          }
+          @case ('datetime') {
             {{ fields | formatValues: column.key : column.type }}
-          </ng-container>
-          <ng-container *ngSwitchCase="'time'">
+          }
+          @case ('phone') {
             {{ fields | formatValues: column.key : column.type }}
-          </ng-container>
-          <ng-container *ngSwitchCase="'phone'">
+          }
+          @case ('sex') {
             {{ fields | formatValues: column.key : column.type }}
-          </ng-container>
-          <ng-container *ngSwitchCase="'sex'">
+          }
+          @case ('number') {
             {{ fields | formatValues: column.key : column.type }}
-          </ng-container>
-          <ng-container *ngSwitchCase="'number'">
-            {{ fields | formatValues: column.key : column.type }}
-          </ng-container>
-          <ng-container *ngSwitchCase="'color'">
+          }
+          @case ('color') {
             <div class="color-display">
               <div class="color-box" [ngStyle]="{ 'background-color': fields[column.key] }"></div>
             </div>
-          </ng-container>
-          <ng-container *ngSwitchCase="'boolean'">
-            <span [ngClass]="fields[column.key] ? 'active' : 'inactive'">
+          }
+          @case ('boolean') {
+            <span [class]="fields[column.key] ? 'active' : 'inactive'">
               {{ fields[column.key] ? 'Ativado' : 'Desativado' }}
             </span>
-          </ng-container>
-          <ng-container *ngSwitchCase="'YesNo'">
-            <span [ngClass]="fields[column.key] ? 'active' : 'negative'">
-              {{ fields[column.key] ? 'Sim' : 'Não' }}
-            </span>
-          </ng-container>
-          <ng-container *ngSwitchCase="'situation'">
+          }
+          @case ('YesNo') {
             <span
               [ngClass]="{
                 'status-warning': fields[column.key] === 'Pendente',
@@ -113,76 +109,93 @@
             >
               {{ fields[column.key] }}
             </span>
-          </ng-container>
-          <ng-container *ngSwitchDefault>
-            {{ fields[column.key] }}
-          </ng-container>
-        </ng-container>
+          }
+          @case ('situation') {
+            <span
+              [class]="{
+                'status-warning': fields[column.key] === 'Pendente',
+                'status-blue': fields[column.key] === 'Em análise',
+                'status-success': fields[column.key] === 'Verificado',
+              }"
+            >
+              {{ fields[column.key] }}
+            </span>
+          }
+          @case ('currency') {
+            {{ fields | formatValues: column.key : column.type }}
+          }
+          @case ('select') {
+            {{ fields | formatValues: column.key : column.type }}
+          }
+          @case ('email') {
+            {{ fields | formatValues: column.key : column.type }}
+          }
+          @default {
+            {{ fields | formatValues: column.key : column.type }}
+          }
+        }
       </td>
     </ng-container>
-
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let fields" class="actions-cell">
-        <div class="actions-container">
-          @if (actions | hasNonToggleActions) {
-            <button type="button" mat-icon-button [matMenuTriggerFor]="menu" matTooltip="Ações">
-              <mat-icon>more_vert</mat-icon>
-            </button>
-            <mat-menu #menu="matMenu">
-              @for (action of actions; track action.type) {
-                @if (action.type === 'toggle') {
-                  <div class="toggle">
+    @if (actions && actions.length > 0) {
+      <ng-container matColumnDef="actions">
+        <th *matHeaderCellDef mat-header-cell></th>
+        <td *matCellDef="let fields" class="actions-cell" mat-cell>
+          <div class="actions-container">
+            @if (actions | hasNonToggleActions) {
+              <button type="button" mat-icon-button [matMenuTriggerFor]="menu" matTooltip="Ações">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #menu="matMenu">
+                @for (action of actions; track $index) {
+                  @if (action.type === 'toggle') {
+                    <div class="toggle">
+                      <button
+                        mat-flat-button
+                        [matTooltip]="tooltipLabel"
+                        [color]="fields.status ? 'warn' : 'primary'"
+                        (click)="action.action(fields)"
+                        type="button"
+                      >
+                        @if (action.icon) {
+                          <mat-icon>{{ action.icon }}</mat-icon>
+                        }
+                        <span>
+                          {{ fields.status ? 'Desativar' : 'Ativar' }}
+                        </span>
+                      </button>
+                    </div>
+                  }
+                  @if (action.type !== 'toggle') {
                     <button
-                      mat-flat-button
-                      [matTooltip]="tooltipLabel"
-                      [color]="fields.status ? 'warn' : 'primary'"
+                      mat-menu-item
+                      [matTooltip]="action.tooltip || ''"
                       (click)="action.action(fields)"
                       type="button"
                     >
-                      <mat-icon>
-                        {{ action.icon || 'power_settings_new' }}
-                      </mat-icon>
-                      <span>
-                        {{ fields.status ? 'Desativar' : 'Ativar' }}
-                      </span>
+                      @if (action.icon) {
+                        <mat-icon [color]="action.color || 'primary'">
+                          {{ action.icon }}
+                        </mat-icon>
+                      }
+                      @if (action.label) {
+                        <span [class]="action.type === 'delete' ? 'delete' : ''">
+                          {{ action.label }}
+                        </span>
+                      }
                     </button>
-                  </div>
+                  }
                 }
-                @if (action.type !== 'toggle') {
-                  <button
-                    mat-menu-item
-                    [matTooltip]="action.tooltip || ''"
-                    (click)="action.action(fields)"
-                    type="button"
-                  >
-                    @if (action.icon) {
-                      <mat-icon [color]="action.color || 'primary'">
-                        {{ action.icon }}
-                      </mat-icon>
-                    }
-                    @if (action.label) {
-                      <span [ngClass]="action.type === 'delete' ? 'delete' : ''" class="label-button-menu">
-                        {{ action.label }}
-                      </span>
-                    }
-                  </button>
-                  <!-- @if (action !== actions[actions.length - 1]) {
-                    <mat-divider></mat-divider>
-                  } -->
-                }
-              }
-            </mat-menu>
-          }
-        </div>
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              </mat-menu>
+            }
+          </div>
+        </td>
+      </ng-container>
+    }
+    <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
     <tr
-      mat-row
-      class="rows"
       *matRowDef="let row; columns: displayedColumns"
+      class="rows"
+      mat-row
       [class.clickable]="enableRowClickDialog"
       (click)="enableRowClickDialog ? openRowDialog(row) : null"
     ></tr>

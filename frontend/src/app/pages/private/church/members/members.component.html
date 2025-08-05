@@ -3,11 +3,9 @@
     [fields]="member"
     [dataSourceMat]="dataSourceMat"
     [columnDefinitions]="columnDefinitions"
-    [addFn]="handleCreate"
-    [editFn]="handleUpdate"
-    [deleteFn]="handleDelete"
+    (add)="onCreate()"
     [actions]="actions"
   ></app-crud>
 } @else {
-  <app-not-found-register [ctaLabel]="'Adicionar'" [addRegisterFn]="handleCreate"></app-not-found-register>
+  <app-not-found-register (add)="onCreate()"></app-not-found-register>
 }

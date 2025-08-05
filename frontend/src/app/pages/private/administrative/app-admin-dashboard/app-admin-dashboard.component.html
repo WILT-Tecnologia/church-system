@@ -1,0 +1,10 @@
+<div class="container">
+  <app-dashboard-header />
+  <app-column [columns]="2">
+    <app-user-stats [stats]="dashboardStats()" (accessRoute)="accessRoute('/administrative/users')" />
+    <app-church-stats [stats]="churchStats()" (accessRoute)="accessRoute('/administrative/churches')" />
+  </app-column>
+  <app-column [columns]="1">
+    <app-church-list-stats (accessRoute)="accessRoute('/administrative/churches')" />
+  </app-column>
+</div>

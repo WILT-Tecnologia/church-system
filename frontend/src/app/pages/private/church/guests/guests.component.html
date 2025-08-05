@@ -1,0 +1,11 @@
+@if (guest && guest.length > 0) {
+  <app-crud
+    [fields]="guest"
+    [dataSourceMat]="dataSourceMat"
+    [columnDefinitions]="columnDefinitions"
+    (add)="onCreate()"
+    [actions]="actions"
+  ></app-crud>
+} @else {
+  <app-not-found-register (add)="onCreate()"></app-not-found-register>
+}

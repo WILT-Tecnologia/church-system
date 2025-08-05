@@ -1,17 +1,18 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 import { Router } from '@angular/router';
+
 import { Church } from 'app/model/Church';
+import { ChurchsService } from 'app/pages/private/administrative/churches/churches.service';
 
 @Component({
   selector: 'app-select-church',
   templateUrl: './select-church.component.html',
   styleUrl: './select-church.component.scss',
-  imports: [MatDialogModule, MatListModule, MatButtonModule, MatDividerModule],
+  imports: [MatListModule, MatButtonModule, MatDividerModule],
 })
 export class SelectChurchComponent implements OnInit {
   churches: Church[] = [];
@@ -19,6 +20,7 @@ export class SelectChurchComponent implements OnInit {
 
   constructor(
     private router: Router,
+    private churchService: ChurchsService,
     @Inject(PLATFORM_ID) private platformId: object,
   ) {}
 
@@ -37,9 +39,7 @@ export class SelectChurchComponent implements OnInit {
 
       this.selectedChurchId = localStorage.getItem('selectedChurch');
       if (this.selectedChurchId) {
-        const selectedChurch = this.churches.find(
-          (church) => church.id === this.selectedChurchId,
-        );
+        const selectedChurch = this.churches.find((church) => church.id === this.selectedChurchId);
         if (!selectedChurch) {
           this.clearSelectedChurch();
         }
@@ -48,16 +48,12 @@ export class SelectChurchComponent implements OnInit {
   }
 
   selectChurch(church: Church): Promise<boolean> {
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('selectedChurch', church.id);
-    }
-    return this.router.navigateByUrl('/church');
+    this.churchService.setSelectedChurch(church);
+    return this.router.navigateByUrl('/church/dashboard');
   }
 
   clearSelectedChurch(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem('selectedChurch');
-    }
+    this.churchService.clearSelectedChurch();
     this.selectedChurchId = null;
   }
 }

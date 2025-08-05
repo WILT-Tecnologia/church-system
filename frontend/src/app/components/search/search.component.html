@@ -1,0 +1,6 @@
+<mat-form-field [appearance]="appearance">
+  <div class="search-icon-input">
+    <mat-icon>search</mat-icon>
+    <input matInput [placeholder]="placeholder" (input)="applyFilter($event)" />
+  </div>
+</mat-form-field>

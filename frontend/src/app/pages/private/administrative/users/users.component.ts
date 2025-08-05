@@ -5,7 +5,8 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
+import { CrudComponent } from 'app/components/crud/crud.component';
+import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
@@ -23,12 +24,26 @@ import { UsersService } from './users.service';
   imports: [NotFoundRegisterComponent, CommonModule, CrudComponent],
 })
 export class UsersComponent implements OnInit {
+  constructor(
+    private toast: ToastService,
+    private loading: LoadingService,
+    private confirmService: ConfirmService,
+    private modalService: ModalService,
+    private userService: UsersService,
+  ) {}
+
   users: User[] = [];
   rendering: boolean = true;
   dataSourceMat = new MatTableDataSource<User>(this.users);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-
+  columnDefinitions: ColumnDefinitionsProps[] = [
+    { key: 'status', header: 'Situação', type: 'boolean' },
+    { key: 'name', header: 'Nome', type: 'string' },
+    { key: 'email', header: 'Email', type: 'string' },
+    { key: 'change_password', header: 'Alterar senha', type: 'boolean' },
+    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
+  ];
   actions: ActionsProps[] = [
     {
       type: 'toggle',
@@ -51,22 +66,6 @@ export class UsersComponent implements OnInit {
     },
   ];
 
-  columnDefinitions = [
-    { key: 'status', header: 'Situação', type: 'boolean' },
-    { key: 'name', header: 'Nome', type: 'string' },
-    { key: 'email', header: 'Email', type: 'string' },
-    { key: 'change_password', header: 'Alterar senha', type: 'boolean' },
-    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
-  ];
-
-  constructor(
-    private toast: ToastService,
-    private loading: LoadingService,
-    private confirmService: ConfirmService,
-    private modalService: ModalService,
-    private userService: UsersService,
-  ) {}
-
   ngOnInit() {
     this.loadUsers();
   }
@@ -87,7 +86,7 @@ export class UsersComponent implements OnInit {
     });
   };
 
-  handleCreate = () => {
+  onCreate = () => {
     const modal = this.modalService.openModal(
       `modal-${Math.random()}`,
       UserFormComponent,

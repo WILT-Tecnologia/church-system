@@ -5,7 +5,8 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
+import { CrudComponent } from 'app/components/crud/crud.component';
+import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
@@ -23,11 +24,25 @@ import { OccupationsService } from './occupations.service';
   imports: [NotFoundRegisterComponent, CommonModule, CrudComponent],
 })
 export class OccupationsComponent implements OnInit {
+  constructor(
+    private toast: ToastService,
+    private loading: LoadingService,
+    private confirmeService: ConfirmService,
+    private modal: ModalService,
+    private occupationsService: OccupationsService,
+  ) {}
+
   occupations: Occupation[] = [];
   rendering: boolean = true;
   dataSourceMat = new MatTableDataSource<Occupation>(this.occupations);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  columnDefinitions: ColumnDefinitionsProps[] = [
+    { key: 'status', header: 'Situação', type: 'boolean' },
+    { key: 'name', header: 'Cargo', type: 'string' },
+    { key: 'description', header: 'Descrição', type: 'string' },
+    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
+  ];
   actions: ActionsProps[] = [
     {
       type: 'toggle',
@@ -49,21 +64,6 @@ export class OccupationsComponent implements OnInit {
       action: (occupation: Occupation) => this.handleDelete(occupation),
     },
   ];
-
-  columnDefinitions = [
-    { key: 'status', header: 'Situação', type: 'boolean' },
-    { key: 'name', header: 'Cargo', type: 'string' },
-    { key: 'description', header: 'Descrição', type: 'string' },
-    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
-  ];
-
-  constructor(
-    private toast: ToastService,
-    private loading: LoadingService,
-    private confirmeService: ConfirmService,
-    private modal: ModalService,
-    private occupationsService: OccupationsService,
-  ) {}
 
   ngOnInit() {
     this.loadOccupations();
@@ -87,7 +87,7 @@ export class OccupationsComponent implements OnInit {
     });
   };
 
-  handleCreate = () => {
+  onCreate = () => {
     const dialogRef = this.modal.openModal(
       `modal-${Math.random()}`,
       OccupationComponent,

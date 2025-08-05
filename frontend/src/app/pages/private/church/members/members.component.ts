@@ -5,7 +5,8 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { ActionsProps, CrudComponent } from 'app/components/crud/crud.component';
+import { CrudComponent } from 'app/components/crud/crud.component';
+import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
@@ -33,6 +34,21 @@ export class MembersComponent implements OnInit {
   families!: Families[];
   member: Members[] = [];
   dataSourceMat = new MatTableDataSource<Members>(this.member);
+  columnDefinitions: ColumnDefinitionsProps[] = [
+    { key: 'person.name', header: 'Nome', type: 'string' },
+    { key: 'person.cpf', header: 'CPF', type: 'cpf' },
+    { key: 'person.email', header: 'Email', type: 'string' },
+    { key: 'person.birth_date', header: 'Data de Nascimento', type: 'date' },
+    { key: 'person.sex', header: 'Sexo', type: 'sex' },
+    { key: 'person.phone_one', header: 'Celular', type: 'phone' },
+    { key: 'church.name', header: 'Igreja', type: 'string' },
+    {
+      key: 'church.responsible.name',
+      header: 'Pastor presidente',
+      type: 'string',
+    },
+    { key: 'updated_at', header: 'Última atualização', type: 'datetime' },
+  ];
   actions: ActionsProps[] = [
     {
       type: 'edit',
@@ -73,22 +89,6 @@ export class MembersComponent implements OnInit {
     },
   ];
 
-  columnDefinitions = [
-    { key: 'person.name', header: 'Nome', type: 'string' },
-    { key: 'person.cpf', header: 'CPF', type: 'cpf' },
-    { key: 'person.email', header: 'Email', type: 'string' },
-    { key: 'person.birth_date', header: 'Data de Nascimento', type: 'date' },
-    { key: 'person.sex', header: 'Sexo', type: 'sex' },
-    { key: 'person.phone_one', header: 'Celular', type: 'phone' },
-    { key: 'church.name', header: 'Igreja', type: 'string' },
-    {
-      key: 'church.responsible.name',
-      header: 'Pastor presidente',
-      type: 'string',
-    },
-    { key: 'updated_at', header: 'Última atualização', type: 'datetime' },
-  ];
-
   constructor(
     private confirmeService: ConfirmService,
     private loading: LoadingService,
@@ -115,7 +115,7 @@ export class MembersComponent implements OnInit {
     });
   };
 
-  handleCreate = () => {
+  onCreate = () => {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       MemberComponent,

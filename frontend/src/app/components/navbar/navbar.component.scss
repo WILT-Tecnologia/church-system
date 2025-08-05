@@ -1,27 +1,79 @@
-@use 'app/styles/theme.scss'as theme;
-
 ::ng-deep .mat-drawer-backdrop.mat-drawer-shown {
   backdrop-filter: blur(0.2rem) !important;
   background: rgba(0, 0, 0, 0.2) !important;
 }
 
 .sidenav-container {
-  background-color: var(--white-color);
   height: 100vh;
   overflow: hidden;
   width: 100vw;
 }
 
-.sidebar-header {
-  align-items: center;
-  display: flex;
-  gap: 1rem;
-  padding: 1rem;
+.desktop-sidenav,
+.sidenav {
+  min-height: 100vh;
+  width: auto;
+  transition: width 0.3s;
+  scrollbar-width: thin;
+  background-color: var(--white-color);
 }
 
-.text-default {
-  color: var(--text-color);
-  font-size: 1rem;
+@media (max-width: 768px) {
+  .desktop-sidenav {
+    display: none;
+  }
+}
+
+.sidebar-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--white-color);
+  text-align: center;
+
+  .logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+
+    img {
+      width: 100%;
+      max-width: 15rem;
+    }
+  }
+
+  .church-name {
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    font-weight: 500;
+
+    @media screen and (max-width: 768px) {
+      font-size: 0.8rem;
+      margin-left: 1rem;
+    }
+  }
+}
+
+.icon-text {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+
+  &.active-route {
+    color: var(--text-color) !important;
+    background-color: var(--background-color) !important;
+    font-weight: 500;
+  }
+
+  &:not(.active-route) {
+    color: var(--grey-light);
+  }
 }
 
 .sidenav-content {
@@ -38,59 +90,86 @@
   padding: 1rem;
 }
 
-.mat-sidenav {
-  background-color: var(--white-color);
-  width: 15rem;
-}
-
-.mat-nav-list .mat-list-item {
-  font-size: 0.8rem;
-  height: 4rem;
-}
-
-.mat-button-options {
+.mat-button-options,
+.menu-text {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
   text-align: left;
-  color: var(--text-color);
+  padding: 0.75rem 1.5rem;
+  border: none !important;
+  font-size: 0.8rem;
+  border-radius: 0.5rem !important;
+  color: var(--grey-dark);
 
   &.active-route {
-    color: var(--primary-color);
+    background-color: var(--background-color) !important;
+    box-shadow: 0 0.1rem 0.5rem 0.3rem rgba(0, 0, 0, 0.2) inset !important;
   }
 
   &:not(.active-route) {
-    color: gray;
-  }
-
-  @media screen and (max-width: 768px) {
-    border: none !important;
-    border-radius: 0 !important;
+    color: var(--grey-light) !important;
   }
 }
 
-.icon-text {
+.menu-text,
+.active-route {
+  color: var(--grey-light) !important;
+
+  * > :not(.active-route) {
+    font-weight: bold !important;
+    color: var(--primary-color) !important;
+  }
+
+  * > mat-icon {
+    color: var(--primary-color);
+
+    * > :not(.active-route mat-icon) {
+      color: var(--grey-light);
+    }
+  }
+}
+
+.mat-expansion-panel {
+  background: var(--white-color) !important;
+  box-shadow: 0 0.4rem 0.3rem -0.1rem rgba(0, 0, 0, 0.15) !important;
+  border-radius: 0 !important;
+}
+
+.mat-expansion-panel-header {
+  background: transparent !important;
+}
+
+.mat-expansion-panel-header-title {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-color);
   display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
   align-items: center;
   gap: 0.5rem;
 }
 
+mat-divider {
+  margin: 0.5rem 0;
+  background-color: var(--grey-light);
+}
+
+.mat-expansion-panel-body {
+  padding: 0 1rem !important;
+}
+
 .navbar {
   display: flex;
-  align-items: stretch;
+  align-items: center;
   height: 2.8rem;
   max-width: 100dvw;
   padding: 0 1rem;
   background-color: var(--white-color);
   z-index: 1;
-  box-shadow: 0 0.2rem 0.6rem -0.1rem rgba(0, 0, 0, .12), 0 0 0.1rem 0.1rem rgba(0, 0, 0, .2);
-
-  @media screen and (max-width: 768px) {
-    align-items: center;
-  }
+  box-shadow:
+    0 0.2rem 0.6rem -0.1rem rgba(0, 0, 0, 0.12),
+    0 0 0.1rem 0.1rem rgba(0, 0, 0, 0.2);
 }
 
 .separator {
@@ -101,11 +180,11 @@
 }
 
 .container-section-one-nav {
+  flex: 1 1 0;
   display: flex;
-  align-items: center;
   box-sizing: border-box;
   place-content: center flex-start;
-  flex: 1 1 0;
+  align-items: center;
   flex-direction: row;
   margin-left: 1rem;
 }
@@ -114,7 +193,7 @@
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
-  align-items: stretch;
+  align-items: center;
   flex: 1 1 0;
 }
 
@@ -122,27 +201,24 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border-bottom: 0.1rem solid transparent;
-  border-radius: 0 !important;
+  border-bottom: 0.2rem solid transparent;
+  border-radius: 0.5rem !important;
   height: 100%;
-  color: var(--text-color);
   transition: all 0.3s ease-in-out;
 
   &.active-route {
-    border-bottom: 0.2rem solid var(--primary-color);
     color: var(--primary-color);
+    border-bottom: 0.2rem solid var(--primary-color);
   }
 
   &:not(.active-route) {
-    color: gray;
+    color: var(--grey-light);
   }
-
-
 }
 
 .user-button {
-  align-items: center;
   display: flex;
+  align-items: center;
   justify-content: space-between;
   vertical-align: middle;
 
@@ -153,37 +229,34 @@
   }
 }
 
-.container-section-one-nav {
-  flex: 1 1 0;
-  display: flex;
-  box-sizing: border-box;
-  place-content: center flex-start;
-  align-items: center;
-  flex-direction: row;
-}
-
 .button-text {
-  color: var(--primary-color);
   display: inline-flex;
-  font-size: 1rem;
-  vertical-align: middle;
-}
-
-.button-icon {
   color: var(--primary-color);
-  display: inline-flex;
+  font-size: 0.8rem;
   vertical-align: middle;
-}
-
-.button-size {
-  width: 10rem;
-}
-
-.spacing-components {
-  margin: 0 1rem;
 }
 
 .logout {
+  display: inline-flex;
   color: var(--error-color);
-  cursor: pointer;
+  font-size: 0.8rem;
+  vertical-align: middle;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-left: 1rem;
+
+  .breadcrumb-separator {
+    color: var(--grey-light);
+  }
+
+  @media screen and (max-width: 768px) {
+    margin-left: 0;
+  }
 }
