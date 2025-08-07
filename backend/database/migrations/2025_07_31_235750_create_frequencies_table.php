@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('frequencies', function (Blueprint $table) {
-            $table->uuid('id');
+            $table->uuid('id')->primary();
             $table->uuid('event_call_id');
-            $table->uuid('membro_id')->nullable();
+            $table->uuid('member_id')->nullable();
             $table->uuid('guest_id')->nullable();
             $table->boolean('present')->default(false);
             $table->timestamps();
