@@ -1,5 +1,7 @@
+import { registerLocaleData } from '@angular/common';
 import { HTTP_INTERCEPTORS, provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
-import { ApplicationConfig, LOCALE_ID, provideZoneChangeDetection } from '@angular/core';
+import localePt from '@angular/common/locales/pt';
+import { ApplicationConfig, DEFAULT_CURRENCY_CODE, LOCALE_ID, provideZoneChangeDetection } from '@angular/core';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { provideClientHydration } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -24,6 +26,8 @@ const maskConfigFunction: () => Partial<NgxMaskConfig> = () => {
   };
 };
 
+registerLocaleData(localePt);
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
@@ -37,5 +41,6 @@ export const appConfig: ApplicationConfig = {
     { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true },
     { provide: MatPaginatorIntl, useValue: getPtBrPaginatorIntl() },
     { provide: LOCALE_ID, useValue: 'pt-BR' },
+    { provide: DEFAULT_CURRENCY_CODE, useValue: 'BRL' },
   ],
 };

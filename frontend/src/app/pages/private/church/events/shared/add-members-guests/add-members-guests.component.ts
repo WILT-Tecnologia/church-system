@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -19,7 +19,7 @@ import { LoadingService } from 'app/components/loading/loading.service';
 import { PaginatorComponent } from 'app/components/paginator/paginator.component';
 import { SearchComponent } from 'app/components/search/search.component';
 import { ToastService } from 'app/components/toast/toast.service';
-import { EventData, Events, ParticipantAndGuest } from 'app/model/Events';
+import { Events, ParticipantAndGuest } from 'app/model/Events';
 
 import { GuestsService } from '../../../guests/guests.service';
 import { MembersService } from '../../../members/members.service';
@@ -63,14 +63,7 @@ export class AddMembersGuestsComponent implements OnInit {
     this.participantAndGuestForm = this.createForm();
   }
 
-  EventData: EventData = {
-    name: 'Acampamento da mocidade',
-    date: '2025-02-25',
-    time: '19:00 - 21:00',
-    theme: 'Videira verdadeira',
-    type: 'Acampamento',
-    observations: `Lorem ipsum dolor sit amet consectetur adipisicing elit. Iste at vel provident ullam cupiditate, rerum culpa tempore laboriosam neque ipsa voluptates deserunt nihil dolorum! Ducimus aspernatur doloremque quasi aliquam eius?`,
-  };
+  event = input<Events | null>();
   participantAndGuestForm: FormGroup;
   members: ParticipantAndGuest[] = [];
   guests: ParticipantAndGuest[] = [];
@@ -156,19 +149,28 @@ export class AddMembersGuestsComponent implements OnInit {
   }
 
   applyMemberFilter(searchTerm: string): void {
+    const normalizedSearchTerm = this.normalizeString(searchTerm.trim());
     this.filteredMembers = this.members.filter((member) =>
-      member.name.toLowerCase().includes(searchTerm.trim().toLowerCase()),
+      member.name ? this.normalizeString(member.name).includes(normalizedSearchTerm) : false,
     );
     this.memberPageIndex = 0;
     this.updatePaginatedMembers();
   }
 
-  applyGuestFilter(searchTerm: string) {
+  applyGuestFilter(searchTerm: string): void {
+    const normalizedSearchTerm = this.normalizeString(searchTerm.trim());
     this.filteredGuests = this.guests.filter((guest) =>
-      guest.name.toLowerCase().includes(searchTerm.trim().toLowerCase()),
+      guest.name ? this.normalizeString(guest.name).includes(normalizedSearchTerm) : false,
     );
     this.guestPageIndex = 0;
     this.updatePaginatedGuests();
+  }
+
+  private normalizeString(value: string): string {
+    return value
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
   }
 
   updatePaginatedMembers() {

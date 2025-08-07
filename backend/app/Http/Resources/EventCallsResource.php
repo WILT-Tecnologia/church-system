@@ -23,7 +23,8 @@ class EventCallsResource extends JsonResource
             ],
             'event' => [
                 'id' => $this->evento->id,
-                'name' => $this->evento->name
+                'name' => $this->evento->name,
+                'event_type' => $this->evento->eventType
             ],
             'theme' => $this->theme,
             'start_date' => $this->start_date ? Carbon::parse($this->start_date)->format('Y-m-d') : null,

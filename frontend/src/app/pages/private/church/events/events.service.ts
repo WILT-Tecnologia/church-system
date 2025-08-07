@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 import { Events } from 'app/model/Events';
 import { EventTypes } from 'app/model/EventTypes';
@@ -15,7 +15,9 @@ export class EventsService {
   private apiUrl = `${environment.apiUrl}/church/eventos`;
 
   findByEventType(eventType: EventTypes): Observable<Events[]> {
-    return this.http.get<Events[]>(`${this.apiUrl}/type/${eventType.id}`);
+    return this.http
+      .get<Events[]>(`${this.apiUrl}/type/${eventType.id}`)
+      .pipe(map((events) => events.filter((event) => event.eventType?.status === true)));
   }
 
   findAll(): Observable<Events[]> {

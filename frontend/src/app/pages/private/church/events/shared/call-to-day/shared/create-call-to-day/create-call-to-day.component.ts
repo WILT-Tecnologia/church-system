@@ -19,7 +19,6 @@ import { ColumnComponent } from 'app/components/column/column.component';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import { MESSAGES } from 'app/components/toast/messages';
 import { CallToDay, Events } from 'app/model/Events';
-import { EventsService } from 'app/pages/private/church/events/events.service';
 import { NotificationService } from 'app/services/notification/notification.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 import { provideNgxMask } from 'ngx-mask';
@@ -58,7 +57,6 @@ export class CreateCallToDayComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private validationService: ValidationService,
     private notification: NotificationService,
-    private eventsService: EventsService,
     private dialogRef: MatDialogRef<CreateCallToDayComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { calltoDay?: CallToDay; event?: Events },
   ) {

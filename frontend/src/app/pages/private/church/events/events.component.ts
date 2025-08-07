@@ -40,6 +40,7 @@ import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
+import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { TabCrudComponent } from 'app/components/tab-crud/tab-crud.component';
 import { CrudConfig, TabConfig } from 'app/components/tab-crud/types';
 import { MESSAGES } from 'app/components/toast/messages';
@@ -82,6 +83,7 @@ dayjs.extend(isSameOrBefore);
     FullCalendarModule,
     TabCrudComponent,
     AsyncPipe,
+    NotFoundRegisterComponent,
   ],
   providers: [FormatsPipe],
 })
@@ -152,7 +154,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   private refreshSubject = new Subject<void>();
   private calendarToggleSubject = new Subject<void>();
   currentEvents = signal<EventApi[]>([]);
-  calendarVisible = signal(false);
+  calendarVisible = signal(true);
   calendarVisibleValue = this.calendarVisible.asReadonly();
   hoveredEventId: string | null = null;
   private eventCache = new Map<string, any>();
@@ -307,14 +309,14 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   };
 
-  updateCalendarOptions() {
+  private updateCalendarOptions() {
     this.calendarOptions.update((options) => ({
       ...options,
       ...(this.isMobile ? this.mobileCalendarOptions : this.desktopCalendarOptions),
     }));
   }
 
-  refreshData() {
+  private refreshData() {
     this.refreshSubject.next();
   }
 
@@ -477,6 +479,8 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       true,
       true,
       { event },
+      '',
+      true,
     );
   }
 
@@ -487,7 +491,9 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       `Chamada para o evento ${event.name}`,
       true,
       true,
-      { event },
+      { event: event, event_id: event.id },
+      '',
+      true,
     );
   }
 
@@ -504,7 +510,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  handleEdit(event: Events) {
+  private handleEdit(event: Events) {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       EventsFormComponent,
@@ -524,7 +530,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  handleDelete(event: Events) {
+  private handleDelete(event: Events) {
     this.confirmService
       .openConfirm('Excluir evento', `Tem certeza que deseja excluir o evento ${event.name}?`, 'Confirmar', 'Cancelar')
       .afterClosed()
@@ -572,16 +578,16 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     return lines.join('\n');
   }
 
-  isHovered(eventId: string): boolean {
+  private isHovered(eventId: string): boolean {
     return this.hoveredEventId === eventId;
   }
 
-  onEventHover(eventId: string) {
+  private onEventHover(eventId: string) {
     this.hoveredEventId = eventId;
     this.cdr.detectChanges();
   }
 
-  onEventLeave() {
+  private onEventLeave() {
     this.hoveredEventId = null;
     this.cdr.detectChanges();
   }

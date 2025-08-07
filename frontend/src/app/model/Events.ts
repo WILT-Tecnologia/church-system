@@ -3,17 +3,6 @@ import { EventTypes } from './EventTypes';
 import { Members } from './Members';
 import { User } from './User';
 
-export type EventData = {
-  event: Events;
-  event_id: string;
-  name: string;
-  date: string;
-  time: string;
-  theme: string;
-  type: string;
-  observations?: string;
-};
-
 export type Events = {
   id: string;
   church?: Church;

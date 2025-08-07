@@ -46,6 +46,8 @@
             [dataService]="findEventsByTabIdAdapter"
             (addFn)="handleCreate()"
           ></app-tab-crud>
+        } @else {
+          <app-not-found-register (add)="handleCreate()"></app-not-found-register>
         }
       </ng-container>
     }

@@ -90,7 +90,6 @@ export class EventsFormComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.findAllEventTypes();
     this.checkEditMode();
-    /* this.findAllChurchs(); */
     this.loadChurchFromLocalStorage();
   }
 
@@ -99,18 +98,6 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /* private initializeDate(dateStr: string | undefined | null): Date | null {
-    if (!dateStr) return null;
-    try {
-      const dateWithoutTimezone = new Date(dateStr + 'T00:00:00');
-      const userTimezoneOffset = dateWithoutTimezone.getTimezoneOffset() * 60000;
-      return new Date(dateWithoutTimezone.getTime() + userTimezoneOffset);
-    } catch (e) {
-      console.error('Error initializing date:', e);
-      return null;
-    }
-  } */
-
   private createForm = (): FormGroup => {
     return this.fb.group({
       id: [this.data.event?.id ?? ''],
@@ -118,31 +105,6 @@ export class EventsFormComponent implements OnInit, OnDestroy {
       church_id: [this.data.event?.church?.id ?? '', [Validators.required]],
       event_type_id: [this.data.event?.eventType?.id ?? '', [Validators.required]],
       obs: [this.data.event?.obs ?? '', [Validators.maxLength(255)]],
-      /* theme: [
-        this.data.event?.theme ?? '',
-        [Validators.minLength(3), Validators.maxLength(255)],
-      ],
-      start_date: [
-        this.initializeDate(this.data.event?.start_date),
-        [Validators.required],
-      ],
-      end_date: [
-        this.initializeDate(this.data.event?.end_date),
-        [Validators.required],
-      ],
-      start_time: [
-        this.data.event?.start_time
-          ? this.formatTime(this.data.event.start_time)
-          : '',
-        [Validators.required],
-      ],
-      end_time: [
-        this.data.event?.end_time
-          ? this.formatTime(this.data.event.end_time)
-          : '',
-        [Validators.required],
-      ],
-      location: [this.data.event?.location ?? '', Validators.maxLength(255)], */
     });
   };
 
@@ -158,23 +120,12 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     if (this.data?.event) {
       this.isEditMode = true;
 
-      /* const startDate = this.initializeDate(this.data.event.start_date);
-      const endDate = this.initializeDate(this.data.event.end_date);
-      const formattedStartTime = this.formatTime(this.data.event.start_time);
-      const formattedEndTime = this.formatTime(this.data.event.end_time); */
-
       this.eventForm.patchValue({
         id: this.data.event.id,
         name: this.data.event.name,
         church_id: this.data.event.church?.id,
         event_type_id: this.data.event.eventType?.id,
         obs: this.data.event.obs,
-        /* theme: this.data.event.theme,
-        location: this.data.event.location,
-        start_date: startDate,
-        end_date: endDate,
-        start_time: formattedStartTime || '',
-        end_time: formattedEndTime || '', */
       });
 
       if (this.data.event.church) {
@@ -214,26 +165,6 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  private findAllChurchs = () => {
-    this.churchsService.getChurch().subscribe({
-      next: (data) => {
-        this.church = data;
-        this.showAllChurchs();
-
-        if (this.isEditMode && this.data?.event?.church) {
-          const currentChurch = this.church.find((c) => c.id === this.data.event?.church?.id);
-          if (currentChurch) {
-            this.searchChurchControl.setValue(currentChurch.name);
-          }
-        }
-      },
-      error: (error) => {
-        this.notification.onError(error?.error?.message ?? MESSAGES.LOADING_ERROR);
-      },
-      complete: () => this.hideLoading(),
-    });
-  };
-
   private findAllEventTypes = () => {
     this.eventTypesService.findAll().subscribe({
       next: (data) => {
@@ -253,21 +184,25 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     });
   };
 
-  showAllChurchs = () => {
+  showAllChurchs() {
     this.filterChurch = this.searchChurchControl.valueChanges.pipe(
       startWith(this.searchChurchControl.value || ''),
       map((value: any) => (typeof value === 'string' ? value : (value?.name ?? ''))),
       map((name) => (name.length >= 1 ? this._filterChurch(name) : this.church.slice())),
     );
-  };
+  }
 
-  showAllEventTypes = () => {
+  showAllEventTypes() {
     this.filterEventTypes = this.searchEventTypeControl.valueChanges.pipe(
       startWith(''),
       map((value: any) => (typeof value === 'string' ? value : (value?.name ?? ''))),
-      map((name) => (name.length >= 1 ? this._filterEventType(name) : this.eventType.slice())),
+      map((name) =>
+        name.length >= 1
+          ? this._filterEventType(name).filter((et) => et.status)
+          : this.eventType.slice().filter((et) => et.status),
+      ),
     );
-  };
+  }
 
   private _filterChurch = (name: string): Church[] => {
     const filterValue = name.toLowerCase();
@@ -290,65 +225,6 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     this.searchEventTypeControl.setValue(eventType.name);
     this.eventForm.get('event_type_id')?.setValue(eventType.id);
   };
-
-  /* clearDate(fieldName: string) {
-    this.eventForm.get(fieldName)?.reset();
-  }
-
-  openCalendarStartDate(): void {
-    if (this.startDatePicker) {
-      this.startDatePicker.open();
-    }
-  }
-
-  openCalendarEndDate(): void {
-    if (this.endDatePicker) {
-      this.endDatePicker.open();
-    }
-  } */
-
-  /* formatDate(date: Date | string | null | undefined): string | null {
-    if (!date) return null;
-
-    const d = new Date(date);
-
-    if (isNaN(d.getTime())) return null;
-
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-
-    return `${year}-${month}-${day}`;
-  }
-
-  formatTime(time: string | Date | null | undefined): string | null {
-    if (!time) return null;
-
-    if (time instanceof Date) {
-      const hours = String(time.getHours()).padStart(2, '0');
-      const minutes = String(time.getMinutes()).padStart(2, '0');
-      return `${hours}:${minutes}`;
-    }
-
-    if (typeof time === 'string') {
-      const timeMatch = time.match(/^(\d{1,2}):(\d{2})(:\d{2})?$/);
-      if (timeMatch) {
-        const hours = String(timeMatch[1]).padStart(2, '0');
-        const minutes = String(timeMatch[2]).padStart(2, '0');
-        return `${hours}:${minutes}`;
-      }
-
-      const dateObj = new Date(time);
-      if (!isNaN(dateObj.getTime())) {
-        const hours = String(dateObj.getHours()).padStart(2, '0');
-        const minutes = String(dateObj.getMinutes()).padStart(2, '0');
-        return `${hours}:${minutes}`;
-      }
-    }
-
-    console.warn('formatTime: Unrecognized time format or value:', time);
-    return null;
-  } */
 
   private markFormGroupTouched(formGroup: FormGroup) {
     Object.values(formGroup.controls).forEach((control) => {
@@ -387,10 +263,6 @@ export class EventsFormComponent implements OnInit, OnDestroy {
 
     const events: Events = {
       ...formValues,
-      /* start_date: this.formatDate(formValues.start_date),
-      end_date: this.formatDate(formValues.end_date),
-      start_time: this.formatTime(formValues.start_time),
-      end_time: this.formatTime(formValues.end_time), */
     };
 
     if (this.isEditMode) {
@@ -400,8 +272,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     }
   };
 
-  handleCreate = (events: Events) => {
-    this.showLoading();
+  handleCreate(events: Events) {
     this.eventsService.create(events).subscribe({
       next: () => {
         this.hideLoading();
@@ -413,10 +284,9 @@ export class EventsFormComponent implements OnInit, OnDestroy {
         this.notification.onError(MESSAGES.CREATE_ERROR);
       },
     });
-  };
+  }
 
-  handleUpdate = (events: Events) => {
-    this.showLoading();
+  handleUpdate(events: Events) {
     this.eventsService.update(events).subscribe({
       next: () => {
         this.notification.onSuccess(MESSAGES.UPDATE_SUCCESS);
@@ -428,5 +298,5 @@ export class EventsFormComponent implements OnInit, OnDestroy {
       },
       complete: () => this.hideLoading(),
     });
-  };
+  }
 }

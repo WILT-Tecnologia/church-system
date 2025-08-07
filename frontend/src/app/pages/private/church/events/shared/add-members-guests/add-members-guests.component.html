@@ -2,7 +2,7 @@
   <div class="wrapper">
     <mat-card appearance="outlined" class="participants-list">
       <mat-card-header>
-        <mat-card-title>Participantes Adicionados</mat-card-title>
+        <mat-card-title class="title">Participantes Adicionados</mat-card-title>
       </mat-card-header>
       <mat-card-content>
         <mat-chip-listbox>
@@ -43,7 +43,7 @@
         </div>
         <mat-divider class="divider"></mat-divider>
         <app-column [columns]="3">
-          @for (member of paginatedMembers; track member.id) {
+          @for (member of paginatedMembers; track $index) {
             <app-chip [chip]="member" (selectionChange)="onMemberSelectionChange($event)"></app-chip>
           } @empty {
             <mat-chip-listbox hideSingleSelectionIndicator="true" class="chip-list">
