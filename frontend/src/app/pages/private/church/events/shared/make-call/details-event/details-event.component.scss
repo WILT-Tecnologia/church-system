@@ -1,0 +1,38 @@
+.details-event-container {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.card-header {
+  padding: 1rem;
+}
+
+.title {
+  font-size: 1.25rem;
+}
+
+.event-details {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.detail-item {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  width: 100%;
+}
+
+.label {
+  font-size: 0.875rem;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.no-details-message {
+  color: var(--neutral-40);
+  text-align: center;
+  padding: 16px;
+}

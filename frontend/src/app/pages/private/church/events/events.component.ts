@@ -307,14 +307,14 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   };
 
-  updateCalendarOptions() {
+  private updateCalendarOptions() {
     this.calendarOptions.update((options) => ({
       ...options,
       ...(this.isMobile ? this.mobileCalendarOptions : this.desktopCalendarOptions),
     }));
   }
 
-  refreshData() {
+  private refreshData() {
     this.refreshSubject.next();
   }
 
@@ -477,6 +477,8 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       true,
       true,
       { event },
+      '',
+      true,
     );
   }
 
@@ -487,7 +489,9 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       `Chamada para o evento ${event.name}`,
       true,
       true,
-      { event },
+      { event: event, event_id: event.id },
+      '',
+      true,
     );
   }
 
@@ -504,7 +508,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  handleEdit(event: Events) {
+  private handleEdit(event: Events) {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       EventsFormComponent,
@@ -524,7 +528,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  handleDelete(event: Events) {
+  private handleDelete(event: Events) {
     this.confirmService
       .openConfirm('Excluir evento', `Tem certeza que deseja excluir o evento ${event.name}?`, 'Confirmar', 'Cancelar')
       .afterClosed()
@@ -572,16 +576,16 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     return lines.join('\n');
   }
 
-  isHovered(eventId: string): boolean {
+  private isHovered(eventId: string): boolean {
     return this.hoveredEventId === eventId;
   }
 
-  onEventHover(eventId: string) {
+  private onEventHover(eventId: string) {
     this.hoveredEventId = eventId;
     this.cdr.detectChanges();
   }
 
-  onEventLeave() {
+  private onEventLeave() {
     this.hoveredEventId = null;
     this.cdr.detectChanges();
   }

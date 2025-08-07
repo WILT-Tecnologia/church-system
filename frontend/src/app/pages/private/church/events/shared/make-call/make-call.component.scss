@@ -1,26 +1,6 @@
 .make-call-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 16px;
-
-  .event-details,
-  .participants,
-  .call-to-day {
-    width: 100%;
-  }
-
-  .call-item {
-    margin-bottom: 16px;
-  }
-
-  .actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
-
-  mat-card-content p {
-    margin: 8px 0;
-  }
+  padding: 1rem;
+  gap: 1rem;
 }

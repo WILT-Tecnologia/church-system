@@ -135,6 +135,18 @@ body {
   width: 100% !important;
 }
 
+.bold {
+  font-weight: bold;
+}
+
+.black {
+  font-weight: 800;
+}
+
+.extra-black {
+  font-weight: 900;
+}
+
 .cep-field {
   max-width: 10dvw;
 
@@ -411,12 +423,14 @@ mat-form-field {
 .mat-mdc-unelevated-button,
 .mat-mdc-raised-button,
 .mat-mdc-fab,
-.mat-mdc-mini-fab {
+.mat-mdc-mini-fab,
+.mat-expansion-panel {
   border-radius: 0.2rem !important;
 }
 
 .mat-mdc-card-outlined,
-.mat-mdc-card {
+.mat-mdc-card,
+.mat-expansion-panel {
   background-color: var(--white-color) !important;
 }
 
