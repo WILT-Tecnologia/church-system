@@ -40,6 +40,7 @@ import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
+import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { TabCrudComponent } from 'app/components/tab-crud/tab-crud.component';
 import { CrudConfig, TabConfig } from 'app/components/tab-crud/types';
 import { MESSAGES } from 'app/components/toast/messages';
@@ -82,6 +83,7 @@ dayjs.extend(isSameOrBefore);
     FullCalendarModule,
     TabCrudComponent,
     AsyncPipe,
+    NotFoundRegisterComponent,
   ],
   providers: [FormatsPipe],
 })
@@ -152,7 +154,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   private refreshSubject = new Subject<void>();
   private calendarToggleSubject = new Subject<void>();
   currentEvents = signal<EventApi[]>([]);
-  calendarVisible = signal(false);
+  calendarVisible = signal(true);
   calendarVisibleValue = this.calendarVisible.asReadonly();
   hoveredEventId: string | null = null;
   private eventCache = new Map<string, any>();
