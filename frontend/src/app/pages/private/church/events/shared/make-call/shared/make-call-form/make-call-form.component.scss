@@ -1,0 +1,19 @@
+.make-call-container {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  gap: 1rem;
+
+  .autocomplete {
+    width: 100%;
+    max-width: 500px;
+  }
+
+  mat-accordion {
+    width: 100%;
+  }
+
+  app-column {
+    margin-top: 1rem;
+  }
+}

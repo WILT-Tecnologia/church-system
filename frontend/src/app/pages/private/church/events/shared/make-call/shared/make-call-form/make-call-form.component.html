@@ -1,0 +1,77 @@
+<div class="make-call-container">
+  <form [formGroup]="makeCallForm">
+    <mat-accordion [multi]="false">
+      <mat-expansion-panel
+        [expanded]="detailsEvent()"
+        (opened)="detailsEvent.set(true)"
+        (closed)="detailsEvent.set(false)"
+      >
+        <mat-expansion-panel-header>
+          <mat-panel-title>Detalhes do evento</mat-panel-title>
+        </mat-expansion-panel-header>
+        @if (callToDays && callToDays.length > 0) {
+          <mat-form-field appearance="fill">
+            <mat-label>Chamada do dia</mat-label>
+            <input
+              type="text"
+              matInput
+              [matAutocomplete]="autoCallToDay"
+              formControlName="call_to_day_id"
+              placeholder="Selecione uma chamada do dia"
+              (focus)="showAllCallToDay()"
+              required
+            />
+            <mat-autocomplete
+              #autoCallToDay="matAutocomplete"
+              (optionSelected)="onCallToDaySelected($event)"
+              [displayWith]="displayCallToDay"
+            >
+              @for (callToDay of filterCallToDay | async; track $index) {
+                <mat-option [value]="callToDay">
+                  {{ displayCallToDay(callToDay) }}
+                </mat-option>
+              }
+            </mat-autocomplete>
+            @if (makeCallForm.get('call_to_day_id')?.invalid && makeCallForm.get('call_to_day_id')?.touched) {
+              <mat-error>{{ getErrorMessage('call_to_day_id') }}</mat-error>
+            }
+            <button
+              type="button"
+              matSuffix
+              mat-icon-button
+              aria-label="Limpar"
+              (click)="onClear()"
+              *ngIf="callToDayControl.value"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+        } @else {
+          <app-details-event></app-details-event>
+        }
+      </mat-expansion-panel>
+    </mat-accordion>
+  </form>
+
+  <mat-accordion [multi]="false">
+    <mat-expansion-panel
+      [expanded]="participants()"
+      (opened)="participants.set(true)"
+      (closed)="participants.set(false)"
+    >
+      <mat-expansion-panel-header>
+        <mat-panel-title>Participantes</mat-panel-title>
+      </mat-expansion-panel-header>
+      @if (events) {
+        <app-add-members-guests [event]="events"></app-add-members-guests>
+      }
+    </mat-expansion-panel>
+  </mat-accordion>
+
+  <app-column [columns]="2">
+    <button mat-stroked-button type="button" color="warn" (click)="closeDialog()">Cancelar</button>
+    <button mat-flat-button type="submit" color="primary" (click)="closeDialog()" [disabled]="makeCallForm.invalid">
+      Concluir
+    </button>
+  </app-column>
+</div>

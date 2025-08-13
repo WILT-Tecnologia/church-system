@@ -19,7 +19,7 @@ import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { MESSAGES } from 'app/components/toast/messages';
 import { Address } from 'app/model/Address';
-import { Guest } from 'app/model/Events';
+import { Guest } from 'app/model/Guest';
 import { NotificationService } from 'app/services/notification/notification.service';
 import { CepService } from 'app/services/search-cep/search-cep.service';
 import { ValidationService } from 'app/services/validation/validation.service';

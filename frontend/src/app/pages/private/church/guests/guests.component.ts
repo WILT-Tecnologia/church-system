@@ -12,7 +12,7 @@ import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
-import { Guest } from 'app/model/Events';
+import { Guest } from 'app/model/Guest';
 
 import { GuestsFormComponent } from './guests-form/guests-form.component';
 import { GuestsService } from './guests.service';

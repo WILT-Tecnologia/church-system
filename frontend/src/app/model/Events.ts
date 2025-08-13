@@ -1,5 +1,6 @@
 import { Church } from './Church';
 import { EventTypes } from './EventTypes';
+import { Guest } from './Guest';
 import { Members } from './Members';
 import { User } from './User';
 
@@ -35,27 +36,18 @@ export type CallToDay = {
   location: string;
 };
 
+export type MakeCall = {
+  id: string;
+  participants?: Members[];
+  guests?: Guest[];
+  callToDay?: CallToDay[];
+  created_at?: string;
+  updated_at?: string;
+};
+
 export type ParticipantAndGuest = {
   id: string;
   name: string;
   selected: boolean;
   isGuest?: boolean;
-};
-
-export type Guest = {
-  id: string;
-  person_id?: string;
-  name: string;
-  phone_one: string;
-  phone_two: string;
-  member: Members;
-  member_id: string;
-  cep: string;
-  street: string;
-  number: string;
-  complement: string;
-  district: string;
-  city: string;
-  state: string;
-  country: string;
 };
