@@ -103,4 +103,9 @@ class Member extends Model
     {
         return $this->belongsToMany(Evento::class, 'event_participants', 'member_id');
     }
+
+    public function frequency(): BelongsTo
+    {
+        return $this->belongsTo(Frequency::class);
+    }
 }
