@@ -28,27 +28,14 @@ class FrequencyController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(Frequency $frequency) {
-        return new FrequencyResource(($frequency));
-    }
-
-    /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateFrequencyRequest $request, Frequency $frequency) {
-        $frequency->update($request->validated());
+    public function update(UpdateFrequencyRequest $request, $id1, $id2, $id3) {
 
+        // dd($id3);
+        $frequency = Frequency::find($id3);
+        $frequency->update($request->validated());
         return new FrequencyResource($frequency);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Frequency $frequency) {
-        $frequency->delete();
-
-        return response()->json([], 204);
-    }
 }

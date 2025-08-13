@@ -19,7 +19,7 @@ return new class extends Migration
             $table->boolean('present')->default(false);
             $table->timestamps();
 
-            $table->foreign('event_call_id')->references('id')->on('events_calls')->onDelete('cascade');
+            $table->foreign('event_call_id')->references('id')->on('event_calls')->onDelete('cascade');
             $table->foreign('member_id')->references('id')->on('members')->onDelete('cascade');
             $table->foreign('guest_id')->references('id')->on('persons')->onDelete('cascade');
         });

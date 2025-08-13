@@ -23,8 +23,8 @@ class StoreFrequencyRequest extends FormRequest
     {
         return [
             'event_call_id' => ['required', 'exists:event_calls,id'],
-            'member_id' => ['sometimes', 'required', 'exists:members,id'],
-            'guest_id' => ['sometimes', 'required', 'exists:persons,id'],
+            'member_id' => ['nullable', 'exists:members,id'],
+            'guest_id' => ['nullable', 'exists:persons,id'],
             'present' => ['boolean']
         ];
     }

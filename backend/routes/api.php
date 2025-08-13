@@ -36,6 +36,7 @@ Route::prefix('church')->middleware(['cors', 'auth:sanctum'])->group(function ()
     Route::post('eventos/{evento}/guests', [\App\Http\Controllers\Api\EventoController::class, 'adicionarConvidado']);
     Route::delete('eventos/{evento}/guests', [\App\Http\Controllers\Api\EventoController::class, 'removerConvidado']);
     Route::apiResource('eventos/{evento}/calls', \App\Http\Controllers\Api\EventCallsController::class);
+    Route::apiResource('eventos/{evento}/calls/{eventCall}/frequencies', \App\Http\Controllers\Api\FrequencyController::class);
     /* Route::prefix('evento')->group(function () {
         Route::apiResource('/', \App\Http\Controllers\Api\EventoController::class);
     });

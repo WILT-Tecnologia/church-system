@@ -12,9 +12,10 @@ class Frequency extends Model
     use HasFactory;
     use HasUuids;
 
-    protected $table = 'frequncies';
+    protected $table = 'frequencies';
 
     protected $primaryKey = 'id';
+
 
     protected $fillable = [
         'id',
