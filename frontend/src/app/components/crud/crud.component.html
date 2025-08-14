@@ -147,42 +147,47 @@
               </button>
               <mat-menu #menu="matMenu">
                 @for (action of actions; track $index) {
-                  @if (action.type === 'toggle') {
-                    <div class="toggle">
+                  @if (
+                    action.visible === undefined ||
+                    (typeof action.visible === 'function' ? action.visible(fields) : action.visible)
+                  ) {
+                    @if (action.type === 'toggle') {
+                      <div class="toggle">
+                        <button
+                          mat-flat-button
+                          [matTooltip]="tooltipLabel"
+                          [color]="fields.status ? 'warn' : 'primary'"
+                          (click)="action.action(fields)"
+                          type="button"
+                        >
+                          @if (action.icon) {
+                            <mat-icon>{{ action.icon }}</mat-icon>
+                          }
+                          <span>
+                            {{ fields.status ? 'Desativar' : 'Ativar' }}
+                          </span>
+                        </button>
+                      </div>
+                    }
+                    @if (action.type !== 'toggle') {
                       <button
-                        mat-flat-button
-                        [matTooltip]="tooltipLabel"
-                        [color]="fields.status ? 'warn' : 'primary'"
+                        mat-menu-item
+                        [matTooltip]="action.tooltip || ''"
                         (click)="action.action(fields)"
                         type="button"
                       >
                         @if (action.icon) {
-                          <mat-icon>{{ action.icon }}</mat-icon>
+                          <mat-icon [color]="action.color || 'primary'">
+                            {{ action.icon }}
+                          </mat-icon>
                         }
-                        <span>
-                          {{ fields.status ? 'Desativar' : 'Ativar' }}
-                        </span>
+                        @if (action.label) {
+                          <span [class]="action.type === 'delete' ? 'delete' : ''">
+                            {{ action.label }}
+                          </span>
+                        }
                       </button>
-                    </div>
-                  }
-                  @if (action.type !== 'toggle') {
-                    <button
-                      mat-menu-item
-                      [matTooltip]="action.tooltip || ''"
-                      (click)="action.action(fields)"
-                      type="button"
-                    >
-                      @if (action.icon) {
-                        <mat-icon [color]="action.color || 'primary'">
-                          {{ action.icon }}
-                        </mat-icon>
-                      }
-                      @if (action.label) {
-                        <span [class]="action.type === 'delete' ? 'delete' : ''">
-                          {{ action.label }}
-                        </span>
-                      }
-                    </button>
+                    }
                   }
                 }
               </mat-menu>

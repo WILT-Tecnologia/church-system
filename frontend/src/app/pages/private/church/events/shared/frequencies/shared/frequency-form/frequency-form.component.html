@@ -1,5 +1,5 @@
 <div class="make-call-container">
-  <form [formGroup]="makeCallForm">
+  <form [formGroup]="frequencyForm">
     <mat-accordion [multi]="false">
       <mat-expansion-panel
         [expanded]="detailsEvent()"
@@ -9,45 +9,38 @@
         <mat-expansion-panel-header>
           <mat-panel-title>Detalhes do evento</mat-panel-title>
         </mat-expansion-panel-header>
-        @if (callToDays && callToDays.length > 0) {
+        @if (callToDays().length > 0) {
           <mat-form-field appearance="fill">
             <mat-label>Chamada do dia</mat-label>
             <input
               type="text"
               matInput
               [matAutocomplete]="autoCallToDay"
-              formControlName="call_to_day_id"
+              [formControl]="callToDayControl"
               placeholder="Selecione uma chamada do dia"
-              (focus)="showAllCallToDay()"
-              required
             />
             <mat-autocomplete
               #autoCallToDay="matAutocomplete"
               (optionSelected)="onCallToDaySelected($event)"
               [displayWith]="displayCallToDay"
             >
-              @for (callToDay of filterCallToDay | async; track $index) {
+              @for (callToDay of filteredCallToDays(); track callToDay.id) {
                 <mat-option [value]="callToDay">
                   {{ displayCallToDay(callToDay) }}
                 </mat-option>
               }
             </mat-autocomplete>
-            @if (makeCallForm.get('call_to_day_id')?.invalid && makeCallForm.get('call_to_day_id')?.touched) {
-              <mat-error>{{ getErrorMessage('call_to_day_id') }}</mat-error>
+            @if (frequencyForm.get('event_call_id')?.invalid && frequencyForm.get('event_call_id')?.touched) {
+              <mat-error>{{ getErrorMessage('event_call_id') }}</mat-error>
             }
-            <button
-              type="button"
-              matSuffix
-              mat-icon-button
-              aria-label="Limpar"
-              (click)="onClear()"
-              *ngIf="callToDayControl.value"
-            >
-              <mat-icon>close</mat-icon>
-            </button>
+            @if (callToDayControl.value) {
+              <button type="button" matSuffix mat-icon-button aria-label="Limpar" (click)="onClear()">
+                <mat-icon>close</mat-icon>
+              </button>
+            }
           </mat-form-field>
         } @else {
-          <app-details-event></app-details-event>
+          <p>Nenhuma chamada do dia disponível</p>
         }
       </mat-expansion-panel>
     </mat-accordion>
@@ -55,22 +48,30 @@
 
   <mat-accordion [multi]="false">
     <mat-expansion-panel
-      [expanded]="participants()"
-      (opened)="participants.set(true)"
-      (closed)="participants.set(false)"
+      [expanded]="participantsSignal()"
+      (opened)="participantsSignal.set(true)"
+      (closed)="participantsSignal.set(false)"
     >
       <mat-expansion-panel-header>
         <mat-panel-title>Participantes</mat-panel-title>
       </mat-expansion-panel-header>
-      @if (events) {
-        <app-add-members-guests [event]="events"></app-add-members-guests>
-      }
+      <app-add-members-guests
+        [event]="event()"
+        [isDisabled]="isPastDate()"
+        (selectionChange)="onSelectionChange($event)"
+      ></app-add-members-guests>
     </mat-expansion-panel>
   </mat-accordion>
 
   <app-column [columns]="2">
     <button mat-stroked-button type="button" color="warn" (click)="closeDialog()">Cancelar</button>
-    <button mat-flat-button type="submit" color="primary" (click)="closeDialog()" [disabled]="makeCallForm.invalid">
+    <button
+      mat-flat-button
+      type="submit"
+      color="primary"
+      (click)="save()"
+      [disabled]="frequencyForm.invalid || isPastDate()"
+    >
       Concluir
     </button>
   </app-column>

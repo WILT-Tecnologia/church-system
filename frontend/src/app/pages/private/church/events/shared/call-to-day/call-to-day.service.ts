@@ -17,8 +17,8 @@ export class CallToDayService {
     return this.http.get<CallToDay[]>(`${this.apiUrl}/${eventId}/calls`);
   }
 
-  findById(eventId: string, callId: string): Observable<CallToDay> {
-    return this.http.get<CallToDay>(`${this.apiUrl}/${eventId}/calls/${callId}`);
+  findById(eventId: string, callId: string): Observable<CallToDay[]> {
+    return this.http.get<CallToDay[]>(`${this.apiUrl}/${eventId}/calls/${callId}`);
   }
 
   create(eventId: string, callToDay: Partial<CallToDay>): Observable<CallToDay> {

@@ -2,9 +2,10 @@ import { Church } from './Church';
 import { EventTypes } from './EventTypes';
 import { Guest } from './Guest';
 import { Members } from './Members';
+import { Person } from './Person';
 import { User } from './User';
 
-export type Events = {
+export interface Events {
   id: string;
   church?: Church;
   eventType?: EventTypes;
@@ -14,6 +15,7 @@ export type Events = {
   obs?: string;
   participants?: Members[];
   guests?: Guest[];
+  frequencies?: Frequency[];
   participantAndGuests?: ParticipantAndGuest[];
   callToDay?: CallToDay;
   created_at?: string;
@@ -22,9 +24,9 @@ export type Events = {
   updated_by?: User | null;
   combinedCreatedByAndCreatedAt?: string;
   combinedUpdatedByAndUpdatedAt?: string;
-};
+}
 
-export type CallToDay = {
+export interface CallToDay {
   id: string;
   event: Events;
   event_id: string;
@@ -34,20 +36,23 @@ export type CallToDay = {
   start_time: string;
   end_time: string;
   location: string;
-};
+}
 
-export type MakeCall = {
-  id: string;
-  participants?: Members[];
-  guests?: Guest[];
-  callToDay?: CallToDay[];
-  created_at?: string;
-  updated_at?: string;
-};
-
-export type ParticipantAndGuest = {
+export interface ParticipantAndGuest {
   id: string;
   name: string;
   selected: boolean;
   isGuest?: boolean;
-};
+}
+
+export interface Frequency {
+  id: string;
+  event_call_id: string;
+  member_id?: string;
+  guest_id?: string;
+  present: boolean;
+  event_call?: CallToDay;
+  participants?: Members[] | Person[];
+  member?: Members;
+  guest?: Person;
+}

@@ -56,7 +56,7 @@ import { EventsService } from './events.service';
 import { AddMembersGuestsComponent } from './shared/add-members-guests/add-members-guests.component';
 import { CallToDayComponent } from './shared/call-to-day/call-to-day.component';
 import { EventsFormComponent } from './shared/events-form/events-form.component';
-import { MakeCallComponent } from './shared/make-call/make-call.component';
+import { FrequenciesComponent } from './shared/frequencies/frequencies.component';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -120,32 +120,32 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       type: 'person_add',
       icon: 'person_add',
       label: 'Adicionar participantes',
-      action: (events: Events) => this.addMembersGuest(events),
+      action: (events: Events) => this.onAddMembersGuests(events),
     },
     {
       type: 'add_circle',
       icon: 'add_circle',
       label: 'Chamadas do dia',
-      action: (events: Events) => this.handleCreateCall(events),
+      action: (events: Events) => this.onCreateCall(events),
     },
     {
       type: 'add_circle',
       icon: 'add_circle',
-      label: 'Realizar chamada',
-      action: (events: Events) => this.handleMakeCall(events),
+      label: 'Frequências',
+      action: (events: Events) => this.onFrequency(events),
     },
     {
       type: 'edit',
       icon: 'edit',
       label: 'Editar',
-      action: (events: Events) => this.handleEdit(events),
+      action: (events: Events) => this.onEditEvent(events),
     },
     {
       type: 'delete',
       icon: 'delete',
       label: 'Excluir',
       color: 'warn',
-      action: (events: Events) => this.handleDelete(events),
+      action: (events: Events) => this.onDeleteEvent(events),
     },
   ];
   crudConfig!: CrudConfig;
@@ -271,9 +271,9 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.crudConfig = {
       columnDefinitions: this.columnDefinitions,
       actions: this.actions,
-      addFn: this.handleCreate.bind(this),
-      editFn: this.handleEdit.bind(this),
-      deleteFn: this.handleDelete.bind(this),
+      addFn: this.onCreateEvent.bind(this),
+      editFn: this.onEditEvent.bind(this),
+      deleteFn: this.onDeleteEvent.bind(this),
       enableToggleStatus: true,
     };
   }
@@ -309,6 +309,58 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   };
 
+  formatTooltip(data: { event: Events; callToDay: CallToDay | null }): string {
+    const { event, callToDay } = data;
+    if (!event || !callToDay) {
+      return 'Evento ou detalhes da chamada não encontrados';
+    }
+    if (!event.eventType) {
+      return 'Tipo de evento não especificado';
+    }
+    if (!callToDay.start_date && !callToDay.end_date) {
+      return 'Data de início e fim não especificadas';
+    }
+    const lines = [
+      `Tipo: ${event.eventType.name}`,
+      `Início: ${callToDay.start_date ? this.format.dateFormat(callToDay.start_date) : 'Não especificado'}${callToDay.start_time ? ' às ' + callToDay.start_time : ''}`,
+      `Fim: ${callToDay.end_date ? this.format.dateFormat(callToDay.end_date) : 'Não especificado'}${callToDay.end_time ? ' às ' + callToDay.end_time : ''}`,
+    ];
+    if (callToDay.location) {
+      lines.push(`Local: ${callToDay.location}`);
+    }
+    if (event.obs) {
+      lines.push(`Observação: ${event.obs}`);
+    }
+    return lines.join('\n');
+  }
+
+  handleEnableCalendar() {
+    this.calendarVisible.update((calendarVisible) => !calendarVisible);
+    this.calendarToggleSubject.next();
+    if (this.calendarVisible() && this.calendarComponent?.getApi()) {
+      const calendarApi = this.calendarComponent.getApi();
+      const existingEventIds = new Set(calendarApi.getEvents().map((e) => e.id));
+      const newEvents = this.mapEvents(this.events).filter((e) => !existingEventIds.has(e.id));
+      newEvents.forEach((event) => calendarApi.addEvent(event));
+      calendarApi.render();
+      calendarApi.updateSize();
+      this.cdr.detectChanges();
+    }
+  }
+
+  onCreateEvent() {
+    const modal = this.modal.openModal(`modal-${Math.random()}`, EventsFormComponent, 'Adicionar evento', true, true);
+    modal
+      .afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((result) => {
+        if (result) {
+          this.loadEvents();
+          this.refreshData();
+        }
+      });
+  }
+
   private updateCalendarOptions() {
     this.calendarOptions.update((options) => ({
       ...options,
@@ -326,20 +378,6 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private hideLoading() {
     this.loading.hide();
-  }
-
-  handleEnableCalendar() {
-    this.calendarVisible.update((calendarVisible) => !calendarVisible);
-    this.calendarToggleSubject.next();
-    if (this.calendarVisible() && this.calendarComponent?.getApi()) {
-      const calendarApi = this.calendarComponent.getApi();
-      const existingEventIds = new Set(calendarApi.getEvents().map((e) => e.id));
-      const newEvents = this.mapEvents(this.events).filter((e) => !existingEventIds.has(e.id));
-      newEvents.forEach((event) => calendarApi.addEvent(event));
-      calendarApi.render();
-      calendarApi.updateSize();
-      this.cdr.detectChanges();
-    }
   }
 
   private handleWeekendsToggle() {
@@ -375,7 +413,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   private handleRemoveEventCalendar(clickInfo: EventClickArg) {
     const event = this.events.find((e) => e.id === clickInfo.event.id);
     if (event) {
-      this.handleDelete(event);
+      this.onDeleteEvent(event);
     }
   }
 
@@ -458,7 +496,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private addMembersGuest(event: Events) {
+  private onAddMembersGuests(event: Events) {
     this.modal.openModal(
       `modal-${Math.random()}`,
       AddMembersGuestsComponent,
@@ -471,7 +509,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  private handleCreateCall(event: Events) {
+  private onCreateCall(event: Events) {
     this.modal.openModal(
       `modal-${Math.random()}`,
       CallToDayComponent,
@@ -484,33 +522,20 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  private handleMakeCall(event: Events) {
+  private onFrequency(event: Events) {
     this.modal.openModal(
       `modal-${Math.random()}`,
-      MakeCallComponent,
-      `Chamada para o evento ${event.name}`,
+      FrequenciesComponent,
+      `Frequências para o evento ${event.name}`,
       true,
       true,
-      { event: event, event_id: event.id },
+      { event: event, call: event.callToDay },
       '',
       true,
     );
   }
 
-  handleCreate() {
-    const modal = this.modal.openModal(`modal-${Math.random()}`, EventsFormComponent, 'Adicionar evento', true, true);
-    modal
-      .afterClosed()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((result) => {
-        if (result) {
-          this.loadEvents();
-          this.refreshData();
-        }
-      });
-  }
-
-  private handleEdit(event: Events) {
+  private onEditEvent(event: Events) {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       EventsFormComponent,
@@ -530,7 +555,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  private handleDelete(event: Events) {
+  private onDeleteEvent(event: Events) {
     this.confirmService
       .openConfirm('Excluir evento', `Tem certeza que deseja excluir o evento ${event.name}?`, 'Confirmar', 'Cancelar')
       .afterClosed()
@@ -551,31 +576,6 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
             });
         }
       });
-  }
-
-  formatTooltip(data: { event: Events; callToDay: CallToDay | null }): string {
-    const { event, callToDay } = data;
-    if (!event || !callToDay) {
-      return 'Evento ou detalhes da chamada não encontrados';
-    }
-    if (!event.eventType) {
-      return 'Tipo de evento não especificado';
-    }
-    if (!callToDay.start_date && !callToDay.end_date) {
-      return 'Data de início e fim não especificadas';
-    }
-    const lines = [
-      `Tipo: ${event.eventType.name}`,
-      `Início: ${callToDay.start_date ? this.format.dateFormat(callToDay.start_date) : 'Não especificado'}${callToDay.start_time ? ' às ' + callToDay.start_time : ''}`,
-      `Fim: ${callToDay.end_date ? this.format.dateFormat(callToDay.end_date) : 'Não especificado'}${callToDay.end_time ? ' às ' + callToDay.end_time : ''}`,
-    ];
-    if (callToDay.location) {
-      lines.push(`Local: ${callToDay.location}`);
-    }
-    if (event.obs) {
-      lines.push(`Observação: ${event.obs}`);
-    }
-    return lines.join('\n');
   }
 
   private isHovered(eventId: string): boolean {
