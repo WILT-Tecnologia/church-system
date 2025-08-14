@@ -71,4 +71,9 @@ class Person extends Model
     {
         return $this->belongsToMany(Evento::class, 'events_guests', 'person_id');
     }
+
+    public function frequency(): BelongsTo
+    {
+        return $this->belongsTo(Frequency::class, 'guest_id');
+    }
 }
