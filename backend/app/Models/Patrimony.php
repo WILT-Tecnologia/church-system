@@ -28,6 +28,7 @@ class Patrimony extends Model
         'description',
         'type_entry',
         'price',
+        'is_member',
         'member_id',
         'donor',
         'photo'
