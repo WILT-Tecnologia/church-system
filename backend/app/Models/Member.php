@@ -108,4 +108,9 @@ class Member extends Model
     {
         return $this->belongsTo(Frequency::class);
     }
+
+    public function patrimonies(): HasMany
+    {
+        return $this->hasMany(Patrimony::class);
+    }
 }

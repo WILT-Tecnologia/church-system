@@ -56,4 +56,9 @@ class Church extends Model
     {
         return $this->members()->count();
     }
+
+    public function patrimonies(): HasMany
+    {
+        return $this->hasMany(Patrimony::class);
+    }
 }
