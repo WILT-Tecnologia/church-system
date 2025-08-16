@@ -1,6 +1,6 @@
-@if (originalFrequencies().length > 0) {
+@if (callToDays().length > 0) {
   <app-crud
-    [fields]="originalFrequencies()"
+    [fields]="callToDays()"
     [dataSourceMat]="dataSourceMat"
     [columnDefinitions]="columnDefinitions"
     (add)="onAddFrequency()"

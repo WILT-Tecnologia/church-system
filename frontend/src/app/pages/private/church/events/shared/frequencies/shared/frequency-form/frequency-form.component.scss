@@ -1,19 +1,64 @@
-.make-call-container {
+.eventCall-container {
   display: flex;
   flex-direction: column;
   padding: 1rem;
   gap: 1rem;
+}
 
-  .autocomplete {
-    width: 100%;
-    max-width: 500px;
-  }
+.eventCall-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
 
-  mat-accordion {
-    width: 100%;
-  }
+mat-accordion {
+  width: 100%;
+}
 
-  app-column {
-    margin-top: 1rem;
+.form-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+@media screen and (max-width: 600px) {
+  .form-header {
+    flex-direction: column;
   }
+}
+
+.form-header > button {
+  width: 20rem;
+}
+
+.isPastDate,
+.isNotPastDate {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 800;
+}
+
+.isPastDate {
+  color: var(--warning-color); /* cor laranja */
+}
+
+.isNotPastDate {
+  color: var(--success-color); /* cor verde */
+}
+
+@media screen and (max-width: 600px) {
+  .isPastDate,
+  .isNotPastDate {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+.panel-description {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
 }

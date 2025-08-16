@@ -8,8 +8,8 @@ import { User } from './User';
 export interface Events {
   id: string;
   church?: Church;
-  eventType?: EventTypes;
   church_id: string;
+  eventType?: EventTypes;
   event_type_id: string;
   name: string;
   obs?: string;
@@ -17,7 +17,7 @@ export interface Events {
   guests?: Guest[];
   frequencies?: Frequency[];
   participantAndGuests?: ParticipantAndGuest[];
-  callToDay?: CallToDay;
+  eventCall?: EventCall;
   created_at?: string;
   updated_at?: string;
   created_by?: User;
@@ -26,7 +26,7 @@ export interface Events {
   combinedUpdatedByAndUpdatedAt?: string;
 }
 
-export interface CallToDay {
+export interface EventCall {
   id: string;
   event: Events;
   event_id: string;
@@ -51,7 +51,7 @@ export interface Frequency {
   member_id?: string;
   guest_id?: string;
   present: boolean;
-  event_call?: CallToDay;
+  event_call?: EventCall;
   participants?: Members[] | Person[];
   member?: Members;
   guest?: Person;

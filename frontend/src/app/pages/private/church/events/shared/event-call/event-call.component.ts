@@ -10,31 +10,31 @@ import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
-import { CallToDay, Events } from 'app/model/Events';
+import { EventCall, Events } from 'app/model/Events';
 
-import { CallToDayService } from './call-to-day.service';
-import { CreateCallToDayComponent } from './shared/create-call-to-day/create-call-to-day.component';
+import { EventCallService } from './event-call.service';
+import { CreateEventCallComponent } from './shared/create-event-call/create-event-call.component';
 
 @Component({
-  selector: 'app-call-to-day',
-  templateUrl: './call-to-day.component.html',
-  styleUrl: './call-to-day.component.scss',
+  selector: 'app-event-call',
+  templateUrl: './event-call.component.html',
+  styleUrl: './event-call.component.scss',
   imports: [CrudComponent, NotFoundRegisterComponent],
 })
-export class CallToDayComponent implements OnInit {
+export class EventCallComponent implements OnInit {
   constructor(
     private toast: ToastService,
     private loading: LoadingService,
     private confirmService: ConfirmService,
     private modal: ModalService,
-    private callToDayService: CallToDayService,
+    private eventCallService: EventCallService,
     private cdr: ChangeDetectorRef,
-    private dialogRef: MatDialogRef<CallToDayComponent>,
+    private dialogRef: MatDialogRef<EventCallComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { event: Events },
   ) {}
 
-  callToDay: CallToDay[] = [];
-  dataSourceMat = new MatTableDataSource<CallToDay>(this.callToDay);
+  eventCall: EventCall[] = [];
+  dataSourceMat = new MatTableDataSource<EventCall>(this.eventCall);
   columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'event.name', header: 'Evento', type: 'string' },
     { key: 'church.name', header: 'Igreja', type: 'string' },
@@ -49,19 +49,19 @@ export class CallToDayComponent implements OnInit {
       type: 'edit',
       icon: 'edit',
       label: 'Editar',
-      action: (callToDay: CallToDay) => this.onEdit(callToDay),
+      action: (eventCall: EventCall) => this.onEdit(eventCall),
     },
     {
       type: 'delete',
       icon: 'delete',
       label: 'Excluir',
       color: 'warn',
-      action: (callToDay: CallToDay) => this.onDelete(callToDay),
+      action: (eventCall: EventCall) => this.onDelete(eventCall),
     },
   ];
 
   ngOnInit() {
-    this.loadCallToDay();
+    this.loadEventCall();
   }
 
   private onError(message: string) {
@@ -76,11 +76,11 @@ export class CallToDayComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  private loadCallToDay() {
-    this.callToDayService.findAll(this.data?.event?.id).subscribe({
-      next: (callToDay) => {
-        this.callToDay = callToDay;
-        this.dataSourceMat = new MatTableDataSource<CallToDay>(this.callToDay);
+  private loadEventCall() {
+    this.eventCallService.findAll(this.data?.event?.id).subscribe({
+      next: (eventCall) => {
+        this.eventCall = eventCall;
+        this.dataSourceMat = new MatTableDataSource<EventCall>(this.eventCall);
         this.cdr.detectChanges();
       },
       error: () => {
@@ -91,11 +91,11 @@ export class CallToDayComponent implements OnInit {
     });
   }
 
-  createCallToDay() {
+  createEventCall() {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
-      CreateCallToDayComponent,
-      'Criar chamada do dia',
+      CreateEventCallComponent,
+      'Criar chamada do evento',
       true,
       true,
       { event: this.data.event },
@@ -103,29 +103,29 @@ export class CallToDayComponent implements OnInit {
 
     modal.afterClosed().subscribe((result) => {
       if (result) {
-        this.loadCallToDay();
+        this.loadEventCall();
       }
     });
   }
 
-  private onEdit(calltoDay: CallToDay) {
+  private onEdit(eventCall: EventCall) {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
-      CreateCallToDayComponent,
+      CreateEventCallComponent,
       'Editar chamada do dia',
       true,
       true,
-      { calltoDay, event: this.data.event },
+      { eventCall, event: this.data.event },
     );
 
     modal.afterClosed().subscribe((result) => {
       if (result) {
-        this.loadCallToDay();
+        this.loadEventCall();
       }
     });
   }
 
-  private onDelete(callToDay: CallToDay) {
+  private onDelete(eventCall: EventCall) {
     this.confirmService
       .openConfirm('Excluir a chamada do dia', 'Tem certeza que deseja excluir?', 'Confirmar', 'Cancelar')
       .afterClosed()
@@ -133,15 +133,15 @@ export class CallToDayComponent implements OnInit {
         next: (confirmed) => {
           if (confirmed) {
             const eventId = this.data?.event?.id;
-            if (!eventId || !callToDay.id) {
+            if (!eventId || !eventCall.id) {
               this.onError('Evento ou chamada não encontrada!');
               return;
             }
             this.loading.show();
-            this.callToDayService.delete(eventId, callToDay.id).subscribe({
+            this.eventCallService.delete(eventId, eventCall.id).subscribe({
               next: () => {
                 this.onSuccess('Chamada do dia excluída com sucesso!');
-                this.loadCallToDay();
+                this.loadEventCall();
               },
               error: (error) => {
                 this.onError(error?.error?.error || MESSAGES.DELETE_ERROR);

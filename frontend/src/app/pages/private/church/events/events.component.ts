@@ -45,7 +45,7 @@ import { TabCrudComponent } from 'app/components/tab-crud/tab-crud.component';
 import { CrudConfig, TabConfig } from 'app/components/tab-crud/types';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
-import { CallToDay, Events } from 'app/model/Events';
+import { EventCall, Events } from 'app/model/Events';
 import { EventTypes } from 'app/model/EventTypes';
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
@@ -54,7 +54,7 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import { EventTypesService } from '../../administrative/event-types/eventTypes.service';
 import { EventsService } from './events.service';
 import { AddMembersGuestsComponent } from './shared/add-members-guests/add-members-guests.component';
-import { CallToDayComponent } from './shared/call-to-day/call-to-day.component';
+import { EventCallComponent } from './shared/event-call/event-call.component';
 import { EventsFormComponent } from './shared/events-form/events-form.component';
 import { FrequenciesComponent } from './shared/frequencies/frequencies.component';
 
@@ -106,7 +106,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('eventContent') eventContent!: TemplateRef<any>;
   breakpointObserver = inject(BreakpointObserver);
   events: Events[] = [];
-  callToDays: CallToDay[] = [];
+  eventCall: EventCall[] = [];
   eventTypes = new BehaviorSubject<EventTypes[]>([]);
   tabs: TabConfig[] = [];
   columnDefinitions: ColumnDefinitionsProps[] = [
@@ -117,6 +117,12 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   ];
   actions: ActionsProps[] = [
     {
+      type: 'edit',
+      icon: 'edit',
+      label: 'Editar',
+      action: (events: Events) => this.onEditEvent(events),
+    },
+    {
       type: 'person_add',
       icon: 'person_add',
       label: 'Adicionar participantes',
@@ -125,7 +131,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     {
       type: 'add_circle',
       icon: 'add_circle',
-      label: 'Chamadas do dia',
+      label: 'Chamadas do evento',
       action: (events: Events) => this.onCreateCall(events),
     },
     {
@@ -135,12 +141,6 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       action: (events: Events) => this.onFrequency(events),
     },
     {
-      type: 'edit',
-      icon: 'edit',
-      label: 'Editar',
-      action: (events: Events) => this.onEditEvent(events),
-    },
-    {
       type: 'delete',
       icon: 'delete',
       label: 'Excluir',
@@ -148,6 +148,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       action: (events: Events) => this.onDeleteEvent(events),
     },
   ];
+  rendering = signal(true);
   crudConfig!: CrudConfig;
   isMobile: boolean = false;
   private destroy$ = new Subject<void>();
@@ -158,7 +159,6 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   calendarVisibleValue = this.calendarVisible.asReadonly();
   hoveredEventId: string | null = null;
   private eventCache = new Map<string, any>();
-  rendering = signal(true);
   private initialTabLoadSubject = new Subject<string>();
   private mobileCalendarOptions: CalendarOptions = {
     initialView: 'listWeek',
@@ -215,10 +215,10 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
         .subscribe({
           next: (events: Events[]) => {
             const calendarEvents = this.mapEvents(events).filter((event) => {
-              const callToDay = event.extendedProps.callToDay;
-              if (!callToDay || !callToDay.start_date) return false;
-              const start = dayjs(callToDay.start_date);
-              const end = callToDay.end_date ? dayjs(callToDay.end_date) : start;
+              const eventCall = event.extendedProps.eventCall;
+              if (!eventCall || !eventCall.start_date) return false;
+              const start = dayjs(eventCall.start_date);
+              const end = eventCall.end_date ? dayjs(eventCall.end_date) : start;
               return start.isSameOrAfter(fetchInfo.startStr) && end.isSameOrBefore(fetchInfo.endStr);
             });
             successCallback(calendarEvents);
@@ -309,24 +309,24 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   };
 
-  formatTooltip(data: { event: Events; callToDay: CallToDay | null }): string {
-    const { event, callToDay } = data;
-    if (!event || !callToDay) {
+  formatTooltip(data: { event: Events; eventCall: EventCall | null }): string {
+    const { event, eventCall } = data;
+    if (!event || !eventCall) {
       return 'Evento ou detalhes da chamada não encontrados';
     }
     if (!event.eventType) {
       return 'Tipo de evento não especificado';
     }
-    if (!callToDay.start_date && !callToDay.end_date) {
+    if (!eventCall.start_date && !eventCall.end_date) {
       return 'Data de início e fim não especificadas';
     }
     const lines = [
       `Tipo: ${event.eventType.name}`,
-      `Início: ${callToDay.start_date ? this.format.dateFormat(callToDay.start_date) : 'Não especificado'}${callToDay.start_time ? ' às ' + callToDay.start_time : ''}`,
-      `Fim: ${callToDay.end_date ? this.format.dateFormat(callToDay.end_date) : 'Não especificado'}${callToDay.end_time ? ' às ' + callToDay.end_time : ''}`,
+      `Início: ${eventCall.start_date ? this.format.dateFormat(eventCall.start_date) : 'Não especificado'}${eventCall.start_time ? ' às ' + eventCall.start_time : ''}`,
+      `Fim: ${eventCall.end_date ? this.format.dateFormat(eventCall.end_date) : 'Não especificado'}${eventCall.end_time ? ' às ' + eventCall.end_time : ''}`,
     ];
-    if (callToDay.location) {
-      lines.push(`Local: ${callToDay.location}`);
+    if (eventCall.location) {
+      lines.push(`Local: ${eventCall.location}`);
     }
     if (event.obs) {
       lines.push(`Observação: ${event.obs}`);
@@ -478,17 +478,17 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
         return this.eventCache.get(event.id ?? '');
       }
 
-      const callToDay = event.callToDay || null;
+      const eventCall = event.eventCall || null;
       const mapped = {
         id: event.id ?? '',
         title: event.name,
-        start: callToDay?.start_date ? this.convertToISODate(callToDay.start_date, callToDay.start_time) : undefined,
-        end: callToDay?.end_date ? this.convertToISODate(callToDay.end_date, callToDay.end_time) : undefined,
+        start: eventCall?.start_date ? this.convertToISODate(eventCall.start_date, eventCall.start_time) : undefined,
+        end: eventCall?.end_date ? this.convertToISODate(eventCall.end_date, eventCall.end_time) : undefined,
         extendedProps: {
           eventType: event.eventType,
-          callToDay: callToDay || null,
+          eventCall: eventCall || null,
           obs: event.obs,
-          tooltip: this.formatTooltip({ event, callToDay }),
+          tooltip: this.formatTooltip({ event, eventCall: eventCall }),
         },
       };
       this.eventCache.set(event.id ?? '', mapped);
@@ -512,8 +512,8 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   private onCreateCall(event: Events) {
     this.modal.openModal(
       `modal-${Math.random()}`,
-      CallToDayComponent,
-      `Chamadas do dia para o evento ${event?.name}`,
+      EventCallComponent,
+      `Chamadas do evento`,
       true,
       true,
       { event },
@@ -529,7 +529,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       `Frequências para o evento ${event.name}`,
       true,
       true,
-      { event: event, call: event.callToDay },
+      { event: event, call: event.eventCall },
       '',
       true,
     );

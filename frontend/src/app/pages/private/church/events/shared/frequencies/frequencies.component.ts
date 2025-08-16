@@ -9,12 +9,13 @@ import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types'
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
+import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
-import { CallToDay, Events, Frequency } from 'app/model/Events';
+import { EventCall, Events } from 'app/model/Events';
 import { provideNgxMask } from 'ngx-mask';
 
 import { EventsService } from '../../events.service';
-import { CallToDayService } from '../call-to-day/call-to-day.service';
+import { EventCallService } from '../event-call/event-call.service';
 import { FrequenciesService } from './frequencies.service';
 import { FrequencyFormComponent } from './shared/frequency-form/frequency-form.component';
 
@@ -30,7 +31,7 @@ import { FrequencyFormComponent } from './shared/frequency-form/frequency-form.c
     ModalService,
     EventsService,
     FrequenciesService,
-    CallToDayService,
+    EventCallService,
     provideNgxMask(),
     provideNativeDateAdapter(),
     { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
@@ -41,35 +42,32 @@ export class FrequenciesComponent implements OnInit {
   private readonly loading = inject(LoadingService);
   private readonly eventsService = inject(EventsService);
   private readonly frequencyService = inject(FrequenciesService);
-  private readonly callToDayService = inject(CallToDayService);
+  private readonly callToDayService = inject(EventCallService);
   private readonly modal = inject(ModalService);
   private readonly dialogRef = inject(MatDialogRef);
-  private readonly data = inject<{ event: Events; call: CallToDay }>(MAT_DIALOG_DATA);
+  private readonly data = inject<{ event: Events; call: EventCall }>(MAT_DIALOG_DATA);
 
   event = signal<Events | null>(null);
-  call = signal<CallToDay | null>(null);
-  callToDays = signal<CallToDay[]>([]);
+  callToDays = signal<EventCall[]>([]);
 
-  dataSourceMat = new MatTableDataSource<Frequency>([]);
-
-  originalFrequencies = signal<Frequency[]>([]);
+  dataSourceMat = new MatTableDataSource<EventCall>([]);
 
   columnDefinitions: ColumnDefinitionsProps[] = [
-    { key: 'event_call.evento.church.name', header: 'Igreja', type: 'string' },
-    { key: 'event_call.evento.name', header: 'Evento', type: 'string' },
-    { key: 'event_call.evento.event_type.name', header: 'Tipo do evento', type: 'string' },
-    { key: 'event_call.start_date', header: 'Data inicial', type: 'date' },
-    { key: 'event_call.end_date', header: 'Data final', type: 'date' },
-    { key: 'event_call.start_time', header: 'Hora inicial', type: 'hour' },
-    { key: 'event_call.end_time', header: 'Hora final', type: 'hour' },
+    { key: 'church.name', header: 'Igreja', type: 'string' },
+    { key: 'event.name', header: 'Evento', type: 'string' },
+    { key: 'event.event_type.name', header: 'Tipo do evento', type: 'string' },
+    { key: 'start_date', header: 'Data inicial', type: 'date' },
+    { key: 'end_date', header: 'Data final', type: 'date' },
+    { key: 'start_time', header: 'Hora inicial', type: 'hour' },
+    { key: 'end_time', header: 'Hora final', type: 'hour' },
   ];
 
   actions: ActionsProps[] = [
     {
       type: 'edit',
-      icon: 'check',
-      label: 'Marcar Frequência',
-      action: (frequency: any) => this.onMarkFrequency(frequency),
+      icon: 'edit',
+      label: 'Editar Frequência',
+      action: (row: EventCall) => this.onMarkFrequency(row),
     },
   ];
 
@@ -87,68 +85,25 @@ export class FrequenciesComponent implements OnInit {
 
       this.event.set(event);
       this.callToDays.set(callToDays);
-
-      const callId = this.data.call?.id ?? callToDays[0]?.id;
-      if (!callId) {
-        this.originalFrequencies.set([]);
-        this.dataSourceMat.data = [];
-        return;
-      }
-
-      const frequencies = await firstValueFrom(this.frequencyService.findAll(this.data.event.id, callId));
-      this.originalFrequencies.set(frequencies);
-
-      this.dataSourceMat.data = this.mapFrequencies(frequencies);
+      this.dataSourceMat.data = callToDays;
     } catch (e) {
-      this.toast.openError('Erro ao carregar os dados');
+      this.toast.openError(MESSAGES.LOADING_ERROR);
       console.error(e);
     } finally {
       this.loading.hide();
     }
   }
 
-  private mapFrequencies(frequencies: Frequency[]): any[] {
-    const grouped: Record<string, Frequency[]> = {};
-    frequencies.forEach((f) => {
-      if (!f.event_call?.id) return;
-      if (!grouped[f.event_call.id]) grouped[f.event_call.id] = [];
-      grouped[f.event_call.id].push(f);
-    });
-
-    return Object.values(grouped).map((group) => {
-      const freq = group[0];
-      return {
-        id: freq.event_call?.id ?? 'N/A',
-        church: { name: freq.event_call?.event?.church ?? 'N/A' },
-        event: {
-          name: freq.event_call?.event?.name ?? 'N/A',
-          event_type: freq.event_call?.event?.eventType ?? 'N/A',
-        },
-        start_date: freq.event_call?.start_date ?? 'N/A',
-        end_date: freq.event_call?.end_date ?? 'N/A',
-        start_time: freq.event_call?.start_time ?? 'N/A',
-        end_time: freq.event_call?.end_time ?? 'N/A',
-        isEditable: this.isStillEditable(freq.event_call?.start_date, freq.event_call?.start_time),
-        participants: group,
-      };
-    });
-  }
-
-  private isStillEditable(date?: string, time?: string): boolean {
-    if (!date || !time) return false;
-    const freqDateTime = new Date(`${date}T${time}`);
-    return freqDateTime.getTime() > Date.now();
-  }
-
   async onAddFrequency() {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       FrequencyFormComponent,
-      'Marcar frequência',
+      'Adicionar Frequência',
       true,
       true,
       { event: this.data.event, call: this.data.call },
-      '600px',
+      '',
+      true,
     );
     const result = await firstValueFrom(modal.afterClosed());
     if (result) {
@@ -156,15 +111,16 @@ export class FrequenciesComponent implements OnInit {
     }
   }
 
-  async onMarkFrequency(frequencyRow: any) {
+  async onMarkFrequency(row: EventCall) {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       FrequencyFormComponent,
       'Editar frequência',
       true,
       true,
-      { event: this.data.event, call: this.data.call, participants: frequencyRow.participants },
-      '600px',
+      { event: this.data.event, call: row },
+      '',
+      true,
     );
     const result = await firstValueFrom(modal.afterClosed());
     if (result) {

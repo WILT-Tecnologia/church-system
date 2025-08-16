@@ -1,78 +1,145 @@
-<div class="make-call-container">
-  <form [formGroup]="frequencyForm">
+<div class="eventCall-container">
+  <form [formGroup]="frequencyForm" class="eventCall-form">
+    @if (data.call) {
+      <div class="form-header">
+        <button mat-stroked-button type="button" color="warn" (click)="closeDialog()">Cancelar</button>
+        @if (isPastDate()) {
+          <div class="isPastDate">
+            <mat-icon>block</mat-icon>
+            Período para realizar a frequencia foi encerrado em {{ data.call.end_date | date: 'dd/MM/yyyy' }} às
+            {{ data.call.end_time }}
+          </div>
+        } @else {
+          <div class="isNotPastDate">
+            <mat-icon class="blink">check_circle</mat-icon>
+            Período para realizar a frequência está aberto até {{ data.call.end_date | date: 'dd/MM/yyyy' }} às
+            {{ data.call.end_time }}
+          </div>
+        }
+      </div>
+    }
+
     <mat-accordion [multi]="false">
-      <mat-expansion-panel
-        [expanded]="detailsEvent()"
-        (opened)="detailsEvent.set(true)"
-        (closed)="detailsEvent.set(false)"
-      >
+      <mat-expansion-panel [expanded]="detailsEvent()">
         <mat-expansion-panel-header>
           <mat-panel-title>Detalhes do evento</mat-panel-title>
         </mat-expansion-panel-header>
-        @if (callToDays().length > 0) {
+        @if (data.call) {
+          <app-details-event [eventCall]="data.call"></app-details-event>
+        } @else {
           <mat-form-field appearance="fill">
             <mat-label>Chamada do dia</mat-label>
             <input
               type="text"
               matInput
               [matAutocomplete]="autoCallToDay"
-              [formControl]="callToDayControl"
+              [formControl]="eventCallControl"
               placeholder="Selecione uma chamada do dia"
             />
             <mat-autocomplete
               #autoCallToDay="matAutocomplete"
-              (optionSelected)="onCallToDaySelected($event)"
-              [displayWith]="displayCallToDay"
+              (optionSelected)="onEventCallSelected($event)"
+              [displayWith]="displayEventCall"
             >
-              @for (callToDay of filteredCallToDays(); track callToDay.id) {
+              @for (callToDay of filteredEventCall(); track callToDay.id) {
                 <mat-option [value]="callToDay">
-                  {{ displayCallToDay(callToDay) }}
+                  {{ displayEventCall(callToDay) }}
                 </mat-option>
               }
             </mat-autocomplete>
-            @if (frequencyForm.get('event_call_id')?.invalid && frequencyForm.get('event_call_id')?.touched) {
-              <mat-error>{{ getErrorMessage('event_call_id') }}</mat-error>
-            }
-            @if (callToDayControl.value) {
+            @if (eventCallControl.value) {
               <button type="button" matSuffix mat-icon-button aria-label="Limpar" (click)="onClear()">
                 <mat-icon>close</mat-icon>
               </button>
             }
           </mat-form-field>
-        } @else {
-          <p>Nenhuma chamada do dia disponível</p>
         }
       </mat-expansion-panel>
     </mat-accordion>
+
+    <!-- Participantes -->
+    <mat-accordion [multi]="true">
+      <mat-expansion-panel
+        [expanded]="participantsSignal()"
+        (opened)="participantsSignal.set(true)"
+        (closed)="participantsSignal.set(false)"
+      >
+        <mat-expansion-panel-header>
+          <mat-panel-title>Participantes</mat-panel-title>
+          <mat-panel-description class="panel-description warning-color">
+            @if (isPastDate()) {
+              Quando um período de chamada for encerrado, nenhuma alteração pode ser feita nos participantes.
+            }
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <div class="table-container">
+          <h3>Membros</h3>
+          @if (members().length > 0) {
+            <table mat-table [dataSource]="membersDataSource()">
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>Nome</th>
+                <td mat-cell *matCellDef="let member">{{ member.name }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="present">
+                <th mat-header-cell *matHeaderCellDef>Presença</th>
+                <td mat-cell *matCellDef="let member">
+                  <mat-checkbox
+                    color="primary"
+                    [checked]="member.present"
+                    (change)="onPresenceChange(member, $event.checked)"
+                    [disabled]="isPastDate()"
+                  ></mat-checkbox>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+          } @else {
+            <p>Nenhum membro encontrado</p>
+          }
+        </div>
+
+        <div class="table-container">
+          <h3>Convidados</h3>
+          @if (guests().length > 0) {
+            <table mat-table [dataSource]="guestsDataSource()">
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>Nome</th>
+                <td mat-cell *matCellDef="let guest">{{ guest.name }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="present">
+                <th mat-header-cell *matHeaderCellDef>Presença</th>
+                <td mat-cell *matCellDef="let guest">
+                  <mat-checkbox
+                    color="primary"
+                    [checked]="guest.present"
+                    (change)="onPresenceChange(guest, $event.checked)"
+                    [disabled]="isPastDate()"
+                  ></mat-checkbox>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+          } @else {
+            <p>Nenhum convidado encontrado</p>
+          }
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+
+    @if (!data.call) {
+      <app-column [columns]="2">
+        <button mat-stroked-button type="button" color="warn" (click)="closeDialog()">Cancelar</button>
+        <button mat-flat-button type="submit" color="primary" (click)="save()" [disabled]="isPastDate()">
+          Concluir
+        </button>
+      </app-column>
+    }
   </form>
-
-  <mat-accordion [multi]="false">
-    <mat-expansion-panel
-      [expanded]="participantsSignal()"
-      (opened)="participantsSignal.set(true)"
-      (closed)="participantsSignal.set(false)"
-    >
-      <mat-expansion-panel-header>
-        <mat-panel-title>Participantes</mat-panel-title>
-      </mat-expansion-panel-header>
-      <app-add-members-guests
-        [event]="event()"
-        [isDisabled]="isPastDate()"
-        (selectionChange)="onSelectionChange($event)"
-      ></app-add-members-guests>
-    </mat-expansion-panel>
-  </mat-accordion>
-
-  <app-column [columns]="2">
-    <button mat-stroked-button type="button" color="warn" (click)="closeDialog()">Cancelar</button>
-    <button
-      mat-flat-button
-      type="submit"
-      color="primary"
-      (click)="save()"
-      [disabled]="frequencyForm.invalid || isPastDate()"
-    >
-      Concluir
-    </button>
-  </app-column>
 </div>
