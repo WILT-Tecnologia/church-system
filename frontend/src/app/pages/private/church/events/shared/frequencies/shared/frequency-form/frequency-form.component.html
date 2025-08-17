@@ -1,0 +1,213 @@
+<div class="eventCall-container">
+  <form [formGroup]="frequencyForm" class="eventCall-form">
+    @if (data.call) {
+      <div class="form-header sticky">
+        <div class="header-left">
+          <p>Evento: {{ data.event.name || data.call.event.name }}</p>
+          <p>Tipo: {{ data.event.eventType?.name }}</p>
+          <p>Igreja: {{ data.event.church?.name }}</p>
+          <p>Tema: {{ data.call.theme || '--' }}</p>
+          <p>Dia e horário: {{ headerDateRange }}</p>
+        </div>
+
+        <div class="header-right">
+          @if (isPastDate()) {
+            <div class="isPastDate">
+              <p>Período encerrado em {{ data.call.end_date | date: 'dd/MM/yyyy' }} às {{ data.call.end_time }}</p>
+            </div>
+            <p class="isPastDateDescription">
+              Quando o período de chamada encerra, não é possível alterar a(s) presença(s).
+            </p>
+          } @else {
+            <div class="isNotPastDate">
+              Período disponível até {{ data.call.end_date | date: 'dd/MM/yyyy' }} às {{ data.call.end_time }}
+            </div>
+          }
+        </div>
+      </div>
+    } @else {
+      <mat-accordion [multi]="false">
+        <mat-expansion-panel [expanded]="detailsEvent()">
+          <mat-expansion-panel-header>
+            <mat-panel-title>Selecione um evento, dia e horário para realizar a frequência</mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Chamada do dia</mat-label>
+            <input
+              type="text"
+              matInput
+              [matAutocomplete]="autoCallToDay"
+              [formControl]="eventCallControl"
+              placeholder="Selecione uma chamada do dia"
+            />
+            <mat-autocomplete
+              #autoCallToDay="matAutocomplete"
+              (optionSelected)="onEventCallSelected($event)"
+              [displayWith]="displayEventCall"
+            >
+              @for (callToDay of filteredEventCall(); track callToDay.id) {
+                <mat-option [value]="callToDay">
+                  {{ displayEventCall(callToDay) }}
+                </mat-option>
+              }
+            </mat-autocomplete>
+            @if (eventCallControl.value) {
+              <button type="button" matSuffix mat-icon-button aria-label="Limpar" (click)="onClear()">
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+          </mat-form-field>
+        </mat-expansion-panel>
+      </mat-accordion>
+    }
+
+    <mat-divider />
+
+    <!-- Filtro global para participantes -->
+    <div class="filter-container" aria-label="Filtrar participantes e convidados">
+      <mat-form-field appearance="fill" class="w-full">
+        <mat-label>Filtrar pelo nome</mat-label>
+        <input
+          matInput
+          placeholder="Digite para filtrar participantes e convidados"
+          [value]="filterValue()"
+          (input)="applyFilter($event)"
+        />
+        @if (filterValue()) {
+          <button type="button" matSuffix mat-icon-button (click)="clearFilter()" aria-label="Limpar filtro">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </mat-form-field>
+    </div>
+
+    <!-- Participantes -->
+    <mat-accordion [multi]="true" class="elevated">
+      <mat-expansion-panel
+        [expanded]="participantsSignal()"
+        (opened)="participantsSignal.set(true)"
+        (closed)="participantsSignal.set(false)"
+      >
+        <mat-expansion-panel-header>
+          <mat-panel-title class="text-neutral black">Participantes</mat-panel-title>
+          <mat-panel-description class="panel-description warning-color"> </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <!-- MEMBROS -->
+        <div class="table-container">
+          <div class="section-header">
+            <h3 class="title bold">Membros</h3>
+            <div>
+              <mat-checkbox
+                [checked]="membersAllSelected()"
+                [indeterminate]="membersSomeSelected()"
+                (change)="toggleAllMembers($event.checked!)"
+                [disabled]="isPastDate() || members().length === 0"
+                >Selecionar todos</mat-checkbox
+              >
+            </div>
+          </div>
+          <mat-divider />
+
+          @if (members().length > 0) {
+            <table mat-table [dataSource]="membersDataSource()" class="attendance-table">
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef class="black text-neutral-50">Nome</th>
+                <td mat-cell *matCellDef="let member" class="text-neutral">{{ member.name }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="present">
+                <th mat-header-cell *matHeaderCellDef class="black text-neutral-50">Presença</th>
+                <td mat-cell *matCellDef="let member" class="presence-cell">
+                  <mat-checkbox
+                    class="presence-checkbox"
+                    color="primary"
+                    [checked]="member.present"
+                    (change)="onPresenceChange(member, $event.checked)"
+                    [disabled]="isPastDate()"
+                  ></mat-checkbox>
+                  <mat-icon
+                    class="presence-icon"
+                    [class]="member.present ? 'ok' : 'off'"
+                    aria-hidden="true"
+                    [matTooltip]="member.present ? 'Presença confirmada' : 'Presença não confirmada'"
+                  >
+                    {{ member.present ? 'check_circle' : 'radio_button_unchecked' }}
+                  </mat-icon>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+          } @else {
+            <p class="text-neutral">Nenhum membro encontrado</p>
+          }
+        </div>
+
+        <!-- CONVIDADOS -->
+        <div class="table-container">
+          <div class="section-header">
+            <h3 class="title bold">Convidados</h3>
+            <div class="bulk-actions">
+              <mat-checkbox
+                [checked]="guestsAllSelected()"
+                [indeterminate]="guestsSomeSelected()"
+                (change)="toggleAllGuests($event.checked!)"
+                [disabled]="isPastDate() || guests().length === 0"
+                >Selecionar todos</mat-checkbox
+              >
+            </div>
+          </div>
+          <mat-divider />
+
+          @if (guests().length > 0) {
+            <table mat-table [dataSource]="guestsDataSource()" class="attendance-table">
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef class="black text-neutral-50">Nome</th>
+                <td mat-cell *matCellDef="let guest" class="text-neutral">{{ guest.name }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="present">
+                <th mat-header-cell *matHeaderCellDef class="black text-neutral-50">Presença</th>
+                <td mat-cell *matCellDef="let guest" class="presence-cell">
+                  <mat-checkbox
+                    class="presence-checkbox"
+                    color="primary"
+                    [checked]="guest.present"
+                    (change)="onPresenceChange(guest, $event.checked)"
+                    [disabled]="isPastDate()"
+                  ></mat-checkbox>
+
+                  <mat-icon
+                    class="presence-icon"
+                    [class]="guest.present ? 'ok' : 'off'"
+                    aria-hidden="true"
+                    [matTooltip]="guest.present ? 'Presença confirmada' : 'Presença não confirmada'"
+                  >
+                    {{ guest.present ? 'check_circle' : 'radio_button_unchecked' }}
+                  </mat-icon>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+          } @else {
+            <p class="text-neutral">Nenhum convidado encontrado</p>
+          }
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+
+    @if (!data.call) {
+      <app-column [columns]="2">
+        <button mat-stroked-button type="button" color="warn" (click)="closeDialog()">Cancelar</button>
+        <button mat-flat-button type="submit" color="primary" (click)="save()" [disabled]="isPastDate()">
+          Concluir
+        </button>
+      </app-column>
+    }
+  </form>
+</div>

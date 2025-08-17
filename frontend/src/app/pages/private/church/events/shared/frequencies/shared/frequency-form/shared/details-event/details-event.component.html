@@ -1,0 +1,50 @@
+<div class="details-event-container">
+  <mat-card appearance="outlined">
+    <mat-card-header class="card-header">
+      <mat-card-title class="title">
+        <strong class="black">{{ eventCall()?.event?.name }}</strong>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-divider />
+    <mat-card-content>
+      @if (eventCall()) {
+        <div class="mat-table-responsive">
+          <table mat-table [dataSource]="[selectedEventCall]" class="mat-elevation-z5">
+            <ng-container matColumnDef="start_datetime">
+              <th mat-header-cell *matHeaderCellDef>Data de inicio</th>
+              <td mat-cell *matCellDef="let eventCall" class="bold">
+                {{ eventCall.start_date | date: 'dd/MM/yyyy' }} às {{ eventCall?.start_time || '--' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="end_datetime">
+              <th mat-header-cell *matHeaderCellDef>Data de fim</th>
+              <td mat-cell *matCellDef="let eventCall" class="bold">
+                {{ eventCall.end_date | date: 'dd/MM/yyyy' }} às {{ eventCall?.end_time || '--' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="theme">
+              <th mat-header-cell *matHeaderCellDef>Tema</th>
+              <td mat-cell *matCellDef="let eventCall" class="bold">
+                {{ eventCall.theme || '--' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="eventTypeName">
+              <th mat-header-cell *matHeaderCellDef>Tipo do evento</th>
+              <td mat-cell *matCellDef="let eventCall" class="bold">
+                {{ eventCall.event?.event_type?.name || '--' }}
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+        </div>
+      } @else {
+        <p class="no-details-message">Nenhum detalhe de chamada disponível para este evento.</p>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

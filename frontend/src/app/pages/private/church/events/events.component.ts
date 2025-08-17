@@ -45,7 +45,7 @@ import { TabCrudComponent } from 'app/components/tab-crud/tab-crud.component';
 import { CrudConfig, TabConfig } from 'app/components/tab-crud/types';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
-import { CallToDay, Events } from 'app/model/Events';
+import { EventCall, Events } from 'app/model/Events';
 import { EventTypes } from 'app/model/EventTypes';
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
@@ -54,9 +54,9 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import { EventTypesService } from '../../administrative/event-types/eventTypes.service';
 import { EventsService } from './events.service';
 import { AddMembersGuestsComponent } from './shared/add-members-guests/add-members-guests.component';
-import { CallToDayComponent } from './shared/call-to-day/call-to-day.component';
+import { EventCallComponent } from './shared/event-call/event-call.component';
 import { EventsFormComponent } from './shared/events-form/events-form.component';
-import { MakeCallComponent } from './shared/make-call/make-call.component';
+import { FrequenciesComponent } from './shared/frequencies/frequencies.component';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -106,7 +106,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('eventContent') eventContent!: TemplateRef<any>;
   breakpointObserver = inject(BreakpointObserver);
   events: Events[] = [];
-  callToDays: CallToDay[] = [];
+  eventCall: EventCall[] = [];
   eventTypes = new BehaviorSubject<EventTypes[]>([]);
   tabs: TabConfig[] = [];
   columnDefinitions: ColumnDefinitionsProps[] = [
@@ -117,37 +117,38 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   ];
   actions: ActionsProps[] = [
     {
-      type: 'person_add',
-      icon: 'person_add',
-      label: 'Adicionar participantes',
-      action: (events: Events) => this.addMembersGuest(events),
-    },
-    {
-      type: 'add_circle',
-      icon: 'add_circle',
-      label: 'Chamadas do dia',
-      action: (events: Events) => this.handleCreateCall(events),
-    },
-    {
-      type: 'add_circle',
-      icon: 'add_circle',
-      label: 'Realizar chamada',
-      action: (events: Events) => this.handleMakeCall(events),
-    },
-    {
       type: 'edit',
       icon: 'edit',
       label: 'Editar',
-      action: (events: Events) => this.handleEdit(events),
+      action: (events: Events) => this.onEditEvent(events),
+    },
+    {
+      type: 'person_add',
+      icon: 'person_add',
+      label: 'Adicionar participantes',
+      action: (events: Events) => this.onAddMembersGuests(events),
+    },
+    {
+      type: 'add_circle',
+      icon: 'add_circle',
+      label: 'Chamadas do evento',
+      action: (events: Events) => this.onCreateCall(events),
+    },
+    {
+      type: 'add_circle',
+      icon: 'add_circle',
+      label: 'Frequências',
+      action: (events: Events) => this.onFrequency(events),
     },
     {
       type: 'delete',
       icon: 'delete',
       label: 'Excluir',
       color: 'warn',
-      action: (events: Events) => this.handleDelete(events),
+      action: (events: Events) => this.onDeleteEvent(events),
     },
   ];
+  rendering = signal(true);
   crudConfig!: CrudConfig;
   isMobile: boolean = false;
   private destroy$ = new Subject<void>();
@@ -158,7 +159,6 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   calendarVisibleValue = this.calendarVisible.asReadonly();
   hoveredEventId: string | null = null;
   private eventCache = new Map<string, any>();
-  rendering = signal(true);
   private initialTabLoadSubject = new Subject<string>();
   private mobileCalendarOptions: CalendarOptions = {
     initialView: 'listWeek',
@@ -215,10 +215,10 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
         .subscribe({
           next: (events: Events[]) => {
             const calendarEvents = this.mapEvents(events).filter((event) => {
-              const callToDay = event.extendedProps.callToDay;
-              if (!callToDay || !callToDay.start_date) return false;
-              const start = dayjs(callToDay.start_date);
-              const end = callToDay.end_date ? dayjs(callToDay.end_date) : start;
+              const eventCall = event.extendedProps.eventCall;
+              if (!eventCall || !eventCall.start_date) return false;
+              const start = dayjs(eventCall.start_date);
+              const end = eventCall.end_date ? dayjs(eventCall.end_date) : start;
               return start.isSameOrAfter(fetchInfo.startStr) && end.isSameOrBefore(fetchInfo.endStr);
             });
             successCallback(calendarEvents);
@@ -271,9 +271,9 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.crudConfig = {
       columnDefinitions: this.columnDefinitions,
       actions: this.actions,
-      addFn: this.handleCreate.bind(this),
-      editFn: this.handleEdit.bind(this),
-      deleteFn: this.handleDelete.bind(this),
+      addFn: this.onCreateEvent.bind(this),
+      editFn: this.onEditEvent.bind(this),
+      deleteFn: this.onDeleteEvent.bind(this),
       enableToggleStatus: true,
     };
   }
@@ -309,6 +309,58 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   };
 
+  formatTooltip(data: { event: Events; eventCall: EventCall | null }): string {
+    const { event, eventCall } = data;
+    if (!event || !eventCall) {
+      return 'Evento ou detalhes da chamada não encontrados';
+    }
+    if (!event.eventType) {
+      return 'Tipo de evento não especificado';
+    }
+    if (!eventCall.start_date && !eventCall.end_date) {
+      return 'Data de início e fim não especificadas';
+    }
+    const lines = [
+      `Tipo: ${event.eventType.name}`,
+      `Início: ${eventCall.start_date ? this.format.dateFormat(eventCall.start_date) : 'Não especificado'}${eventCall.start_time ? ' às ' + eventCall.start_time : ''}`,
+      `Fim: ${eventCall.end_date ? this.format.dateFormat(eventCall.end_date) : 'Não especificado'}${eventCall.end_time ? ' às ' + eventCall.end_time : ''}`,
+    ];
+    if (eventCall.location) {
+      lines.push(`Local: ${eventCall.location}`);
+    }
+    if (event.obs) {
+      lines.push(`Observação: ${event.obs}`);
+    }
+    return lines.join('\n');
+  }
+
+  handleEnableCalendar() {
+    this.calendarVisible.update((calendarVisible) => !calendarVisible);
+    this.calendarToggleSubject.next();
+    if (this.calendarVisible() && this.calendarComponent?.getApi()) {
+      const calendarApi = this.calendarComponent.getApi();
+      const existingEventIds = new Set(calendarApi.getEvents().map((e) => e.id));
+      const newEvents = this.mapEvents(this.events).filter((e) => !existingEventIds.has(e.id));
+      newEvents.forEach((event) => calendarApi.addEvent(event));
+      calendarApi.render();
+      calendarApi.updateSize();
+      this.cdr.detectChanges();
+    }
+  }
+
+  onCreateEvent() {
+    const modal = this.modal.openModal(`modal-${Math.random()}`, EventsFormComponent, 'Adicionar evento', true, true);
+    modal
+      .afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((result) => {
+        if (result) {
+          this.loadEvents();
+          this.refreshData();
+        }
+      });
+  }
+
   private updateCalendarOptions() {
     this.calendarOptions.update((options) => ({
       ...options,
@@ -326,20 +378,6 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private hideLoading() {
     this.loading.hide();
-  }
-
-  handleEnableCalendar() {
-    this.calendarVisible.update((calendarVisible) => !calendarVisible);
-    this.calendarToggleSubject.next();
-    if (this.calendarVisible() && this.calendarComponent?.getApi()) {
-      const calendarApi = this.calendarComponent.getApi();
-      const existingEventIds = new Set(calendarApi.getEvents().map((e) => e.id));
-      const newEvents = this.mapEvents(this.events).filter((e) => !existingEventIds.has(e.id));
-      newEvents.forEach((event) => calendarApi.addEvent(event));
-      calendarApi.render();
-      calendarApi.updateSize();
-      this.cdr.detectChanges();
-    }
   }
 
   private handleWeekendsToggle() {
@@ -375,7 +413,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   private handleRemoveEventCalendar(clickInfo: EventClickArg) {
     const event = this.events.find((e) => e.id === clickInfo.event.id);
     if (event) {
-      this.handleDelete(event);
+      this.onDeleteEvent(event);
     }
   }
 
@@ -440,17 +478,17 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
         return this.eventCache.get(event.id ?? '');
       }
 
-      const callToDay = event.callToDay || null;
+      const eventCall = event.eventCall || null;
       const mapped = {
         id: event.id ?? '',
         title: event.name,
-        start: callToDay?.start_date ? this.convertToISODate(callToDay.start_date, callToDay.start_time) : undefined,
-        end: callToDay?.end_date ? this.convertToISODate(callToDay.end_date, callToDay.end_time) : undefined,
+        start: eventCall?.start_date ? this.convertToISODate(eventCall.start_date, eventCall.start_time) : undefined,
+        end: eventCall?.end_date ? this.convertToISODate(eventCall.end_date, eventCall.end_time) : undefined,
         extendedProps: {
           eventType: event.eventType,
-          callToDay: callToDay || null,
+          eventCall: eventCall || null,
           obs: event.obs,
-          tooltip: this.formatTooltip({ event, callToDay }),
+          tooltip: this.formatTooltip({ event, eventCall: eventCall }),
         },
       };
       this.eventCache.set(event.id ?? '', mapped);
@@ -458,7 +496,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private addMembersGuest(event: Events) {
+  private onAddMembersGuests(event: Events) {
     this.modal.openModal(
       `modal-${Math.random()}`,
       AddMembersGuestsComponent,
@@ -471,11 +509,11 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  private handleCreateCall(event: Events) {
+  private onCreateCall(event: Events) {
     this.modal.openModal(
       `modal-${Math.random()}`,
-      CallToDayComponent,
-      `Chamadas do dia para o evento ${event?.name}`,
+      EventCallComponent,
+      `Chamadas do evento`,
       true,
       true,
       { event },
@@ -484,33 +522,20 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  private handleMakeCall(event: Events) {
+  private onFrequency(event: Events) {
     this.modal.openModal(
       `modal-${Math.random()}`,
-      MakeCallComponent,
-      `Chamada para o evento ${event.name}`,
+      FrequenciesComponent,
+      `Frequências para o evento ${event.name}`,
       true,
       true,
-      { event: event, event_id: event.id },
+      { event: event, call: event.eventCall },
       '',
       true,
     );
   }
 
-  handleCreate() {
-    const modal = this.modal.openModal(`modal-${Math.random()}`, EventsFormComponent, 'Adicionar evento', true, true);
-    modal
-      .afterClosed()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((result) => {
-        if (result) {
-          this.loadEvents();
-          this.refreshData();
-        }
-      });
-  }
-
-  private handleEdit(event: Events) {
+  private onEditEvent(event: Events) {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       EventsFormComponent,
@@ -530,7 +555,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  private handleDelete(event: Events) {
+  private onDeleteEvent(event: Events) {
     this.confirmService
       .openConfirm('Excluir evento', `Tem certeza que deseja excluir o evento ${event.name}?`, 'Confirmar', 'Cancelar')
       .afterClosed()
@@ -551,31 +576,6 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
             });
         }
       });
-  }
-
-  formatTooltip(data: { event: Events; callToDay: CallToDay | null }): string {
-    const { event, callToDay } = data;
-    if (!event || !callToDay) {
-      return 'Evento ou detalhes da chamada não encontrados';
-    }
-    if (!event.eventType) {
-      return 'Tipo de evento não especificado';
-    }
-    if (!callToDay.start_date && !callToDay.end_date) {
-      return 'Data de início e fim não especificadas';
-    }
-    const lines = [
-      `Tipo: ${event.eventType.name}`,
-      `Início: ${callToDay.start_date ? this.format.dateFormat(callToDay.start_date) : 'Não especificado'}${callToDay.start_time ? ' às ' + callToDay.start_time : ''}`,
-      `Fim: ${callToDay.end_date ? this.format.dateFormat(callToDay.end_date) : 'Não especificado'}${callToDay.end_time ? ' às ' + callToDay.end_time : ''}`,
-    ];
-    if (callToDay.location) {
-      lines.push(`Local: ${callToDay.location}`);
-    }
-    if (event.obs) {
-      lines.push(`Observação: ${event.obs}`);
-    }
-    return lines.join('\n');
   }
 
   private isHovered(eventId: string): boolean {

@@ -1,0 +1,11 @@
+@if (callToDays().length > 0) {
+  <app-crud
+    [fields]="callToDays()"
+    [dataSourceMat]="dataSourceMat"
+    [columnDefinitions]="columnDefinitions"
+    [enableAddButtonAdd]="false"
+    [actions]="actions"
+  ></app-crud>
+} @else {
+  <app-not-found-register (add)="onAddFrequency()"></app-not-found-register>
+}

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Inject, Input, input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -77,6 +77,8 @@ export class AddMembersGuestsComponent implements OnInit {
   guestPageIndex: number = 0;
   pageSize: number = 6;
   pageSizeOptions: number[] = [6, 12, 24, 48];
+  @Input() isDisabled: boolean = false;
+  @Output() selectionChange = new EventEmitter<{ participant: ParticipantAndGuest; present: boolean }>();
 
   ngOnInit() {
     this.findAll();
@@ -203,6 +205,7 @@ export class AddMembersGuestsComponent implements OnInit {
       member.id === event.id ? { ...member, selected: event.selected } : member,
     );
     this.updatePaginatedMembers();
+    this.selectionChange.emit({ participant: event, present: event.selected });
   }
 
   onGuestSelectionChange(event: ParticipantAndGuest) {
@@ -211,9 +214,12 @@ export class AddMembersGuestsComponent implements OnInit {
       guest.id === event.id ? { ...guest, selected: event.selected } : guest,
     );
     this.updatePaginatedGuests();
+    this.selectionChange.emit({ participant: event, present: event.selected });
   }
 
   submitMember() {
+    if (this.isDisabled) return;
+
     const selectedMembers = this.members.filter((member) => member.selected);
     if (selectedMembers.length === 0) {
       this.toast.openError('Selecione pelo menos um membro para adicionar');
@@ -243,6 +249,8 @@ export class AddMembersGuestsComponent implements OnInit {
   }
 
   submitGuest() {
+    if (this.isDisabled) return;
+
     const selectedGuests = this.guests.filter((guest) => guest.selected);
     if (selectedGuests.length === 0) {
       this.toast.openError('Selecione pelo menos um convidado para adicionar');
@@ -277,6 +285,8 @@ export class AddMembersGuestsComponent implements OnInit {
   }
 
   removeParticipant(participant: ParticipantAndGuest) {
+    if (this.isDisabled) return;
+
     this.loading.show();
     const isGuest = participant.isGuest ?? false;
     if (!participant.id) {

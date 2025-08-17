@@ -1,7 +1,7 @@
 <div class="wrapper">
   <div class="calendar-actions">
     @if (calendarVisibleValue()) {
-      <button mat-flat-button color="primary" (click)="handleCreate()">
+      <button mat-flat-button color="primary" (click)="onCreateEvent()">
         <mat-icon>add</mat-icon>
         Novo Evento
       </button>
@@ -44,10 +44,10 @@
             [tabs]="eventTypesValue"
             [crudConfig]="crudConfig"
             [dataService]="findEventsByTabIdAdapter"
-            (addFn)="handleCreate()"
+            (addFn)="onCreateEvent()"
           ></app-tab-crud>
         } @else {
-          <app-not-found-register (add)="handleCreate()"></app-not-found-register>
+          <app-not-found-register (add)="onCreateEvent()"></app-not-found-register>
         }
       </ng-container>
     }
