@@ -55,18 +55,19 @@ export class FrequenciesComponent implements OnInit {
   columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'church.name', header: 'Igreja', type: 'string' },
     { key: 'event.name', header: 'Evento', type: 'string' },
-    { key: 'event.event_type.name', header: 'Tipo do evento', type: 'string' },
     { key: 'start_date', header: 'Data inicial', type: 'date' },
     { key: 'end_date', header: 'Data final', type: 'date' },
     { key: 'start_time', header: 'Hora inicial', type: 'hour' },
     { key: 'end_time', header: 'Hora final', type: 'hour' },
+    { key: 'theme', header: 'Tema', type: 'string' },
+    { key: 'location', header: 'Local', type: 'string' },
   ];
 
   actions: ActionsProps[] = [
     {
       type: 'edit',
       icon: 'edit',
-      label: 'Editar Frequência',
+      label: 'Editar',
       action: (row: EventCall) => this.onMarkFrequency(row),
     },
   ];
@@ -76,7 +77,6 @@ export class FrequenciesComponent implements OnInit {
   }
 
   private async loadData() {
-    this.loading.show();
     try {
       const [event, callToDays] = await Promise.all([
         firstValueFrom(this.eventsService.findById(this.data.event.id)),

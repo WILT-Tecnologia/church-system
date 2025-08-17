@@ -15,44 +15,72 @@ mat-accordion {
   width: 100%;
 }
 
-.form-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+.sticky {
+  position: relative;
+  top: 0;
+  z-index: 2;
+  background: #eee;
+  box-shadow: 0 0.2rem 0.6rem rgba(0, 0, 0, 0.05);
+  border-radius: 0.55rem;
+  border-bottom: 0.1rem solid rgba(0, 0, 0, 0.05);
 }
 
-@media screen and (max-width: 600px) {
-  .form-header {
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  line-height: 1.8;
+
+  @media screen and (max-width: 720px) {
     flex-direction: column;
+    align-items: stretch;
+    font-size: 0.8rem;
   }
 }
 
-.form-header > button {
-  width: 20rem;
+.header-right {
+  & > .isPastDateDescription {
+    color: var(--danger-color);
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+  }
+}
+
+.filter-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  width: 30rem;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 .isPastDate,
 .isNotPastDate {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-weight: 800;
-}
+  gap: 1rem;
+  font-weight: 700;
+  font-size: 0.9rem;
 
-.isPastDate {
-  color: var(--warning-color); /* cor laranja */
-}
-
-.isNotPastDate {
-  color: var(--success-color); /* cor verde */
-}
-
-@media screen and (max-width: 600px) {
-  .isPastDate,
-  .isNotPastDate {
+  @media screen and (max-width: 600px) {
     flex-direction: column;
     text-align: center;
   }
+}
+
+.isPastDate {
+  color: var(--warning-color);
+}
+.isNotPastDate {
+  color: var(--success-color);
 }
 
 .panel-description {
@@ -61,4 +89,76 @@ mat-accordion {
   gap: 0.5rem;
   font-size: 0.8rem;
   font-weight: 600;
+}
+
+.elevated mat-expansion-panel {
+  box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.2);
+  border-radius: 0.75rem;
+}
+
+.table-container {
+  padding: 1rem 0;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.attendance-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.attendance-table .mat-column-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Coluna de presença com largura fixa e centralizada */
+.attendance-table .mat-column-present,
+.attendance-table th.mat-column-present,
+.attendance-table td.mat-column-present,
+.attendance-table .mat-mdc-header-cell.mat-column-present,
+.attendance-table .mat-mdc-cell.mat-column-present {
+  width: 10dvw;
+  min-width: 10dvw;
+  max-width: 10dvw;
+
+  @media screen and (max-width: 600px) {
+    width: 7rem;
+    min-width: 7rem;
+    max-width: 7rem;
+  }
+}
+.presence-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+}
+
+/* melhora clique do checkbox e evita “pular” a largura */
+.presence-checkbox {
+  transform: scale(1.15);
+}
+
+/* se usar ícone de status, mantém largura estável mesmo oculto */
+.presence-icon {
+  transform: scale(1.15);
+  height: 100%;
+  width: 100%;
+  text-align: center;
+
+  &.ok {
+    color: var(--success-color);
+    opacity: 0.9;
+  }
+  &.off {
+    opacity: 0.35;
+  }
 }

@@ -58,36 +58,36 @@
 </div>
 
 <div class="mat-table-responsive">
-  <table [dataSource]="dataSourceMat" class="mat-elevation-z1" mat-table matSort>
+  <table [dataSource]="dataSourceMat" mat-table matSort>
     <ng-container *ngFor="let column of columnDefinitions" [matColumnDef]="column.key">
       <th mat-header-cell mat-sort-header *matHeaderCellDef class="mat-header-bold">
         {{ column.header }}
       </th>
-      <td *matCellDef="let fields" [title]="fields | formatValues: column.key : column.type" mat-cell>
+      <td *matCellDef="let fields" [title]="(fields | formatValues: column.key : column.type) ?? '--'" mat-cell>
         @switch (column.type) {
           @case ('date') {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
           @case ('string') {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
           @case ('cpf') {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
           @case ('cnpj') {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
           @case ('datetime') {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
           @case ('phone') {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
           @case ('sex') {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
           @case ('number') {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
           @case ('color') {
             <div class="color-display">
@@ -122,16 +122,16 @@
             </span>
           }
           @case ('currency') {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
           @case ('select') {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
           @case ('email') {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
           @default {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
         }
       </td>

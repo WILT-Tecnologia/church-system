@@ -68,9 +68,9 @@ body {
 
 .title {
   color: var(--text-color);
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 1.3rem;
   margin: 1rem 0;
+  font-family: 'Poppins', 'Mulish', sans-serif !important;
 
   @media screen and (max-width: 768px) {
     display: flex;
@@ -89,6 +89,10 @@ body {
 .text-default {
   color: var(--text-color) !important;
   font-size: 1rem;
+}
+
+.text-neutral-50 {
+  color: var(--neutral-50) !important;
 }
 
 .text-neutral {
@@ -136,15 +140,15 @@ body {
 }
 
 .bold {
-  font-weight: bold;
+  font-weight: bold !important;
 }
 
 .black {
-  font-weight: 800;
+  font-weight: 800 !important;
 }
 
 .extra-black {
-  font-weight: 900;
+  font-weight: 900 !important;
 }
 
 .cep-field {
