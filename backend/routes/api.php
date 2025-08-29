@@ -39,17 +39,11 @@ Route::prefix('church')->middleware(['cors', 'auth:sanctum'])->group(function ()
     Route::delete('eventos/{evento}/guests', [\App\Http\Controllers\Api\EventoController::class, 'removerConvidado']);
     Route::apiResource('eventos/{evento}/calls', \App\Http\Controllers\Api\EventCallsController::class);
     Route::apiResource('eventos/{evento}/calls/{eventCall}/frequencies', \App\Http\Controllers\Api\FrequencyController::class)->parameters([
-        'evento' => 'eventId',
-        'eventCall' => 'eventCallId',
-        'frequencies' => 'frequencyId',
-    ]);
-    /* Route::prefix('evento')->group(function () {
-        Route::apiResource('/', \App\Http\Controllers\Api\EventoController::class);
-    });
-    Route::prefix('events/{event_id}')->group(function () {
-        Route::apiResource('events-participant', \App\Http\Controllers\Api\EventParticipantController::class);
-        Route::apiResource('calls', \App\Http\Controllers\Api\EventCallsController::class);
-    }); */
+            'evento' => 'eventId',
+            'eventCall' => 'eventCallId',
+            'frequencies' => 'frequencyId',
+        ]);
+    Route::apiResource('patrimonies', \App\Http\Controllers\Api\PatrimonyController::class);
 });
 
 Route::prefix('aux')->middleware(['cors', 'auth:sanctum'])->group(function () {
