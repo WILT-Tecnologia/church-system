@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\TypeEntryEnum;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
+use Laravel\Telescope\EntryType;
 
 class UpdatePatrimonyRequest extends FormRequest
 {
@@ -21,13 +24,14 @@ class UpdatePatrimonyRequest extends FormRequest
      */
     public function rules(): array
     {
+
         return [
             'church_id' => ['sometimes', 'required', 'uuid', 'exists:churches,id'],
             'number' =>  ['sometimes', 'required'],
             'name' => ['sometimes', 'required'],
             'registration_date' => ['sometimes', 'required', 'date'],
             'description' => ['sometimes', 'required'],
-            'type_entry' => ['sometimes', 'required'],
+            'type_entry' => ['sometimes', 'required', new Enum(TypeEntryEnum::class)],
             'price' => ['sometimes', 'nullable', 'decimal:2'],
             'is_member' => ['sometimes', 'boolean'],
             'member_id' => ['sometimes', 'required_unless:is_member,false'],

@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\TypeEntryEnum;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
+use Laravel\Telescope\EntryType;
 
 class StorePatrimonyRequest extends FormRequest
 {
@@ -27,7 +30,7 @@ class StorePatrimonyRequest extends FormRequest
             'name' => ['required'],
             'registration_date' => ['required', 'date'],
             'description' => ['required'],
-            'type_entry' => ['required'],
+            'type_entry' => ['required',  new Enum(TypeEntryEnum::class)],
             'price' => ['nullable', 'decimal:2'],
             'is_member' => ['sometimes', 'boolean'],
             'member_id' => ['required_unless:is_member,false'],
