@@ -1,29 +1,32 @@
 import { Church } from './Church';
 import { EventTypes } from './EventTypes';
+import { Guest } from './Guest';
 import { Members } from './Members';
+import { Person } from './Person';
 import { User } from './User';
 
-export type Events = {
+export interface Events {
   id: string;
   church?: Church;
-  eventType?: EventTypes;
   church_id: string;
+  eventType?: EventTypes;
   event_type_id: string;
   name: string;
   obs?: string;
   participants?: Members[];
   guests?: Guest[];
+  frequencies?: Frequency[];
   participantAndGuests?: ParticipantAndGuest[];
-  callToDay?: CallToDay;
+  eventCall?: EventCall;
   created_at?: string;
   updated_at?: string;
   created_by?: User;
   updated_by?: User | null;
   combinedCreatedByAndCreatedAt?: string;
   combinedUpdatedByAndUpdatedAt?: string;
-};
+}
 
-export type CallToDay = {
+export interface EventCall {
   id: string;
   event: Events;
   event_id: string;
@@ -33,29 +36,23 @@ export type CallToDay = {
   start_time: string;
   end_time: string;
   location: string;
-};
+}
 
-export type ParticipantAndGuest = {
+export interface ParticipantAndGuest {
   id: string;
   name: string;
   selected: boolean;
   isGuest?: boolean;
-};
+}
 
-export type Guest = {
+export interface Frequency {
   id: string;
-  person_id?: string;
-  name: string;
-  phone_one: string;
-  phone_two: string;
-  member: Members;
-  member_id: string;
-  cep: string;
-  street: string;
-  number: string;
-  complement: string;
-  district: string;
-  city: string;
-  state: string;
-  country: string;
-};
+  event_call_id: string;
+  member_id?: string;
+  guest_id?: string;
+  present: boolean;
+  event_call?: EventCall;
+  participants?: Members[] | Person[];
+  member?: Members;
+  guest?: Person;
+}

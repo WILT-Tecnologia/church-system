@@ -7,6 +7,8 @@ export type ActionsProps = {
   inactiveLabel?: string;
   activeLabel?: string;
   action: (element: any) => void;
+  visible?: (element: any) => boolean;
+  disabled?: (element: any) => boolean;
 };
 
 export type ColumnDefinitionsProps = {

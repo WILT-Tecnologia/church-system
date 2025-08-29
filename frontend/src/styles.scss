@@ -68,9 +68,9 @@ body {
 
 .title {
   color: var(--text-color);
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 1.3rem;
   margin: 1rem 0;
+  font-family: 'Poppins', 'Mulish', sans-serif !important;
 
   @media screen and (max-width: 768px) {
     display: flex;
@@ -81,42 +81,46 @@ body {
 }
 
 .subtitle {
-  color: var(--neutral-50);
+  color: var(--neutral-50) !important;
   font-size: 0.9rem;
   margin: 1rem 0;
 }
 
 .text-default {
-  color: var(--text-color);
+  color: var(--text-color) !important;
   font-size: 1rem;
 }
 
+.text-neutral-50 {
+  color: var(--neutral-50) !important;
+}
+
 .text-neutral {
-  color: var(--neutral-40);
+  color: var(--neutral-40) !important;
 }
 
 .white-color {
-  color: var(--white-color);
+  color: var(--white-color) !important;
 }
 
 .success-color {
-  color: var(--success-color);
+  color: var(--success-color) !important;
 }
 
 .danger-color {
-  color: var(--danger-color);
+  color: var(--danger-color) !important;
 }
 
 .warning-color {
-  color: var(--warning-color);
+  color: var(--warning-color) !important;
 }
 
 .info-color {
-  color: var(--info-color);
+  color: var(--info-color) !important;
 }
 
 .primary-color-dark {
-  color: var(--primary-color-dark);
+  color: var(--primary-color-dark) !important;
 }
 
 .spacer {
@@ -136,15 +140,15 @@ body {
 }
 
 .bold {
-  font-weight: bold;
+  font-weight: bold !important;
 }
 
 .black {
-  font-weight: 800;
+  font-weight: 800 !important;
 }
 
 .extra-black {
-  font-weight: 900;
+  font-weight: 900 !important;
 }
 
 .cep-field {

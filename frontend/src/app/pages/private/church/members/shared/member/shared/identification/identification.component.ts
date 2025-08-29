@@ -5,12 +5,13 @@ import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/ma
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { map, Observable, startWith } from 'rxjs';
+
 import { ColumnComponent } from 'app/components/column/column.component';
 import { CivilStatus, ColorRace } from 'app/model/Auxiliaries';
 import { Church } from 'app/model/Church';
 import { Person } from 'app/model/Person';
 import { ValidationService } from 'app/services/validation/validation.service';
-import { map, Observable, startWith } from 'rxjs';
 
 @Component({
   selector: 'app-identification',
@@ -68,25 +69,25 @@ export class IdentificationComponent implements OnInit {
   setupAutocomplete() {
     this.filteredPerson = this.searchControlPerson.valueChanges.pipe(
       startWith(''),
-      map((value: any) => (typeof value === 'string' ? value : value?.name || '')),
+      map((value: Person | string) => (typeof value === 'string' ? value : value?.name || '')),
       map((name) => (name.length >= 1 ? this.filterPerson(name) : this.persons)),
     );
 
     this.filteredChurch = this.searchControlChurch.valueChanges.pipe(
       startWith(''),
-      map((value: any) => (typeof value === 'string' ? value : value?.name || '')),
+      map((value: Church | string) => (typeof value === 'string' ? value : value?.name || '')),
       map((name) => (name.length >= 1 ? this.filterChurch(name) : this.churchs)),
     );
 
     this.filteredCivilStatus = this.searchControlCivilStatus.valueChanges.pipe(
       startWith(''),
-      map((value: any) => (typeof value === 'string' ? value : value?.name || '')),
+      map((value: CivilStatus | string) => (typeof value === 'string' ? value : value?.name || '')),
       map((name) => (name.length >= 1 ? this.filterCivilStatus(name) : this.civilStatus)),
     );
 
     this.filteredColorRace = this.searchControlColorRace.valueChanges.pipe(
       startWith(''),
-      map((value: any) => (typeof value === 'string' ? value : value?.name || '')),
+      map((value: ColorRace | string) => (typeof value === 'string' ? value : value?.name || '')),
       map((name) => (name.length >= 1 ? this.filterColorRace(name) : this.colorRace)),
     );
   }
@@ -139,7 +140,7 @@ export class IdentificationComponent implements OnInit {
   showAllPerson() {
     this.filteredPerson = this.searchControlPerson.valueChanges.pipe(
       startWith(''),
-      map((value: any) => (typeof value === 'string' ? value : value?.name || '')),
+      map((value: Person | string) => (typeof value === 'string' ? value : value?.name || '')),
       map((name) => (name.length >= 1 ? this.filterPerson(name) : this.persons)),
     );
   }
@@ -147,7 +148,7 @@ export class IdentificationComponent implements OnInit {
   showAllChurch() {
     this.filteredChurch = this.searchControlChurch.valueChanges.pipe(
       startWith(''),
-      map((value: any) => (typeof value === 'string' ? value : value?.name || '')),
+      map((value: Church | string) => (typeof value === 'string' ? value : value?.name || '')),
       map((name) => (name.length >= 1 ? this.filterChurch(name) : this.churchs)),
     );
   }
@@ -155,7 +156,7 @@ export class IdentificationComponent implements OnInit {
   showAllCivilStatus() {
     this.filteredCivilStatus = this.searchControlCivilStatus.valueChanges.pipe(
       startWith(''),
-      map((value: any) => (typeof value === 'string' ? value : value?.name || '')),
+      map((value: CivilStatus | string) => (typeof value === 'string' ? value : value?.name || '')),
       map((name) => (name.length >= 1 ? this.filterCivilStatus(name) : this.civilStatus)),
     );
   }
@@ -163,7 +164,7 @@ export class IdentificationComponent implements OnInit {
   showAllColorRace() {
     this.filteredColorRace = this.searchControlColorRace.valueChanges.pipe(
       startWith(''),
-      map((value: any) => (typeof value === 'string' ? value : value?.name || '')),
+      map((value: ColorRace | string) => (typeof value === 'string' ? value : value?.name || '')),
       map((name) => (name.length >= 1 ? this.filterColorRace(name) : this.colorRace)),
     );
   }

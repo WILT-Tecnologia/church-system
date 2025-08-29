@@ -2,7 +2,7 @@
   <div class="wrapper">
     <mat-card appearance="outlined" class="participants-list">
       <mat-card-header>
-        <mat-card-title class="title">Participantes Adicionados</mat-card-title>
+        <mat-card-title class="title">Adicionados</mat-card-title>
       </mat-card-header>
       <mat-card-content>
         <mat-chip-listbox>
@@ -44,7 +44,11 @@
         <mat-divider class="divider"></mat-divider>
         <app-column [columns]="3">
           @for (member of paginatedMembers; track $index) {
-            <app-chip [chip]="member" (selectionChange)="onMemberSelectionChange($event)"></app-chip>
+            <app-chip
+              [chip]="member"
+              (selectionChange)="onMemberSelectionChange($event)"
+              [disabled]="isDisabled"
+            ></app-chip>
           } @empty {
             <mat-chip-listbox hideSingleSelectionIndicator="true" class="chip-list">
               <mat-chip disabled>Nenhum participante encontrado!</mat-chip>
@@ -53,7 +57,9 @@
         </app-column>
       </mat-card-content>
       <app-actions class="actions">
-        <button mat-flat-button color="primary" type="button" (click)="submitMember()">Adicionar Membro</button>
+        <button mat-flat-button color="primary" type="button" (click)="submitMember()" [disabled]="isDisabled">
+          Adicionar Membro
+        </button>
       </app-actions>
     </mat-card>
 
@@ -81,7 +87,11 @@
         <mat-divider class="divider"></mat-divider>
         <app-column [columns]="3">
           @for (guest of paginatedGuests; track guest.id) {
-            <app-chip [chip]="guest" (selectionChange)="onGuestSelectionChange($event)"></app-chip>
+            <app-chip
+              [chip]="guest"
+              (selectionChange)="onGuestSelectionChange($event)"
+              [disabled]="isDisabled"
+            ></app-chip>
           } @empty {
             <mat-chip-listbox hideSingleSelectionIndicator="true" class="chip-list">
               <mat-chip disabled>Nenhum convidado encontrado!</mat-chip>
@@ -90,7 +100,9 @@
         </app-column>
       </mat-card-content>
       <app-actions class="actions">
-        <button mat-flat-button color="primary" (click)="submitGuest()">Adicionar Convidado</button>
+        <button mat-flat-button color="primary" (click)="submitGuest()" [disabled]="isDisabled">
+          Adicionar Convidado
+        </button>
       </app-actions>
     </mat-card>
   </div>

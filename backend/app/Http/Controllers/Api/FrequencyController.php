@@ -11,29 +11,31 @@ use Illuminate\Http\Request;
 
 class FrequencyController extends Controller
 {
-     /**
-     * Display a listing of the resource.
-     */
-    public function index() {
-        return FrequencyResource::collection(Frequency::all());
+    public function index($eventoId, $eventCallId) {
+        $frequencies = Frequency::with(['eventCall.evento', 'member', 'guest'])
+            ->where('event_call_id', $eventCallId)
+            ->get();
+
+        return FrequencyResource::collection($frequencies);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreFrequencyRequest $request) {
+    public function store(StoreFrequencyRequest $request, $eventoId, $eventCallId) {
+        $request->merge(['event_call_id' => $eventCallId]);
         $frequency = Frequency::create($request->validated());
 
         return new FrequencyResource($frequency);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateFrequencyRequest $request, $id1, $id2, $id3) {
+    public function update(UpdateFrequencyRequest $request, $eventoId, $eventCallId, $frequencyId) {
+        $frequency = Frequency::where('id', $frequencyId)
+            ->whereHas('eventCall', function ($query) use ($eventCallId) {
+                $query->where('id', $eventCallId);
+            })
+            ->whereHas('eventCall.evento', function ($query) use ($eventoId) {
+                $query->where('id', $eventoId);
+            })
+            ->firstOrFail();
 
-        // dd($id3);
-        $frequency = Frequency::find($id3);
         $frequency->update($request->validated());
         return new FrequencyResource($frequency);
     }

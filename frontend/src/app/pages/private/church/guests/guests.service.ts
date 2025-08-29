@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Guest } from 'app/model/Events';
-import { environment } from 'environments/environment';
 import { Observable } from 'rxjs';
+
+import { Guest } from 'app/model/Guest';
+import { environment } from 'environments/environment';
 
 @Injectable({
   providedIn: 'root',

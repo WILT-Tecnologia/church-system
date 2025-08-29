@@ -58,36 +58,36 @@
 </div>
 
 <div class="mat-table-responsive">
-  <table [dataSource]="dataSourceMat" class="mat-elevation-z1" mat-table matSort>
+  <table [dataSource]="dataSourceMat" mat-table matSort>
     <ng-container *ngFor="let column of columnDefinitions" [matColumnDef]="column.key">
       <th mat-header-cell mat-sort-header *matHeaderCellDef class="mat-header-bold">
         {{ column.header }}
       </th>
-      <td *matCellDef="let fields" [title]="fields | formatValues: column.key : column.type" mat-cell>
+      <td *matCellDef="let fields" [title]="(fields | formatValues: column.key : column.type) ?? '--'" mat-cell>
         @switch (column.type) {
           @case ('date') {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
           @case ('string') {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
           @case ('cpf') {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
           @case ('cnpj') {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
           @case ('datetime') {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
           @case ('phone') {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
           @case ('sex') {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
           @case ('number') {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
           @case ('color') {
             <div class="color-display">
@@ -122,16 +122,16 @@
             </span>
           }
           @case ('currency') {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
           @case ('select') {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
           @case ('email') {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
           @default {
-            {{ fields | formatValues: column.key : column.type }}
+            {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
         }
       </td>
@@ -147,42 +147,47 @@
               </button>
               <mat-menu #menu="matMenu">
                 @for (action of actions; track $index) {
-                  @if (action.type === 'toggle') {
-                    <div class="toggle">
+                  @if (
+                    action.visible === undefined ||
+                    (typeof action.visible === 'function' ? action.visible(fields) : action.visible)
+                  ) {
+                    @if (action.type === 'toggle') {
+                      <div class="toggle">
+                        <button
+                          mat-flat-button
+                          [matTooltip]="tooltipLabel"
+                          [color]="fields.status ? 'warn' : 'primary'"
+                          (click)="action.action(fields)"
+                          type="button"
+                        >
+                          @if (action.icon) {
+                            <mat-icon>{{ action.icon }}</mat-icon>
+                          }
+                          <span>
+                            {{ fields.status ? 'Desativar' : 'Ativar' }}
+                          </span>
+                        </button>
+                      </div>
+                    }
+                    @if (action.type !== 'toggle') {
                       <button
-                        mat-flat-button
-                        [matTooltip]="tooltipLabel"
-                        [color]="fields.status ? 'warn' : 'primary'"
+                        mat-menu-item
+                        [matTooltip]="action.tooltip || ''"
                         (click)="action.action(fields)"
                         type="button"
                       >
                         @if (action.icon) {
-                          <mat-icon>{{ action.icon }}</mat-icon>
+                          <mat-icon [color]="action.color || 'primary'">
+                            {{ action.icon }}
+                          </mat-icon>
                         }
-                        <span>
-                          {{ fields.status ? 'Desativar' : 'Ativar' }}
-                        </span>
+                        @if (action.label) {
+                          <span [class]="action.type === 'delete' ? 'delete' : ''">
+                            {{ action.label }}
+                          </span>
+                        }
                       </button>
-                    </div>
-                  }
-                  @if (action.type !== 'toggle') {
-                    <button
-                      mat-menu-item
-                      [matTooltip]="action.tooltip || ''"
-                      (click)="action.action(fields)"
-                      type="button"
-                    >
-                      @if (action.icon) {
-                        <mat-icon [color]="action.color || 'primary'">
-                          {{ action.icon }}
-                        </mat-icon>
-                      }
-                      @if (action.label) {
-                        <span [class]="action.type === 'delete' ? 'delete' : ''">
-                          {{ action.label }}
-                        </span>
-                      }
-                    </button>
+                    }
                   }
                 }
               </mat-menu>
