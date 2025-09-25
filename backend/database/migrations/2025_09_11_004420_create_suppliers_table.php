@@ -16,7 +16,7 @@ return new class extends Migration
             $table->uuid('church_id');
             $table->string('name');
             $table->enum('type_supplier', ['PF', 'PJ']);
-            $table->string('cpf_cnpj')->unique();
+            $table->string('cpf_cnpj');
             $table->enum('type_service', ['Produto', 'Serviço', 'Ambos']);
             $table->string('pix_key')->nullable();
             $table->boolean('status')->default(true);
@@ -37,7 +37,7 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->foreign('church_id')->references('id')->on('churches')->onDelete('cascade');
-            
+
         });
     }
 
