@@ -1,25 +1,26 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit, Optional } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
+import { Profile } from 'app/model/Profile';
 import { User } from 'app/model/User';
 import { ValidationService } from 'app/services/validation/validation.service';
+
+import { ProfilesService } from '../../profiles/profiles.service';
 import { UsersService } from '../users.service';
 
 @Component({
@@ -37,19 +38,16 @@ import { UsersService } from '../users.service';
     CommonModule,
     ActionsComponent,
     ColumnComponent,
+    MatAutocompleteModule,
+    MatSelectModule,
   ],
 })
 export class UserFormComponent implements OnInit {
-  userForm: FormGroup;
-  users: User[] = [];
-  isEdit: boolean = false;
-  hide: boolean = true;
-  change_password: boolean = false;
-
   constructor(
     private fb: FormBuilder,
     private validationService: ValidationService,
     private usersService: UsersService,
+    private profilesService: ProfilesService,
     private toast: ToastService,
     private loadingService: LoadingService,
     private dialogRef: MatDialogRef<UserFormComponent>,
@@ -58,29 +56,25 @@ export class UserFormComponent implements OnInit {
     this.userForm = this.createForm();
   }
 
+  userForm: FormGroup;
+  users: User[] = [];
+  profiles: Profile[] = [];
+  isEdit: boolean = false;
+  hide: boolean = true;
+  change_password: boolean = false;
+
   ngOnInit() {
+    this.loadProfiles();
     this.checkEditMode();
   }
 
   createForm() {
     return this.fb.group({
       id: [this.data?.user?.id ?? ''],
-      name: [
-        this.data?.user?.name ?? '',
-        [
-          Validators.required,
-          Validators.minLength(3),
-          Validators.maxLength(255),
-        ],
-      ],
+      name: [this.data?.user?.name ?? '', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
       email: [
         this.data?.user?.email ?? '',
-        [
-          Validators.required,
-          Validators.email,
-          Validators.minLength(3),
-          Validators.maxLength(255),
-        ],
+        [Validators.required, Validators.email, Validators.minLength(3), Validators.maxLength(255)],
       ],
       password: [
         this.data?.user?.password ?? '',
@@ -95,6 +89,18 @@ export class UserFormComponent implements OnInit {
       ],
       status: [this.data?.user?.status ?? true],
       change_password: [this.data?.user?.change_password ?? true],
+      profile_id: [this.data?.user?.profile_id ?? '', Validators.required],
+    });
+  }
+
+  loadProfiles() {
+    this.profilesService.getProfiles().subscribe({
+      next: (profiles) => {
+        this.profiles = profiles.filter((p) => p.status); // Filtrar apenas perfis ativos
+      },
+      error: () => {
+        this.toast.openError('Erro ao carregar perfis.');
+      },
     });
   }
 
@@ -107,6 +113,11 @@ export class UserFormComponent implements OnInit {
       this.isEdit = true;
       this.userForm.get('password')?.clearValidators();
       this.userForm.get('password')?.updateValueAndValidity();
+
+      // Patch profile_id
+      this.userForm.patchValue({
+        profile_id: this.data.user.profile_id,
+      });
     }
   }
 
@@ -115,11 +126,7 @@ export class UserFormComponent implements OnInit {
     const passwordControl = this.userForm.get('password');
 
     if (this.change_password) {
-      passwordControl?.setValidators([
-        Validators.required,
-        Validators.minLength(8),
-        Validators.maxLength(30),
-      ]);
+      passwordControl?.setValidators([Validators.required, Validators.minLength(8), Validators.maxLength(30)]);
     } else {
       passwordControl?.reset();
     }
@@ -129,9 +136,7 @@ export class UserFormComponent implements OnInit {
 
   getErrorMessage(controlName: string) {
     const control = this.userForm.get(controlName);
-    return control?.errors
-      ? this.validationService.getErrorMessage(control)
-      : null;
+    return control?.errors ? this.validationService.getErrorMessage(control) : null;
   }
 
   onSuccess(message: string) {

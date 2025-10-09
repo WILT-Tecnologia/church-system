@@ -98,6 +98,8 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() modalComponent: Type<any> | null = null;
   @Input() findDataLabel: string = 'Atualizar';
   @Input() showFindDataButton: boolean = false;
+  @Input() canWrite: boolean = false;
+  @Input() canDelete: boolean = false;
 
   @Output() actionEvent = new EventEmitter<any>();
   @Output() add = new EventEmitter<void>();

@@ -23,6 +23,7 @@ type RouteProps = {
   path: string;
   icon: string;
   label: string;
+  permission?: string;
   items?: RouteProps[];
 };
 
@@ -30,6 +31,37 @@ type RouteSection = RouteProps;
 
 type IconMapProps = {
   [key: string]: string;
+};
+
+// Mapeamento de rotas para permissões (AJUSTADO para o formato snake_case e sem acentos do DB)
+const ROUTE_PERMISSIONS: { [key: string]: string } = {
+  dashboard: 'read_dashboard',
+  persons: 'read_pessoas',
+  churches: 'read_igrejas',
+  // Tipos de eventos
+  'event-types': 'read_tipos_de_eventos',
+  // Cargos ministeriais
+  occupations: 'read_cargos_ministeriais',
+  // Origem do membro
+  'member-origins': 'read_origem_do_membro',
+  // Usuários
+  users: 'read_usuarios',
+  // Perfis
+  profiles: 'read_perfis',
+  // Permissões
+  permissions: 'read_permissoes',
+  // Configurações
+  settings: 'read_configuracoes',
+  // Membros
+  members: 'read_membros',
+  // Convidados / Visitantes
+  guests: 'read_convidados_e_visitantes',
+  // Eventos
+  events: 'read_eventos',
+  // Tasks
+  tasks: 'read_tasks',
+  // Financeiro
+  financial: 'read_financeiro',
 };
 
 @Component({
@@ -68,6 +100,7 @@ export class NavbarComponent implements OnInit {
   step = signal(0);
   selectedChurchId: string | null = '';
   selectedChurchName: string = '';
+  permissions: string[] = [];
 
   constructor(
     private router: Router,
@@ -80,6 +113,7 @@ export class NavbarComponent implements OnInit {
 
   ngOnInit() {
     this.getData();
+    this.loadPermissions();
     this.initializeRoutes();
     this.getChurch();
     this.getUsername();
@@ -88,6 +122,13 @@ export class NavbarComponent implements OnInit {
     if (isPlatformBrowser(this.platformId)) {
       this.isMobile = window.innerWidth <= this.windowLength;
     }
+  }
+
+  private loadPermissions() {
+    this.authService.permissions$.subscribe((permissions) => {
+      this.permissions = permissions;
+      this.initializeRoutes(); // Reinicializar rotas quando permissões mudarem
+    });
   }
 
   private initializeRoutes() {
@@ -101,10 +142,10 @@ export class NavbarComponent implements OnInit {
       tasks: 'task',
       financial: 'attach_money',
       settings: 'settings',
-      person: 'person',
+      persons: 'person',
       churches: 'church',
       'event-types': 'event',
-      ordinations: 'work',
+      occupations: 'work',
       'member-origins': 'person_add',
       users: 'people',
       profiles: 'person',
@@ -117,15 +158,27 @@ export class NavbarComponent implements OnInit {
       .filter((route) => mainSections.includes(route.path || ''))
       .map((route) => {
         const sectionLabel = typeof route.title === 'string' ? route.title.split(' - ')[0] : route.path || '';
-
         const sectionIcon = iconMap[route.path || ''] || 'settings';
 
         const items = (route.children || [])
-          .filter((child) => child.path && child.title)
+          .filter((child) => {
+            if (!child.path || !child.title) return false;
+
+            // Verificar permissão
+            const permission = ROUTE_PERMISSIONS[child.path];
+            if (permission) {
+              // Se a permissão for definida, verifica se o usuário a possui.
+              return this.authService.hasPermission(permission);
+            }
+
+            // Se a permissão não for definida no ROUTE_PERMISSIONS, o item é exibido por padrão.
+            return true;
+          })
           .map((child) => ({
             path: child.path!,
             icon: child.path ? iconMap[child.path] || 'settings' : 'settings',
             label: typeof child.title === 'string' ? child.title.split(' - ')[0] : child.path!,
+            permission: ROUTE_PERMISSIONS[child.path!],
           }));
 
         return {
@@ -134,7 +187,9 @@ export class NavbarComponent implements OnInit {
           label: sectionLabel,
           items,
         };
-      });
+      })
+      // O FILTRO AQUI JÁ ESTÁ CORRETO: Remove seções sem itens permitidos.
+      .filter((section) => section.items.length > 0);
   }
 
   setStep(index: number) {
@@ -203,6 +258,7 @@ export class NavbarComponent implements OnInit {
       matrixParams: 'ignored',
     });
   }
+
   isRouteInSection(section: string): boolean {
     const currentUrl = this.router.url;
     if (section === 'administrative' && currentUrl.startsWith('/administrative')) return true;
@@ -213,6 +269,10 @@ export class NavbarComponent implements OnInit {
 
   isChurchSelected(): boolean {
     return !!localStorage.getItem('selectedChurch');
+  }
+
+  hasPermission(permission: string): boolean {
+    return this.authService.hasPermission(permission);
   }
 
   async navigateTo(pathname: string): Promise<boolean> {

@@ -2,18 +2,20 @@ export type Profile = {
   id: string;
   name: string;
   description: string;
+  guard_name: string;
+  modules: Module[];
+  permissions: ProfileModule[];
   status: boolean;
-  permissions: Module[];
-  profilesPermissions: ProfileModule[];
   created_at: string;
   updated_at: string;
 };
 
-export type Module = {
+export interface Module {
   id: string;
   name: string;
-  profilesModule: ProfileModule[];
-};
+  created_at?: string;
+  updated_at?: string;
+}
 
 export type ProfileModule = {
   id: string;

@@ -1,4 +1,4 @@
-@if (profiles && profiles.length > 0) {
+@if ((profiles && profiles.length > 0) || rendering) {
   <app-crud
     [fields]="profiles"
     [dataSourceMat]="dataSourceMat"
@@ -6,8 +6,11 @@
     (add)="onCreate()"
     (toggle)="toggleStatus($any($event))"
     [actions]="actions"
-    [enableToggleStatus]="true"
+    [canWrite]="true"
+    [canDelete]="true"
+    writePermission="write_perfis"
+    deletePermission="delete_perfis"
   ></app-crud>
 } @else {
-  <app-not-found-register (add)="onCreate()"></app-not-found-register>
+  <app-not-found-register (add)="onCreate()" writePermission="write_perfis"></app-not-found-register>
 }

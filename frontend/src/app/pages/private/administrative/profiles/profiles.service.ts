@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+
 import { Module, Profile, ProfileModule } from 'app/model/Profile';
 import { environment } from 'environments/environment';
-import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -25,10 +26,7 @@ export class ProfilesService {
     return this.http.post<Profile>(this.api, profile);
   }
 
-  updateProfile(
-    profileId: string,
-    profileData: Partial<Profile>,
-  ): Observable<Profile> {
+  updateProfile(profileId: string, profileData: Partial<Profile>): Observable<Profile> {
     return this.http.put<Profile>(`${this.api}/${profileId}`, profileData);
   }
 
@@ -49,11 +47,7 @@ export class ProfilesService {
     return this.http.get<Module[]>(`${this.api}/${profileId}/modules`);
   }
 
-  updatePermission(
-    profileId: string,
-    permissionId: string,
-    data: any,
-  ): Observable<ProfileModule> {
+  updatePermission(profileId: string, permissionId: string, data: any): Observable<ProfileModule> {
     return this.http.patch<ProfileModule>(
       `${this.apiUrlPermission}/profiles/${profileId}/modules/${permissionId}`,
       data,

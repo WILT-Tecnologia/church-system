@@ -1,21 +1,28 @@
-<form
-  [formGroup]="userForm"
-  (ngSubmit)="handleSubmit()"
-  class="form-field-group"
->
+<form [formGroup]="userForm" (ngSubmit)="handleSubmit()" class="form-field-group">
   <app-column>
     <mat-slide-toggle formControlName="status" color="primary"
       >{{ userForm.get('status')?.value ? 'Ativado' : 'Desativado' }}
     </mat-slide-toggle>
   </app-column>
 
-  <app-column>
+  <app-column [columns]="2">
     <mat-form-field appearance="fill">
       <mat-label>Nome</mat-label>
       <input matInput formControlName="name" maxlength="255" />
-      <mat-error
-        *ngIf="userForm.get('name')?.invalid && userForm.get('name')?.touched"
-        >{{ getErrorMessage('name') }}
+      <mat-error *ngIf="userForm.get('name')?.invalid && userForm.get('name')?.touched">
+        {{ getErrorMessage('name') }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Perfil</mat-label>
+      <mat-select formControlName="profile_id" required>
+        @for (profile of profiles; track profile.id) {
+          <mat-option [value]="profile.id">{{ profile.name }}</mat-option>
+        }
+      </mat-select>
+      <mat-error *ngIf="userForm.get('profile_id')?.invalid && userForm.get('profile_id')?.touched">
+        {{ getErrorMessage('profile_id') }}
       </mat-error>
     </mat-form-field>
   </app-column>
@@ -24,16 +31,11 @@
     <mat-form-field appearance="fill">
       <mat-label>E-mail</mat-label>
       <input type="email" matInput formControlName="email" maxlength="255" />
-      <mat-error
-        *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched"
-      >
+      <mat-error *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched">
         {{ getErrorMessage('email') }}
       </mat-error>
     </mat-form-field>
-    <mat-form-field
-      appearance="fill"
-      *ngIf="!isEdit || (isEdit && change_password)"
-    >
+    <mat-form-field appearance="fill" *ngIf="!isEdit || (isEdit && change_password)">
       <mat-label>Senha</mat-label>
       <input
         type="password"
@@ -46,44 +48,19 @@
       <button mat-icon-button matSuffix type="button" (click)="toggleHide()">
         <mat-icon>{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon>
       </button>
-      <mat-error
-        *ngIf="
-          userForm.get('password')?.invalid && userForm.get('password')?.touched
-        "
+      <mat-error *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched"
         >{{ getErrorMessage('password') }}
       </mat-error>
     </mat-form-field>
 
-    <div
-      *ngIf="isEdit && !change_password"
-      class="align-button-change-password"
-    >
-      <button
-        mat-stroked-button
-        color="primary"
-        type="button"
-        (click)="changePassword()"
-      >
-        Alterar Senha
-      </button>
+    <div *ngIf="isEdit && !change_password" class="align-button-change-password">
+      <button mat-stroked-button color="primary" type="button" (click)="changePassword()">Alterar Senha</button>
     </div>
   </app-column>
 
   <app-actions>
-    <button
-      type="button"
-      mat-stroked-button
-      color="warn"
-      (click)="handleBack()"
-    >
-      Cancelar
-    </button>
-    <button
-      mat-flat-button
-      color="primary"
-      type="submit"
-      [disabled]="userForm.invalid"
-    >
+    <button type="button" mat-stroked-button color="warn" (click)="handleBack()">Cancelar</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="userForm.invalid">
       {{ isEdit ? 'Atualizar' : 'Cadastrar' }}
     </button>
   </app-actions>

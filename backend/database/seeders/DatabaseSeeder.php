@@ -31,22 +31,17 @@ class DatabaseSeeder extends Seeder
             MemberSituationSeeder::class,
         ]);
 
-
-        // User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
-
         if (env('APP_ENV') == 'local') {
             $this->call([
                 UserSeeder::class,
-                ProfileAndModulesSeeder::class,
                 PersonSeeder::class,
                 ChurchSeeder::class,
                 MemberOriginSeeder::class,
                 EventTypeSeeder::class,
                 OccupationSeeder::class,
-                MembersSeeder::class
+                MembersSeeder::class,
+                ModuleSeeder::class,
+                PermissionSeeder::class
             ]);
         }
     }
