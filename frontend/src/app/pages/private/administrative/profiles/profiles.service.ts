@@ -2,7 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { Module, Profile, ProfileModule } from 'app/model/Profile';
+import { Modules } from 'app/model/Modules';
+import { Profile, ProfileModule } from 'app/model/Profile';
 import { environment } from 'environments/environment';
 
 @Injectable({
@@ -43,8 +44,8 @@ export class ProfilesService {
     return this.http.get<ProfileModule[]>(this.apiUrlPermission);
   }
 
-  getProfilePermissions(profileId: string): Observable<Module[]> {
-    return this.http.get<Module[]>(`${this.api}/${profileId}/modules`);
+  getProfilePermissions(profileId: string): Observable<Modules[]> {
+    return this.http.get<Modules[]>(`${this.api}/${profileId}/modules`);
   }
 
   updatePermission(profileId: string, permissionId: string, data: any): Observable<ProfileModule> {

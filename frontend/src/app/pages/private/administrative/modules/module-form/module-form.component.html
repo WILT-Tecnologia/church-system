@@ -1,0 +1,18 @@
+<form [formGroup]="moduleForm" (ngSubmit)="handleSubmit()" class="form-field-group">
+  <app-column [columns]="2">
+    <mat-form-field appearance="fill">
+      <mat-label>Nome</mat-label>
+      <input matInput formControlName="name" maxlength="255" />
+      <mat-error *ngIf="moduleForm.get('name')?.invalid && moduleForm.get('name')?.touched">
+        {{ getErrorMessage('name') }}
+      </mat-error>
+    </mat-form-field>
+  </app-column>
+
+  <app-actions>
+    <button type="button" mat-stroked-button color="warn" (click)="handleBack()">Cancelar</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="moduleForm.invalid">
+      {{ isEdit ? 'Atualizar' : 'Cadastrar' }}
+    </button>
+  </app-actions>
+</form>

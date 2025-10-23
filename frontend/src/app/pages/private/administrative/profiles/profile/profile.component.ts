@@ -16,11 +16,12 @@ import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
-import { Module, Profile, ProfileModule } from 'app/model/Profile';
+import { Modules } from 'app/model/Modules';
+import { Profile, ProfileModule } from 'app/model/Profile';
 import { AuthService } from 'app/services/auth/auth.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 
-import { ModuleService } from '../modules.service';
+import { ModuleService } from '../../modules/modules.service';
 import { ProfilesService } from '../profiles.service';
 
 @Component({
@@ -62,7 +63,7 @@ export class ProfileComponent implements OnInit {
 
   profileForm: FormGroup;
   profile: Profile[] = [];
-  modules: Module[] = [];
+  modules: Modules[] = [];
   profileModule: ProfileModule[] = [];
   displayedColumns: string[] = ['name', 'can_read', 'can_write', 'can_delete'];
   isEditMode: boolean = false;

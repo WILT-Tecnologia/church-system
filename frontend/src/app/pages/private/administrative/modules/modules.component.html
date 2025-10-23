@@ -1,0 +1,13 @@
+@if ((modules && modules.length > 0) || rendering) {
+  <app-crud
+    [fields]="modules"
+    [dataSourceMat]="dataSourceMat"
+    [columnDefinitions]="columnDefinitions"
+    (add)="onCreate()"
+    [actions]="actions"
+    [canWrite]="true"
+    [canDelete]="true"
+  ></app-crud>
+} @else {
+  <app-not-found-register (add)="onCreate()"></app-not-found-register>
+}
