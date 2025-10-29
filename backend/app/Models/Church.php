@@ -61,4 +61,9 @@ class Church extends Model
     {
         return $this->hasMany(Patrimony::class);
     }
+
+    public function suppliers(): HasMany
+    {
+        return $this->hasMany(Supplier::class);
+    }
 }
