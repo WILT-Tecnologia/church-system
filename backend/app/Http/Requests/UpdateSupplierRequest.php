@@ -25,11 +25,12 @@ class UpdateSupplierRequest extends FormRequest
      */
     public function rules(): array
     {
+        // dd($this->supplier->id);
          return [
-            'church_id'     => ['sometimes','required','uuid', 'exists:churches,id'],
+            'church_id'     => ['sometimes', 'required', 'uuid', 'exists:churches,id'],
             'name'          => ['sometimes','required'],
             'type_supplier' => ['sometimes','required', new Enum(TypeSupplierEnum::class)],
-            'cpf_cnpj'      => ['sometimes','required', 'string' . $this->suplier->id],
+            'cpf_cnpj'      => ['sometimes','required', 'string'],
             'type_service'  => ['sometimes','required', new Enum(TypeServiceEnum::class)],
             'pix_key'       => ['sometimes','nullable', 'string', 'max:255'],
             'status'        => ['sometimes','boolean'],
@@ -83,30 +84,29 @@ class UpdateSupplierRequest extends FormRequest
 
         return true;
     }
-
     private function isValidCNPJ(string $cnpj): bool
     {
-        if (strlen($cnpj) !== 14 || preg_match('/(\d)\1{13}/', $cnpj)) {
+        $cnpj = preg_replace('/\D/', '', $cnpj);
+
+        if (strlen($cnpj) != 14 || preg_match('/(\d)\1{13}/', $cnpj)) {
             return false;
         }
 
-        $tamanho = [5, 6];
-        for ($i = 0; $i < 2; $i++) {
-            $soma = 0;
-            $pos = $tamanho[$i];
-            for ($j = 0; $j < $pos + 7; $j++) {
-                $soma += $cnpj[$j] * $pos;
-                $pos--;
-                if ($pos < 2) $pos = 9;
-            }
+        $b = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
 
-            $resultado = ($soma % 11) < 2 ? 0 : 11 - ($soma % 11);
-            if ($cnpj[$pos + 7] != $resultado) {
-                return false;
-            }
+        for ($i = 0, $n = 0; $i < 12; $i++) {
+            $n += $cnpj[$i] * $b[$i + 1];
         }
 
-        return true;
+        $d1 = ($n % 11 < 2) ? 0 : 11 - ($n % 11);
+        if ($cnpj[12] != $d1) return false;
+
+        for ($i = 0, $n = 0; $i < 13; $i++) {
+            $n += $cnpj[$i] * $b[$i];
+        }
+
+        $d2 = ($n % 11 < 2) ? 0 : 11 - ($n % 11);
+        return $cnpj[13] == $d2;
     }
 
 }

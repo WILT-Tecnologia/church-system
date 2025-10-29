@@ -42,7 +42,9 @@ class SupplierController extends Controller
      */
     public function update(UpdateSupplierRequest $request, Supplier $supplier)
     {
-        $supplier->update($request->validated());
+        $data = $request->validated();
+
+        $supplier->update($data);
 
         return new SupplierResource($supplier);
     }
