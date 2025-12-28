@@ -14,27 +14,29 @@ class ModuleSeeder extends Seeder
     public function run(): void {
         $modules = [
             // Administrativo
-            ['name' => 'Dashboard'],
-            ['name' => 'Pessoas'],
-            ['name' => 'Igrejas'],
-            ['name' => 'Tipos de eventos'],
-            ['name' => 'Cargos ministeriais'],
-            ['name' => 'Origem do membro'],
-            ['name' => 'Usuários'],
-            ['name' => 'Perfis'],
-            ['name' => 'Permissões'],
-            ['name' => 'Configurações'],
+            ['name' => 'Dashboard Administrativo', 'context' => 'administrative'],
+            ['name' => 'Pessoas', 'context' => 'administrative'],
+            ['name' => 'Igrejas', 'context' => 'administrative'],
+            ['name' => 'Tipos de eventos', 'context' => 'administrative'],
+            ['name' => 'Cargos ministeriais', 'context' => 'administrative'],
+            ['name' => 'Origem do membro', 'context' => 'administrative'],
+            ['name' => 'Usuários', 'context' => 'administrative'],
+            ['name' => 'Perfis', 'context' => 'administrative'],
+            ['name' => 'Módulos', 'context' => 'administrative'],
+            ['name' => 'Configurações Administrativas', 'context' => 'administrative'],
 
             // Igreja
-            ['name' => 'Membros'],
-            ['name' => 'Convidados e Visitantes'],
-            ['name' => 'Eventos'],
-            ['name' => 'Tasks'],
-            ['name' => 'Financeiro'],
+            ['name' => 'Dashboard Igreja', 'context' => 'church'],
+            ['name' => 'Membros', 'context' => 'church'],
+            ['name' => 'Convidados e Visitantes', 'context' => 'church'],
+            ['name' => 'Eventos', 'context' => 'church'],
+            ['name' => 'Tasks', 'context' => 'church'],
+            ['name' => 'Financeiro', 'context' => 'church'],
+            ['name' => 'Configurações Igreja', 'context' => 'church'],
         ];
 
         foreach ($modules as $module) {
-            Module::firstOrCreate(['name' => $module['name']]);
+            Module::firstOrCreate(['name' => $module['name'], 'context' => $module['context']], $module);
         }
     }
 }

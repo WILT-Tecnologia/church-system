@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Profile;
 use App\Models\Module;
+use App\Services\PermissionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -13,13 +14,9 @@ use Illuminate\Support\Str;
 
 class ProfileController extends Controller
 {
-    // Função auxiliar para padronizar o nome do módulo, como no seeder
-    private function normalizeModuleName(string $name): string {
-        $lower = Str::lower($name);
-        $cleaned = str_replace([' ', '/', '_'], '_', $lower);
-        $normalized = iconv('UTF-8', 'ASCII//TRANSLIT', $cleaned);
-        return Str::snake($normalized);
-    }
+    public function __construct(
+        private PermissionService $permissionService
+    ) {}
 
     public function index() {
         $profiles = Profile::with(['permissions', 'module'])->orderBy('status', 'desc')->orderBy('name', 'asc')->get();
@@ -86,9 +83,11 @@ class ProfileController extends Controller
 
             $permissions = [];
             foreach ($request->modules as $moduleData) {
-                $module = Module::find($moduleData['module_id']);
+                $moduleId = $moduleData['module_id'];
 
-                $moduleNameKey = $this->normalizeModuleName($module->name);
+                $module = Module::findOrFail($moduleId);
+
+                $moduleKey = $this->permissionService->permissionKey($module);
 
                 DB::table('profile_modules')->insert([
                     'id' => DB::raw('gen_random_uuid()'),
@@ -102,18 +101,18 @@ class ProfileController extends Controller
                 ]);
 
                 if ($moduleData['can_read'] ?? false) {
-                    $permissions[] = "read_{$moduleNameKey}";
+                    $permissions[] = "read_{$moduleKey}";
                 }
+
                 if ($moduleData['can_write'] ?? false) {
-                    $permissions[] = "write_{$moduleNameKey}";
+                    $permissions[] = "write_{$moduleKey}";
                 }
+
                 if ($moduleData['can_delete'] ?? false) {
-                    $permissions[] = "delete_{$moduleNameKey}";
+                    $permissions[] = "delete_{$moduleKey}";
                 }
             }
 
-            // CORREÇÃO: Forçar a criação/existência da permissão com o guard correto
-            // Se a permissão não existir no guard 'sanctum', ela será criada.
             foreach ($permissions as $permissionName) {
                 Permission::firstOrCreate(
                     ['name' => $permissionName, 'guard_name' => $guardApi],
@@ -214,9 +213,11 @@ class ProfileController extends Controller
 
             $permissions = [];
             foreach ($request->modules as $moduleData) {
-                $module = Module::find($moduleData['module_id']);
+                $moduleId = $moduleData['module_id'];
 
-                $moduleNameKey = $this->normalizeModuleName($module->name);
+                $module = Module::findOrFail($moduleId);
+
+                $moduleKey = $this->permissionService->permissionKey($module);
 
                 DB::table('profile_modules')->insert([
                     'id' => DB::raw('gen_random_uuid()'),
@@ -230,18 +231,18 @@ class ProfileController extends Controller
                 ]);
 
                 if ($moduleData['can_read'] ?? false) {
-                    $permissions[] = "read_{$moduleNameKey}";
+                    $permissions[] = "read_{$moduleKey}";
                 }
+
                 if ($moduleData['can_write'] ?? false) {
-                    $permissions[] = "write_{$moduleNameKey}";
+                    $permissions[] = "write_{$moduleKey}";
                 }
+
                 if ($moduleData['can_delete'] ?? false) {
-                    $permissions[] = "delete_{$moduleNameKey}";
+                    $permissions[] = "delete_{$moduleKey}";
                 }
             }
 
-            // CORREÇÃO: Forçar a criação/existência da permissão com o guard correto
-            // Se a permissão não existir no guard 'sanctum', ela será criada.
             foreach ($permissions as $permissionName) {
                 Permission::firstOrCreate(
                     ['name' => $permissionName, 'guard_name' => $guardApi],

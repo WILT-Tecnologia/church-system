@@ -33,35 +33,27 @@ type IconMapProps = {
   [key: string]: string;
 };
 
-// Mapeamento de rotas para permissões (AJUSTADO para o formato snake_case e sem acentos do DB)
 const ROUTE_PERMISSIONS: { [key: string]: string } = {
-  dashboard: 'read_dashboard',
-  persons: 'read_pessoas',
-  churches: 'read_igrejas',
-  // Tipos de eventos
-  'event-types': 'read_tipos_de_eventos',
-  // Cargos ministeriais
-  occupations: 'read_cargos_ministeriais',
-  // Origem do membro
-  'member-origins': 'read_origem_do_membro',
-  // Usuários
-  users: 'read_usuarios',
-  // Perfis
-  profiles: 'read_perfis',
-  // Permissões
-  permissions: 'read_permissoes',
-  // Configurações
-  settings: 'read_configuracoes',
-  // Membros
-  members: 'read_membros',
-  // Convidados / Visitantes
-  guests: 'read_convidados_e_visitantes',
-  // Eventos
-  events: 'read_eventos',
-  // Tasks
-  tasks: 'read_tasks',
-  // Financeiro
-  financial: 'read_financeiro',
+  /* Administrative */
+  'dashboard-administrativo': 'read_administrative_dashboard_administrativo',
+  persons: 'read_administrative_pessoas',
+  churches: 'read_administrative_igrejas',
+  'event-types': 'read_administrative_tipos_de_eventos',
+  occupations: 'read_administrative_cargos_ministeriais',
+  'member-origins': 'read_administrative_origem_do_membro',
+  users: 'read_administrative_usuarios',
+  profiles: 'read_administrative_perfis',
+  modules: 'read_administrative_modulos',
+  'settings-administrative': 'read_administrative_configuracoes_administrativas',
+
+  /* Church */
+  'dashboard-church': 'read_church_dashboard_igreja',
+  members: 'read_church_membros',
+  guests: 'read_church_convidados_e_visitantes',
+  events: 'read_church_eventos',
+  tasks: 'read_church_tasks',
+  financial: 'read_church_financeiro',
+  'settings-church': 'read_church_configuracoes_igreja',
 };
 
 @Component({
@@ -114,7 +106,6 @@ export class NavbarComponent implements OnInit {
   ngOnInit() {
     this.getData();
     this.loadPermissions();
-    this.initializeRoutes();
     this.getChurch();
     this.getUsername();
     this.getRouteEvents();
@@ -127,7 +118,7 @@ export class NavbarComponent implements OnInit {
   private loadPermissions() {
     this.authService.permissions$.subscribe((permissions) => {
       this.permissions = permissions;
-      this.initializeRoutes(); // Reinicializar rotas quando permissões mudarem
+      this.initializeRoutes();
     });
   }
 
@@ -164,14 +155,12 @@ export class NavbarComponent implements OnInit {
           .filter((child) => {
             if (!child.path || !child.title) return false;
 
-            // Verificar permissão
             const permission = ROUTE_PERMISSIONS[child.path];
+
             if (permission) {
-              // Se a permissão for definida, verifica se o usuário a possui.
               return this.authService.hasPermission(permission);
             }
 
-            // Se a permissão não for definida no ROUTE_PERMISSIONS, o item é exibido por padrão.
             return true;
           })
           .map((child) => ({
@@ -188,7 +177,6 @@ export class NavbarComponent implements OnInit {
           items,
         };
       })
-      // O FILTRO AQUI JÁ ESTÁ CORRETO: Remove seções sem itens permitidos.
       .filter((section) => section.items.length > 0);
   }
 

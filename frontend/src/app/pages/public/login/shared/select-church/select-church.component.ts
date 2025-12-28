@@ -7,6 +7,8 @@ import { Router } from '@angular/router';
 
 import { Church } from 'app/model/Church';
 import { ChurchsService } from 'app/pages/private/administrative/churches/churches.service';
+import { AuthService } from 'app/services/auth/auth.service';
+import { RouteFallbackService } from 'app/services/guards/route-fallback.service';
 
 @Component({
   selector: 'app-select-church',
@@ -21,6 +23,8 @@ export class SelectChurchComponent implements OnInit {
   constructor(
     private router: Router,
     private churchService: ChurchsService,
+    private authService: AuthService,
+    private routeFallbackService: RouteFallbackService,
     @Inject(PLATFORM_ID) private platformId: object,
   ) {}
 
@@ -47,9 +51,14 @@ export class SelectChurchComponent implements OnInit {
     }
   }
 
+  // No selectChurch()
   selectChurch(church: Church): Promise<boolean> {
     this.churchService.setSelectedChurch(church);
-    return this.router.navigateByUrl('/church/dashboard');
+    localStorage.setItem('selectedChurch', church.id);
+
+    const permissions = this.authService.getPermissions();
+    const firstRoute = this.routeFallbackService.getFirstAllowedRoute(permissions);
+    return this.router.navigateByUrl(firstRoute);
   }
 
   clearSelectedChurch(): void {

@@ -37,8 +37,9 @@ export class ModulesComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   columnDefinitions: ColumnDefinitionsProps[] = [
-    { key: 'name', header: 'Cargo', type: 'string' },
-    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
+    { key: 'name', header: 'Módulo', type: 'string' },
+    { key: 'context', header: 'Onde pertence', type: 'string' },
+    { key: 'created_at', header: 'Data de Criação', type: 'datetime' },
   ];
 
   actions: ActionsProps[] = [
@@ -64,11 +65,13 @@ export class ModulesComponent implements OnInit {
   loadModules() {
     this.moduleService.getAll().subscribe({
       next: (modules) => {
-        this.modules = modules;
+        this.modules = modules.map((module) => ({
+          ...module,
+          context: this.formatContext(module.context),
+        }));
         this.dataSourceMat.data = this.modules;
         this.dataSourceMat.paginator = this.paginator;
         this.dataSourceMat.sort = this.sort;
-        this.rendering = false;
       },
       error: () => {
         this.loading.hide();
@@ -76,6 +79,14 @@ export class ModulesComponent implements OnInit {
       },
       complete: () => this.loading.hide(),
     });
+  }
+
+  private formatContext(context: string): string {
+    const contextMap: { [key: string]: string } = {
+      church: 'Igreja',
+      administrative: 'Administrativo',
+    };
+    return contextMap[context] || context;
   }
 
   onCreate() {

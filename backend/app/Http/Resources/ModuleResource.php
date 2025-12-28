@@ -17,6 +17,7 @@ class ModuleResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'context' => $this->context,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

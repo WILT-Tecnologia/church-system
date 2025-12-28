@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('module', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name')->unique();
+            $table->string('context')->after('name');
             $table->timestamps();
             $table->softDeletes();
         });

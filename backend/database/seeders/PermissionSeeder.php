@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Services\PermissionService;
 use Illuminate\Database\Seeder;
 use App\Models\Permission;
 use App\Models\Module;
@@ -13,21 +14,13 @@ use Illuminate\Support\Str;
 class PermissionSeeder extends Seeder
 {
     private function normalizeModuleName(string $name): string {
-        // 1. Converte para minúsculas
         $lower = Str::lower($name);
-
-        // 2. Substitui barras e espaços por sublinhado ANTES de remover acentos.
         $cleaned = str_replace([' ', '/'], '_', $lower);
-
-        // 3. Remove acentos e normaliza
-        // Nota: O ícone é usado para remover acentos de forma robusta.
         $normalized = iconv('UTF-8', 'ASCII//TRANSLIT', $cleaned);
-
-        // 4. Aplica Str::snake() no resultado final (mantido por segurança)
         return Str::snake($normalized);
     }
 
-    public function run() {
+    public function run(PermissionService $permissionService) {
         $guardApi = 'sanctum';
 
         $adminProfile = Profile::firstOrCreate(
@@ -46,7 +39,7 @@ class PermissionSeeder extends Seeder
         $modules = Module::all();
         foreach ($modules as $module) {
             $guard = $guardApi;
-            $moduleKey = $this->normalizeModuleName($module->name);
+            $moduleKey = $permissionService->permissionKey($module);
 
             // Criação das Permissões (Read, Write, Delete)
             Permission::findOrCreate("read_{$moduleKey}", $guard);

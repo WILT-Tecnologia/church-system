@@ -24,20 +24,20 @@ Route::prefix('auth')->middleware('auth:sanctum')->group(function () {
 
 Route::prefix('admin')->middleware(['cors', 'auth:sanctum'])->group(function () {
     // Permissões Administrativas
-    $permissions_dashboard = 'read_dashboard';
-    $permissions_users = 'read_usuarios|write_usuarios|delete_usuarios';
-    $permissions_profiles = 'read_perfis|write_perfis|delete_perfis';
-    $permissions_permissions = 'read_permissoes|write_permissoes|delete_permissoes';
-    $permissions_persons = 'read_pessoas|write_pessoas|delete_pessoas';
-    $permissions_churches = 'read_igrejas|write_igrejas|delete_igrejas';
-    $permissions_occupations = 'read_cargos_ministeriais|write_cargos_ministeriais|delete_cargos_ministeriais';
-    $permissions_event_types = 'read_tipos_de_eventos|write_tipos_de_eventos|delete_tipos_de_eventos';
-    $permissions_member_origins = 'read_origem_do_membro|write_origem_do_membro|delete_origem_do_membro';
+    $permissions_dashboard = 'read_administrative_dashboard_administrativo';
+    $permissions_users = 'read_administrative_usuarios|write_administrative_usuarios|delete_administrative_usuarios';
+    $permissions_profiles = 'read_administrative_perfis|write_administrative_perfis|delete_administrative_perfis';
+    $permissions_modules = 'read_administrative_modulos|write_administrative_modulos|delete_administrative_modulos';
+    $permissions_persons = 'read_administrative_pessoas|write_administrative_pessoas|delete_administrative_pessoas';
+    $permissions_churches = 'read_administrative_igrejas|write_administrative_igrejas|delete_administrative_igrejas';
+    $permissions_occupations = 'read_administrative_cargos_ministeriais|write_administrative_cargos_ministeriais|delete_administrative_cargos_ministeriais';
+    $permissions_event_types = 'read_administrative_tipos_de_eventos|write_administrative_tipos_de_eventos|delete_administrative_tipos_de_eventos';
+    $permissions_member_origins = 'read_administrative_origem_do_membro|write_administrative_origem_do_membro|delete_administrative_origem_do_membro';
 
     // Rotas de Recursos
     Route::apiResource('users', \App\Http\Controllers\Api\UserController::class)->middleware("permission:{$permissions_users}");
     Route::apiResource('profiles', \App\Http\Controllers\Api\ProfileController::class)->middleware("permission:{$permissions_profiles}");
-    Route::apiResource('modules', \App\Http\Controllers\Api\ModuleController::class)->middleware("permission:{$permissions_permissions}");
+    Route::apiResource('modules', \App\Http\Controllers\Api\ModuleController::class)->middleware("permission:{$permissions_modules}");
     Route::apiResource('persons', \App\Http\Controllers\Api\PersonController::class)->middleware("permission:{$permissions_persons}");
     Route::apiResource('churches', \App\Http\Controllers\ChurchController::class)->middleware("permission:{$permissions_churches}");
     Route::apiResource('occupations', \App\Http\Controllers\Api\OccupationController::class)->middleware("permission:{$permissions_occupations}");
@@ -52,12 +52,13 @@ Route::prefix('admin')->middleware(['cors', 'auth:sanctum'])->group(function () 
 
 Route::prefix('church')->middleware(['cors', 'auth:sanctum'])->group(function () {
     // Permissões da Igreja
-    $permissions_members = 'read_membros|write_membros|delete_membros';
-    $permissions_guests = 'read_convidados_e_visitantes|write_convidados_e_visitantes|delete_convidados_e_visitantes';
-    $permissions_events = 'read_eventos|write_eventos|delete_eventos';
-    $permissions_tasks = 'read_tasks|write_tasks|delete_tasks';
-    $permissions_financial = 'read_financeiro|write_financeiro|delete_financeiro';
-    $permissions_patrimony = 'read_patrimonies|write_patrimonies|delete_patrimonies';
+    $permissions_members = 'read_church_membros|write_church_membros|delete_church_membros';
+    $permissions_guests = 'read_church_convidados_e_visitantes|write_church_convidados_e_visitantes|delete_church_convidados_e_visitantes';
+    $permissions_events = 'read_church_eventos|write_church_eventos|delete_church_eventos';
+    $permissions_tasks = 'read_church_tasks|write_church_tasks|delete_church_tasks';
+    $permissions_financial = 'read_church_financeiro|write_church_financeiro|delete_church_financeiro';
+    $permissions_patrimony = 'read_church_patrimonio|write_church_patrimonio|delete_church_patrimonio';
+
 
     // Rotas de Recursos
     Route::apiResource('members', \App\Http\Controllers\Api\MemberController::class)->middleware("permission:{$permissions_members}");

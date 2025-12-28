@@ -8,6 +8,8 @@ import { Church } from 'app/model/Church';
 import { User } from 'app/model/User';
 import { environment } from 'environments/environment';
 
+import { RouteFallbackService } from '../guards/route-fallback.service';
+
 interface LoginResponse {
   status: boolean;
   token: string;
@@ -34,6 +36,7 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
+    private routeFallbackService: RouteFallbackService,
     @Inject(PLATFORM_ID) private platformId: object,
   ) {
     this.checkInitialAuthState();
@@ -53,7 +56,7 @@ export class AuthService {
     }
   }
 
-  login(email: string, password: string): Observable<LoginResponse> {
+  /* login(email: string, password: string): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, { email, password }).pipe(
       tap((response) => {
         if (response.status && response.token) {
@@ -66,7 +69,39 @@ export class AuthService {
           if (response.churches && response.churches.length > 0) {
             this.router.navigateByUrl('/select-church');
           } else {
-            this.router.navigateByUrl('/church/dashboard');
+            this.router.navigateByUrl('/church/dashboard-church');
+          }
+        }
+      }),
+    );
+  } */
+
+  login(email: string, password: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, { email, password }).pipe(
+      tap((response) => {
+        if (response.status && response.token) {
+          this.setValues(response.token, response.user, response.permissions);
+          this.isLoggedInSubject.next(true);
+          this.userSubject.next(response.user);
+          this.permissionsSubject.next(response.permissions);
+
+          if (response.churches && response.churches.length > 0) {
+            localStorage.setItem('churches', JSON.stringify(response.churches));
+          }
+
+          const permissions = response.permissions || [];
+
+          if (response.churches?.length > 1) {
+            this.router.navigate(['/select-church']);
+          } else if (response.churches?.length === 1) {
+            const church = response.churches[0];
+            localStorage.setItem('selectedChurch', church.id);
+
+            const firstRoute = this.routeFallbackService.getFirstAllowedRoute(permissions);
+            this.router.navigateByUrl(firstRoute);
+          } else {
+            const firstRoute = this.routeFallbackService.getFirstAllowedRoute(permissions);
+            this.router.navigateByUrl(firstRoute);
           }
         }
       }),
@@ -119,19 +154,19 @@ export class AuthService {
     return permissionList.every((p) => permissions.includes(p));
   }
 
-  canRead(moduleName: string): boolean {
-    const moduleKey = this.normalizeModuleName(moduleName);
-    return this.hasPermission(`read_${moduleKey}`);
+  canRead(context: 'administrative' | 'church', moduleName: string): boolean {
+    const key = this.normalizeModuleName(moduleName);
+    return this.hasPermission(`read_${context}_${key}`);
   }
 
-  canWrite(moduleName: string): boolean {
-    const moduleKey = this.normalizeModuleName(moduleName);
-    return this.hasPermission(`write_${moduleKey}`);
+  canWrite(context: 'administrative' | 'church', moduleName: string): boolean {
+    const key = this.normalizeModuleName(moduleName);
+    return this.hasPermission(`write_${context}_${key}`);
   }
 
-  canDelete(moduleName: string): boolean {
-    const moduleKey = this.normalizeModuleName(moduleName);
-    return this.hasPermission(`delete_${moduleKey}`);
+  canDelete(context: 'administrative' | 'church', moduleName: string): boolean {
+    const key = this.normalizeModuleName(moduleName);
+    return this.hasPermission(`delete_${context}_${key}`);
   }
 
   isAuthenticated(): boolean {
@@ -161,6 +196,13 @@ export class AuthService {
                 window.location.reload();
                 resolve();
               });
+            },
+            complete: () => {
+              this.clearAuth();
+              this.router.navigateByUrl('/login').then(() => {
+                resolve();
+              });
+              window.location.reload();
             },
           });
         } else {

@@ -3,10 +3,7 @@
     [fields]="modules"
     [dataSourceMat]="dataSourceMat"
     [columnDefinitions]="columnDefinitions"
-    (add)="onCreate()"
-    [actions]="actions"
-    [canWrite]="true"
-    [canDelete]="true"
+    [enableAddButtonAdd]="false"
   ></app-crud>
 } @else {
   <app-not-found-register (add)="onCreate()"></app-not-found-register>

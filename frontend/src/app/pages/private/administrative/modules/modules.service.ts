@@ -2,14 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
+import { Modules } from 'app/model/Modules';
 import { environment } from 'environments/environment';
-
-export interface Module {
-  id: string;
-  name: string;
-  created_at?: string;
-  updated_at?: string;
-}
 
 @Injectable({
   providedIn: 'root',
@@ -19,19 +13,19 @@ export class ModuleService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<Module[]> {
-    return this.http.get<Module[]>(this.apiUrl);
+  getAll(): Observable<Modules[]> {
+    return this.http.get<Modules[]>(this.apiUrl);
   }
 
-  getById(id: string): Observable<Module> {
-    return this.http.get<Module>(`${this.apiUrl}/${id}`);
+  getById(id: string): Observable<Modules> {
+    return this.http.get<Modules>(`${this.apiUrl}/${id}`);
   }
 
-  create(module: Partial<Module>): Observable<any> {
+  create(module: Partial<Modules>): Observable<any> {
     return this.http.post(this.apiUrl, module);
   }
 
-  update(id: string, module: Partial<Module>): Observable<any> {
+  update(id: string, module: Partial<Modules>): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, module);
   }
 

@@ -18,7 +18,7 @@
   <app-column>
     <mat-form-field appearance="fill">
       <mat-label>Descrição</mat-label>
-      <textarea matInput rows="5" formControlName="description" maxlength="255"></textarea>
+      <textarea matInput rows="3" formControlName="description" maxlength="255"></textarea>
       <mat-error *ngIf="profileForm.get('description')?.invalid && profileForm.get('description')?.touched"
         >{{ getErrorMessage('description') }}
       </mat-error>
@@ -39,7 +39,7 @@
       </ng-container>
 
       <ng-container matColumnDef="can_read">
-        <th mat-header-cell *matHeaderCellDef>Leitura</th>
+        <th mat-header-cell *matHeaderCellDef>Ler</th>
         <td mat-cell *matCellDef="let control">
           <!-- Conecta o checkbox diretamente ao FormControl da linha -->
           <mat-checkbox [formControl]="control.get('can_read')"></mat-checkbox>
@@ -47,27 +47,27 @@
       </ng-container>
 
       <ng-container matColumnDef="can_write">
-        <th mat-header-cell *matHeaderCellDef>Escrita</th>
+        <th mat-header-cell *matHeaderCellDef>Editar</th>
         <td mat-cell *matCellDef="let control">
           <mat-checkbox [formControl]="control.get('can_write')"></mat-checkbox>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="can_delete">
-        <th mat-header-cell *matHeaderCellDef>Exclusão</th>
+        <th mat-header-cell *matHeaderCellDef>Excluir</th>
         <td mat-cell *matCellDef="let control">
           <mat-checkbox [formControl]="control.get('can_delete')"></mat-checkbox>
         </td>
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <!-- Aplica [formGroupName] à linha usando o índice 'i' -->
       <tr mat-row *matRowDef="let row; columns: displayedColumns; let i = index" [formGroupName]="i"></tr>
     </table>
   } @else {
     <p>Carregando módulos ou nenhum módulo disponível...</p>
   }
 
+  <mat-divider></mat-divider>
   <app-actions>
     <button type="button" mat-stroked-button color="warn" (click)="handleBack()">Cancelar</button>
     <button type="submit" mat-flat-button color="primary" [disabled]="profileForm.invalid">
