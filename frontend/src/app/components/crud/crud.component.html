@@ -1,4 +1,4 @@
-@if (enableAddButtonAdd) {
+@if (enableAddButtonAdd && canAddOrEdit) {
   <div class="add-button">
     <button type="button" mat-flat-button color="primary" (click)="add.emit()">
       {{ ctaLabel || 'Adicionar' }}

@@ -19,9 +19,11 @@ class HistMemberController extends Controller
         try {
             $histMember = HistMember::with('member')->get();
 
-            return HistMemberResource::collection($histMember);
+            return $histMember->map(function ($item) {
+                return (new HistMemberResource($item))->toArray(request());
+            })->toArray();
         } catch (ModelNotFoundException $e) {
-            return response()->json([], 201);
+            return [];
         }
     }
 

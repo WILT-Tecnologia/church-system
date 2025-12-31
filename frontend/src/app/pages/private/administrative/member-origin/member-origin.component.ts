@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginator } from '@angular/material/paginator';
@@ -15,7 +15,7 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { MemberOrigin } from 'app/model/MemberOrigins';
-
+import { AuthService } from 'app/services/auth/auth.service';
 import { MemberOriginFormComponent } from './member-origin-form/member-origin-form.component';
 import { MemberOriginService } from './member-origin.service';
 
@@ -33,6 +33,8 @@ export class MemberOriginComponent implements OnInit {
     private confirmService: ConfirmService,
     private MemberOriginService: MemberOriginService,
   ) {}
+
+  private authService = inject(AuthService);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -57,6 +59,7 @@ export class MemberOriginComponent implements OnInit {
       icon: 'edit',
       label: 'Editar',
       action: (memberOrigin: MemberOrigin) => this.handleEdit(memberOrigin),
+      visible: () => this.authService.hasPermission('write_administrative_origem_do_membro'),
     },
     {
       type: 'delete',
@@ -64,6 +67,7 @@ export class MemberOriginComponent implements OnInit {
       label: 'Excluir',
       color: 'warn',
       action: (memberOrigin: MemberOrigin) => this.handleDelete(memberOrigin),
+      visible: () => this.authService.hasPermission('delete_administrative_origem_do_membro'),
     },
   ];
 

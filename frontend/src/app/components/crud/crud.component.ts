@@ -28,6 +28,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { FormatValuesPipe } from 'app/components/crud/pipes/format-values.pipe';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
+import { AuthService } from 'app/services/auth/auth.service';
 
 import { ModalService } from '../modal/modal.service';
 import { FilterButtonAdvancedComponent, FilterField } from './filter-button-advanced/filter-button-advanced.component';
@@ -71,6 +72,7 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   constructor(
     private format: FormatsPipe,
     private modalService: ModalService,
+    private authService: AuthService,
   ) {}
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -98,8 +100,9 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() modalComponent: Type<any> | null = null;
   @Input() findDataLabel: string = 'Atualizar';
   @Input() showFindDataButton: boolean = false;
-  @Input() canWrite: boolean = false;
-  @Input() canDelete: boolean = false;
+  @Input() readPermission?: string;
+  @Input() writePermission?: string;
+  @Input() deletePermission?: string;
 
   @Output() actionEvent = new EventEmitter<any>();
   @Output() add = new EventEmitter<void>();
@@ -113,6 +116,8 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   currentPageIndex: number = 0;
   showFilter = signal(false);
   buttonSelected = signal(false);
+  private _canWrite = false;
+  private _canDelete = false;
 
   ngOnInit() {
     this.dataSourceMat.data = this.fields;
@@ -121,6 +126,7 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
       this.displayedColumns.push('actions');
     }
     this.dataSourceMat.filterPredicate = this.createFilter();
+    this.updatePermissions();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -131,6 +137,10 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
     if (this.paginator) {
       this.dataSourceMat.paginator = this.paginator;
       this.paginator.length = this.fields.length;
+    }
+
+    if (changes['writePermission'] || changes['deletePermission']) {
+      this.updatePermissions();
     }
 
     if (changes['columnDefinitions']) {
@@ -173,6 +183,19 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
 
   get tooltipLabel() {
     return this.actions && this.actions.length > 0 ? this.actions[0].tooltip : '';
+  }
+
+  private updatePermissions() {
+    this._canWrite = this.writePermission ? this.authService.hasPermission(this.writePermission) : this._canWrite;
+    this._canDelete = this.deletePermission ? this.authService.hasPermission(this.deletePermission) : this._canDelete;
+  }
+
+  get canAddOrEdit(): boolean {
+    return this._canWrite;
+  }
+
+  get canDeleteRow(): boolean {
+    return this._canDelete;
   }
 
   applyFilter(event: Event): void {

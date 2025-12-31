@@ -3,28 +3,28 @@ import { CanMatchFn, Router } from '@angular/router';
 
 import { ToastService } from 'app/components/toast/toast.service';
 
-import { AuthService } from '../auth/auth.service';
+import { AbilityService } from '../ability/ability.service';
 import { RouteFallbackService } from './route-fallback.service';
 
 export const permissionGuard: CanMatchFn = (route, segments) => {
-  const authService = inject(AuthService);
+  const ability = inject(AbilityService);
   const router = inject(Router);
   const toast = inject(ToastService);
-  const fallbackService = inject(RouteFallbackService);
+  const fallback = inject(RouteFallbackService);
 
-  const requiredPermissions = route.data?.['permissions'] as string[] | undefined;
+  const required = route.data?.['permissions'] as string[] | undefined;
 
-  if (!requiredPermissions || requiredPermissions.length === 0) {
-    return true;
-  }
+  if (!required?.length) return true;
 
-  const userPermissions = authService.getPermissions();
-  const hasPermission = requiredPermissions.some((p) => userPermissions.includes(p));
+  const hasAccess = required.some((perm) => {
+    const [action, ...subjectParts] = perm.split('_');
+    const subject = subjectParts.join('_');
+    return ability.can(action as any, subject as any);
+  });
 
-  if (!hasPermission) {
+  if (!hasAccess) {
     toast.openError('Você não tem permissão para acessar esta página');
-    const fallbackUrl = fallbackService.getFirstAllowedRoute(userPermissions);
-    return router.createUrlTree([fallbackUrl]);
+    return router.createUrlTree([fallback.getFirstAllowedRoute()]);
   }
 
   return true;

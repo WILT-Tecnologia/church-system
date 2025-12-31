@@ -6,11 +6,9 @@
     (add)="onCreate()"
     (toggle)="toggleStatus($any($event))"
     [actions]="actions"
-    [canWrite]="true"
-    [canDelete]="true"
-    writePermission="write_perfis"
-    deletePermission="delete_perfis"
+    writePermission="write_administrative_perfis"
+    deletePermission="delete_administrative_perfis"
   ></app-crud>
 } @else {
-  <app-not-found-register (add)="onCreate()" writePermission="write_perfis"></app-not-found-register>
+  <app-not-found-register (add)="onCreate()" writePermission="write_administrative_perfis"></app-not-found-register>
 }

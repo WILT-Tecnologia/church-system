@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -13,7 +13,7 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Occupation } from 'app/model/Occupation';
-
+import { AuthService } from 'app/services/auth/auth.service';
 import { OccupationComponent } from './occupation/occupation.component';
 import { OccupationsService } from './occupations.service';
 
@@ -31,6 +31,8 @@ export class OccupationsComponent implements OnInit {
     private modal: ModalService,
     private occupationsService: OccupationsService,
   ) {}
+
+  private authService = inject(AuthService);
 
   occupations: Occupation[] = [];
   rendering: boolean = true;
@@ -55,6 +57,7 @@ export class OccupationsComponent implements OnInit {
       icon: 'edit',
       label: 'Editar',
       action: (occupation: Occupation) => this.handleEdit(occupation),
+      visible: () => this.authService.hasPermission('write_administrative_cargos_ministeriais'),
     },
     {
       type: 'delete',
@@ -62,6 +65,7 @@ export class OccupationsComponent implements OnInit {
       label: 'Excluir',
       color: 'warn',
       action: (occupation: Occupation) => this.handleDelete(occupation),
+      visible: () => this.authService.hasPermission('delete_administrative_cargos_ministeriais'),
     },
   ];
 
@@ -91,7 +95,7 @@ export class OccupationsComponent implements OnInit {
     const dialogRef = this.modal.openModal(
       `modal-${Math.random()}`,
       OccupationComponent,
-      'Adicionando ocupação',
+      'Adicionando um campo ministerial',
       true,
       true,
     );
@@ -107,7 +111,7 @@ export class OccupationsComponent implements OnInit {
     const dialogRef = this.modal.openModal(
       `modal-${Math.random()}`,
       OccupationComponent,
-      'Editando ocupação',
+      `Editando o campo ministerial: ${occupation.name}`,
       true,
       true,
       { occupation },
@@ -123,7 +127,7 @@ export class OccupationsComponent implements OnInit {
   handleDelete = (occupation: Occupation) => {
     const modal = this.confirmeService.openConfirm(
       'Atenção',
-      `Tem certeza que deseja excluir esta ocupação: ${occupation.name}?`,
+      `Tem certeza que deseja excluir este cargo ministerial: ${occupation.name}?`,
       'Confirmar',
       'Cancelar',
     );
@@ -153,7 +157,9 @@ export class OccupationsComponent implements OnInit {
 
     this.occupationsService.updatedStatus(occupation.id, updatedStatus).subscribe({
       next: () => {
-        this.toast.openSuccess(`Ocupação ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`);
+        this.toast.openSuccess(
+          `Cargo ministerial '${occupation.name.toUpperCase()}' ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`,
+        );
       },
       error: () => {
         this.loading.hide();

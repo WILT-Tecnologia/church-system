@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -12,7 +12,7 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Modules } from 'app/model/Modules';
-
+import { AuthService } from 'app/services/auth/auth.service';
 import { ModuleFormComponent } from './module-form/module-form.component';
 import { ModuleService } from './modules.service';
 
@@ -31,6 +31,8 @@ export class ModulesComponent implements OnInit {
     private moduleService: ModuleService,
   ) {}
 
+  private authService = inject(AuthService);
+
   modules: Modules[] = [];
   rendering: boolean = true;
   dataSourceMat = new MatTableDataSource<Modules>(this.modules);
@@ -48,6 +50,7 @@ export class ModulesComponent implements OnInit {
       icon: 'edit',
       label: 'Editar',
       action: (module: Modules) => this.handleEdit(module),
+      visible: () => this.authService.hasPermission('write_administrative_modulos'),
     },
     {
       type: 'delete',
@@ -55,6 +58,7 @@ export class ModulesComponent implements OnInit {
       label: 'Excluir',
       color: 'warn',
       action: (module: Modules) => this.handleDelete(module),
+      visible: () => this.authService.hasPermission('delete_administrative_modulos'),
     },
   ];
 

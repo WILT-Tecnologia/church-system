@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -14,8 +14,8 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Church } from 'app/model/Church';
+import { AuthService } from 'app/services/auth/auth.service';
 import { NotificationService } from 'app/services/notification/notification.service';
-
 import { ChurchComponent } from './church/church.component';
 import { ChurchsService } from './churches.service';
 
@@ -36,6 +36,8 @@ export class ChurchesComponent implements OnInit {
     private notification: NotificationService,
   ) {}
 
+  private authService = inject(AuthService);
+
   churchs: Church[] = [];
   rendering: boolean = true;
   dataSourceMat = new MatTableDataSource<Church>(this.churchs);
@@ -55,6 +57,7 @@ export class ChurchesComponent implements OnInit {
       icon: 'edit',
       label: 'Editar',
       action: (church: Church) => this.handleEdit(church),
+      visible: () => this.authService.hasPermission('write_administrative_igrejas'),
     },
     {
       type: 'delete',
@@ -62,6 +65,7 @@ export class ChurchesComponent implements OnInit {
       label: 'Excluir',
       color: 'warn',
       action: (church: Church) => this.handleDelete(church),
+      visible: () => this.authService.hasPermission('delete_administrative_igrejas'),
     },
   ];
 

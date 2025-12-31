@@ -2,8 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 
-import { History, Members } from 'app/model/Members';
 import { environment } from 'environments/environment';
+
+import { History, Members } from 'app/model/Members';
 
 @Injectable({
   providedIn: 'root',

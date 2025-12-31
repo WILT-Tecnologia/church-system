@@ -69,30 +69,30 @@ Route::prefix('church')->middleware(['cors', 'auth:sanctum'])->group(function ()
     /* Route::get('guests', [\App\Http\Controllers\Api\GuestController::class, 'index'])->middleware("permission:read_convidados_e_visitantes"); */
 
     // Rotas secundárias ligadas a Membros
-    Route::apiResource('families', \App\Http\Controllers\Api\FamilyController::class)->middleware("permission:read_membros");
-    Route::apiResource('ordinations', \App\Http\Controllers\Api\OrdinationController::class)->middleware("permission:read_membros");
-    Route::apiResource('status-members', \App\Http\Controllers\Api\StatusMemberController::class)->middleware("permission:read_membros");
-    Route::apiResource('hist-member', \App\Http\Controllers\Api\HistMemberController::class)->middleware("permission:read_membros");
+    Route::apiResource('families', \App\Http\Controllers\Api\FamilyController::class)->middleware("permission:{$permissions_members}");
+    Route::apiResource('ordinations', \App\Http\Controllers\Api\OrdinationController::class)->middleware("permission:{$permissions_members}");
+    Route::apiResource('status-members', \App\Http\Controllers\Api\StatusMemberController::class)->middleware("permission:{$permissions_members}");
+    Route::apiResource('hist-member', \App\Http\Controllers\Api\HistMemberController::class)->middleware("permission:{$permissions_members}");
 
     // Rotas de Eventos
     Route::apiResource('eventos', \App\Http\Controllers\Api\EventoController::class)->middleware("permission:{$permissions_events}");
 
     // Rotas específicas de Eventos
-    Route::get('eventos/type/{event_type_id}', [\App\Http\Controllers\Api\EventoController::class, 'getByEventType'])->middleware('permission:read_eventos');
+    Route::get('eventos/type/{event_type_id}', [\App\Http\Controllers\Api\EventoController::class, 'getByEventType'])->middleware("permission:{$permissions_events}");
 
     // AÇÕES DE PARTICIPANTES E GUESTS (PROTEGIDAS por write_eventos)
-    Route::post('eventos/{evento}/participants', [\App\Http\Controllers\Api\EventoController::class, 'adicionarParticipante'])->middleware('permission:write_eventos');
-    Route::delete('eventos/{evento}/participants', [\App\Http\Controllers\Api\EventoController::class, 'removerParticipante'])->middleware('permission:write_eventos');
-    Route::post('eventos/{evento}/guests', [\App\Http\Controllers\Api\EventoController::class, 'adicionarConvidado'])->middleware('permission:write_eventos');
-    Route::delete('eventos/{evento}/guests', [\App\Http\Controllers\Api\EventoController::class, 'removerConvidado'])->middleware('permission:write_eventos');
+    Route::post('eventos/{evento}/participants', [\App\Http\Controllers\Api\EventoController::class, 'adicionarParticipante'])->middleware("permission:{$permissions_events}");
+    Route::delete('eventos/{evento}/participants', [\App\Http\Controllers\Api\EventoController::class, 'removerParticipante'])->middleware("permission:{$permissions_events}");
+    Route::post('eventos/{evento}/guests', [\App\Http\Controllers\Api\EventoController::class, 'adicionarConvidado'])->middleware("permission:{$permissions_events}");
+    Route::delete('eventos/{evento}/guests', [\App\Http\Controllers\Api\EventoController::class, 'removerConvidado'])->middleware("permission:{$permissions_events}");
 
     // Rotas Aninhadas de Eventos (calls/frequencies)
-    Route::apiResource('eventos/{evento}/calls', \App\Http\Controllers\Api\EventCallsController::class)->middleware('permission:write_eventos');
+    Route::apiResource('eventos/{evento}/calls', \App\Http\Controllers\Api\EventCallsController::class)->middleware("permission:{$permissions_events}");
     Route::apiResource('eventos/{evento}/calls/{eventCall}/frequencies', \App\Http\Controllers\Api\FrequencyController::class)->parameters([
         'evento' => 'eventId',
         'eventCall' => 'eventCallId',
         'frequencies' => 'frequencyId',
-    ])->middleware('permission:write_eventos');
+    ])->middleware("permission:{$permissions_events}");
 
     Route::apiResource('patrimonies', \App\Http\Controllers\Api\PatrimonyController::class)->middleware("permission:{$permissions_patrimony}");
 

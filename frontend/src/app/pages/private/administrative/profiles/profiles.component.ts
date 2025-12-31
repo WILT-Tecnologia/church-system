@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginator } from '@angular/material/paginator';
@@ -15,7 +15,7 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Profile } from 'app/model/Profile';
-
+import { AuthService } from 'app/services/auth/auth.service';
 import { ProfileComponent } from './profile/profile.component';
 import { ProfilesService } from './profiles.service';
 
@@ -33,6 +33,8 @@ export class ProfilesComponent implements OnInit {
     private loading: LoadingService,
     private profilesService: ProfilesService,
   ) {}
+
+  private authService = inject(AuthService);
 
   profiles: Profile[] = [];
   rendering: boolean = true;
@@ -57,6 +59,7 @@ export class ProfilesComponent implements OnInit {
       icon: 'edit',
       label: 'Editar',
       action: (profile: Profile) => this.handleEdit(profile),
+      visible: () => this.authService.hasPermission('write_administrative_perfis'),
     },
     {
       type: 'delete',
@@ -64,6 +67,7 @@ export class ProfilesComponent implements OnInit {
       label: 'Excluir',
       color: 'warn',
       action: (profile: Profile) => this.handleDelete(profile),
+      visible: () => this.authService.hasPermission('delete_administrative_perfis'),
     },
   ];
 

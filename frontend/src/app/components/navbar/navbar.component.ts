@@ -14,10 +14,10 @@ import { filter } from 'rxjs/operators';
 import { routes } from 'app/app.routes';
 import { ChurchsService } from 'app/pages/private/administrative/churches/churches.service';
 import { AuthService } from 'app/services/auth/auth.service';
-
-import { LoadingService } from '../loading/loading.service';
 import { USER } from './routes';
 import { LogoComponent } from './shared/logo/logo.component';
+
+import { LoadingService } from '../loading/loading.service';
 
 type RouteProps = {
   path: string;
@@ -27,7 +27,9 @@ type RouteProps = {
   items?: RouteProps[];
 };
 
-type RouteSection = RouteProps;
+type RouteSectionWithItems = RouteProps & {
+  items: RouteProps[];
+};
 
 type IconMapProps = {
   [key: string]: string;
@@ -80,7 +82,7 @@ const ROUTE_PERMISSIONS: { [key: string]: string } = {
 export class NavbarComponent implements OnInit {
   @ViewChild('desktopSidenav') desktopSidenav!: MatSidenav;
   @ViewChild('sidenav') sidenav!: MatSidenav;
-  allRoutes: RouteSection[] = [];
+  allRoutes: RouteSectionWithItems[] = [];
   userRoutes = USER;
   userName: string | null = '';
   isLoggedIn: boolean = true;
@@ -153,22 +155,33 @@ export class NavbarComponent implements OnInit {
 
         const items = (route.children || [])
           .filter((child) => {
-            if (!child.path || !child.title) return false;
+            if (!child.path) return false;
 
-            const permission = ROUTE_PERMISSIONS[child.path];
+            const readPermission = ROUTE_PERMISSIONS[child.path];
 
-            if (permission) {
-              return this.authService.hasPermission(permission);
-            }
+            if (readPermission) return true;
 
-            return true;
+            return this.authService.hasPermission(readPermission);
           })
           .map((child) => ({
             path: child.path!,
             icon: child.path ? iconMap[child.path] || 'settings' : 'settings',
             label: typeof child.title === 'string' ? child.title.split(' - ')[0] : child.path!,
-            permission: ROUTE_PERMISSIONS[child.path!],
           }));
+
+        if (route.path === 'administrative') {
+          const hasWritePermission = (route.children || []).some((child) => {
+            if (!child.path) return false;
+            const base = ROUTE_PERMISSIONS[child.path];
+            if (!base) return false;
+            const writePerm = base.replace('read_', 'write_');
+            return this.authService.hasPermission(writePerm);
+          });
+
+          if (!hasWritePermission) {
+            return null;
+          }
+        }
 
         return {
           path: route.path!,
@@ -177,11 +190,10 @@ export class NavbarComponent implements OnInit {
           items,
         };
       })
-      .filter((section) => section.items.length > 0);
-  }
-
-  setStep(index: number) {
-    this.step.set(index);
+      .filter(
+        (section): section is RouteSectionWithItems =>
+          section !== null && Array.isArray(section.items) && section.items.length > 0,
+      );
   }
 
   @HostListener('window:resize', ['$event'])
@@ -296,6 +308,10 @@ export class NavbarComponent implements OnInit {
 
   toggleSidebarDesktop() {
     this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  setStep(index: number) {
+    this.step.set(index);
   }
 
   private updateBreadcrumbFromRoute() {

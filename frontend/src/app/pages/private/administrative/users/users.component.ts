@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -13,7 +13,7 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { User } from 'app/model/User';
-
+import { AuthService } from 'app/services/auth/auth.service';
 import { UserFormComponent } from './user-form/user-form.component';
 import { UsersService } from './users.service';
 
@@ -31,6 +31,8 @@ export class UsersComponent implements OnInit {
     private modalService: ModalService,
     private userService: UsersService,
   ) {}
+
+  private authService = inject(AuthService);
 
   users: User[] = [];
   rendering: boolean = true;
@@ -56,6 +58,7 @@ export class UsersComponent implements OnInit {
       icon: 'edit',
       label: 'Editar',
       action: (user: User) => this.handleEdit(user),
+      visible: () => this.authService.hasPermission('write_administrative_usuarios'),
     },
     {
       type: 'delete',
@@ -63,6 +66,7 @@ export class UsersComponent implements OnInit {
       label: 'Excluir',
       color: 'warn',
       action: (user: User) => this.handleDelete(user),
+      visible: () => this.authService.hasPermission('delete_administrative_usuarios'),
     },
   ];
 
