@@ -4,7 +4,9 @@
     [dataSourceMat]="dataSourceMat"
     [columnDefinitions]="columnDefinitions"
     [enableAddButtonAdd]="false"
+    writePermission="write_administrative_modulos"
+    deletePermission="delete_administrative_modulos"
   ></app-crud>
 } @else {
-  <app-not-found-register (add)="onCreate()"></app-not-found-register>
+  <app-not-found-register (add)="onCreate()" writePermission="write_administrative_modulos"></app-not-found-register>
 }

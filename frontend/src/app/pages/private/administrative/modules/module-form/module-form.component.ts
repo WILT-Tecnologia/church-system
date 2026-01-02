@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
@@ -16,6 +18,11 @@ import { Modules } from 'app/model/Modules';
 import { ValidationService } from 'app/services/validation/validation.service';
 
 import { ModuleService } from '../modules.service';
+
+interface ModuleType {
+  value: string;
+  title: string;
+}
 
 @Component({
   selector: 'app-module-form',
@@ -29,6 +36,8 @@ import { ModuleService } from '../modules.service';
     MatInputModule,
     MatButtonModule,
     ActionsComponent,
+    MatAutocompleteModule,
+    MatSelectModule,
   ],
   templateUrl: './module-form.component.html',
   styleUrl: './module-form.component.scss',
@@ -51,6 +60,10 @@ export class ModuleFormComponent implements OnInit {
   isEdit: boolean = false;
   hide: boolean = true;
   change_password: boolean = false;
+  modulesTypes: ModuleType[] = [
+    { value: 'Administrativo', title: 'Administrativo' },
+    { value: 'Igreja', title: 'Igreja' },
+  ];
 
   ngOnInit() {
     this.loadModules();
@@ -60,6 +73,7 @@ export class ModuleFormComponent implements OnInit {
     return this.fb.group({
       id: [this.data?.module?.id ?? ''],
       name: [this.data?.module?.name ?? '', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
+      context: [this.data?.module?.context ?? '', [Validators.required]],
     });
   }
 
@@ -68,8 +82,9 @@ export class ModuleFormComponent implements OnInit {
       next: (modules) => {
         this.modules = modules;
       },
-      error: () => {
-        this.toast.openError('Erro ao carregar módulos.');
+      error: (error) => {
+        const errorMessage = error.error.message ?? MESSAGES.LOADING_ERROR;
+        this.onError(errorMessage);
       },
     });
   }
@@ -97,13 +112,7 @@ export class ModuleFormComponent implements OnInit {
   handleSubmit() {
     const user = this.moduleForm.value;
 
-    if (!user) {
-      return;
-    }
-
-    if (this.change_password) {
-      this.moduleForm.get('password')?.setValidators([Validators.required]);
-    }
+    if (!user) return;
 
     if (this.isEdit) {
       this.handleUpdate(user.id, user);
@@ -112,7 +121,7 @@ export class ModuleFormComponent implements OnInit {
     }
   }
 
-  handleCreate(data: any) {
+  handleCreate(data: Partial<Modules>) {
     this.loadingService.show();
     this.modulesService.create(data).subscribe({
       next: () => this.onSuccess(MESSAGES.CREATE_SUCCESS),
@@ -124,7 +133,7 @@ export class ModuleFormComponent implements OnInit {
     });
   }
 
-  handleUpdate(userId: string, data: any) {
+  handleUpdate(userId: string, data: Partial<Modules>) {
     this.loadingService.show();
     this.modulesService.update(userId, data).subscribe({
       next: () => this.onSuccess(MESSAGES.UPDATE_SUCCESS),

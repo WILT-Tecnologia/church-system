@@ -34,6 +34,10 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+
 import { ColumnComponent } from 'app/components/column/column.component';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
@@ -47,16 +51,14 @@ import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { EventCall, Events } from 'app/model/Events';
 import { EventTypes } from 'app/model/EventTypes';
-import dayjs from 'dayjs';
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-
-import { EventTypesService } from '../../administrative/event-types/eventTypes.service';
+import { AuthService } from 'app/services/auth/auth.service';
 import { EventsService } from './events.service';
 import { AddMembersGuestsComponent } from './shared/add-members-guests/add-members-guests.component';
 import { EventCallComponent } from './shared/event-call/event-call.component';
 import { EventsFormComponent } from './shared/events-form/events-form.component';
 import { FrequenciesComponent } from './shared/frequencies/frequencies.component';
+
+import { EventTypesService } from '../../administrative/event-types/eventTypes.service';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -102,6 +104,8 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.findEventsByTabIdAdapter = this.findEventsByTabIdAdapter.bind(this);
   }
 
+  private authService = inject(AuthService);
+
   @ViewChild('calendar', { static: false }) calendarComponent!: FullCalendarComponent;
   @ViewChild('eventContent') eventContent!: TemplateRef<any>;
   breakpointObserver = inject(BreakpointObserver);
@@ -121,24 +125,28 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       icon: 'edit',
       label: 'Editar',
       action: (events: Events) => this.onEditEvent(events),
+      visible: () => this.authService.hasPermission('write_church_eventos'),
     },
     {
       type: 'person_add',
       icon: 'person_add',
       label: 'Adicionar participantes',
       action: (events: Events) => this.onAddMembersGuests(events),
+      visible: () => this.authService.hasPermission('write_church_eventos'),
     },
     {
       type: 'add_circle',
       icon: 'add_circle',
       label: 'Chamadas do evento',
       action: (events: Events) => this.onCreateCall(events),
+      visible: () => this.authService.hasPermission('write_church_eventos'),
     },
     {
       type: 'add_circle',
       icon: 'add_circle',
       label: 'Frequências',
       action: (events: Events) => this.onFrequency(events),
+      visible: () => this.authService.hasPermission('write_church_eventos'),
     },
     {
       type: 'delete',
@@ -146,6 +154,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       label: 'Excluir',
       color: 'warn',
       action: (events: Events) => this.onDeleteEvent(events),
+      visible: () => this.authService.hasPermission('write_church_eventos'),
     },
   ];
   rendering = signal(true);
@@ -219,7 +228,10 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
               if (!eventCall || !eventCall.start_date) return false;
               const start = dayjs(eventCall.start_date);
               const end = eventCall.end_date ? dayjs(eventCall.end_date) : start;
-              return start.isSameOrAfter(fetchInfo.startStr) && end.isSameOrBefore(fetchInfo.endStr);
+              const fetchStart = dayjs(fetchInfo.startStr);
+              const fetchEnd = dayjs(fetchInfo.endStr);
+              // Verifica se há sobreposição entre o evento e o período visível
+              return start.isBefore(fetchEnd) && end.isAfter(fetchStart);
             });
             successCallback(calendarEvents);
           },

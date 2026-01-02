@@ -1,0 +1,17 @@
+.mat-tree {
+  margin-top: 0.5rem;
+  border-radius: 0.7rem;
+  padding: 0.5rem;
+}
+
+.tree-header-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+
+.tree-actions {
+  display: flex;
+  gap: 0.5rem;
+}

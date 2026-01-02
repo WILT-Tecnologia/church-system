@@ -5,6 +5,8 @@
     [columnDefinitions]="columnDefinitions"
     (add)="createEventCall()"
     [actions]="actions"
+    readPermission="write_church_eventos"
+    writePermission="write_church_eventos"
   ></app-crud>
 } @else {
   <app-not-found-register (add)="createEventCall()"></app-not-found-register>

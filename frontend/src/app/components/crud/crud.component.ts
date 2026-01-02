@@ -29,10 +29,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormatValuesPipe } from 'app/components/crud/pipes/format-values.pipe';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import { AuthService } from 'app/services/auth/auth.service';
-
-import { ModalService } from '../modal/modal.service';
 import { FilterButtonAdvancedComponent, FilterField } from './filter-button-advanced/filter-button-advanced.component';
 import { ActionsProps, ColumnDefinitionsProps } from './types';
+
+import { ModalService } from '../modal/modal.service';
 
 export interface TableField {
   [key: string]: any;
@@ -116,17 +116,15 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   currentPageIndex: number = 0;
   showFilter = signal(false);
   buttonSelected = signal(false);
+  private _canRead = false;
   private _canWrite = false;
   private _canDelete = false;
 
   ngOnInit() {
     this.dataSourceMat.data = this.fields;
-    this.displayedColumns = this.columnDefinitions.map((col) => col.key);
-    if (this.actions && this.actions.length > 0) {
-      this.displayedColumns.push('actions');
-    }
-    this.dataSourceMat.filterPredicate = this.createFilter();
     this.updatePermissions();
+    this.updateDisplayedColumns();
+    this.dataSourceMat.filterPredicate = this.createFilter();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -139,15 +137,25 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
       this.paginator.length = this.fields.length;
     }
 
-    if (changes['writePermission'] || changes['deletePermission']) {
+    if (changes['readPermission'] || changes['writePermission'] || changes['deletePermission']) {
       this.updatePermissions();
     }
 
-    if (changes['columnDefinitions']) {
-      this.displayedColumns = this.columnDefinitions.map((col) => col.key);
-      if (this.actions && this.actions.length > 0) {
-        this.displayedColumns.push('actions');
-      }
+    if (
+      changes['columnDefinitions'] ||
+      changes['actions'] ||
+      changes['readPermission'] ||
+      changes['writePermission'] ||
+      changes['deletePermission']
+    ) {
+      this.updateDisplayedColumns();
+    }
+  }
+
+  private updateDisplayedColumns() {
+    this.displayedColumns = this.columnDefinitions.map((col) => col.key);
+    if (this.canShowActions) {
+      this.displayedColumns.push('actions');
     }
   }
 
@@ -186,6 +194,7 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   private updatePermissions() {
+    this._canRead = this.readPermission ? this.authService.hasPermission(this.readPermission) : this._canRead;
     this._canWrite = this.writePermission ? this.authService.hasPermission(this.writePermission) : this._canWrite;
     this._canDelete = this.deletePermission ? this.authService.hasPermission(this.deletePermission) : this._canDelete;
   }
@@ -196,6 +205,25 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
 
   get canDeleteRow(): boolean {
     return this._canDelete;
+  }
+
+  get canRead(): boolean {
+    return this._canRead;
+  }
+
+  get canShowActions(): boolean {
+    if (!this.actions || this.actions.length === 0) {
+      return false;
+    }
+
+    // Verifica se há ações do tipo toggle
+    const hasToggleAction = this.actions.some((action) => action.type === 'toggle');
+
+    // Verifica se o usuário tem pelo menos uma das permissões necessárias
+    const hasPermission = this._canRead || this._canWrite || this._canDelete;
+
+    // Mostra actions se houver toggle OU se tiver permissão
+    return hasToggleAction || hasPermission;
   }
 
   applyFilter(event: Event): void {

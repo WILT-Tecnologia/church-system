@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -14,7 +14,7 @@ import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Families } from 'app/model/Families';
 import { Members } from 'app/model/Members';
-
+import { AuthService } from 'app/services/auth/auth.service';
 import { MembersService } from './members.service';
 import { FamiliesComponent } from './shared/families/families.component';
 import { HistoryComponent } from './shared/history/history.component';
@@ -29,6 +29,15 @@ import { StatusMemberComponent } from './shared/status-member/status-member.comp
   imports: [CommonModule, NotFoundRegisterComponent, CrudComponent],
 })
 export class MembersComponent implements OnInit {
+  constructor(
+    private confirmeService: ConfirmService,
+    private loading: LoadingService,
+    private toast: ToastService,
+    private membersService: MembersService,
+    private modalService: ModalService,
+  ) {}
+
+  private authService = inject(AuthService);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   families!: Families[];
@@ -55,30 +64,35 @@ export class MembersComponent implements OnInit {
       icon: 'edit',
       label: 'Editar',
       action: (member: Members) => this.handleUpdate(member),
+      visible: () => this.authService.hasPermission('write_church_membros'),
     },
     {
       type: 'filiation',
       icon: 'family_restroom',
       label: 'Filiação',
       action: (member: Members) => this.handleFiliation(member),
+      visible: () => this.authService.hasPermission('write_church_membros'),
     },
     {
       type: 'ordination',
       icon: 'church',
       label: 'Ordenação',
       action: (member: Members) => this.handleOrdination(member),
+      visible: () => this.authService.hasPermission('write_church_membros'),
     },
     {
       type: 'status',
       icon: 'sensor_occupied',
       label: 'Situação',
       action: (member: Members) => this.handleStatusMember(member),
+      visible: () => this.authService.hasPermission('write_church_membros'),
     },
     {
       type: 'history',
       icon: 'history',
       label: 'Log de mudanças',
       action: (member: Members) => this.handleHistory(member),
+      visible: () => this.authService.hasPermission('write_church_membros'),
     },
     {
       type: 'delete',
@@ -86,16 +100,9 @@ export class MembersComponent implements OnInit {
       label: 'Excluir',
       color: 'warn',
       action: (member: Members) => this.handleDelete(member),
+      visible: () => this.authService.hasPermission('write_church_membros'),
     },
   ];
-
-  constructor(
-    private confirmeService: ConfirmService,
-    private loading: LoadingService,
-    private toast: ToastService,
-    private membersService: MembersService,
-    private modalService: ModalService,
-  ) {}
 
   ngOnInit() {
     this.findAll();

@@ -40,8 +40,8 @@ export class ModulesComponent implements OnInit {
   @ViewChild(MatSort) sort!: MatSort;
   columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'name', header: 'Módulo', type: 'string' },
-    { key: 'context', header: 'Onde pertence', type: 'string' },
-    { key: 'created_at', header: 'Data de Criação', type: 'datetime' },
+    { key: 'context', header: 'Grupo', type: 'string' },
+    { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
   ];
 
   actions: ActionsProps[] = [

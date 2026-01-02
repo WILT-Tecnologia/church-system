@@ -2,8 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { Modules } from 'app/model/Modules';
 import { environment } from 'environments/environment';
+
+import { Modules } from 'app/model/Modules';
 
 @Injectable({
   providedIn: 'root',

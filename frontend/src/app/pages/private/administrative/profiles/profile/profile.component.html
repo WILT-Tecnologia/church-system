@@ -9,9 +9,9 @@
     <mat-form-field appearance="fill">
       <mat-label>Nome</mat-label>
       <input matInput formControlName="name" maxlength="255" required />
-      <mat-error *ngIf="profileForm.get('name')?.invalid && profileForm.get('name')?.touched"
-        >{{ getErrorMessage('name') }}
-      </mat-error>
+      @if (profileForm.get('name')?.invalid && profileForm.get('name')?.touched) {
+        <mat-error> >{{ getErrorMessage('name') }} </mat-error>
+      }
     </mat-form-field>
   </app-column>
 
@@ -19,55 +19,57 @@
     <mat-form-field appearance="fill">
       <mat-label>Descrição</mat-label>
       <textarea matInput rows="3" formControlName="description" maxlength="255"></textarea>
-      <mat-error *ngIf="profileForm.get('description')?.invalid && profileForm.get('description')?.touched"
-        >{{ getErrorMessage('description') }}
-      </mat-error>
+      @if (profileForm.get('description')?.invalid && profileForm.get('description')?.touched) {
+        <mat-error>{{ getErrorMessage('description') }} </mat-error>
+      }
     </mat-form-field>
   </app-column>
 
-  <h3>Permissões</h3>
+  <div class="tree-header-container">
+    <h3>Permissões</h3>
+
+    @if (modulesFormArray && modulesFormArray.controls.length > 0) {
+      <div class="tree-actions">
+        <button type="button" mat-stroked-button color="primary" (click)="toggleSelectAll()">
+          <mat-icon>{{ isAllSelected ? 'check_box_outline_blank' : 'check_box' }}</mat-icon>
+          {{ isAllSelected ? 'Desmarcar tudo' : 'Marcar tudo' }}
+        </button>
+
+        <button type="button" mat-stroked-button (click)="toggleExpandAll()">
+          <mat-icon>{{ isAllExpanded ? 'unfold_less' : 'unfold_more' }}</mat-icon>
+          {{ isAllExpanded ? 'Recolher tudo' : 'Expandir tudo' }}
+        </button>
+      </div>
+    }
+  </div>
 
   @if (modulesFormArray && modulesFormArray.controls.length > 0) {
-    <!-- O formArrayName="modules" conecta a tabela ao FormArray no TS -->
-    <table mat-table [dataSource]="modulesFormArray.controls" formArrayName="modules">
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>Módulo</th>
-        <!-- 'control' é o FormGroup individual dentro do FormArray -->
-        <td mat-cell *matCellDef="let control">
-          <span>{{ control.get('module_name')?.value }}</span>
-        </td>
-      </ng-container>
+    <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+      <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+        <button type="button" mat-icon-button disabled></button>
+        <mat-checkbox [formControl]="node.parentFormGroup.get(node.controlName)" color="primary">
+          {{ node.name }}
+        </mat-checkbox>
+      </mat-tree-node>
 
-      <ng-container matColumnDef="can_read">
-        <th mat-header-cell *matHeaderCellDef>Ler</th>
-        <td mat-cell *matCellDef="let control">
-          <!-- Conecta o checkbox diretamente ao FormControl da linha -->
-          <mat-checkbox [formControl]="control.get('can_read')"></mat-checkbox>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="can_write">
-        <th mat-header-cell *matHeaderCellDef>Editar</th>
-        <td mat-cell *matCellDef="let control">
-          <mat-checkbox [formControl]="control.get('can_write')"></mat-checkbox>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="can_delete">
-        <th mat-header-cell *matHeaderCellDef>Excluir</th>
-        <td mat-cell *matCellDef="let control">
-          <mat-checkbox [formControl]="control.get('can_delete')"></mat-checkbox>
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns; let i = index" [formGroupName]="i"></tr>
-    </table>
+      <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+        <button type="button" mat-icon-button matTreeNodeToggle>
+          <mat-icon>{{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+        </button>
+        <mat-checkbox
+          [checked]="isParentSelected(node)"
+          [indeterminate]="isParentIndeterminate(node)"
+          (change)="toggleParent(node)"
+          color="primary"
+        >
+          <strong>{{ node.name }}</strong>
+        </mat-checkbox>
+      </mat-tree-node>
+    </mat-tree>
   } @else {
-    <p>Carregando módulos ou nenhum módulo disponível...</p>
+    <p>Carregando módulos...</p>
   }
 
-  <mat-divider></mat-divider>
   <app-actions>
     <button type="button" mat-stroked-button color="warn" (click)="handleBack()">Cancelar</button>
     <button type="submit" mat-flat-button color="primary" [disabled]="profileForm.invalid">

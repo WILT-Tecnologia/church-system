@@ -154,7 +154,7 @@ export const routes: Routes = [
       {
         path: 'guests',
         component: GuestsComponent,
-        title: 'Convidados / Visitantes',
+        title: 'Convidados e visitantes',
         pathMatch: 'full',
         canActivate: [permissionGuard],
         data: { permissions: ['read_church_convidados_e_visitantes'] },

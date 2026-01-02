@@ -3,10 +3,12 @@
     [fields]="eventTypes"
     [dataSourceMat]="dataSourceMat"
     [columnDefinitions]="columnDefinitions"
+    [actions]="actions"
     (add)="onCreate()"
     (toggle)="toggleStatus($any($event))"
-    [actions]="actions"
     [enableToggleStatus]="true"
+    writePermission="write_administrative_tipos_de_eventos"
+    deletePermission="delete_administrative_tipos_de_eventos"
   ></app-crud>
 } @else {
   <app-not-found-register (add)="onCreate()"></app-not-found-register>

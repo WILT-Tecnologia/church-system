@@ -172,15 +172,16 @@ export class NavbarComponent implements OnInit {
         if (route.path === 'administrative') {
           const hasWritePermission = (route.children || []).some((child) => {
             if (!child.path) return false;
+
             const base = ROUTE_PERMISSIONS[child.path];
+
             if (!base) return false;
+
             const writePerm = base.replace('read_', 'write_');
             return this.authService.hasPermission(writePerm);
           });
 
-          if (!hasWritePermission) {
-            return null;
-          }
+          if (!hasWritePermission) return null;
         }
 
         return {

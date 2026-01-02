@@ -37,6 +37,7 @@
   --separator-color: #{theme.$separator};
   --white-color: #{theme.$white};
   --background-color: #{theme.$backgroundColor};
+  --transparent-color: transparent;
 }
 
 *:not(mat-icon) {

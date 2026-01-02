@@ -3,12 +3,13 @@ import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, sign
 import { MatTabsModule } from '@angular/material/tabs';
 import { Observable } from 'rxjs';
 
+import { CrudConfig, TabConfig } from './types';
+
 import { CrudComponent } from '../crud/crud.component';
 import { LoadingService } from '../loading/loading.service';
 import { NotFoundRegisterComponent } from '../not-found-register/not-found-register.component';
 import { MESSAGES } from '../toast/messages';
 import { ToastService } from '../toast/toast.service';
-import { CrudConfig, TabConfig } from './types';
 
 @Component({
   selector: 'app-tab-crud',
