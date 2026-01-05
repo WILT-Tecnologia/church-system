@@ -14,22 +14,48 @@ import { filter } from 'rxjs/operators';
 import { routes } from 'app/app.routes';
 import { ChurchsService } from 'app/pages/private/administrative/churches/churches.service';
 import { AuthService } from 'app/services/auth/auth.service';
-
-import { LoadingService } from '../loading/loading.service';
 import { USER } from './routes';
 import { LogoComponent } from './shared/logo/logo.component';
+
+import { LoadingService } from '../loading/loading.service';
 
 type RouteProps = {
   path: string;
   icon: string;
   label: string;
+  permission?: string;
   items?: RouteProps[];
 };
 
-type RouteSection = RouteProps;
+type RouteSectionWithItems = RouteProps & {
+  items: RouteProps[];
+};
 
 type IconMapProps = {
   [key: string]: string;
+};
+
+const ROUTE_PERMISSIONS: { [key: string]: string } = {
+  /* Administrative */
+  'dashboard-administrativo': 'read_administrative_dashboard_administrativo',
+  persons: 'read_administrative_pessoas',
+  churches: 'read_administrative_igrejas',
+  'event-types': 'read_administrative_tipos_de_eventos',
+  occupations: 'read_administrative_cargos_ministeriais',
+  'member-origins': 'read_administrative_origem_do_membro',
+  users: 'read_administrative_usuarios',
+  profiles: 'read_administrative_perfis',
+  modules: 'read_administrative_modulos',
+  'settings-administrative': 'read_administrative_configuracoes_administrativas',
+
+  /* Church */
+  'dashboard-church': 'read_church_dashboard_igreja',
+  members: 'read_church_membros',
+  guests: 'read_church_convidados_e_visitantes',
+  events: 'read_church_eventos',
+  tasks: 'read_church_tasks',
+  financial: 'read_church_financeiro',
+  'settings-church': 'read_church_configuracoes_igreja',
 };
 
 @Component({
@@ -56,7 +82,7 @@ type IconMapProps = {
 export class NavbarComponent implements OnInit {
   @ViewChild('desktopSidenav') desktopSidenav!: MatSidenav;
   @ViewChild('sidenav') sidenav!: MatSidenav;
-  allRoutes: RouteSection[] = [];
+  allRoutes: RouteSectionWithItems[] = [];
   userRoutes = USER;
   userName: string | null = '';
   isLoggedIn: boolean = true;
@@ -68,6 +94,7 @@ export class NavbarComponent implements OnInit {
   step = signal(0);
   selectedChurchId: string | null = '';
   selectedChurchName: string = '';
+  permissions: string[] = [];
 
   constructor(
     private router: Router,
@@ -80,7 +107,7 @@ export class NavbarComponent implements OnInit {
 
   ngOnInit() {
     this.getData();
-    this.initializeRoutes();
+    this.loadPermissions();
     this.getChurch();
     this.getUsername();
     this.getRouteEvents();
@@ -88,6 +115,13 @@ export class NavbarComponent implements OnInit {
     if (isPlatformBrowser(this.platformId)) {
       this.isMobile = window.innerWidth <= this.windowLength;
     }
+  }
+
+  private loadPermissions() {
+    this.authService.permissions$.subscribe((permissions) => {
+      this.permissions = permissions;
+      this.initializeRoutes();
+    });
   }
 
   private initializeRoutes() {
@@ -101,10 +135,10 @@ export class NavbarComponent implements OnInit {
       tasks: 'task',
       financial: 'attach_money',
       settings: 'settings',
-      person: 'person',
+      persons: 'person',
       churches: 'church',
       'event-types': 'event',
-      ordinations: 'work',
+      occupations: 'work',
       'member-origins': 'person_add',
       users: 'people',
       profiles: 'person',
@@ -117,16 +151,38 @@ export class NavbarComponent implements OnInit {
       .filter((route) => mainSections.includes(route.path || ''))
       .map((route) => {
         const sectionLabel = typeof route.title === 'string' ? route.title.split(' - ')[0] : route.path || '';
-
         const sectionIcon = iconMap[route.path || ''] || 'settings';
 
         const items = (route.children || [])
-          .filter((child) => child.path && child.title)
+          .filter((child) => {
+            if (!child.path) return false;
+
+            const readPermission = ROUTE_PERMISSIONS[child.path];
+
+            if (readPermission) return true;
+
+            return this.authService.hasPermission(readPermission);
+          })
           .map((child) => ({
             path: child.path!,
             icon: child.path ? iconMap[child.path] || 'settings' : 'settings',
             label: typeof child.title === 'string' ? child.title.split(' - ')[0] : child.path!,
           }));
+
+        if (route.path === 'administrative') {
+          const hasWritePermission = (route.children || []).some((child) => {
+            if (!child.path) return false;
+
+            const base = ROUTE_PERMISSIONS[child.path];
+
+            if (!base) return false;
+
+            const writePerm = base.replace('read_', 'write_');
+            return this.authService.hasPermission(writePerm);
+          });
+
+          if (!hasWritePermission) return null;
+        }
 
         return {
           path: route.path!,
@@ -134,11 +190,11 @@ export class NavbarComponent implements OnInit {
           label: sectionLabel,
           items,
         };
-      });
-  }
-
-  setStep(index: number) {
-    this.step.set(index);
+      })
+      .filter(
+        (section): section is RouteSectionWithItems =>
+          section !== null && Array.isArray(section.items) && section.items.length > 0,
+      );
   }
 
   @HostListener('window:resize', ['$event'])
@@ -203,6 +259,7 @@ export class NavbarComponent implements OnInit {
       matrixParams: 'ignored',
     });
   }
+
   isRouteInSection(section: string): boolean {
     const currentUrl = this.router.url;
     if (section === 'administrative' && currentUrl.startsWith('/administrative')) return true;
@@ -213,6 +270,10 @@ export class NavbarComponent implements OnInit {
 
   isChurchSelected(): boolean {
     return !!localStorage.getItem('selectedChurch');
+  }
+
+  hasPermission(permission: string): boolean {
+    return this.authService.hasPermission(permission);
   }
 
   async navigateTo(pathname: string): Promise<boolean> {
@@ -248,6 +309,10 @@ export class NavbarComponent implements OnInit {
 
   toggleSidebarDesktop() {
     this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  setStep(index: number) {
+    this.step.set(index);
   }
 
   private updateBreadcrumbFromRoute() {

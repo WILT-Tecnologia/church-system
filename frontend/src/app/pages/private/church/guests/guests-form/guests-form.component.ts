@@ -13,6 +13,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
+
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
@@ -24,7 +26,6 @@ import { NotificationService } from 'app/services/notification/notification.serv
 import { CepService } from 'app/services/search-cep/search-cep.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 import { phoneValidator } from 'app/services/validators/phone-validator';
-import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 
 import { GuestsService } from '../guests.service';
 

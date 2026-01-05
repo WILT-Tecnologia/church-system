@@ -17,7 +17,9 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
+            $token = $request->user()->createToken('token')->plainTextToken;
 
+            $churchesArray = [];
             if ($user->person) {
                 $members = $user->person->member()->with('churches')->get();
 
@@ -26,17 +28,15 @@ class LoginController extends Controller
                 })->unique('id')->values();
 
                 $churchesArray = $churches->toArray();
-            } else {
-                $churchesArray = [];
             }
-
-            $token = $request->user()->createToken('token')->plainTextToken;
 
             return response()->json([
                 'status' => true,
                 'token' => $token,
                 'user' => $user,
                 'churches' => $churchesArray,
+                'roles' => $user->getRoleNames(),
+                'permissions' => $user->getAllPermissions()->pluck('name'),
             ], 201);
         } else {
             return response()->json([

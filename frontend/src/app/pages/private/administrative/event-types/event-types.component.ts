@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -13,7 +13,7 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { EventTypes } from 'app/model/EventTypes';
-
+import { AuthService } from 'app/services/auth/auth.service';
 import { EventTypeComponent } from './event-type/event-type.component';
 import { EventTypesService } from './eventTypes.service';
 
@@ -32,6 +32,8 @@ export class EventTypesComponent implements OnInit {
     private modalService: ModalService,
     private eventTypesService: EventTypesService,
   ) {}
+
+  private authService = inject(AuthService);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -57,6 +59,7 @@ export class EventTypesComponent implements OnInit {
       icon: 'edit',
       label: 'Editar',
       action: (eventType: EventTypes) => this.handleEdit(eventType),
+      visible: () => this.authService.hasPermission('write_administrative_tipos_de_eventos'),
     },
     {
       type: 'delete',
@@ -64,6 +67,7 @@ export class EventTypesComponent implements OnInit {
       label: 'Excluir',
       color: 'warn',
       action: (eventType: EventTypes) => this.handleDelete(eventType),
+      visible: () => this.authService.hasPermission('delete_administrative_tipos_de_eventos'),
     },
   ];
 

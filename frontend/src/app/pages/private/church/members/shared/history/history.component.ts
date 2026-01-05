@@ -10,9 +10,9 @@ import { NoRowComponent } from 'app/components/no-row/no-row.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { History } from 'app/model/Members';
+import { HistoryService } from './history.service';
 
 import { MembersService } from '../../members.service';
-import { HistoryService } from './history.service';
 
 @Component({
   selector: 'app-history',

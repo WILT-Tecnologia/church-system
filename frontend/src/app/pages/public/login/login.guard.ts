@@ -16,7 +16,7 @@ export class LoginGuard implements CanActivate {
 
   canActivate(): Observable<boolean> | boolean {
     if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/church/dashboard']);
+      this.router.navigate(['/church/dashboard-church']);
       return false;
     }
 
@@ -24,7 +24,7 @@ export class LoginGuard implements CanActivate {
       take(1),
       map((isAuthenticated) => {
         if (isAuthenticated) {
-          this.router.navigate(['/church/dashboard']);
+          this.router.navigate(['/church/dashboard-church']);
           return false;
         }
         return true;

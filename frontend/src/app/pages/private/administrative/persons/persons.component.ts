@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -14,7 +14,7 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Person } from 'app/model/Person';
-
+import { AuthService } from 'app/services/auth/auth.service';
 import { PersonComponent } from './person/person.component';
 import { PersonsService } from './persons.service';
 
@@ -33,6 +33,8 @@ export class PersonsComponent implements OnInit {
     private modalService: ModalService,
     private personsService: PersonsService,
   ) {}
+
+  private authService = inject(AuthService);
 
   persons: Person[] = [];
   rendering: boolean = true;
@@ -54,6 +56,7 @@ export class PersonsComponent implements OnInit {
       icon: 'edit',
       label: 'Editar',
       action: (person: Person) => this.handleEdit(person),
+      visible: () => this.authService.hasPermission('write_administrative_pessoas'),
     },
     {
       type: 'delete',
@@ -61,6 +64,7 @@ export class PersonsComponent implements OnInit {
       label: 'Excluir',
       color: 'warn',
       action: (person: Person) => this.handleDelete(person),
+      visible: () => this.authService.hasPermission('delete_administrative_pessoas'),
     },
   ];
 

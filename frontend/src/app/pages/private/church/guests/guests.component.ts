@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -13,7 +13,7 @@ import { NotFoundRegisterComponent } from 'app/components/not-found-register/not
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Guest } from 'app/model/Guest';
-
+import { AuthService } from 'app/services/auth/auth.service';
 import { GuestsFormComponent } from './guests-form/guests-form.component';
 import { GuestsService } from './guests.service';
 
@@ -24,6 +24,16 @@ import { GuestsService } from './guests.service';
   imports: [NotFoundRegisterComponent, CommonModule, CrudComponent],
 })
 export class GuestsComponent implements OnInit {
+  constructor(
+    private toast: ToastService,
+    private loading: LoadingService,
+    private confirmService: ConfirmService,
+    private modal: ModalService,
+    private guestsService: GuestsService,
+  ) {}
+
+  private authService = inject(AuthService);
+
   guest: Guest[] = [];
   dataSourceMat = new MatTableDataSource<Guest>(this.guest);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -39,6 +49,7 @@ export class GuestsComponent implements OnInit {
       icon: 'edit',
       label: 'Editar',
       action: (guest: Guest) => this.handleEdit(guest),
+      visible: () => this.authService.hasPermission('write_church_convidados_e_visitantes'),
     },
     {
       type: 'delete',
@@ -46,16 +57,9 @@ export class GuestsComponent implements OnInit {
       label: 'Excluir',
       color: 'warn',
       action: (guest: Guest) => this.handleDelete(guest),
+      visible: () => this.authService.hasPermission('write_church_convidados_e_visitantes'),
     },
   ];
-
-  constructor(
-    private toast: ToastService,
-    private loading: LoadingService,
-    private confirmService: ConfirmService,
-    private modal: ModalService,
-    private guestsService: GuestsService,
-  ) {}
 
   ngOnInit() {
     this.loadGuests();

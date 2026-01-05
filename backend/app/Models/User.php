@@ -10,13 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens;
-    use HasFactory;
-    use Notifiable;
-    use HasUuids;
+    use HasApiTokens, HasFactory, Notifiable, HasUuids, HasRoles;
 
     protected $fillable = [
         'name',
@@ -31,6 +29,8 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected string $guard_name = 'sanctum';
+
     protected function casts(): array {
         return [
             'email_verified_at' => 'datetime',
@@ -42,7 +42,7 @@ class User extends Authenticatable
         return $this->hasOne(Person::class, 'user_id');
     }
 
-    public function profile(): BelongsToMany {
-        return $this->belongsToMany(Profile::class, 'user_profile');
+    public function profile() {
+        return $this->belongsToMany(Profile::class, 'user_profile', 'user_id', 'profile_id');
     }
 }

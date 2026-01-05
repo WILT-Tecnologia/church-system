@@ -1,4 +1,4 @@
-@if (enableAddButtonAdd) {
+@if (enableAddButtonAdd && canAddOrEdit) {
   <div class="add-button">
     <button type="button" mat-flat-button color="primary" (click)="add.emit()">
       {{ ctaLabel || 'Adicionar' }}
@@ -136,7 +136,7 @@
         }
       </td>
     </ng-container>
-    @if (actions && actions.length > 0) {
+    @if (canShowActions) {
       <ng-container matColumnDef="actions">
         <th *matHeaderCellDef mat-header-cell></th>
         <td *matCellDef="let fields" class="actions-cell" mat-cell>

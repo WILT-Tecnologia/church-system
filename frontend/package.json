@@ -30,6 +30,8 @@
     "@angular/router": "^19.2.0",
     "@angular/ssr": "^19.2.1",
     "@canvasjs/angular-charts": "^1.2.0",
+    "@casl/ability": "^6.7.5",
+    "@casl/angular": "^9.0.4",
     "@fullcalendar/angular": "^6.1.15",
     "@fullcalendar/core": "^6.1.15",
     "@fullcalendar/daygrid": "^6.1.15",

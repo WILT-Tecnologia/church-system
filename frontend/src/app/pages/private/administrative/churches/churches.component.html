@@ -5,6 +5,8 @@
     [columnDefinitions]="columnDefinitions"
     (add)="onCreate()"
     [actions]="actions"
+    writePermission="write_administrative_igrejas"
+    deletePermission="delete_administrative_igrejas"
   ></app-crud>
 } @else {
   <app-not-found-register (add)="onCreate()"></app-not-found-register>

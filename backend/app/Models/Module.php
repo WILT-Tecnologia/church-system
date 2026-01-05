@@ -19,12 +19,6 @@ class Module extends Model
 
     protected $fillable = [
         'name',
+        'context',
     ];
-
-    public function profile()
-    {
-        return $this->belongsToMany(Profile::class,
-        'profile_modules',
-        )->withPivot(['can_read', 'can_write', 'can_delete'])->withTimestamps();
-    }
 }

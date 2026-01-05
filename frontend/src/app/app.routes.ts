@@ -6,8 +6,8 @@ import { AdminDashboardComponent } from './pages/private/administrative/app-admi
 import { ChurchesComponent } from './pages/private/administrative/churches/churches.component';
 import { EventTypesComponent } from './pages/private/administrative/event-types/event-types.component';
 import { MemberOriginComponent } from './pages/private/administrative/member-origin/member-origin.component';
+import { ModulesComponent } from './pages/private/administrative/modules/modules.component';
 import { OccupationsComponent } from './pages/private/administrative/occupations/occupations.component';
-import { PermissionsComponent } from './pages/private/administrative/permissions/permissions.component';
 import { PersonsComponent } from './pages/private/administrative/persons/persons.component';
 import { ProfilesComponent } from './pages/private/administrative/profiles/profiles.component';
 import { UsersComponent } from './pages/private/administrative/users/users.component';
@@ -24,10 +24,11 @@ import { LoginGuard } from './pages/public/login/login.guard';
 import { SelectChurchComponent } from './pages/public/login/shared/select-church/select-church.component';
 import { PageNotFoundComponent } from './pages/public/page-not-found/page-not-found.component';
 import { AuthGuard } from './services/auth/auth.guard';
+import { permissionGuard } from './services/guards/permission.guard';
 import { selectChurchGuard } from './services/guards/select-church.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/church/dashboard', pathMatch: 'full' },
+  { path: '', redirectTo: '/church/dashboard-church', pathMatch: 'full' },
   {
     path: 'login',
     component: LoginComponent,
@@ -48,73 +49,83 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       {
-        path: 'dashboard',
+        path: 'dashboard-administrativo',
         component: AdminDashboardComponent,
         title: 'Dashboard',
         pathMatch: 'full',
-        canActivate: [AuthGuard],
+        canActivate: [permissionGuard],
+        data: { permissions: ['read_administrative_dashboard_administrativo'] },
       },
       {
         path: 'persons',
         component: PersonsComponent,
         title: 'Pessoas',
-        canActivate: [AuthGuard],
+        canActivate: [permissionGuard],
         pathMatch: 'full',
+        data: { permissions: ['read_administrative_pessoas'] },
       },
       {
         path: 'churches',
         component: ChurchesComponent,
         title: 'Igrejas',
-        canActivate: [AuthGuard],
+        canActivate: [permissionGuard],
         pathMatch: 'full',
+        data: { permissions: ['read_administrative_igrejas'] },
       },
       {
         path: 'event-types',
         component: EventTypesComponent,
         title: 'Tipos de eventos',
-        canActivate: [AuthGuard],
+        canActivate: [permissionGuard],
         pathMatch: 'full',
+        data: { permissions: ['read_administrative_tipos_de_eventos'] },
       },
       {
         path: 'occupations',
         component: OccupationsComponent,
         title: 'Cargos ministeriais',
-        canActivate: [AuthGuard],
+        canActivate: [permissionGuard],
         pathMatch: 'full',
+        data: { permissions: ['read_administrative_cargos_ministeriais'] },
       },
       {
         path: 'member-origins',
         component: MemberOriginComponent,
         title: 'Origem do membro',
-        canActivate: [AuthGuard],
+        canActivate: [permissionGuard],
         pathMatch: 'full',
+        data: { permissions: ['read_administrative_origem_do_membro'] },
       },
       {
         path: 'users',
         component: UsersComponent,
         title: 'Usuários',
-        canActivate: [AuthGuard],
+        canActivate: [permissionGuard],
         pathMatch: 'full',
+        data: { permissions: ['read_administrative_usuarios'] },
       },
       {
         path: 'profiles',
         component: ProfilesComponent,
         title: 'Perfis',
-        canActivate: [AuthGuard],
+        canActivate: [permissionGuard],
         pathMatch: 'full',
+        data: { permissions: ['read_administrative_perfis'] },
       },
       {
-        path: 'permissions',
-        component: PermissionsComponent,
-        title: 'Permissões',
-        canActivate: [AuthGuard],
+        path: 'modules',
+        component: ModulesComponent,
+        title: 'Módulos',
+        canActivate: [permissionGuard],
         pathMatch: 'full',
+        data: { permissions: ['read_administrative_modulos'] },
       },
       {
-        path: 'settings',
+        path: 'settings-administrative',
         component: AdminSettingsComponent,
         title: 'Configurações',
-        canActivate: [AuthGuard],
+        canActivate: [permissionGuard],
+        data: { permissions: ['read_administrative_configuracoes_administrativas'] },
       },
     ],
   },
@@ -125,53 +136,60 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       {
-        path: 'dashboard',
+        path: 'dashboard-church',
         component: DashboardComponent,
         title: 'Dashboard',
         pathMatch: 'full',
-        canActivate: [AuthGuard],
+        canActivate: [permissionGuard],
+        data: { permissions: ['read_church_dashboard_igreja'] },
       },
       {
         path: 'members',
         component: MembersComponent,
         title: 'Membros',
         pathMatch: 'full',
-        canActivate: [AuthGuard],
+        canActivate: [permissionGuard],
+        data: { permissions: ['read_church_membros'] },
       },
       {
         path: 'guests',
         component: GuestsComponent,
-        title: 'Convidados / Visitantes',
+        title: 'Convidados e visitantes',
         pathMatch: 'full',
-        canActivate: [AuthGuard],
+        canActivate: [permissionGuard],
+        data: { permissions: ['read_church_convidados_e_visitantes'] },
       },
       {
         path: 'events',
         component: EventsComponent,
         title: 'Eventos',
         pathMatch: 'full',
-        canActivate: [AuthGuard],
+        canActivate: [permissionGuard],
+        data: { permissions: ['read_church_eventos'] },
       },
       {
         path: 'tasks',
         component: TasksComponent,
         title: 'Tasks',
         pathMatch: 'full',
-        canActivate: [AuthGuard],
+        canActivate: [permissionGuard],
+        data: { permissions: ['read_church_tasks'] },
       },
       {
         path: 'financial',
         component: FinancialComponent,
         title: 'Financeiro',
         pathMatch: 'full',
-        canActivate: [AuthGuard],
+        canActivate: [permissionGuard],
+        data: { permissions: ['read_church_financeiro'] },
       },
       {
-        path: 'settings',
+        path: 'settings-church',
         component: SettingsComponent,
         title: 'Configurações',
         pathMatch: 'full',
-        canActivate: [AuthGuard],
+        canActivate: [permissionGuard],
+        data: { permissions: ['read_church_configuracoes_igreja'] },
       },
     ],
   },
