@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('person_name')->nullable();
             $table->text('description')->nullable();
             $table->uuid('cat_financial_id');
-            $table->enum('payment',['pix', 'dinheiro', 'boleto', 'crédito', 'débito', 'cheque']);
+            $table->enum('payment',['pix', 'dinheiro', 'boleto', 'credito', 'debito', 'cheque']);
             $table->decimal('amount', 8, 2);
             $table->decimal('discount', 8, 2)->nullable();
             $table->decimal('amount_discount', 8, 2)->nullable();

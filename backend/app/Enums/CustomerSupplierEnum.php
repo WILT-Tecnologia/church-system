@@ -8,3 +8,4 @@ enum CustomerSupplierEnum: string
     case FORNECEDOR = 'fornecedor';
     case PESSOA = 'pessoa';
 }
+
