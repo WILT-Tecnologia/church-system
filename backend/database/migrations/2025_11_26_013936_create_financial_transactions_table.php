@@ -33,7 +33,7 @@ return new class extends Migration
             $table->foreign('church_id')->references('id')->on('churches')->onDelete('cascade');
             $table->foreign('member_id')->references('id')->on('members')->onDelete('cascade');
             $table->foreign('supplier_id')->references('id')->on('suppliers')->onDelete('cascade');
-            $table->foreign('cat_financial_id')->references('id')->on('fincancial_categories')->onDelete('cascade');
+            $table->foreign('cat_financial_id')->references('id')->on('financial_categories')->onDelete('cascade');
         });
     }
 
