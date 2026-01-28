@@ -69,6 +69,7 @@ Route::prefix('church')->middleware(['cors', 'auth:sanctum'])->group(function ()
     Route::apiResource('patrimonies', \App\Http\Controllers\Api\PatrimonyController::class)->middleware("permission:{$permissions_patrimony}");
     Route::apiResource('suppliers', \App\Http\Controllers\Api\SupplierController::class);
     Route::apiResource('financial-categories', \App\Http\Controllers\Api\FinancialCategoryController::class);
+    route::apiResource('financial-transactions', \App\Http\Controllers\Api\FinancialTransactionController::class);
 });
 
 Route::prefix('aux')->middleware(['cors', 'auth:sanctum'])->group(function () {
