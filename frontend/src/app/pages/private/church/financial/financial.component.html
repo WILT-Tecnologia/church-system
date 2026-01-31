@@ -1,1 +1,14 @@
-<p>financial works!</p>
+<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" dynamicHeight>
+  <mat-tab label="Patrimônios">
+    <app-patrimonies></app-patrimonies>
+  </mat-tab>
+  <mat-tab label="Fornecedores">
+    <app-suppliers></app-suppliers>
+  </mat-tab>
+  <mat-tab label="Categorias">
+    <app-financial-categories></app-financial-categories>
+  </mat-tab>
+  <mat-tab label="Lançamentos">
+    <app-financial-transactions></app-financial-transactions>
+  </mat-tab>
+</mat-tab-group>

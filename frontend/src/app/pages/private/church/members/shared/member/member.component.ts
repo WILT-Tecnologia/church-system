@@ -11,6 +11,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTabsModule } from '@angular/material/tabs';
 import { forkJoin, Subject } from 'rxjs';
 
+import dayjs from 'dayjs';
+import { provideNgxMask } from 'ngx-mask';
+
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { MESSAGES } from 'app/components/toast/messages';
@@ -22,9 +25,6 @@ import { History, Members } from 'app/model/Members';
 import { Person } from 'app/model/Person';
 import { NavigationService } from 'app/services/navigation/navigation.service';
 import { NotificationService } from 'app/services/notification/notification.service';
-import dayjs from 'dayjs';
-import { provideNgxMask } from 'ngx-mask';
-
 import { MembersService } from '../../members.service';
 import { HistoryService } from '../history/history.service';
 import { AdditionalInformationComponent } from './shared/additional-information/additional-information.component';

@@ -1,0 +1,13 @@
+@if (patrimonies && patrimonies.length > 0) {
+  <app-crud
+    [fields]="patrimonies"
+    [dataSourceMat]="dataSourceMat"
+    [columnDefinitions]="columnDefinitions"
+    (add)="createPatrimonies()"
+    [actions]="actions"
+    [writePermission]="'write_church_patrimonios'"
+    [deletePermission]="'delete_church_patrimonios'"
+  ></app-crud>
+} @else {
+  <app-not-found-register (add)="createPatrimonies()"></app-not-found-register>
+}

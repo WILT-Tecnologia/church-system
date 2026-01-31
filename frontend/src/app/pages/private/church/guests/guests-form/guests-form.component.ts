@@ -26,7 +26,6 @@ import { NotificationService } from 'app/services/notification/notification.serv
 import { CepService } from 'app/services/search-cep/search-cep.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 import { phoneValidator } from 'app/services/validators/phone-validator';
-
 import { GuestsService } from '../guests.service';
 
 @Component({

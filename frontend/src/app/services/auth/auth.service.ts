@@ -1,12 +1,13 @@
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { Inject, Injectable, NgZone, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 
+import { environment } from 'environments/environment';
+
 import { Church } from 'app/model/Church';
 import { User } from 'app/model/User';
-import { environment } from 'environments/environment';
 
 import { RouteFallbackService } from '../guards/route-fallback.service';
 
@@ -39,6 +40,7 @@ export class AuthService {
     private router: Router,
     private routeFallback: RouteFallbackService,
     @Inject(PLATFORM_ID) private platformId: object,
+    private zone: NgZone,
   ) {
     this.restoreSession();
   }
@@ -154,9 +156,14 @@ export class AuthService {
     this.isLoggedInSubject.next(false);
     this.userSubject.next(null);
     this.permissionsSubject.next([]);
-    this.router.navigateByUrl('/login').then(() => {
-      window.location.reload();
-      resolve();
+
+    this.zone.run(() => {
+      const currentUrl = this.router.url || window.location.pathname;
+      if (!currentUrl.includes('/login')) {
+        this.router.navigate(['/login'], { replaceUrl: true }).catch(() => {
+          window.location.href = '/login';
+        });
+      }
     });
   }
 

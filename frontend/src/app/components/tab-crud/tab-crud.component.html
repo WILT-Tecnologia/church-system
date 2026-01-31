@@ -1,4 +1,4 @@
-<mat-tab-group (selectedTabChange)="onTabChange($event.index)">
+<mat-tab-group (selectedTabChange)="onTabChange($event.index)" preserveContent>
   @for (tab of tabs; track $index) {
     <mat-tab>
       <ng-template mat-tab-label>

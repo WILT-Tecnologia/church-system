@@ -12,127 +12,117 @@ import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
-import { Guest } from 'app/model/Guest';
+import { Patrimonies } from 'app/model/Patrimonies';
 import { AuthService } from 'app/services/auth/auth.service';
-import { GuestsFormComponent } from './guests-form/guests-form.component';
-import { GuestsService } from './guests.service';
+import { PatrimoniesFormComponent } from './patrimonies-form/patrimonies-form.component';
+import { PatrimoniesService } from './patrimonies.service';
 
 @Component({
-  selector: 'app-guests',
-  templateUrl: './guests.component.html',
-  styleUrl: './guests.component.scss',
-  imports: [NotFoundRegisterComponent, CommonModule, CrudComponent],
+  selector: 'app-patrimonies',
+  templateUrl: './patrimonies.component.html',
+  styleUrl: './patrimonies.component.scss',
+  imports: [CrudComponent, NotFoundRegisterComponent, CommonModule],
 })
-export class GuestsComponent implements OnInit {
-  constructor(
-    private toast: ToastService,
-    private loading: LoadingService,
-    private confirmService: ConfirmService,
-    private modal: ModalService,
-    private guestsService: GuestsService,
-  ) {}
+export class PatrimoniesComponent implements OnInit {
+  private toast = inject(ToastService);
+  private loading = inject(LoadingService);
+  private confirmService = inject(ConfirmService);
+  private modal = inject(ModalService);
+  private patrimoniesService = inject(PatrimoniesService);
 
   private authService = inject(AuthService);
-
-  guest: Guest[] = [];
-  dataSourceMat = new MatTableDataSource<Guest>(this.guest);
+  patrimonies: Patrimonies[] = [];
+  dataSourceMat = new MatTableDataSource<Patrimonies>(this.patrimonies);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-  columnDefinitions: ColumnDefinitionsProps[] = [
-    { key: 'name', header: 'Nome', type: 'string' },
-    { key: 'phone_one', header: 'Celular', type: 'phone' },
-    { key: 'phone_two', header: 'Telefone II', type: 'sex' },
-  ];
+  columnDefinitions: ColumnDefinitionsProps[] = [{ key: 'name', header: 'Nome', type: 'string' }];
   actions: ActionsProps[] = [
     {
       type: 'edit',
       icon: 'edit',
       label: 'Editar',
-      action: (guest: Guest) => this.handleEdit(guest),
-      visible: () => this.authService.hasPermission('write_church_convidados_e_visitantes'),
+      action: (patrimonies: Patrimonies) => this.editPatrimonies(patrimonies),
+      visible: () => this.authService.hasPermission('write_church_patrimonios'),
     },
     {
       type: 'delete',
       icon: 'delete',
       label: 'Excluir',
       color: 'warn',
-      action: (guest: Guest) => this.handleDelete(guest),
-      visible: () => this.authService.hasPermission('write_church_convidados_e_visitantes'),
+      action: (patrimonies: Patrimonies) => this.deletePatrimonies(patrimonies),
+      visible: () => this.authService.hasPermission('delete_church_patrimonios'),
     },
   ];
 
   ngOnInit() {
-    this.loadGuests();
+    this.loadPatrimonies();
   }
 
-  loadGuests = () => {
-    this.guestsService.findAll().subscribe({
+  loadPatrimonies() {
+    this.patrimoniesService.findAll().subscribe({
       next: (data) => {
-        this.guest = data;
+        this.patrimonies = data;
         this.dataSourceMat.paginator = this.paginator;
         this.dataSourceMat.sort = this.sort;
       },
       error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
       complete: () => this.loading.hide(),
     });
-  };
+  }
 
-  onCreate = () => {
+  createPatrimonies() {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
-      GuestsFormComponent,
+      PatrimoniesFormComponent,
       'Adicionar convidado',
       true,
       true,
+      {},
     );
 
     modal.afterClosed().subscribe((data) => {
       if (data) {
-        this.loadGuests();
+        this.loadPatrimonies();
       }
     });
-  };
+  }
 
-  handleEdit = (guest: Guest) => {
+  editPatrimonies(patrimonies: Patrimonies) {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
-      GuestsFormComponent,
-      `Editando o convidado`,
+      PatrimoniesFormComponent,
+      `Editando o patrimonio ${patrimonies.number} - ${patrimonies.name}`,
       true,
       true,
-      { guest },
+      { patrimonies },
     );
 
     modal.afterClosed().subscribe((data) => {
       if (data) {
-        this.loadGuests();
+        this.loadPatrimonies();
       }
     });
-  };
+  }
 
-  handleDelete = (guest: Guest) => {
+  deletePatrimonies(patrimonies: Patrimonies) {
     const modal = this.confirmService.openConfirm(
       'Atenção',
-      'Tem certeza que deseja excluir este convidado?',
+      'Tem certeza que deseja excluir este patrimônio?',
       'Confirmar',
       'Cancelar',
     );
 
     modal.afterClosed().subscribe((result) => {
       if (result) {
-        this.guestsService.deleteGuest(guest).subscribe({
+        this.patrimoniesService.deletePatrimonies(patrimonies).subscribe({
           next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
           error: () => this.toast.openError(MESSAGES.DELETE_ERROR),
           complete: () => {
-            this.loadGuests();
-            this.hideLoading();
+            this.loadPatrimonies();
+            this.toast.openError(MESSAGES.DELETE_ERROR);
           },
         });
       }
     });
-  };
-
-  private hideLoading = () => {
-    this.loading.hide();
-  };
+  }
 }

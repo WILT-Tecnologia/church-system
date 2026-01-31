@@ -1,0 +1,40 @@
+<form [formGroup]="patrimoniesForm" (ngSubmit)="handleSubmit()" class="form-field-group">
+  <app-column [columns]="3">
+    <mat-form-field appearance="fill">
+      <mat-label>Igreja</mat-label>
+      <input
+        type="text"
+        matInput
+        [matAutocomplete]="autoChurch"
+        [formControl]="searchControlChurch"
+        placeholder="Selecione uma igreja"
+        (focus)="showAllChurch()"
+        required
+      />
+      <mat-autocomplete #autoChurch="matAutocomplete" (optionSelected)="onChurchSelected($event)">
+        @for (church of filteredChurch | async; track $index) {
+          <mat-option [value]="church">{{ church.name }}</mat-option>
+        }
+      </mat-autocomplete>
+      @if (patrimoniesForm.get('church_id')?.invalid && patrimoniesForm.get('church_id')?.touched) {
+        <mat-error>{{ getErrorMessage('church_id') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Nome</mat-label>
+      <input matInput type="text" formControlName="name" maxlength="255" required />
+      @if (patrimoniesForm.get('name')?.invalid && patrimoniesForm.get('name')?.touched) {
+        <mat-error>{{ getErrorMessage('name') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Número</mat-label>
+      <input matInput type="number" formControlName="number" max="50" required />
+      @if (patrimoniesForm.get('number')?.invalid && patrimoniesForm.get('number')?.touched) {
+        <mat-error>{{ getErrorMessage('number') }}</mat-error>
+      }
+    </mat-form-field>
+  </app-column>
+</form>

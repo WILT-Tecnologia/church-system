@@ -14,6 +14,10 @@ import { UsersComponent } from './pages/private/administrative/users/users.compo
 import { DashboardComponent } from './pages/private/church/dashboard/dashboard.component';
 import { EventsComponent } from './pages/private/church/events/events.component';
 import { FinancialComponent } from './pages/private/church/financial/financial.component';
+import { FinancialCategoriesComponent } from './pages/private/church/financial/shared/financial-categories/financial-categories.component';
+import { FinancialTransactionsComponent } from './pages/private/church/financial/shared/financial-transactions/financial-transactions.component';
+import { PatrimoniesComponent } from './pages/private/church/financial/shared/patrimonies/patrimonies.component';
+import { SuppliersComponent } from './pages/private/church/financial/shared/suppliers/suppliers.component';
 import { GuestsComponent } from './pages/private/church/guests/guests.component';
 import { MembersComponent } from './pages/private/church/members/members.component';
 import { SettingsComponent } from './pages/private/church/settings/settings.component';
@@ -178,11 +182,37 @@ export const routes: Routes = [
       {
         path: 'financial',
         component: FinancialComponent,
-        title: 'Financeiro',
-        pathMatch: 'full',
+        title: 'Gestão financeira',
         canActivate: [permissionGuard],
         data: { permissions: ['read_church_financeiro'] },
+        children: [
+          {
+            path: 'patrimonies',
+            component: PatrimoniesComponent,
+            title: 'Patrimonios',
+            pathMatch: 'full',
+          },
+          {
+            path: 'suppliers',
+            component: SuppliersComponent,
+            title: 'Fornecedores',
+            pathMatch: 'full',
+          },
+          {
+            path: 'financial-categories',
+            component: FinancialCategoriesComponent,
+            title: 'Fornecedores',
+            pathMatch: 'full',
+          },
+          {
+            path: 'financial-transactions',
+            component: FinancialTransactionsComponent,
+            title: 'Fornecedores',
+            pathMatch: 'full',
+          },
+        ],
       },
+
       {
         path: 'settings-church',
         component: SettingsComponent,
