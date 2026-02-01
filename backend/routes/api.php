@@ -47,7 +47,10 @@ Route::prefix('church')->middleware(['cors', 'auth:sanctum'])->group(function ()
     $permissions_events = 'read_church_eventos|write_church_eventos|delete_church_eventos';
     $permissions_tasks = 'read_church_tasks|write_church_tasks|delete_church_tasks';
     $permissions_financial = 'read_church_financeiro|write_church_financeiro|delete_church_financeiro';
-    $permissions_patrimony = 'read_church_patrimonio|write_church_patrimonio|delete_church_patrimonio';
+    $permissions_patrimony = 'read_church_patrimonios|write_church_patrimonios|delete_church_patrimonios';
+    $permissions_suppliers = 'read_church_fornecedores|write_church_fornecedores|delete_church_fornecedores';
+    $permissions_financial_categories = 'read_church_categorias_financeiras|write_church_categorias_financeiras|delete_church_categorias_financeiras';
+    $permissions_financial_transactions = 'read_church_lancamentos_financeiros|write_church_lancamentos_financeiros|delete_church_lancamentos_financeiros';
 
     Route::apiResource('members', \App\Http\Controllers\Api\MemberController::class)->middleware("permission:{$permissions_members}");
     Route::apiResource('families', \App\Http\Controllers\Api\FamilyController::class)->middleware("permission:{$permissions_members}");
@@ -67,9 +70,9 @@ Route::prefix('church')->middleware(['cors', 'auth:sanctum'])->group(function ()
         'frequencies' => 'frequencyId',
     ])->middleware("permission:{$permissions_events}");
     Route::apiResource('patrimonies', \App\Http\Controllers\Api\PatrimonyController::class)->middleware("permission:{$permissions_patrimony}");
-    Route::apiResource('suppliers', \App\Http\Controllers\Api\SupplierController::class);
-    Route::apiResource('financial-categories', \App\Http\Controllers\Api\FinancialCategoryController::class);
-    route::apiResource('financial-transactions', \App\Http\Controllers\Api\FinancialTransactionController::class);
+    Route::apiResource('suppliers', \App\Http\Controllers\Api\SupplierController::class)->middleware("permission:{$permissions_suppliers}");
+    Route::apiResource('financial-categories', \App\Http\Controllers\Api\FinancialCategoryController::class)->middleware("permission:{$permissions_financial_categories}");
+    route::apiResource('financial-transactions', \App\Http\Controllers\Api\FinancialTransactionController::class)->middleware("permission:{$permissions_financial_transactions}");
 });
 
 Route::prefix('aux')->middleware(['cors', 'auth:sanctum'])->group(function () {

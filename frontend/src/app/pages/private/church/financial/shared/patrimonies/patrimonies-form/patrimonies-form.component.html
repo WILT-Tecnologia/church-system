@@ -1,40 +1,208 @@
 <form [formGroup]="patrimoniesForm" (ngSubmit)="handleSubmit()" class="form-field-group">
+  <span>Identificação</span>
   <app-column [columns]="3">
+    <!-- Igreja -->
     <mat-form-field appearance="fill">
       <mat-label>Igreja</mat-label>
       <input
-        type="text"
         matInput
         [matAutocomplete]="autoChurch"
         [formControl]="searchControlChurch"
         placeholder="Selecione uma igreja"
-        (focus)="showAllChurch()"
+        (focus)="showAll()"
         required
       />
-      <mat-autocomplete #autoChurch="matAutocomplete" (optionSelected)="onChurchSelected($event)">
+      <mat-autocomplete
+        #autoChurch="matAutocomplete"
+        [displayWith]="displayChurch"
+        (optionSelected)="onChurchSelected($event)"
+      >
         @for (church of filteredChurch | async; track $index) {
           <mat-option [value]="church">{{ church.name }}</mat-option>
         }
       </mat-autocomplete>
-      @if (patrimoniesForm.get('church_id')?.invalid && patrimoniesForm.get('church_id')?.touched) {
+      @if (patrimoniesForm.get('church_id')?.invalid) {
         <mat-error>{{ getErrorMessage('church_id') }}</mat-error>
       }
     </mat-form-field>
 
+    <!-- Número -->
     <mat-form-field appearance="fill">
-      <mat-label>Nome</mat-label>
-      <input matInput type="text" formControlName="name" maxlength="255" required />
-      @if (patrimoniesForm.get('name')?.invalid && patrimoniesForm.get('name')?.touched) {
-        <mat-error>{{ getErrorMessage('name') }}</mat-error>
-      }
-    </mat-form-field>
-
-    <mat-form-field appearance="fill">
-      <mat-label>Número</mat-label>
-      <input matInput type="number" formControlName="number" max="50" required />
-      @if (patrimoniesForm.get('number')?.invalid && patrimoniesForm.get('number')?.touched) {
+      <mat-label>Nº Patrimônio</mat-label>
+      <input type="text" matInput formControlName="number" minlength="0" maxlength="50" required />
+      @if (patrimoniesForm.get('number')?.invalid) {
         <mat-error>{{ getErrorMessage('number') }}</mat-error>
       }
     </mat-form-field>
+
+    <!-- Nome -->
+    <mat-form-field appearance="fill">
+      <mat-label>Nome</mat-label>
+      <input matInput formControlName="name" required />
+      @if (patrimoniesForm.get('name')?.invalid) {
+        <mat-error>{{ getErrorMessage('name') }}</mat-error>
+      }
+    </mat-form-field>
   </app-column>
+
+  <app-column [columns]="3">
+    <!-- Tipo de entrada -->
+    <mat-form-field appearance="fill">
+      <mat-label>Tipo de entrada</mat-label>
+      <mat-select formControlName="type_entry" required>
+        <mat-option value="C">Compra</mat-option>
+        <mat-option value="D">Doação</mat-option>
+        <mat-option value="T">Transferência</mat-option>
+      </mat-select>
+      @if (patrimoniesForm.get('type_entry')?.invalid) {
+        <mat-error>{{ getErrorMessage('type_entry') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Valor -->
+    @if (patrimoniesForm.get('type_entry')?.value === 'C') {
+      <mat-form-field appearance="fill">
+        <mat-label>Valor (R$)</mat-label>
+        <input matInput type="number" step="0.01" formControlName="price" />
+        @if (patrimoniesForm.get('price')?.invalid) {
+          <mat-error>{{ getErrorMessage('price') }} </mat-error>
+        }
+      </mat-form-field>
+    }
+
+    <!-- Data -->
+    <mat-form-field>
+      <mat-label>Data de registro</mat-label>
+      <input
+        matInput
+        type="text"
+        name="registration_date"
+        [matDatepicker]="registration_date"
+        placeholder="dd/mm/aaaa"
+        formControlName="registration_date"
+        [min]="minDate"
+        required
+      />
+      <mat-datepicker-toggle matIconSuffix [for]="registration_date"></mat-datepicker-toggle>
+      <mat-datepicker #registration_date>
+        <mat-datepicker-actions>
+          @if (patrimoniesForm.get('registration_date')?.value) {
+            <button
+              matTooltip="Limpar a data"
+              mat-flat-button
+              matSuffix
+              matDatepickerToggleIcon
+              (click)="clearDate('registration_date')"
+              type="button"
+              color="warn"
+            >
+              <mat-icon>close</mat-icon>
+              Limpar
+            </button>
+          } @else {
+            <button type="button" mat-stroked-button matDatepickerCancel>Cancelar</button>
+            <button type="button" mat-flat-button matDatepickerApply>Concluir</button>
+          }
+        </mat-datepicker-actions>
+      </mat-datepicker>
+      @if (patrimoniesForm.get('description')?.invalid) {
+        <mat-error>{{ getErrorMessage('registration_date') }} </mat-error>
+      }
+    </mat-form-field>
+  </app-column>
+
+  <mat-divider></mat-divider>
+
+  @if (patrimoniesForm.get('type_entry')?.value === 'D') {
+    <span>Origem</span>
+    <app-column [columns]="3">
+      <mat-slide-toggle formControlName="is_member" color="primary"> Foi um membro da igreja? </mat-slide-toggle>
+
+      <!-- Membro -->
+      @if (patrimoniesForm.get('is_member')?.value) {
+        <mat-form-field appearance="fill">
+          <mat-label>Membro</mat-label>
+          <input
+            matInput
+            [matAutocomplete]="autoMember"
+            [formControl]="searchControlMember"
+            placeholder="Busque o membro..."
+            (focus)="showAll()"
+          />
+          <mat-autocomplete
+            #autoMember="matAutocomplete"
+            [displayWith]="displayMember"
+            (optionSelected)="onMemberSelected($event)"
+          >
+            @for (members of filteredMember | async; track $index) {
+              <mat-option [value]="members">{{ members?.person?.name }}</mat-option>
+            }
+          </mat-autocomplete>
+          @if (patrimoniesForm.get('member_id')?.invalid) {
+            <mat-error>{{ getErrorMessage('member_id') }}</mat-error>
+          }
+        </mat-form-field>
+      }
+
+      <!-- Doador -->
+      @if (patrimoniesForm.get('type_entry')?.value === 'D' && !patrimoniesForm.get('is_member')?.value) {
+        <mat-form-field appearance="fill">
+          <mat-label>Doador</mat-label>
+          <input matInput formControlName="donor" />
+          @if (patrimoniesForm.get('donor')?.invalid) {
+            <mat-error>{{ getErrorMessage('donor') }}</mat-error>
+          }
+        </mat-form-field>
+      }
+    </app-column>
+
+    <mat-divider></mat-divider>
+  }
+
+  <!-- COMPLEMENTOS -->
+  <app-column [columns]="1">
+    <mat-form-field appearance="fill">
+      <mat-label>Descrição</mat-label>
+      <textarea matInput rows="5" maxlength="255" formControlName="description"></textarea>
+      @if (patrimoniesForm.get('description')?.invalid) {
+        <mat-error>{{ getErrorMessage('description') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="photo-container">
+      <label class="photo-label">Foto</label>
+
+      @if (!photoPreview) {
+        <div class="upload-box">
+          <button type="button" mat-stroked-button (click)="fileInput.click()">
+            <mat-icon>add_a_photo</mat-icon>
+            Anexar Imagem
+          </button>
+          <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" style="display: none" />
+        </div>
+      }
+
+      @if (photoPreview) {
+        <div class="preview-box">
+          <img [src]="photoPreview" alt="Preview da imagem" class="img-preview" />
+          <button
+            type="button"
+            mat-mini-fab
+            color="warn"
+            class="remove-btn"
+            matTooltip="Remover imagem"
+            (click)="removePhoto()"
+          >
+            <mat-icon color="warn">delete</mat-icon>
+          </button>
+        </div>
+      }
+    </div>
+  </app-column>
+
+  <!-- AÇÕES -->
+  <app-actions>
+    <button type="button" mat-stroked-button color="warn" (click)="handleCancel()">Cancelar</button>
+    <button mat-flat-button color="primary">{{ isEditMode ? 'Editar' : 'Salvar' }}</button>
+  </app-actions>
 </form>

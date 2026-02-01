@@ -171,7 +171,11 @@ export class GuestsFormComponent implements OnInit, OnDestroy {
   }
 
   handleSubmit() {
-    this.guestForm.markAllAsTouched();
+    if (this.guestForm.invalid) {
+      this.guestForm.markAllAsTouched();
+      this.notification.onError('Verifique os campos obrigatórios.');
+      return;
+    }
 
     const guest = this.guestForm;
 

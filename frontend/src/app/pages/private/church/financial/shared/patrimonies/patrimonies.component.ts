@@ -35,7 +35,14 @@ export class PatrimoniesComponent implements OnInit {
   dataSourceMat = new MatTableDataSource<Patrimonies>(this.patrimonies);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-  columnDefinitions: ColumnDefinitionsProps[] = [{ key: 'name', header: 'Nome', type: 'string' }];
+  columnDefinitions: ColumnDefinitionsProps[] = [
+    { key: 'church.name', header: 'Igreja', type: 'string' },
+    { key: 'number', header: 'N° do patrimônio', type: 'string' },
+    { key: 'name', header: 'Nome', type: 'string' },
+    { key: 'price', header: 'Preço', type: 'currency' },
+    { key: 'type_entry', header: 'Tipo de entrada', type: 'typeEntry' },
+    { key: 'registration_date', header: 'Data de registro', type: 'date' },
+  ];
   actions: ActionsProps[] = [
     {
       type: 'edit',

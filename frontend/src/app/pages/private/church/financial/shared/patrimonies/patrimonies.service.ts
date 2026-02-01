@@ -18,9 +18,17 @@ export class PatrimoniesService {
     return this.http.get<Patrimonies[]>(this.api);
   }
 
-  // getPatrimoniesById(id: string): Observable<Patrimonies> {
-  //   return this.http.get<Patrimonies>(`${this.api}/${id}`);
-  // }
+  getPatrimoniesById(id: string): Observable<Patrimonies> {
+    return this.http.get<Patrimonies>(`${this.api}/${id}`);
+  }
+
+  createWithFormData(formData: FormData): Observable<Patrimonies> {
+    return this.http.post<Patrimonies>(this.api, formData);
+  }
+
+  updateWithFormData(id: string, formData: FormData): Observable<Patrimonies> {
+    return this.http.post<Patrimonies>(`${this.api}/${id}`, formData);
+  }
 
   create(patrimonies: Patrimonies): Observable<Patrimonies> {
     return this.http.post<Patrimonies>(this.api, patrimonies);

@@ -105,4 +105,13 @@ export class FormatsPipe implements PipeTransform {
     }
     return sex;
   }
+
+  TypeEntryTransform(type: string, direction: 'toView' | 'toModel'): string {
+    if (direction === 'toView') {
+      return type === 'C' ? 'Compra' : type === 'D' ? 'Doação' : type === 'T' ? 'Transferência' : type;
+    } else if (direction === 'toModel') {
+      return type === 'Compra' ? 'C' : type === 'Doação' ? 'D' : type === 'Transferência' ? 'T' : type;
+    }
+    return type;
+  }
 }

@@ -14,10 +14,9 @@ import { filter } from 'rxjs/operators';
 import { routes } from 'app/app.routes';
 import { ChurchsService } from 'app/pages/private/administrative/churches/churches.service';
 import { AuthService } from 'app/services/auth/auth.service';
+import { LoadingService } from '../loading/loading.service';
 import { USER } from './routes';
 import { LogoComponent } from './shared/logo/logo.component';
-
-import { LoadingService } from '../loading/loading.service';
 
 type RouteProps = {
   path: string;

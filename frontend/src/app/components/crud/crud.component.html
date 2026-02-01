@@ -124,6 +124,9 @@
           @case ('currency') {
             {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
+          @case ('typeEntry') {
+            <app-badge-type [type]="fields[column.key]" />
+          }
           @case ('select') {
             {{ (fields | formatValues: column.key : column.type) ?? '--' }}
           }
