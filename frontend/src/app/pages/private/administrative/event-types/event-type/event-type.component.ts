@@ -11,6 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import { ColorPickerControl } from '@iplab/ngx-color-picker';
+
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColorPickerComponent } from 'app/components/color-picker/color-picker.component';
 import { ColumnComponent } from 'app/components/column/column.component';
@@ -19,7 +20,6 @@ import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { EventTypes } from 'app/model/EventTypes';
 import { ValidationService } from 'app/services/validation/validation.service';
-
 import { EventTypesService } from '../eventTypes.service';
 
 @Component({

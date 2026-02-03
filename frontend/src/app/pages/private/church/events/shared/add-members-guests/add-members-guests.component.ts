@@ -20,7 +20,6 @@ import { PaginatorComponent } from 'app/components/paginator/paginator.component
 import { SearchComponent } from 'app/components/search/search.component';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Events, ParticipantAndGuest } from 'app/model/Events';
-
 import { GuestsService } from '../../../guests/guests.service';
 import { MembersService } from '../../../members/members.service';
 import { EventsService } from '../../events.service';

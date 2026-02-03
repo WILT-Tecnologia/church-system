@@ -2,8 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { Guest } from 'app/model/Guest';
 import { environment } from 'environments/environment';
+
+import { Guest } from 'app/model/Guest';
 
 @Injectable({
   providedIn: 'root',

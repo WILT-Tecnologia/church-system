@@ -29,10 +29,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormatValuesPipe } from 'app/components/crud/pipes/format-values.pipe';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import { AuthService } from 'app/services/auth/auth.service';
-import { FilterButtonAdvancedComponent, FilterField } from './filter-button-advanced/filter-button-advanced.component';
-import { ActionsProps, ColumnDefinitionsProps } from './types';
-
 import { ModalService } from '../modal/modal.service';
+import { BadgeTypeComponent } from './shared/badge-type/badge-type.component';
+import {
+  FilterButtonAdvancedComponent,
+  FilterField,
+} from './shared/filter-button-advanced/filter-button-advanced.component';
+import { ActionsProps, ColumnDefinitionsProps } from './types';
 
 export interface TableField {
   [key: string]: any;
@@ -65,6 +68,7 @@ export class HasNonToggleActionsPipe implements PipeTransform {
     FormatValuesPipe,
     HasNonToggleActionsPipe,
     FilterButtonAdvancedComponent,
+    BadgeTypeComponent,
   ],
   providers: [FormatsPipe],
 })

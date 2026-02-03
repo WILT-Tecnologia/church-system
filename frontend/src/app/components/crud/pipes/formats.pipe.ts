@@ -4,7 +4,6 @@ import dayjs from 'dayjs';
 
 @Pipe({
   name: 'formats',
-  standalone: true,
 })
 export class FormatsPipe implements PipeTransform {
   transform(value: string): string {
@@ -59,13 +58,16 @@ export class FormatsPipe implements PipeTransform {
   dateFormat(value: string): string {
     if (!value) return '';
 
-    let dateFormated = dayjs(value).format('DD/MM/YYYY');
+    const rawValue = value.endsWith('Z') ? value.slice(0, -1) : value;
 
-    if (dayjs(value).isValid()) {
+    let dateFormated = dayjs(rawValue).format('DD/MM/YYYY');
+
+    if (dayjs(rawValue).isValid()) {
       return dateFormated;
     }
 
     const parts = value.split(/[-/]/);
+
     if (parts.length === 3) {
       const [day, month, year] = parts;
       const reformattedValue = `${year}-${month}-${day}`;

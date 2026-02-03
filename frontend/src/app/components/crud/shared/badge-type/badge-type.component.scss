@@ -1,0 +1,70 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 30rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 0.25rem 0.625rem;
+  line-height: 1;
+  border: 1px solid;
+  transition: all 0.15s ease-in-out;
+  white-space: nowrap;
+}
+
+.badge-compra {
+  background-color: hsl(142, 71%, 95%);
+  color: hsl(142, 76%, 36%);
+  border-color: hsl(142, 76%, 80%);
+
+  &:hover {
+    background-color: hsl(142, 71%, 25%);
+    color: var(--white-color);
+    border-color: hsl(142, 76%, 70%);
+  }
+}
+
+.badge-doacao {
+  background-color: hsl(221, 83%, 95%);
+  color: hsl(221, 83%, 36%);
+  border-color: hsl(221, 83%, 85%);
+
+  &:hover {
+    background-color: hsl(221, 83%, 25%);
+    color: var(--white-color);
+    border-color: hsl(221, 83%, 75%);
+  }
+}
+
+.badge-transferencia {
+  background-color: hsl(38, 92%, 95%);
+  color: hsl(38, 92%, 36%);
+  border-color: hsl(38, 92%, 80%);
+
+  &:hover {
+    background-color: hsl(38, 92%, 25%);
+    color: var(--white-color);
+    border-color: hsl(38, 92%, 70%);
+  }
+}
+
+/* Opcional: versão dark mode (se você usa prefers-color-scheme ou theme switcher) */
+@media (prefers-color-scheme: dark) {
+  .badge-compra {
+    background-color: hsl(142, 71%, 20%);
+    color: hsl(142, 76%, 85%);
+    border-color: hsl(142, 71%, 35%);
+  }
+
+  .badge-doacao {
+    background-color: hsl(221, 83%, 22%);
+    color: hsl(221, 83%, 80%);
+    border-color: hsl(221, 83%, 40%);
+  }
+
+  .badge-transferencia {
+    background-color: hsl(38, 92%, 25%);
+    color: hsl(38, 92%, 85%);
+    border-color: hsl(38, 92%, 45%);
+  }
+}

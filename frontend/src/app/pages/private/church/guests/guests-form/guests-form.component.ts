@@ -26,7 +26,6 @@ import { NotificationService } from 'app/services/notification/notification.serv
 import { CepService } from 'app/services/search-cep/search-cep.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 import { phoneValidator } from 'app/services/validators/phone-validator';
-
 import { GuestsService } from '../guests.service';
 
 @Component({
@@ -172,7 +171,11 @@ export class GuestsFormComponent implements OnInit, OnDestroy {
   }
 
   handleSubmit() {
-    this.guestForm.markAllAsTouched();
+    if (this.guestForm.invalid) {
+      this.guestForm.markAllAsTouched();
+      this.notification.onError('Verifique os campos obrigatórios.');
+      return;
+    }
 
     const guest = this.guestForm;
 

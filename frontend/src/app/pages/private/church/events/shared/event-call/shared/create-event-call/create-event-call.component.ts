@@ -14,6 +14,8 @@ import { MatTimepickerModule } from '@angular/material/timepicker';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { map, Observable, startWith, Subject, takeUntil } from 'rxjs';
 
+import { provideNgxMask } from 'ngx-mask';
+
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
@@ -21,8 +23,6 @@ import { MESSAGES } from 'app/components/toast/messages';
 import { EventCall, Events } from 'app/model/Events';
 import { NotificationService } from 'app/services/notification/notification.service';
 import { ValidationService } from 'app/services/validation/validation.service';
-import { provideNgxMask } from 'ngx-mask';
-
 import { EventCallService } from '../../event-call.service';
 
 @Component({

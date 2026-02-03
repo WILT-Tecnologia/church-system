@@ -76,15 +76,13 @@ export default tseslint.config(
         'error',
         {
           groups: [
-            // 1. Packages: Angular, RxJS, etc.
-            ['^@angular', '^angular', '^rxjs', '^zone.js'],
-            // 2. Other third-party packages.
+            // 1. Framework & Third-party (Angular, Material, RxJS)
+            ['^@angular', '^@angular/material', '^rxjs'],
+            // 2. Outros pacotes de terceiros
             ['^@?\\w'],
-            // 3. Internal paths: Updated to include 'app/' without the '@'
-            ['^app/', '^(@app|@env|@core|@shared)(/.*|$)', '^\\.'],
-            // 4. Parent imports.
-            ['^\\.\\.(?!/?$)', '^\\.\\./?$'],
-            // 5. Style imports.
+            // 3. Imports internos (app/...) e caminhos relativos (.)
+            ['^app/', '^\\.'],
+            // 4. Arquivos de estilo
             ['^.+\\.s?css$'],
           ],
         },

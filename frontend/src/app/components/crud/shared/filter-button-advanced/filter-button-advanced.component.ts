@@ -11,8 +11,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { map, Observable, startWith } from 'rxjs';
+
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 
 export interface FilterField {
   label: string;

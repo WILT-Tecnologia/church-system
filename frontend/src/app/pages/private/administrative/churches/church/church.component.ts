@@ -14,6 +14,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import { debounceTime, distinctUntilChanged, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
 
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
+
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
@@ -27,8 +29,6 @@ import { SanitizeValuesService } from 'app/services/sanitize/sanitize-values.ser
 import { CepService } from 'app/services/search-cep/search-cep.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 import { cnpjValidator } from 'app/services/validators/cnpj-validator';
-import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
-
 import { PersonsService } from '../../persons/persons.service';
 import { ChurchsService } from '../churches.service';
 

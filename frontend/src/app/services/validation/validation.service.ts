@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { AbstractControl, FormControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { catchError, map, Observable, of } from 'rxjs';
 
 import { messages } from './message';
@@ -20,16 +20,31 @@ export class ValidationService {
       const errors = control.errors;
       if (errors) {
         for (const errorKey in errors) {
-          if (errorKey === 'emailExists') {
-            return errors[errorKey];
-          } else if (messages[errorKey as keyof typeof messages]) {
+          if (errorKey === 'emailExists') return errors[errorKey];
+
+          if (messages[errorKey as keyof typeof messages]) {
             const message = messages[errorKey as keyof typeof messages];
-            return message.replace('{{ requiredLength }}', errors[errorKey]?.requiredLength || '');
+            return message.replace('{{ length }}', errors[errorKey]?.requiredLength || '');
           }
+
+          return errorKey;
         }
       }
     }
     return null;
+  }
+
+  handleLaravelErrors(form: FormGroup, errors: Record<string, string[]>) {
+    Object.keys(errors).forEach((key) => {
+      const control = form.get(key);
+      if (control) {
+        const errorKey = errors[key][0];
+
+        control.setErrors({ [errorKey]: true });
+
+        control.markAsTouched();
+      }
+    });
   }
 
   validateEmail(control: AbstractControl): Observable<ValidationErrors | null> {
@@ -79,7 +94,6 @@ export class ValidationService {
     return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value) ? null : { invalidTime: true };
   }
 
-  // Novo método para parse de datas
   parseDate(dateString: string | null | undefined): Date | null {
     if (!dateString) return null;
 

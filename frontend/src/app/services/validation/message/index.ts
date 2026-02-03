@@ -1,7 +1,9 @@
 export const messages = {
   required: 'Campo obrigatório.',
-  maxlength: 'O campo deve ter no máximo {{ requiredLength }} dígitos.',
-  minlength: 'O campo deve ter pelo menos {{ requiredLength }} dígitos.',
+  maxlength: 'O campo deve ter no máximo {{ length }} dígitos.',
+  minlength: 'O campo deve ter pelo menos {{ length }} dígitos.',
+  min: 'O valor mínimo é {{ length }}.',
+  max: 'O valor máximo é {{ length }}.',
   email: 'O e-mail informado não é válido.',
   invalidPassword:
     'A senha deve ter pelo menos uma letra maiúscula, uma minúscula, um número e um caracter especial (@,$,!,%,*,?,&).',
@@ -12,4 +14,14 @@ export const messages = {
   invalidTime: 'Hora inválida (use HH:mm)',
   invalidDateRange: 'Data final deve ser posterior à data inicial.',
   invalidTimeRange: 'Hora final deve ser posterior à hora inicial.',
+
+  'validation.required': 'Este campo é obrigatório.',
+  'validation.required_unless': 'Campo obrigatório dependendo de outra seleção.',
+  'validation.max.string': 'O texto excedeu o limite de caracteres.',
+  'validation.min.string': 'O texto é muito curto.',
+  'validation.integer': 'O valor deve ser um número inteiro.',
+  'validation.decimal': 'O valor deve ser um valor monetário.',
+  'validation.numeric': 'O valor deve ser numérico.',
+  'validation.email': 'O e-mail informado não é válido.',
+  'validation.unique': 'Este registro já existe no sistema.',
 };

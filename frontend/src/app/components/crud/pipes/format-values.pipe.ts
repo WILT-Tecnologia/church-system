@@ -4,7 +4,6 @@ import { FormatsPipe } from './formats.pipe';
 
 @Pipe({
   name: 'formatValues',
-  standalone: true,
 })
 export class FormatValuesPipe implements PipeTransform {
   constructor(private formats: FormatsPipe) {}
@@ -27,7 +26,7 @@ export class FormatValuesPipe implements PipeTransform {
         return this.formats.phoneFormat(value);
       case 'color':
         if (value && /^#[0-9A-F]{6}$/i.test(value)) {
-          return value; // Return valid hex color
+          return value;
         }
         return '';
       case 'sex':
@@ -36,6 +35,20 @@ export class FormatValuesPipe implements PipeTransform {
         return value ? 'Ativado' : 'Desativado';
       case 'YesNo':
         return value ? 'Sim' : 'Não';
+      case 'currency': {
+        if (isNaN(value) || value === null || value === 0 || value === '' || value === '0') {
+          return '--';
+        }
+
+        const numericValue = typeof value === 'string' ? Number(value.replace(/[^0-9.]/g, '')) : Number(value);
+
+        return numericValue.toLocaleString('pt-BR', {
+          style: 'currency',
+          currency: 'BRL',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+      }
       case 'string':
         return value || '';
       case 'number':

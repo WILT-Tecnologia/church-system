@@ -32,6 +32,10 @@ class ModuleSeeder extends Seeder
             ['name' => 'Eventos', 'context' => 'church'],
             ['name' => 'Tasks', 'context' => 'church'],
             ['name' => 'Financeiro', 'context' => 'church'],
+            ['name' => 'Patrimônios', 'context' => 'church'],
+            ['name' => 'Fornecedores', 'context' => 'church'],
+            ['name' => 'Categorias Financeiras', 'context' => 'church'],
+            ['name' => 'Lançamentos Financeiros', 'context' => 'church'],
             ['name' => 'Configurações Igreja', 'context' => 'church'],
         ];
 
