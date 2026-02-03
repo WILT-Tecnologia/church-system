@@ -63,7 +63,16 @@
     @if (patrimoniesForm.get('type_entry')?.value === 'C') {
       <mat-form-field appearance="fill">
         <mat-label>Valor (R$)</mat-label>
-        <input matInput type="number" step="0.01" formControlName="price" />
+        <input
+          matInput
+          type="text"
+          formControlName="price"
+          mask="separator.2"
+          thousandSeparator="."
+          decimalMarker=","
+          prefix="R$ "
+          [leadZero]="true"
+        />
         @if (patrimoniesForm.get('price')?.invalid) {
           <mat-error>{{ getErrorMessage('price') }} </mat-error>
         }

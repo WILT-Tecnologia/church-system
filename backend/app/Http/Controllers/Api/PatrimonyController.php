@@ -16,7 +16,9 @@ class PatrimonyController extends Controller
      */
     public function index()
     {
-        return PatrimonyResource::collection(Patrimony::all());
+        $patrimonies = Patrimony::with(['church', 'member'])->orderBy('number')->orderBy('name')->get();
+
+        return PatrimonyResource::collection($patrimonies);
     }
 
     /**
@@ -34,7 +36,7 @@ class PatrimonyController extends Controller
      */
     public function show(Patrimony $patrimony)
     {
-        return new PatrimonyResource($patrimony);
+        return new PatrimonyResource($patrimony->load(['church', 'member']));
     }
 
     /**

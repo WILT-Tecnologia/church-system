@@ -1,6 +1,10 @@
+import { Church } from './Church';
+import { Members } from './Members';
+
 export interface Patrimonies {
   id?: string;
   church_id: string;
+  church: Church;
   number: string;
   name: string;
   registration_date: string;
@@ -9,6 +13,7 @@ export interface Patrimonies {
   price?: string | number | null;
   is_member: boolean;
   member_id: string;
+  member: Members;
   donor?: string | null;
   photo?: File | string | null;
   remove_photo?: boolean;

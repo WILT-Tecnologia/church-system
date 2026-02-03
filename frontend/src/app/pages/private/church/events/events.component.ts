@@ -52,13 +52,12 @@ import { ToastService } from 'app/components/toast/toast.service';
 import { EventCall, Events } from 'app/model/Events';
 import { EventTypes } from 'app/model/EventTypes';
 import { AuthService } from 'app/services/auth/auth.service';
+import { EventTypesService } from '../../administrative/event-types/eventTypes.service';
 import { EventsService } from './events.service';
 import { AddMembersGuestsComponent } from './shared/add-members-guests/add-members-guests.component';
 import { EventCallComponent } from './shared/event-call/event-call.component';
 import { EventsFormComponent } from './shared/events-form/events-form.component';
 import { FrequenciesComponent } from './shared/frequencies/frequencies.component';
-
-import { EventTypesService } from '../../administrative/event-types/eventTypes.service';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);

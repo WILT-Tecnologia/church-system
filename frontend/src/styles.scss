@@ -34,10 +34,11 @@
   --success-color: #{theme.$success};
   --warning-color: #{theme.$warning};
   --hover-color: #{theme.$hover};
-  --info-color: #{mat.get-theme-color(theme.$light-theme, tertiary, 50)};
   --separator-color: #{theme.$separator};
   --white-color: #{theme.$white};
   --background-color: #{theme.$backgroundColor};
+  --no-color: #{mat.get-theme-color(theme.$light-theme, error, 50)};
+  --info-color: #{mat.get-theme-color(theme.$light-theme, tertiary, 50)};
   --transparent-color: transparent;
 }
 

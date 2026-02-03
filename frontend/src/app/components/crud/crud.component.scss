@@ -239,6 +239,16 @@ button.active {
   font-weight: 500;
 }
 
+.no {
+  color: var(--no-color);
+  font-weight: 500;
+}
+
+.yes {
+  color: var(--success-color);
+  font-weight: 500;
+}
+
 .color-display {
   display: flex;
   align-items: center;

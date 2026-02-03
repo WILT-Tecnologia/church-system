@@ -42,6 +42,8 @@ export class PatrimoniesComponent implements OnInit {
     { key: 'price', header: 'Preço', type: 'currency' },
     { key: 'type_entry', header: 'Tipo de entrada', type: 'typeEntry' },
     { key: 'registration_date', header: 'Data de registro', type: 'date' },
+    { key: 'donorOrMember', header: 'Doador', type: 'string' },
+    { key: 'is_member', header: 'É Membro?', type: 'YesNo' },
   ];
   actions: ActionsProps[] = [
     {
@@ -68,7 +70,10 @@ export class PatrimoniesComponent implements OnInit {
   loadPatrimonies() {
     this.patrimoniesService.findAll().subscribe({
       next: (data) => {
-        this.patrimonies = data;
+        this.patrimonies = data.map((patrimonies) => ({
+          donorOrMember: patrimonies.donor ? patrimonies.donor : (patrimonies.member?.person?.name ?? '--'),
+          ...patrimonies,
+        }));
         this.dataSourceMat.paginator = this.paginator;
         this.dataSourceMat.sort = this.sort;
       },

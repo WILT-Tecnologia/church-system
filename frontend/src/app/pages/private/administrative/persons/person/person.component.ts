@@ -16,6 +16,8 @@ import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import { MatTooltip } from '@angular/material/tooltip';
 import { debounceTime, distinctUntilChanged, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
 
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
+
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
@@ -31,8 +33,6 @@ import { CepService } from 'app/services/search-cep/search-cep.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 import { cpfValidator } from 'app/services/validators/cpf-validator';
 import { phoneValidator } from 'app/services/validators/phone-validator';
-import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
-
 import { UsersService } from '../../users/users.service';
 import { PersonsService } from '../persons.service';
 

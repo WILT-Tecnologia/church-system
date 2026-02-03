@@ -102,12 +102,11 @@
           @case ('YesNo') {
             <span
               [ngClass]="{
-                'status-warning': fields[column.key] === 'Pendente',
-                'status-blue': fields[column.key] === 'Em análise',
-                'status-success': fields[column.key] === 'Verificado',
+                no: fields[column.key] === false,
+                yes: fields[column.key] === true,
               }"
             >
-              {{ fields[column.key] }}
+              {{ (fields | formatValues: column.key : column.type) ?? '--' }}
             </span>
           }
           @case ('situation') {
@@ -118,7 +117,7 @@
                 'status-success': fields[column.key] === 'Verificado',
               }"
             >
-              {{ fields[column.key] }}
+              {{ (fields | formatValues: column.key : column.type) ?? '--' }}
             </span>
           }
           @case ('currency') {

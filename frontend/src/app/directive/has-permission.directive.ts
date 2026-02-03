@@ -41,7 +41,7 @@ export class HasPermissionDirective implements OnInit, OnDestroy {
 
   private updateView() {
     const hasPermission = this.requireAll
-      ? this.authService.hasAllPermissions(this.permissions)
+      ? this.authService.hasPermission
       : this.authService.hasAnyPermission(this.permissions);
 
     if (hasPermission) {

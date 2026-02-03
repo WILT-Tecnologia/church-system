@@ -35,7 +35,7 @@ class Patrimony extends Model
     ];
 
     protected $casts = [
-        'resgistration_date' => 'date',
+        'registration_date' => 'date',
         'price' => 'decimal:2',
         'type_entry' => TypeEntryEnum::class,
     ];

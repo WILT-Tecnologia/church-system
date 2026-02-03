@@ -16,7 +16,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { forkJoin, map, Observable, startWith, Subject } from 'rxjs';
 
-import { provideNgxMask } from 'ngx-mask';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
@@ -51,6 +51,7 @@ import { PatrimoniesService } from '../patrimonies.service';
     FormsModule,
     ColumnComponent,
     ActionsComponent,
+    NgxMaskDirective,
   ],
   providers: [
     provideNgxMask(),
@@ -86,7 +87,7 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
   photoPreview: string | ArrayBuffer | null = null;
   readonly minDate = new Date(1900, 0, 1);
 
-  @ViewChild('date') date!: MatDatepicker<Date>;
+  @ViewChild('registration_date') registration_date!: MatDatepicker<Date>;
 
   private destroy$ = new Subject<void>();
 
@@ -102,20 +103,29 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  createForm(): FormGroup {
+  private createForm(): FormGroup {
     const patrimonies: Patrimonies = this.data?.patrimonies || this.data;
+
+    let regDate = new Date();
+    if (patrimonies?.registration_date) {
+      const dateString = patrimonies.registration_date.endsWith('Z')
+        ? patrimonies.registration_date.slice(0, -1)
+        : patrimonies.registration_date;
+
+      regDate = new Date(dateString);
+    }
 
     return this.fb.group({
       id: [patrimonies?.id ?? ''],
-      church_id: [patrimonies?.church_id ?? '', [Validators.required]],
+      church_id: [patrimonies?.church?.id ?? '', [Validators.required]],
       number: [patrimonies?.number ?? null, [Validators.required, Validators.minLength(0), Validators.maxLength(50)]],
       name: [patrimonies?.name ?? '', [Validators.required, Validators.maxLength(255)]],
-      registration_date: [patrimonies?.registration_date ?? new Date(), Validators.required],
+      registration_date: [regDate, Validators.required],
       description: [patrimonies?.description ?? '', [Validators.maxLength(255)]],
       type_entry: [patrimonies?.type_entry ?? '', Validators.required],
       price: [patrimonies?.price ?? 0],
       is_member: [patrimonies?.is_member ?? false],
-      member_id: [patrimonies?.member_id ?? null],
+      member_id: [patrimonies?.member?.id ?? ''],
       donor: [patrimonies?.donor ?? null],
       photo: [null],
     });
@@ -202,30 +212,6 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
     memberCtrl?.updateValueAndValidity({ emitEvent: false });
   }
 
-  /*   private updatePriceAndDonorValidators(type: string | null) {
-    const priceCtrl = this.patrimoniesForm.get('price');
-    const donorCtrl = this.patrimoniesForm.get('donor');
-
-    if (type === 'C') {
-      priceCtrl?.setValidators([Validators.required, Validators.min(0.01)]);
-
-      priceCtrl?.enable();
-    } else {
-      priceCtrl?.clearValidators();
-      priceCtrl?.setValue(null);
-    }
-    priceCtrl?.updateValueAndValidity({ emitEvent: false });
-
-    if (type === 'D') {
-      donorCtrl?.setValidators([Validators.required, Validators.maxLength(255)]);
-      donorCtrl?.enable();
-    } else {
-      donorCtrl?.clearValidators();
-      donorCtrl?.setValue(null);
-    }
-    donorCtrl?.updateValueAndValidity({ emitEvent: false });
-  } */
-
   displayChurch(church: Church): string {
     return church && church.name ? church.name : '';
   }
@@ -241,19 +227,16 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
     }).subscribe({
       next: ({ churchs, members }) => {
         this.churchs = churchs;
-        this.members = members as Members[];
+        this.members = members;
         this.setupAutocomplete();
 
         if (this.isEditMode && this.data.patrimonies) {
-          const pat = this.data.patrimonies;
-          if (pat.church_id) {
-            const church = this.churchs.find((c) => c.id === pat.church_id);
-            if (church) this.searchControlChurch.setValue(church);
-          }
-          if (pat.member_id) {
-            const member = this.members.find((m) => m.id === pat.member_id);
-            if (member) this.searchControlMember.setValue(member);
-          }
+          const pat = this.data.patrimonies as Patrimonies;
+          const church = this.churchs.find((c) => c.id === pat.church?.id);
+          const member = this.members.find((m) => m.id === pat.member?.id);
+
+          if (church) this.searchControlChurch.setValue(church);
+          if (member) this.searchControlMember.setValue(member);
         }
       },
       error: () => this.notification.onError(MESSAGES.LOADING_ERROR),
@@ -288,14 +271,12 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
   }
 
   onChurchSelected(event: MatAutocompleteSelectedEvent) {
-    const selectedChurch = event.option.value as Church;
-
-    this.patrimoniesForm.get('church_id')?.setValue(selectedChurch.id);
+    const church = event.option.value as Church;
+    this.patrimoniesForm.get('church_id')?.setValue(church.id);
   }
 
   onMemberSelected(event: MatAutocompleteSelectedEvent) {
     const selectedMember = event.option.value as Members;
-
     this.patrimoniesForm.get('member_id')?.setValue(selectedMember.id);
   }
 
@@ -304,7 +285,7 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
     this.searchControlMember.setValue(this.searchControlMember.value);
   }
 
-  checkEditMode() {
+  private checkEditMode() {
     if (this.data?.patrimonies?.id) {
       this.isEditMode = true;
 
@@ -367,25 +348,25 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleCreate(data: Patrimonies) {
+  private handleCreate(data: Patrimonies) {
     this.loading.show();
     this.patrimoniesService.create(data).subscribe({
-      next: (guest) => {
+      next: (patrimonies) => {
         this.notification.onSuccess(MESSAGES.CREATE_SUCCESS);
-        this.dialogRef?.close(guest);
+        this.dialogRef?.close(patrimonies);
       },
       error: (err) => this.notification.onError(err.error?.message || 'Erro ao salvar patrimônio.'),
       complete: () => this.loading.hide(),
     });
   }
 
-  handleUpdate(id: string, data: Patrimonies) {
+  private handleUpdate(id: string, data: Patrimonies) {
     this.loading.show();
     this.patrimoniesService.update(id, data).subscribe({
-      next: (guest) => {
+      next: (patrimonies) => {
         this.loading.hide();
         this.notification.onSuccess(MESSAGES.UPDATE_SUCCESS);
-        this.dialogRef?.close(guest);
+        this.dialogRef?.close(patrimonies);
       },
       error: (err) => this.notification.onError(err.error?.message || 'Erro ao atualizar patrimônio.'),
       complete: () => this.loading.hide(),
@@ -396,9 +377,9 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
     this.patrimoniesForm.get(fieldName)?.reset();
   }
 
-  openCalendarDate(): void {
-    if (this.date) {
-      this.date.open();
+  private openCalendarDate(): void {
+    if (this.registration_date) {
+      this.registration_date.open();
     }
   }
 }
