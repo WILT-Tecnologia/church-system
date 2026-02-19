@@ -20,3 +20,5 @@ yarn-error.log
 .docker/**
 .docker/**
 /.idea
+package-lock.json
+yarn.lock
