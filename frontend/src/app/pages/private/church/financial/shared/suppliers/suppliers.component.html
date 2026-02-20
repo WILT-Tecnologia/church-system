@@ -5,8 +5,8 @@
     [columnDefinitions]="columnDefinitions"
     (add)="createSuppliers()"
     [actions]="actions"
-    [writePermission]="'write_church_financial_suppliers'"
-    [deletePermission]="'delete_church_financial_suppliers'"
+    [writePermission]="'write_church_fornecedores'"
+    [deletePermission]="'delete_church_fornecedores'"
   ></app-crud>
 } @else {
   <app-not-found-register (add)="createSuppliers()"></app-not-found-register>

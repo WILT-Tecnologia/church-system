@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 
+import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { CrudComponent } from 'app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
@@ -24,32 +25,37 @@ export class SuppliersComponent implements OnInit {
   private readonly suppliersService = inject(SuppliersService);
   private authService = inject(AuthService);
   private readonly dialog = inject(ModalService);
+  private readonly confirmService = inject(ConfirmService);
   private readonly toast = inject(ToastService);
   private readonly loading = inject(LoadingService);
 
   public suppliers: Suppliers[] = [];
   public dataSourceMat = new MatTableDataSource<Suppliers>();
   public columnDefinitions: ColumnDefinitionsProps[] = [
+    { key: 'status', header: 'Situação', type: 'boolean' },
     { key: 'name', header: 'Nome', type: 'string' },
-    { key: 'type', header: 'Tipo', type: 'string' },
-    { key: 'document', header: 'Documento', type: 'string' },
-    { key: 'phone_one', header: 'Telefone', type: 'string' },
-    { key: 'email', header: 'Email', type: 'string' },
+    { key: 'cpf_cnpj', header: 'CPF/CNPJ', type: 'cpfCnpj' },
+    { key: 'type_supplier', header: 'Tipo do Fornecedor', type: 'typeSupplier' },
+    { key: 'type_service', header: 'Tipo de Serviço', type: 'string' },
+    { key: 'phone_one', header: 'Telefone', type: 'phone' },
+    { key: 'email', header: 'Email', type: 'email' },
   ];
   public actions: ActionsProps[] = [
     {
       type: 'edit',
       label: 'Editar',
       icon: 'edit',
+      color: 'inherit',
       action: (suppliers: Suppliers) => this.editSuppliers(suppliers),
-      visible: () => this.authService.hasPermission('write_church_financial_suppliers'),
+      visible: () => this.authService.hasPermission('write_church_fornecedores'),
     },
     {
       type: 'delete',
       label: 'Excluir',
       icon: 'delete',
+      color: 'warn',
       action: (suppliers: Suppliers) => this.deleteSuppliers(suppliers),
-      visible: () => this.authService.hasPermission('delete_church_financial_suppliers'),
+      visible: () => this.authService.hasPermission('delete_church_fornecedores'),
     },
   ];
 
@@ -61,7 +67,7 @@ export class SuppliersComponent implements OnInit {
     this.suppliersService.findAllSuppliers().subscribe({
       next: (data) => {
         this.suppliers = data;
-        this.dataSourceMat.data = data;
+        this.dataSourceMat.data = this.suppliers;
       },
       error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
       complete: () => this.loading.hide(),
@@ -103,18 +109,23 @@ export class SuppliersComponent implements OnInit {
   }
 
   deleteSuppliers(suppliers: Suppliers): void {
-    const dialogRef = this.dialog.openModal(
-      `modal-${Math.random()}`,
-      SupplierFormComponent,
-      `Editando o fornecedor ${suppliers.name}`,
-      true,
-      true,
-      { suppliers },
+    const dialogRef = this.confirmService.openConfirm(
+      'Atenção',
+      `Você tem certeza que deseja excluir o fornecedor: ${suppliers.name}?`,
+      'Confirmar',
+      'Cancelar',
     );
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.findAllSuppliers();
+        this.suppliersService.deleteSuppliers(suppliers).subscribe({
+          next: () => {
+            this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
+            this.findAllSuppliers();
+          },
+          error: () => this.toast.openError(MESSAGES.DELETE_ERROR),
+          complete: () => this.loading.hide(),
+        });
       }
     });
   }

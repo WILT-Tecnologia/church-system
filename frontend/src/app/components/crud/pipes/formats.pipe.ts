@@ -107,4 +107,19 @@ export class FormatsPipe implements PipeTransform {
     }
     return sex;
   }
+
+  typeSupplierFormat(value: string): string {
+    return value === 'PF' ? 'Pessoa Física' : value === 'PJ' ? 'Pessoa Jurídica' : value;
+  }
+
+  cpfCnpjFormat(value: string): string {
+    if (!value) return '';
+    const cleanValue = value.replace(/\D/g, '');
+    if (cleanValue.length === 11) {
+      return this.cpfFormat(cleanValue);
+    } else if (cleanValue.length === 14) {
+      return this.cnpjFormat(cleanValue);
+    }
+    return value;
+  }
 }

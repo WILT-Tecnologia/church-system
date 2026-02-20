@@ -29,8 +29,8 @@ export interface Suppliers {
 }
 
 export enum TypeSupplier {
-  PF = 'Pessoa Física',
-  PJ = 'Pessoa Jurídica',
+  PF = 'PF',
+  PJ = 'PJ',
 }
 
 export enum TypeService {

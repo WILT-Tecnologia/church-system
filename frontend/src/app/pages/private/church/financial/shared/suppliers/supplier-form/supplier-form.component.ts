@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { MatButtonModule } from '@angular/material/button';
 import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
@@ -12,15 +13,14 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute } from '@angular/router';
+import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
-import { ModalService } from 'app/components/modal/modal.service';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Church } from 'app/model/Church';
 import { Suppliers, TypeService, TypeSupplier } from 'app/model/Suppliers';
 import { ChurchsService } from 'app/pages/private/administrative/churches/churches.service';
-import { AuthService } from 'app/services/auth/auth.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { forkJoin, map, Observable, startWith } from 'rxjs';
@@ -44,6 +44,8 @@ import { SuppliersService } from '../suppliers.service';
     FormsModule,
     ColumnComponent,
     NgxMaskDirective,
+    ActionsComponent,
+    MatButtonModule,
   ],
   providers: [
     provideNgxMask(),
@@ -56,12 +58,9 @@ export class SupplierFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private suppliersService = inject(SuppliersService);
   private readonly validationService = inject(ValidationService);
-  private authService = inject(AuthService);
   private churchsService = inject(ChurchsService);
   private toast = inject(ToastService);
-  private dialog = inject(ModalService);
   private route = inject(ActivatedRoute);
-  private cdr = inject(ChangeDetectorRef);
   private readonly dialogRef = inject(MatDialogRef<SupplierFormComponent>);
   private readonly data = inject(MAT_DIALOG_DATA);
 
@@ -75,12 +74,6 @@ export class SupplierFormComponent implements OnInit {
   type_services: TypeService[] = [TypeService.PRODUTO, TypeService.SERVICO, TypeService.AMBOS];
 
   churchs: Church[] = [];
-
-  constructor() {
-    effect(() => {
-      this.isEditMode.set(this.route.snapshot.data['isEditMode']);
-    });
-  }
 
   ngOnInit() {
     this.supplierForm = this.createForm();
@@ -185,12 +178,10 @@ export class SupplierFormComponent implements OnInit {
       return;
     }
 
-    const formValue = this.supplierForm;
-
-    if (this.isEditMode() && formValue.valid) {
-      this.handleUpdate(this.data?.suppliers?.id, formValue.value);
+    if (this.isEditMode()) {
+      this.handleUpdate(this.data?.suppliers?.id, this.supplierForm.value);
     } else {
-      this.handleCreate(formValue.value);
+      this.handleCreate(this.supplierForm.value);
     }
   }
 

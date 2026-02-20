@@ -31,6 +31,10 @@ export class FormatValuesPipe implements PipeTransform {
         return '';
       case 'sex':
         return this.formats.SexTransform(value, 'toView');
+      case 'typeSupplier':
+        return this.formats.typeSupplierFormat(value);
+      case 'cpfCnpj':
+        return this.formats.cpfCnpjFormat(value);
       case 'boolean':
         return value ? 'Ativado' : 'Desativado';
       case 'YesNo':
