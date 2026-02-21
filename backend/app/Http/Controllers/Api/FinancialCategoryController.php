@@ -16,7 +16,8 @@ class FinancialCategoryController extends Controller
      */
     public function index()
     {
-        return FinancialCategoryResource::collection(FinancialCategory::all());
+        $categories = FinancialCategory::all()->sortBy("name")->sortByDesc('status');
+        return FinancialCategoryResource::collection($categories);
     }
 
     /**

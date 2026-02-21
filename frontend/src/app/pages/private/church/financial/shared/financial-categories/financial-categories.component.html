@@ -1,1 +1,13 @@
-<p>financial-categories works!</p>
+@if (financialCategories && financialCategories.length > 0) {
+  <app-crud
+    [fields]="financialCategories"
+    [dataSourceMat]="dataSourceMat"
+    [columnDefinitions]="columnDefinitions"
+    [actions]="actions"
+    (add)="createFinancialCategories()"
+    [writePermission]="'write_church_categorias_financeiras'"
+    [deletePermission]="'delete_church_categorias_financeiras'"
+  ></app-crud>
+} @else {
+  <app-not-found-register (add)="createFinancialCategories()"></app-not-found-register>
+}
