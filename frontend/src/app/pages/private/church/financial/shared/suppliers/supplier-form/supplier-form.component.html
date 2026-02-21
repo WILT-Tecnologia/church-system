@@ -23,7 +23,7 @@
             [displayWith]="displayChurch"
             (optionSelected)="onChurchSelected($event)"
           >
-            @for (church of filteredChurch | async; track $index) {
+            @for (church of filteredChurch | async; track church.id) {
               <mat-option [value]="church">{{ church.name }}</mat-option>
             }
           </mat-autocomplete>
@@ -44,7 +44,7 @@
           <mat-label>Tipo de Fornecedor</mat-label>
           <mat-select formControlName="type_supplier" required>
             @for (type of type_suppliers; track type) {
-              <mat-option [value]="type">{{ type }}</mat-option>
+              <mat-option [value]="type.value">{{ type.label }}</mat-option>
             }
           </mat-select>
           @if (supplierForm.get('type_supplier')?.invalid) {
@@ -55,7 +55,7 @@
           <mat-label>Tipo de Serviço</mat-label>
           <mat-select formControlName="type_service" required>
             @for (type of type_services; track type) {
-              <mat-option [value]="type">{{ type }}</mat-option>
+              <mat-option [value]="type.value">{{ type.label }}</mat-option>
             }
           </mat-select>
           @if (supplierForm.get('type_service')?.invalid) {

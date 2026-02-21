@@ -1,5 +1,5 @@
 export type ActionsProps = {
-  type: string;
+  type: 'edit' | 'delete' | 'toggle' | string;
   tooltip?: string;
   icon?: string;
   label?: string;

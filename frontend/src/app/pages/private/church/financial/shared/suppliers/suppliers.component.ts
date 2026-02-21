@@ -33,14 +33,23 @@ export class SuppliersComponent implements OnInit {
   public dataSourceMat = new MatTableDataSource<Suppliers>();
   public columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'status', header: 'Situação', type: 'boolean' },
+    { key: 'church.name', header: 'Igreja', type: 'string' },
     { key: 'name', header: 'Nome', type: 'string' },
     { key: 'cpf_cnpj', header: 'CPF/CNPJ', type: 'cpfCnpj' },
     { key: 'type_supplier', header: 'Tipo do Fornecedor', type: 'typeSupplier' },
     { key: 'type_service', header: 'Tipo de Serviço', type: 'string' },
     { key: 'phone_one', header: 'Telefone', type: 'phone' },
     { key: 'email', header: 'Email', type: 'email' },
+    { key: 'contact_name', header: 'Contato', type: 'string' },
   ];
   public actions: ActionsProps[] = [
+    {
+      type: 'toggle',
+      activeLabel: 'Ativar',
+      inactiveLabel: 'Desativar',
+      action: (suppliers: Suppliers) => this.updatedStatus(suppliers),
+      visible: () => this.authService.hasPermission('write_church_fornecedores'),
+    },
     {
       type: 'edit',
       label: 'Editar',
@@ -127,6 +136,17 @@ export class SuppliersComponent implements OnInit {
           complete: () => this.loading.hide(),
         });
       }
+    });
+  }
+
+  updatedStatus(suppliers: Suppliers) {
+    this.suppliersService.updatedStatus(suppliers.id, !suppliers.status).subscribe({
+      next: () => {
+        this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS);
+        this.findAllSuppliers();
+      },
+      error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
+      complete: () => this.loading.hide(),
     });
   }
 }

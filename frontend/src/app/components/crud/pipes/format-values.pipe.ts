@@ -19,11 +19,11 @@ export class FormatValuesPipe implements PipeTransform {
       case 'time':
         return this.formats.formatTime(value) || '';
       case 'cpf':
-        return this.formats.cpfFormat(value);
+        return this.formats.cpfFormat(value) || '--';
       case 'cnpj':
-        return this.formats.cnpjFormat(value);
+        return this.formats.cnpjFormat(value) || '--';
       case 'phone':
-        return this.formats.phoneFormat(value);
+        return this.formats.phoneFormat(value) || '--';
       case 'color':
         if (value && /^#[0-9A-F]{6}$/i.test(value)) {
           return value;
@@ -53,12 +53,14 @@ export class FormatValuesPipe implements PipeTransform {
           maximumFractionDigits: 2,
         });
       }
+      case 'email':
+        return value ?? '--';
       case 'string':
-        return value || '';
+        return value ?? '--';
       case 'number':
-        return value !== undefined && value !== null ? value.toString() : '';
+        return value !== undefined && value !== null ? value.toString() : '--';
       default:
-        return value !== undefined && value !== null ? value.toString() : '';
+        return value !== undefined && value !== null ? value.toString() : '--';
     }
   }
 }

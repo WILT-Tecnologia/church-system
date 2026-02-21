@@ -25,8 +25,13 @@ export class SuppliersService {
     return this.http.post<Suppliers>(this.baseUrl, suppliers);
   }
 
-  updateSuppliers(id: string, suppliers: Suppliers): Observable<Suppliers> {
+  updateSuppliers(id: string, suppliers: Partial<Suppliers>): Observable<Suppliers> {
     return this.http.put<Suppliers>(`${this.baseUrl}/${id}`, suppliers);
+  }
+
+  updatedStatus(id: string, status: boolean): Observable<Suppliers> {
+    const statusData = { status };
+    return this.http.put<Suppliers>(`${this.baseUrl}/${id}`, statusData);
   }
 
   deleteSuppliers(suppliers: Suppliers): Observable<Suppliers> {

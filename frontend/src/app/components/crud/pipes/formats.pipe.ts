@@ -30,7 +30,7 @@ export class FormatsPipe implements PipeTransform {
     if (!time) return null;
 
     if (typeof time === 'string' && time.includes('T')) {
-      const [datePart, timePart] = time.split('T');
+      const [, timePart] = time.split('T');
       return timePart.slice(0, 5);
     }
 
@@ -82,6 +82,7 @@ export class FormatsPipe implements PipeTransform {
   }
 
   phoneFormat(value: string | number): string {
+    if (!value) return '';
     const phone = value.toString().replace(/\D/g, '');
 
     if (phone.length === 11) {
@@ -96,7 +97,7 @@ export class FormatsPipe implements PipeTransform {
       return `${phone.slice(0, 4)}-${phone.slice(4)}`;
     }
 
-    return value.toString();
+    return value ? value.toString() : '';
   }
 
   SexTransform(sex: string, direction: 'toView' | 'toModel'): string {

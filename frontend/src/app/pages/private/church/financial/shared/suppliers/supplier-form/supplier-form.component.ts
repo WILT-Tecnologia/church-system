@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,18 +12,20 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTabsModule } from '@angular/material/tabs';
-import { ActivatedRoute } from '@angular/router';
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
+import { Address } from 'app/model/Address';
 import { Church } from 'app/model/Church';
 import { Suppliers, TypeService, TypeSupplier } from 'app/model/Suppliers';
 import { ChurchsService } from 'app/pages/private/administrative/churches/churches.service';
+import { CepService } from 'app/services/search-cep/search-cep.service';
 import { ValidationService } from 'app/services/validation/validation.service';
+import { phoneValidator } from 'app/services/validators/phone-validator';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
-import { forkJoin, map, Observable, startWith } from 'rxjs';
+import { debounceTime, distinctUntilChanged, forkJoin, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
 import { SuppliersService } from '../suppliers.service';
 
 @Component({
@@ -54,24 +56,38 @@ import { SuppliersService } from '../suppliers.service';
     FormatsPipe,
   ],
 })
-export class SupplierFormComponent implements OnInit {
+export class SupplierFormComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private suppliersService = inject(SuppliersService);
   private readonly validationService = inject(ValidationService);
   private churchsService = inject(ChurchsService);
   private toast = inject(ToastService);
-  private route = inject(ActivatedRoute);
+  private cepService = inject(CepService);
   private readonly dialogRef = inject(MatDialogRef<SupplierFormComponent>);
   private readonly data = inject(MAT_DIALOG_DATA);
 
   supplierForm!: FormGroup;
   isEditMode = signal(false);
-
+  private destroy$ = new Subject<void>();
   searchControlChurch = new FormControl<string | Church>('');
   filteredChurch: Observable<Church[]> = new Observable<Church[]>();
 
-  type_suppliers: TypeSupplier[] = [TypeSupplier.PF, TypeSupplier.PJ];
-  type_services: TypeService[] = [TypeService.PRODUTO, TypeService.SERVICO, TypeService.AMBOS];
+  type_suppliers: {
+    value: TypeSupplier;
+    label: string;
+  }[] = [
+    { value: TypeSupplier.PF, label: 'Pessoa Física' },
+    { value: TypeSupplier.PJ, label: 'Pessoa Jurídica' },
+  ];
+
+  type_services: {
+    value: TypeService;
+    label: string;
+  }[] = [
+    { value: TypeService.PRODUTO, label: 'Produto' },
+    { value: TypeService.SERVICO, label: 'Serviço' },
+    { value: TypeService.AMBOS, label: 'Ambos' },
+  ];
 
   churchs: Church[] = [];
 
@@ -79,6 +95,12 @@ export class SupplierFormComponent implements OnInit {
     this.supplierForm = this.createForm();
     this.checkEditMode();
     this.loadData();
+    this.initialSearchCep();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private createForm(): FormGroup {
@@ -88,24 +110,59 @@ export class SupplierFormComponent implements OnInit {
       id: [pat?.id ?? ''],
       church_id: [pat?.church?.id ?? '', [Validators.required]],
       name: [pat?.name ?? '', [Validators.required, Validators.maxLength(100)]],
-      type_supplier: [pat?.type_supplier ?? '', [Validators.required]],
+      type_supplier: [pat?.type_supplier ?? '', [Validators.required, Validators.maxLength(50)]],
       cpf_cnpj: [pat?.cpf_cnpj ?? '', [Validators.required, Validators.maxLength(18)]],
-      type_service: [pat?.type_service ?? '', [Validators.required]],
+      type_service: [pat?.type_service ?? '', [Validators.required, Validators.maxLength(50)]],
       status: [pat?.status ?? true, [Validators.required]],
       pix_key: [pat?.pix_key ?? '', [Validators.maxLength(100)]],
-      cep: [pat?.cep ?? '', [Validators.maxLength(8)]],
-      street: [pat?.street ?? '', [Validators.maxLength(100), Validators.pattern('^[a-zA-Z0-9 ]*$')]],
+      cep: [pat?.cep ?? '', [Validators.maxLength(8), Validators.pattern('^[0-9]*$')]],
+      street: [pat?.street ?? '', [Validators.maxLength(100)]],
       number: [pat?.number ?? '', [Validators.maxLength(10), Validators.pattern('^[0-9]*$')]],
-      district: [pat?.district ?? '', [Validators.maxLength(100), Validators.pattern('^[a-zA-Z0-9 ]*$')]],
-      city: [pat?.city ?? '', [Validators.maxLength(100), Validators.pattern('^[a-zA-Z0-9 ]*$')]],
-      uf: [pat?.uf ?? '', [Validators.maxLength(2), Validators.pattern('^[a-zA-Z0-9 ]*$')]],
-      country: [pat?.country ?? '', [Validators.maxLength(100), Validators.pattern('^[a-zA-Z0-9 ]*$')]],
-      phone_one: [pat?.phone_one ?? '', [Validators.maxLength(11), Validators.pattern('^[0-9]*$')]],
-      phone_two: [pat?.phone_two ?? '', [Validators.maxLength(11), Validators.pattern('^[0-9]*$')]],
-      phone_three: [pat?.phone_three ?? '', [Validators.maxLength(11), Validators.pattern('^[0-9]*$')]],
+      district: [pat?.district ?? '', [Validators.maxLength(100)]],
+      city: [{ value: pat?.city ?? '', disabled: true }, [Validators.maxLength(100)]],
+      uf: [{ value: pat?.uf ?? '', disabled: true }, [Validators.maxLength(2)]],
+      country: [pat?.country ?? '', [Validators.maxLength(100)]],
+      phone_one: [pat?.phone_one ?? '', [Validators.maxLength(11), phoneValidator()]],
+      phone_two: [pat?.phone_two ?? '', [Validators.maxLength(11), phoneValidator()]],
+      phone_three: [pat?.phone_three ?? '', [Validators.maxLength(11), phoneValidator()]],
       email: [pat?.email ?? '', [Validators.email, Validators.maxLength(100)]],
-      contact_name: [pat?.contact_name ?? '', [Validators.maxLength(100), Validators.pattern('^[a-zA-Z0-9 ]*$')]],
-      obs: [pat?.obs ?? '', [Validators.maxLength(255), Validators.pattern('^[a-zA-Z0-9 ]*$')]],
+      contact_name: [pat?.contact_name ?? '', [Validators.maxLength(100), Validators.pattern('^[a-zA-Z0-9]*$')]],
+      obs: [pat?.obs ?? '', [Validators.maxLength(255), Validators.pattern('^[a-zA-Z0-9]*$')]],
+    });
+  }
+
+  initialSearchCep() {
+    let previousCepValue = this.supplierForm.get('cep')?.value;
+
+    this.supplierForm
+      .get('cep')
+      ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((cep: string) => {
+        if (cep.length === 8 && cep !== previousCepValue) {
+          this.searchCep(cep);
+        }
+        previousCepValue = cep;
+      });
+  }
+
+  searchCep(cep: string): void {
+    if (this.supplierForm.get('cep')?.value?.length === '') {
+      return;
+    }
+
+    this.cepService.searchCep(cep).subscribe({
+      next: (data: Address) => {
+        if (data) {
+          this.supplierForm.patchValue({
+            street: data.street || '',
+            district: data.neighborhood || '',
+            city: data.city || '',
+            uf: data.state || '',
+          });
+        }
+      },
+      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
+      complete: () => this.toast.openSuccess(MESSAGES.LOADING_SUCCESS),
     });
   }
 
@@ -121,11 +178,21 @@ export class SupplierFormComponent implements OnInit {
         this.churchs = churchs;
         this.setupAutocomplete();
 
+        const selectedChurchId = localStorage.getItem('selectedChurch');
+
         if (this.isEditMode() && this.data.suppliers) {
           const pat = this.data.suppliers as Suppliers;
           const church = this.churchs.find((c) => c.id === pat.church?.id);
 
           if (church) this.searchControlChurch.setValue(church);
+        } else if (selectedChurchId) {
+          const church = this.churchs.find((c) => c.id === selectedChurchId);
+
+          if (church) {
+            this.searchControlChurch.setValue(church);
+            this.searchControlChurch.disable();
+            this.supplierForm.get('church_id')?.setValue(church.id);
+          }
         }
       },
       error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
@@ -174,15 +241,36 @@ export class SupplierFormComponent implements OnInit {
   handleSubmit() {
     if (this.supplierForm.invalid) {
       this.supplierForm.markAllAsTouched();
-      this.toast.openError('Verifique os campos obrigatórios.');
+      this.toast.openError('Verifique os dados informados.');
       return;
     }
 
     if (this.isEditMode()) {
-      this.handleUpdate(this.data?.suppliers?.id, this.supplierForm.value);
+      this.handleUpdate(this.data?.suppliers?.id, this.supplierForm.getRawValue());
     } else {
-      this.handleCreate(this.supplierForm.value);
+      this.checkDuplicateAndCreate(this.supplierForm.getRawValue());
     }
+  }
+
+  private checkDuplicateAndCreate(data: Suppliers) {
+    this.suppliersService.findAllSuppliers().subscribe({
+      next: (suppliers) => {
+        const cpfCnpjOnlyNumbers = data.cpf_cnpj.replace(/\D/g, '');
+        const duplicate = suppliers.find(
+          (s) => s.church_id === data.church_id && s.cpf_cnpj.replace(/\D/g, '') === cpfCnpjOnlyNumbers,
+        );
+
+        if (duplicate) {
+          const typeLabel = data.type_supplier === TypeSupplier.PF ? 'CPF' : 'CNPJ';
+          this.toast.openError(`Já existe um fornecedor cadastrado com o mesmo ${typeLabel}.`);
+        } else {
+          this.handleCreate(data);
+        }
+      },
+      error: () => {
+        this.toast.openError('Erro ao verificar fornecedores existentes.');
+      },
+    });
   }
 
   private handleCreate(data: Suppliers) {
