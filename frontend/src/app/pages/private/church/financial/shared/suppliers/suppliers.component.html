@@ -1,1 +1,13 @@
-<p>suppliers works!</p>
+@if (suppliers && suppliers.length > 0) {
+  <app-crud
+    [fields]="suppliers"
+    [dataSourceMat]="dataSourceMat"
+    [columnDefinitions]="columnDefinitions"
+    (add)="createSuppliers()"
+    [actions]="actions"
+    [writePermission]="'write_church_fornecedores'"
+    [deletePermission]="'delete_church_fornecedores'"
+  ></app-crud>
+} @else {
+  <app-not-found-register (add)="createSuppliers()"></app-not-found-register>
+}

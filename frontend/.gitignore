@@ -43,3 +43,6 @@ Thumbs.db
 
 *storybook.log
 /documentation/*
+
+package-lock.json
+yarn.lock

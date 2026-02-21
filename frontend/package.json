@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "dev": "ng serve --watch --configuration development",
+    "dev": "ng serve --no-hmr --watch --configuration development",
     "devo": "ng serve -o",
     "start": "ng serve",
     "build": "ng build",

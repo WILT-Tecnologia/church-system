@@ -73,21 +73,23 @@ export default tseslint.config(
       'sort-imports': 'off',
       'import/order': 'off',
       'simple-import-sort/imports': [
-        'error',
+        'off',
         {
           groups: [
-            // 1. Framework & Third-party (Angular, Material, RxJS)
-            ['^@angular', '^@angular/material', '^rxjs'],
-            // 2. Outros pacotes de terceiros
-            ['^@?\\w'],
-            // 3. Imports internos (app/...) e caminhos relativos (.)
-            ['^app/', '^\\.'],
-            // 4. Arquivos de estilo
+            // 1. Side effect imports (ex: import 'reflect-metadata')
+            ['^\\u0000'],
+            // 2. Framework & Third-party packages (Angular, RxJS, etc.)
+            ['^@angular', '^rxjs', '^ngx-mask', '^@?\\w'],
+            // 3. Internal absolute imports (aliases like app/...)
+            ['^app/'],
+            // 4. Relative imports - Parent imports (..) then same-folder imports (.)
+            ['^\\.\\.(?!/?$)', '^\\.\\./?$', '^\\./(?=[^/]*$)', '^\\./?$'],
+            // 5. Style imports
             ['^.+\\.s?css$'],
           ],
         },
       ],
-      'simple-import-sort/exports': 'error',
+      'simple-import-sort/exports': 'off',
     },
   },
   {

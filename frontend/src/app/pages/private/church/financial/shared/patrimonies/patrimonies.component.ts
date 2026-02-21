@@ -29,8 +29,8 @@ export class PatrimoniesComponent implements OnInit {
   private confirmService = inject(ConfirmService);
   private modal = inject(ModalService);
   private patrimoniesService = inject(PatrimoniesService);
-
   private authService = inject(AuthService);
+
   patrimonies: Patrimonies[] = [];
   dataSourceMat = new MatTableDataSource<Patrimonies>(this.patrimonies);
   @ViewChild(MatPaginator) paginator!: MatPaginator;

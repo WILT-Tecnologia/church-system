@@ -1,0 +1,227 @@
+<form [formGroup]="supplierForm" (ngSubmit)="handleSubmit()" class="form-field-group">
+  <mat-tab-group>
+    <mat-tab label="Identificação">
+      <app-column [columns]="1">
+        <mat-slide-toggle formControlName="status" color="primary">{{
+          supplierForm.get('status')?.value ? 'Ativado' : 'Desativado'
+        }}</mat-slide-toggle>
+      </app-column>
+
+      <app-column [columns]="2">
+        <mat-form-field appearance="fill">
+          <mat-label>Igreja</mat-label>
+          <input
+            matInput
+            [matAutocomplete]="autoChurch"
+            [formControl]="searchControlChurch"
+            placeholder="Selecione uma igreja"
+            (focus)="showAll()"
+            required
+          />
+          <mat-autocomplete
+            #autoChurch="matAutocomplete"
+            [displayWith]="displayChurch"
+            (optionSelected)="onChurchSelected($event)"
+          >
+            @for (church of filteredChurch | async; track church.id) {
+              <mat-option [value]="church">{{ church.name }}</mat-option>
+            }
+          </mat-autocomplete>
+          @if (supplierForm.get('church_id')?.invalid) {
+            <mat-error>{{ getErrorMessage('church_id') }}</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Nome</mat-label>
+          <input type="text" matInput formControlName="name" required />
+          @if (supplierForm.get('name')?.invalid) {
+            <mat-error>{{ getErrorMessage('name') }}</mat-error>
+          }
+        </mat-form-field>
+      </app-column>
+      <app-column [columns]="4">
+        <mat-form-field>
+          <mat-label>Tipo de Fornecedor</mat-label>
+          <mat-select formControlName="type_supplier" required>
+            @for (type of type_suppliers; track type) {
+              <mat-option [value]="type.value">{{ type.label }}</mat-option>
+            }
+          </mat-select>
+          @if (supplierForm.get('type_supplier')?.invalid) {
+            <mat-error>{{ getErrorMessage('type_supplier') }}</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Tipo de Serviço</mat-label>
+          <mat-select formControlName="type_service" required>
+            @for (type of type_services; track type) {
+              <mat-option [value]="type.value">{{ type.label }}</mat-option>
+            }
+          </mat-select>
+          @if (supplierForm.get('type_service')?.invalid) {
+            <mat-error>{{ getErrorMessage('type_service') }}</mat-error>
+          }
+        </mat-form-field>
+        @if (supplierForm.get('type_supplier')?.value === 'PF') {
+          <mat-form-field>
+            <mat-label>CPF</mat-label>
+            <input
+              type="text"
+              matInput
+              formControlName="cpf_cnpj"
+              mask="000.000.000-00"
+              [showMaskTyped]="true"
+              required
+            />
+            @if (supplierForm.get('cpf_cnpj')?.invalid) {
+              <mat-error>{{ getErrorMessage('cpf_cnpj') }}</mat-error>
+            }
+          </mat-form-field>
+        }
+        @if (supplierForm.get('type_supplier')?.value === 'PJ') {
+          <mat-form-field>
+            <mat-label>CNPJ</mat-label>
+            <input
+              type="text"
+              matInput
+              formControlName="cpf_cnpj"
+              mask="00.000.000/0000-00"
+              [showMaskTyped]="true"
+              required
+            />
+            @if (supplierForm.get('cpf_cnpj')?.invalid) {
+              <mat-error>{{ getErrorMessage('cpf_cnpj') }}</mat-error>
+            }
+          </mat-form-field>
+        }
+        <mat-form-field>
+          <mat-label>Chave Pix</mat-label>
+          <input type="text" matInput formControlName="pix_key" />
+          @if (supplierForm.get('pix_key')?.invalid) {
+            <mat-error>{{ getErrorMessage('pix_key') }}</mat-error>
+          }
+        </mat-form-field>
+      </app-column>
+    </mat-tab>
+
+    <mat-tab label="Endereço">
+      <app-column [columns]="4">
+        <mat-form-field>
+          <mat-label>CEP</mat-label>
+          <input type="text" matInput formControlName="cep" mask="00000-000" [showMaskTyped]="true" />
+          @if (supplierForm.get('cep')?.invalid) {
+            <mat-error>{{ getErrorMessage('cep') }}</mat-error>
+          }
+        </mat-form-field>
+      </app-column>
+      <app-column [columns]="2">
+        <mat-form-field>
+          <mat-label>Rua</mat-label>
+          <input type="text" matInput formControlName="street" />
+          @if (supplierForm.get('street')?.invalid) {
+            <mat-error>{{ getErrorMessage('street') }}</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Número</mat-label>
+          <input type="text" matInput formControlName="number" />
+          @if (supplierForm.get('number')?.invalid) {
+            <mat-error>{{ getErrorMessage('number') }}</mat-error>
+          }
+        </mat-form-field>
+      </app-column>
+      <app-column [columns]="4">
+        <mat-form-field>
+          <mat-label>Bairro</mat-label>
+          <input type="text" matInput formControlName="district" />
+          @if (supplierForm.get('district')?.invalid) {
+            <mat-error>{{ getErrorMessage('district') }}</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Cidade</mat-label>
+          <input type="text" matInput formControlName="city" />
+          @if (supplierForm.get('city')?.invalid) {
+            <mat-error>{{ getErrorMessage('city') }}</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Estado</mat-label>
+          <input type="text" matInput formControlName="uf" />
+          @if (supplierForm.get('uf')?.invalid) {
+            <mat-error>{{ getErrorMessage('uf') }}</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>País</mat-label>
+          <input type="text" matInput formControlName="country" />
+          @if (supplierForm.get('country')?.invalid) {
+            <mat-error>{{ getErrorMessage('country') }}</mat-error>
+          }
+        </mat-form-field>
+      </app-column>
+    </mat-tab>
+
+    <mat-tab label="Contato">
+      <app-column [columns]="2">
+        <mat-form-field>
+          <mat-label>Email</mat-label>
+          <input type="email" matInput formControlName="email" />
+          @if (supplierForm.get('email')?.invalid) {
+            <mat-error>{{ getErrorMessage('email') }}</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Nome do Contato</mat-label>
+          <input type="text" matInput formControlName="contact_name" />
+          @if (supplierForm.get('contact_name')?.invalid) {
+            <mat-error>{{ getErrorMessage('contact_name') }}</mat-error>
+          }
+        </mat-form-field>
+      </app-column>
+
+      <app-column [columns]="3">
+        <mat-form-field>
+          <mat-label>Celular</mat-label>
+          <input type="text" matInput formControlName="phone_one" mask="(00) 00000-0000" [showMaskTyped]="true" />
+          @if (supplierForm.get('phone_one')?.invalid) {
+            <mat-error>{{ getErrorMessage('phone_one') }}</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Telefone</mat-label>
+          <input type="text" matInput formControlName="phone_two" mask="(00) 00000-0000" [showMaskTyped]="true" />
+          @if (supplierForm.get('phone_two')?.invalid) {
+            <mat-error>{{ getErrorMessage('phone_two') }}</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Telefone 2</mat-label>
+          <input type="text" matInput formControlName="phone_three" mask="(00) 00000-0000" [showMaskTyped]="true" />
+          @if (supplierForm.get('phone_three')?.invalid) {
+            <mat-error>{{ getErrorMessage('phone_three') }}</mat-error>
+          }
+        </mat-form-field>
+      </app-column>
+    </mat-tab>
+
+    <mat-tab label="Observações">
+      <app-column [columns]="1">
+        <mat-form-field>
+          <mat-label>Observações</mat-label>
+          <textarea rows="4" matInput formControlName="obs"></textarea>
+          @if (supplierForm.get('obs')?.invalid) {
+            <mat-error>{{ getErrorMessage('obs') }}</mat-error>
+          }
+        </mat-form-field>
+      </app-column>
+    </mat-tab>
+  </mat-tab-group>
+
+  <app-actions>
+    <button mat-stroked-button type="button" color="warn" (click)="handleCancel()">Cancelar</button>
+    <button mat-flat-button type="submit" color="primary">
+      {{ isEditMode() ? 'Atualizar' : 'Salvar' }}
+    </button>
+  </app-actions>
+</form>

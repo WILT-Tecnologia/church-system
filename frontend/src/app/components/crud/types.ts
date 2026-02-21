@@ -1,9 +1,9 @@
 export type ActionsProps = {
-  type: string;
+  type: 'edit' | 'delete' | 'toggle' | string;
   tooltip?: string;
   icon?: string;
   label?: string;
-  color?: 'primary' | 'accent' | 'warn';
+  color?: 'primary' | 'accent' | 'warn' | 'inherit';
   inactiveLabel?: string;
   activeLabel?: string;
   action: (element: any) => void;
