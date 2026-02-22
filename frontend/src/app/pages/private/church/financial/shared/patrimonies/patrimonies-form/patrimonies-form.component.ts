@@ -31,6 +31,7 @@ import { MembersService } from 'app/pages/private/church/members/members.service
 import { NotificationService } from 'app/services/notification/notification.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 import { PatrimoniesService } from '../patrimonies.service';
+
 @Component({
   selector: 'app-patrimonies-form',
   templateUrl: './patrimonies-form.component.html',
@@ -325,7 +326,7 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
   }
 
   handleCancel() {
-    this.dialogRef?.close();
+    this.dialogRef?.close(false);
   }
 
   handleSubmit() {

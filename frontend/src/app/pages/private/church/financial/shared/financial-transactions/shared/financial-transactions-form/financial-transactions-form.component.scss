@@ -1,0 +1,53 @@
+.photo-container {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+
+  .photo-label {
+    margin-bottom: 1rem;
+    font-weight: 500;
+  }
+
+  .upload-box {
+    display: flex;
+    align-items: center;
+  }
+
+  .preview-box {
+    position: relative;
+    width: 12rem;
+    height: 12rem;
+    border: 0.1rem solid var(--separator-color);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f5f5f5;
+
+    .img-preview {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .remove-btn {
+      position: absolute;
+      top: 0.1rem;
+      right: 0.1rem;
+      transform: scale(0.8);
+      opacity: 0.8;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+:host ::ng-deep {
+  .mat-mdc-tab-body-content {
+    padding-top: 1.5rem;
+    overflow-x: hidden;
+  }
+}
