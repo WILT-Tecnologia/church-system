@@ -37,7 +37,6 @@ export class AuthInterceptor implements HttpInterceptor {
         setHeaders: {
           Authorization: `Bearer ${token}`,
           Accept: 'application/json',
-          'Content-Type': 'application/json',
         },
       });
     }

@@ -8,9 +8,8 @@ export const MESSAGES = {
   LOADING_SUCCESS: 'Dados carregados com sucesso!',
   LOADING_ERROR: 'Não foi possível carregar os dados!',
   LOGIN_SUCCESS: 'Login efetuado com sucesso! Seja bem vindo!',
-  LOGIN_ERROR:
-    'Não foi possível efetuar o login! Verifique suas credenciais e tente novamente.',
+  LOGIN_ERROR: 'Não foi possível efetuar o login! Verifique suas credenciais e tente novamente.',
   INFO: 'Informação',
   WARNING: 'Atenção',
-  FORM_INVALID: 'O formulário contém campos inválidos.',
+  FORM_INVALID: 'Verifique os dados informados.',
 };

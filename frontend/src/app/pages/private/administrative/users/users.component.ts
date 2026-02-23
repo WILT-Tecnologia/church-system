@@ -43,7 +43,8 @@ export class UsersComponent implements OnInit {
     { key: 'status', header: 'Situação', type: 'boolean' },
     { key: 'name', header: 'Nome', type: 'string' },
     { key: 'email', header: 'Email', type: 'string' },
-    { key: 'change_password', header: 'Alterar senha', type: 'boolean' },
+    { key: 'profile_name', header: 'Perfil', type: 'string' },
+    { key: 'change_password', header: 'Alterar senha?', type: 'boolean' },
     { key: 'updated_at', header: 'Última Atualização', type: 'datetime' },
   ];
   actions: ActionsProps[] = [

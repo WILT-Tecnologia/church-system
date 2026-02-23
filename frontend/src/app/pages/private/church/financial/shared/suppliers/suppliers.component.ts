@@ -141,12 +141,9 @@ export class SuppliersComponent implements OnInit {
 
   updatedStatus(suppliers: Suppliers) {
     this.suppliersService.updatedStatus(suppliers.id, !suppliers.status).subscribe({
-      next: () => {
-        this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS);
-        this.findAllSuppliers();
-      },
+      next: () => this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS),
       error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
-      complete: () => this.loading.hide(),
+      complete: () => this.findAllSuppliers(),
     });
   }
 }

@@ -114,7 +114,7 @@
           }
         </mat-datepicker-actions>
       </mat-datepicker>
-      @if (patrimoniesForm.get('description')?.invalid) {
+      @if (patrimoniesForm.get('registration_date')?.invalid) {
         <mat-error>{{ getErrorMessage('registration_date') }} </mat-error>
       }
     </mat-form-field>

@@ -1,0 +1,34 @@
+<form [formGroup]="financialCategoriesForm" (ngSubmit)="handleSubmit()" class="form-field-group">
+  <app-column [columns]="1">
+    <mat-slide-toggle formControlName="status" color="primary">{{
+      financialCategoriesForm.get('status')?.value ? 'Ativado' : 'Desativado'
+    }}</mat-slide-toggle>
+  </app-column>
+
+  <app-column [columns]="1">
+    <mat-form-field>
+      <mat-label>Nome</mat-label>
+      <input type="text" matInput formControlName="name" required />
+      @if (financialCategoriesForm.get('name')?.invalid) {
+        <mat-error>{{ getErrorMessage('name') }}</mat-error>
+      }
+    </mat-form-field>
+  </app-column>
+
+  <app-column [columns]="1">
+    <mat-form-field>
+      <mat-label>Descrição</mat-label>
+      <textarea rows="5" matInput formControlName="description"></textarea>
+      @if (financialCategoriesForm.get('description')?.invalid) {
+        <mat-error>{{ getErrorMessage('description') }}</mat-error>
+      }
+    </mat-form-field>
+  </app-column>
+
+  <app-actions>
+    <button mat-stroked-button type="button" color="warn" (click)="handleCancel()">Cancelar</button>
+    <button mat-flat-button type="submit" color="primary">
+      {{ isEditMode() ? 'Atualizar' : 'Salvar' }}
+    </button>
+  </app-actions>
+</form>

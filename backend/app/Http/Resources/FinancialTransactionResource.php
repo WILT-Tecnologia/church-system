@@ -13,18 +13,17 @@ class FinancialTransactionResource extends JsonResource
      *
      * @return array<string, mixed>
      */
-    public function toArray(Request $request): array
-    {
+    public function toArray(Request $request): array {
         return [
             'id' => $this->id,
-            'church_id' => new ChurchResource($this->church),
+            'church' => new ChurchResource($this->whenLoaded('church')),
             'entry_exit' => $this->entry_exit->value,
             'customer_supplier' => $this->customer_supplier->value,
-            'member_id' => new MemberResource($this->whenLoaded('member')),
-            'supplier_id' => new SupplierResource($this->whenLoaded('supplier')),
+            'member' => new MemberResource($this->whenLoaded('member')),
+            'supplier' => new SupplierResource($this->whenLoaded('supplier')),
             'person_name' => $this->person_name,
             'description' => $this->description,
-            'category_id' => new FinancialCategoryResource($this->financialCategory),
+            'category' => new FinancialCategoryResource($this->whenLoaded('financialCategory')),
             'payment' => $this->payment->value,
             'amount' => $this->amount,
             'discount' => $this->discount,
@@ -32,6 +31,7 @@ class FinancialTransactionResource extends JsonResource
             'payment_date' => $this->payment_date?->format('Y-m-d'),
             'receipt' => $this->receipt,
             'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at
         ];
     }
 }
