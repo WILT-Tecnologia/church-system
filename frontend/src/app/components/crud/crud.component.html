@@ -60,8 +60,9 @@
 <div class="mat-table-responsive">
   <table [dataSource]="dataSourceMat" mat-table matSort>
     <ng-container *ngFor="let column of columnDefinitions" [matColumnDef]="column.key">
-      <th mat-header-cell mat-sort-header *matHeaderCellDef class="mat-header-bold">
+      <th mat-header-cell mat-sort-header *matHeaderCellDef [style.width.px]="columnWidths[column.key]">
         {{ column.header }}
+        <div class="resizer" (mousedown)="onResizeColumn($event, column.key)" (click)="$event.stopPropagation()"></div>
       </th>
       <td *matCellDef="let fields" [title]="(fields | formatValues: column.key : column.type) ?? '--'" mat-cell>
         @switch (column.type) {
@@ -140,7 +141,9 @@
     </ng-container>
     @if (canShowActions) {
       <ng-container matColumnDef="actions">
-        <th *matHeaderCellDef mat-header-cell></th>
+        <th *matHeaderCellDef mat-header-cell [style.width.px]="columnWidths['actions']">
+          <div class="resizer" (mousedown)="onResizeColumn($event, 'actions')" (click)="$event.stopPropagation()"></div>
+        </th>
         <td *matCellDef="let fields" class="actions-cell" mat-cell>
           <div class="actions-container">
             @if (actions | hasNonToggleActions) {

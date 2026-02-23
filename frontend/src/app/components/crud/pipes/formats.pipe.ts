@@ -81,6 +81,22 @@ export class FormatsPipe implements PipeTransform {
     return 'Data inválida';
   }
 
+  parseDateLocal(dateValue: string | Date | null | undefined): Date {
+    if (!dateValue) return new Date();
+    if (dateValue instanceof Date) return dateValue;
+
+    try {
+      const [datePart] = dateValue.split('T');
+      const [year, month, day] = datePart.split('-');
+      if (year && month && day) {
+        return new Date(Number(year), Number(month) - 1, Number(day), 12, 0, 0);
+      }
+    } catch {
+      // fallback
+    }
+    return new Date(dateValue);
+  }
+
   phoneFormat(value: string | number): string {
     if (!value) return '';
     const phone = value.toString().replace(/\D/g, '');

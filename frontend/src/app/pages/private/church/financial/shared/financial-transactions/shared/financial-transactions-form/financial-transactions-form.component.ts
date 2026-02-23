@@ -69,8 +69,9 @@ export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
   private suppliersService = inject(SuppliersService);
   private financialCategoriesService = inject(FinancialCategoriesService);
   private churchsService = inject(ChurchsService);
-  private readonly validationService = inject(ValidationService);
   private toast = inject(ToastService);
+  private formatsPipe = inject(FormatsPipe);
+  private readonly validationService = inject(ValidationService);
   private readonly dialogRef = inject(MatDialogRef<FinancialTransactionsFormComponent>);
   private readonly data = inject(MAT_DIALOG_DATA) as { financialTransactions: FinancialTransations };
 
@@ -122,6 +123,7 @@ export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
     this.loadInitialData();
     this.setupCalculationLogic();
     this.setupConditionalValidation();
+    this.loadData();
   }
 
   ngOnDestroy(): void {
@@ -133,15 +135,7 @@ export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
     const pat: FinancialTransations = this.data?.financialTransactions;
     const selectedChurchId = localStorage.getItem('selectedChurch');
 
-    let pDate = new Date();
-    if (pat?.payment_date) {
-      if (typeof pat.payment_date === 'string') {
-        const dateString = pat.payment_date.endsWith('Z') ? pat.payment_date.slice(0, -1) : pat.payment_date;
-        pDate = new Date(dateString);
-      } else {
-        pDate = pat.payment_date;
-      }
-    }
+    const pDate = this.formatsPipe.parseDateLocal(pat?.payment_date);
 
     return this.fb.group({
       id: [pat?.id ?? ''],
@@ -319,7 +313,15 @@ export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
 
   private loadData(): void {
     if (this.isEditMode()) {
-      this.financialTransactionsForm.patchValue(this.data.financialTransactions);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { receipt: _receipt, payment_date, ...dataToPatch } = this.data.financialTransactions;
+
+      const pDate = this.formatsPipe.parseDateLocal(payment_date as string | Date | null | undefined);
+
+      this.financialTransactionsForm.patchValue({
+        ...dataToPatch,
+        payment_date: pDate,
+      });
       this.financialTransactionsForm.get('customer_supplier')?.updateValueAndValidity();
     }
   }

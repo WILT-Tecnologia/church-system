@@ -124,6 +124,41 @@ export class CrudComponent implements OnInit, OnChanges, AfterViewInit {
   private _canWrite = false;
   private _canDelete = false;
 
+  columnWidths: { [key: string]: number } = {};
+  isResizing = false;
+  currentResizeColumn: string | null = null;
+  startX = 0;
+  startWidth = 0;
+
+  onResizeColumn(event: MouseEvent, columnKey: string) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isResizing = true;
+    this.currentResizeColumn = columnKey;
+    this.startX = event.pageX;
+
+    const target = event.target as HTMLElement;
+    const th = target.closest('th');
+    this.startWidth = th ? th.offsetWidth : this.columnWidths[columnKey] || 150;
+
+    const mouseMoveHandler = (e: MouseEvent) => {
+      if (this.isResizing && this.currentResizeColumn) {
+        const width = this.startWidth + (e.pageX - this.startX);
+        this.columnWidths[this.currentResizeColumn] = width > 50 ? width : 50;
+      }
+    };
+
+    const mouseUpHandler = () => {
+      this.isResizing = false;
+      this.currentResizeColumn = null;
+      document.removeEventListener('mousemove', mouseMoveHandler);
+      document.removeEventListener('mouseup', mouseUpHandler);
+    };
+
+    document.addEventListener('mousemove', mouseMoveHandler);
+    document.addEventListener('mouseup', mouseUpHandler);
+  }
+
   ngOnInit() {
     this.dataSourceMat.data = this.fields;
     this.updatePermissions();

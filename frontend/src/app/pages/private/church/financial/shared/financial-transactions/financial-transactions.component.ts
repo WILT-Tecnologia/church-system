@@ -9,7 +9,7 @@ import { ModalService } from 'app/components/modal/modal.service';
 import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
-import { FinancialTransations } from 'app/model/FinancialTransations';
+import { CustomerSupplier, EntryExit, FinancialTransations, Payment } from 'app/model/FinancialTransations';
 import { AuthService } from 'app/services/auth/auth.service';
 import { FinancialTransactionsService } from './financial-transactions.service';
 import { FinancialTransactionsFormComponent } from './shared/financial-transactions-form/financial-transactions-form.component';
@@ -32,16 +32,14 @@ export class FinancialTransactionsComponent implements OnInit {
   public dataSourceMat = new MatTableDataSource<FinancialTransations>();
   public columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'church.name', header: 'Igreja', type: 'string' },
-    { key: 'category.name', header: 'Nome', type: 'string' },
-    { key: 'customer_supplier', header: 'Cliente/Fornecedor', type: 'string' },
-    { key: 'supplier.name', header: 'Fornecedor', type: 'string' },
-    { key: 'member.name', header: 'Membro', type: 'string' },
-    { key: 'entry_exit', header: 'Tipo', type: 'string' },
-    { key: 'payment', header: 'Valor', type: 'string' },
-    { key: 'person_name', header: 'Pessoa', type: 'string' },
+    { key: 'category.name', header: 'Categoria', type: 'string' },
+    { key: 'customer_supplier_label', header: 'Tipo', type: 'string' },
+    { key: 'person_supplier_name', header: 'Pessoa/Fornecedor', type: 'string' },
+    { key: 'entry_exit_label', header: 'Tipo', type: 'string' },
+    { key: 'payment_label', header: 'Forma de Pagamento', type: 'string' },
     { key: 'amount', header: 'Valor Original', type: 'currency' },
-    { key: 'amount_discount', header: 'Valor com Desconto', type: 'currency' },
     { key: 'discount', header: 'Valor do Desconto', type: 'currency' },
+    { key: 'amount_discount', header: 'Valor com Desconto', type: 'currency' },
     { key: 'payment_date', header: 'Data de Pagamento', type: 'date' },
   ];
   public actions: ActionsProps[] = [
@@ -64,13 +62,39 @@ export class FinancialTransactionsComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.findAllSuppliers();
+    this.findAllFinancialTransactions();
   }
 
-  private findAllSuppliers(): void {
+  private findAllFinancialTransactions(): void {
     this.financialTransactionsService.findAllFinancialTransactions().subscribe({
       next: (data) => {
-        this.financialTransactions = data;
+        this.financialTransactions = data.map((ft) => {
+          return {
+            ...ft,
+            payment_label:
+              ft.payment === Payment.PIX
+                ? 'PIX'
+                : ft.payment === Payment.DINHEIRO
+                  ? 'Dinheiro'
+                  : ft.payment === Payment.BOLETO
+                    ? 'Boleto'
+                    : ft.payment === Payment.CREDITO
+                      ? 'Crédito'
+                      : ft.payment === Payment.DEBITO
+                        ? 'Débito'
+                        : ft.payment === Payment.CHEQUE
+                          ? 'Cheque'
+                          : '',
+            entry_exit_label: ft.entry_exit === EntryExit.ENTRADA ? 'Entrada' : 'Saída',
+            person_supplier_name: ft.supplier?.name || ft.member?.person?.name || ft.person_name || '',
+            customer_supplier_label:
+              ft.customer_supplier === CustomerSupplier.MEMBRO
+                ? 'Membro'
+                : ft.customer_supplier === CustomerSupplier.FORNECEDOR
+                  ? 'Fornecedor'
+                  : 'Pessoa',
+          } as unknown as FinancialTransations;
+        });
         this.dataSourceMat.data = this.financialTransactions;
       },
       error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
@@ -79,7 +103,7 @@ export class FinancialTransactionsComponent implements OnInit {
   }
 
   createFinancialTransactions(): void {
-    const dialogRef = this.dialog.openModal(
+    const modal = this.dialog.openModal(
       `modal-${Math.random()}`,
       FinancialTransactionsFormComponent,
       'Adicionar Lançamento',
@@ -88,15 +112,15 @@ export class FinancialTransactionsComponent implements OnInit {
       {},
     );
 
-    dialogRef.afterClosed().subscribe((result) => {
+    modal.afterClosed().subscribe((result) => {
       if (result) {
-        this.findAllSuppliers();
+        this.findAllFinancialTransactions();
       }
     });
   }
 
   editFinancialTransactions(financialTransactions: FinancialTransations): void {
-    const dialogRef = this.dialog.openModal(
+    const modal = this.dialog.openModal(
       `modal-${Math.random()}`,
       FinancialTransactionsFormComponent,
       `Editando o Lançamento`,
@@ -105,9 +129,9 @@ export class FinancialTransactionsComponent implements OnInit {
       { financialTransactions },
     );
 
-    dialogRef.afterClosed().subscribe((result) => {
+    modal.afterClosed().subscribe((result) => {
       if (result) {
-        this.findAllSuppliers();
+        this.findAllFinancialTransactions();
       }
     });
   }
@@ -125,7 +149,7 @@ export class FinancialTransactionsComponent implements OnInit {
         this.financialTransactionsService.deleteFinancialTransactions(financialTransactions).subscribe({
           next: () => {
             this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
-            this.findAllSuppliers();
+            this.findAllFinancialTransactions();
           },
           error: () => this.toast.openError(MESSAGES.DELETE_ERROR),
           complete: () => this.loading.hide(),
