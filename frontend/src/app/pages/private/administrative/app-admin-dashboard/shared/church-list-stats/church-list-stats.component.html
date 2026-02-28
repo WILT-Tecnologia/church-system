@@ -14,7 +14,7 @@
           <mat-card-header>
             <img
               mat-card-avatar
-              [src]="church.logo || 'assets/img.png'"
+              [src]="church.logo ?? 'assets/img.png'"
               alt="{{ church.name }} logo"
               class="church-logo"
             />

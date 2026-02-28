@@ -39,9 +39,9 @@ export class ModalService {
         : ['responsive-modal'];
 
     const dialogConfig: MatDialogConfig = {
-      width: '60dvw',
-      maxWidth: '100dvw',
-      maxHeight: '90vh',
+      width: '40dvw',
+      maxWidth: '40dvw',
+      maxHeight: '80dvh',
       role: 'dialog',
       autoFocus: false,
       disableClose: disableClose,
@@ -59,6 +59,7 @@ export class ModalService {
 
     if (isMobile) {
       dialogConfig.width = '100dvw';
+      dialogConfig.maxWidth = '100dvw';
       dialogConfig.height = '100dvh';
     }
 

@@ -149,8 +149,8 @@ th {
 .resizer {
   position: absolute;
   top: 0;
-  right: -19.2px;
-  width: 0.4rem;
+  right: -2px;
+  width: 0.3rem;
   cursor: col-resize;
   height: 100%;
   z-index: 10;
@@ -160,7 +160,7 @@ th {
 
 .resizer:hover,
 .resizer.resizing {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.6);
 }
 
 .cdk-drag-preview {

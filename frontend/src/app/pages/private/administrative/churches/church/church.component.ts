@@ -213,6 +213,9 @@ export class ChurchComponent implements OnInit, OnDestroy {
     identificationFields.forEach((field) => {
       const control = this.churchForm.get(field);
       control?.markAsTouched();
+      control?.updateValueAndValidity();
+      this.toast.openError('Preencha todos os campos obrigatórios.');
+      return;
     });
 
     const isIdentificationValid = identificationFields.every((field) => this.churchForm.get(field)?.valid);

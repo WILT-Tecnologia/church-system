@@ -6,7 +6,6 @@ import { MatTableDataSource } from '@angular/material/table';
 
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { CrudComponent } from 'app/components/crud/crud.component';
-import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
@@ -24,22 +23,19 @@ import { ChurchsService } from './churches.service';
   templateUrl: './churches.component.html',
   styleUrls: ['./churches.component.scss'],
   imports: [NotFoundRegisterComponent, CrudComponent, CommonModule],
-  providers: [FormatsPipe],
 })
 export class ChurchesComponent implements OnInit {
-  constructor(
-    private churchsService: ChurchsService,
-    private toast: ToastService,
-    private loading: LoadingService,
-    private confirmService: ConfirmService,
-    private modalService: ModalService,
-    private notification: NotificationService,
-  ) {}
+  constructor() {}
 
   private authService = inject(AuthService);
+  private churchsService = inject(ChurchsService);
+  private toast = inject(ToastService);
+  private loading = inject(LoadingService);
+  private confirmService = inject(ConfirmService);
+  private modalService = inject(ModalService);
+  private notification = inject(NotificationService);
 
   churchs: Church[] = [];
-  rendering: boolean = true;
   dataSourceMat = new MatTableDataSource<Church>(this.churchs);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -73,7 +69,7 @@ export class ChurchesComponent implements OnInit {
     this.loadChurch();
   }
 
-  loadChurch = () => {
+  loadChurch() {
     this.loading.show();
     this.churchsService.getChurch().subscribe({
       next: (churchs) => {
@@ -81,14 +77,13 @@ export class ChurchesComponent implements OnInit {
         this.dataSourceMat.data = this.churchs;
         this.dataSourceMat.paginator = this.paginator;
         this.dataSourceMat.sort = this.sort;
-        this.rendering = false;
       },
       error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
       complete: () => this.loading.hide(),
     });
-  };
+  }
 
-  onCreate = () => {
+  onCreate() {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       ChurchComponent,
@@ -102,9 +97,9 @@ export class ChurchesComponent implements OnInit {
         this.loadChurch();
       }
     });
-  };
+  }
 
-  handleEdit = (church: Church) => {
+  handleEdit(church: Church) {
     const dialogRef = this.modalService.openModal(
       `modal-${Math.random()}`,
       ChurchComponent,
@@ -119,12 +114,12 @@ export class ChurchesComponent implements OnInit {
         this.loadChurch();
       }
     });
-  };
+  }
 
-  handleDelete = (church: Church) => {
+  handleDelete(church: Church) {
     const dialogRef = this.confirmService.openConfirm(
       'Atenção',
-      `Você tem certeza que deseja excluir a igreja: ${church.name}?`,
+      `Você tem certeza que deseja excluir a igreja ${church.name}?`,
       'Confirmar',
       'Cancelar',
     );
@@ -132,12 +127,8 @@ export class ChurchesComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.churchsService.deleteChurch(church).subscribe({
-          next: () => {
-            this.notification.onSuccess(MESSAGES.DELETE_SUCCESS);
-          },
-          error: () => {
-            this.notification.onError(MESSAGES.DELETE_ERROR);
-          },
+          next: () => this.notification.onSuccess(MESSAGES.DELETE_SUCCESS),
+          error: () => this.notification.onError(MESSAGES.DELETE_ERROR),
           complete: () => {
             this.loadChurch();
             this.loading.hide();
@@ -145,5 +136,5 @@ export class ChurchesComponent implements OnInit {
         });
       }
     });
-  };
+  }
 }

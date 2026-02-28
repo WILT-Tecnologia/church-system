@@ -20,7 +20,9 @@ export class ValidationService {
       const errors = control.errors;
       if (errors) {
         for (const errorKey in errors) {
-          if (errorKey === 'emailExists') return errors[errorKey];
+          if (typeof errors[errorKey] === 'string') {
+            return errors[errorKey];
+          }
 
           if (messages[errorKey as keyof typeof messages]) {
             const message = messages[errorKey as keyof typeof messages];

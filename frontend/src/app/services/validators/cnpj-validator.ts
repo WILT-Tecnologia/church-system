@@ -4,54 +4,37 @@ export function cnpjValidator(control: AbstractControl): ValidationErrors | null
   const cnpj = control.value;
 
   if (!cnpj) {
-    return null; // Campo vazio, validação não é necessária.
+    return null;
   }
 
-  const cleanedCnpj = cnpj.replace(/[^\d]+/g, '');
+  const cleanedCnpj = String(cnpj).replace(/[^\d]+/g, '');
 
   if (cleanedCnpj.length !== 14) {
-    return { invalidCnpj: 'O CNPJ deve conter 14 dígitos.' };
+    return { invalidCnpjLength: true };
   }
 
   if (/^(.)\1+$/.test(cleanedCnpj)) {
-    return { invalidCnpj: 'O CNPJ não pode conter todos os dígitos iguais.' };
+    return { invalidCnpjSequence: true };
   }
 
-  let tamanho = 12;
-  let numeros = cleanedCnpj.substring(0, tamanho);
-  const digitos = cleanedCnpj.substring(tamanho);
-  let soma = 0;
-  let pos = tamanho - 7;
-
-  for (let i = tamanho; i >= 1; i--) {
-    soma += parseInt(numeros.charAt(tamanho - i)) * pos--;
-    if (pos < 2) {
-      pos = 9;
+  const calcDigit = (tamanho: number): number => {
+    let soma = 0;
+    let pos = tamanho - 7;
+    for (let i = tamanho; i >= 1; i--) {
+      soma += parseInt(cleanedCnpj.charAt(tamanho - i), 10) * pos--;
+      if (pos < 2) pos = 9;
     }
+    return soma % 11 < 2 ? 0 : 11 - (soma % 11);
+  };
+
+  const resultado1 = calcDigit(12);
+  if (resultado1.toString() !== cleanedCnpj.charAt(12)) {
+    return { invalidCnpj: true };
   }
 
-  let resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
-
-  if (resultado.toString() !== digitos.charAt(0)) {
-    return { invalidCnpj: 'O CNPJ é inválido.' };
-  }
-
-  tamanho = 13;
-  numeros = cleanedCnpj.substring(0, tamanho);
-  soma = 0;
-  pos = tamanho - 7;
-
-  for (let i = tamanho; i >= 1; i--) {
-    soma += parseInt(numeros.charAt(tamanho - i)) * pos--;
-    if (pos < 2) {
-      pos = 9;
-    }
-  }
-
-  resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
-
-  if (resultado.toString() !== digitos.charAt(1)) {
-    return { invalidCnpj: 'O CNPJ é inválido.' };
+  const resultado2 = calcDigit(13);
+  if (resultado2.toString() !== cleanedCnpj.charAt(13)) {
+    return { invalidCnpj: true };
   }
 
   return null; // CNPJ válido

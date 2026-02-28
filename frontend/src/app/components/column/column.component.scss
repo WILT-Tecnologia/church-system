@@ -2,12 +2,12 @@
   display: block;
   width: 100%;
   max-width: 100%;
-  margin: 0.5rem 0;
+  margin: 1rem 0;
 }
 
 .grid {
   display: grid;
-  gap: 1.3rem;
+  gap: 1rem;
   width: 100%;
   grid-template-columns: repeat(var(--columns, 12), minmax(0, 1fr));
 
@@ -18,7 +18,7 @@
   }
 
   @media (max-width: 768px) {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) !important;
     --columns: 1;
   }
 }

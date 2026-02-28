@@ -10,11 +10,7 @@ import { environment } from 'environments/environment';
   providedIn: 'root',
 })
 export class ChurchsService {
-  private selectedChurchSubject = new BehaviorSubject<Church | null>(null);
-  selectedChurch$ = this.selectedChurchSubject.asObservable();
-
   constructor(private http: HttpClient) {
-    // Inicializar a igreja selecionada do localStorage, se disponível
     const selectedChurchId = localStorage.getItem('selectedChurch');
     if (selectedChurchId) {
       this.getChurchById(selectedChurchId).subscribe((church) => {
@@ -22,7 +18,8 @@ export class ChurchsService {
       });
     }
   }
-
+  private selectedChurchSubject = new BehaviorSubject<Church | null>(null);
+  private selectedChurch$ = this.selectedChurchSubject.asObservable();
   private api = `${environment.apiUrl}/admin/churches`;
   private formats = new FormatsPipe();
 

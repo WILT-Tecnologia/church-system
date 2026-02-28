@@ -52,7 +52,10 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   private loadData() {
-    forkJoin([this.usersService.getUsers(), this.churchService.getChurch()]).subscribe(([users, churches]) => {
+    const users$ = this.usersService.getUsers();
+    const churches$ = this.churchService.getChurch();
+
+    forkJoin([users$, churches$]).subscribe(([users, churches]) => {
       const stats = this.statsService.calculateUserStats(users);
       const churchData = this.statsService.calculateChurchStats(churches);
 

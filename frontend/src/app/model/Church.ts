@@ -16,10 +16,10 @@ export type Church = {
   city: string;
   state: string;
   country: string;
-  logo: string;
-  favicon: string;
-  background: string;
-  color: string;
+  logo?: string;
+  favicon?: string;
+  background?: string;
+  color?: string;
   members_count: number;
   created_at: string;
   updated_at: string;
