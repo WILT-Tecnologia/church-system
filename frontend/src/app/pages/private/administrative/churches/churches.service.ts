@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { DestroyRef, inject, Injectable } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, map, Observable } from 'rxjs';
 
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
@@ -9,28 +10,33 @@ import { environment } from 'environments/environment';
 @Injectable({
   providedIn: 'root',
 })
-export class ChurchsService {
-  constructor(private http: HttpClient) {
+export class ChurchesService {
+  private readonly http = inject(HttpClient);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly formats = new FormatsPipe();
+
+  private readonly api = `${environment.apiUrl}/admin/churches`;
+  private readonly selectedChurchSubject = new BehaviorSubject<Church | null>(null);
+
+  readonly selectedChurch$ = this.selectedChurchSubject.asObservable();
+
+  constructor() {
     const selectedChurchId = localStorage.getItem('selectedChurch');
     if (selectedChurchId) {
-      this.getChurchById(selectedChurchId).subscribe((church) => {
-        this.selectedChurchSubject.next(church);
-      });
+      this.getChurchById(selectedChurchId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((church) => this.selectedChurchSubject.next(church));
     }
   }
-  private selectedChurchSubject = new BehaviorSubject<Church | null>(null);
-  private selectedChurch$ = this.selectedChurchSubject.asObservable();
-  private api = `${environment.apiUrl}/admin/churches`;
-  private formats = new FormatsPipe();
 
-  getChurch(): Observable<Church[]> {
+  getChurches(): Observable<Church[]> {
     return this.http.get<Church[]>(this.api).pipe(
-      map((churches: Church[]) => {
-        return churches.map((church: Church) => {
-          church.cnpj = this.formats.cnpjFormat(church.cnpj);
-          return church;
-        });
-      }),
+      map((churches) =>
+        churches.map((church) => ({
+          ...church,
+          cnpj: this.formats.cnpjFormat(church.cnpj),
+        })),
+      ),
     );
   }
 
@@ -56,8 +62,8 @@ export class ChurchsService {
     return this.http.post<Church>(this.api, church);
   }
 
-  updateChurch(churchId: string, churchData: Partial<Church>): Observable<Church> {
-    return this.http.put<Church>(`${this.api}/${churchId}`, churchData);
+  updateChurch(id: string, data: Partial<Church>): Observable<Church> {
+    return this.http.put<Church>(`${this.api}/${id}`, data);
   }
 
   deleteChurch(church: Church): Observable<Church> {

@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from 'environments/environment';
@@ -11,22 +11,21 @@ import { Modules } from 'app/model/Modules';
 })
 export class ModuleService {
   private apiUrl = `${environment.apiUrl}/admin/modules`;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
-
-  getAll(): Observable<Modules[]> {
+  findAll(): Observable<Modules[]> {
     return this.http.get<Modules[]>(this.apiUrl);
   }
 
-  getById(id: string): Observable<Modules> {
+  findById(id: string): Observable<Modules> {
     return this.http.get<Modules>(`${this.apiUrl}/${id}`);
   }
 
-  create(module: Partial<Modules>): Observable<any> {
+  createModule(module: Partial<Modules>): Observable<any> {
     return this.http.post(this.apiUrl, module);
   }
 
-  update(id: string, module: Partial<Modules>): Observable<any> {
+  updateModule(id: string, module: Partial<Modules>): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, module);
   }
 

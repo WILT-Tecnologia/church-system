@@ -1,14 +1,10 @@
-@if ((profiles && profiles.length > 0) || rendering) {
-  <app-crud
-    [fields]="profiles"
-    [dataSourceMat]="dataSourceMat"
-    [columnDefinitions]="columnDefinitions"
-    (add)="onCreate()"
-    (toggle)="toggleStatus($any($event))"
-    [actions]="actions"
-    writePermission="write_administrative_perfis"
-    deletePermission="delete_administrative_perfis"
-  ></app-crud>
-} @else {
-  <app-not-found-register (add)="onCreate()" writePermission="write_administrative_perfis"></app-not-found-register>
-}
+<app-crud
+  [fields]="profiles()"
+  [dataSourceMat]="dataSourceMat"
+  [columnDefinitions]="columnDefinitions"
+  (add)="onCreate()"
+  (toggle)="onChangeStatus($event)"
+  [actions]="actions"
+  [writePermission]="'write_administrative_perfis'"
+  [deletePermission]="'delete_administrative_perfis'"
+></app-crud>

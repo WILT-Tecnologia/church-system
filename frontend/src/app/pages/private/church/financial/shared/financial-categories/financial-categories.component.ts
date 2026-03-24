@@ -5,7 +5,6 @@ import { CrudComponent } from 'app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
-import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { FinancialCategories } from 'app/model/FinancialCategories';
@@ -17,7 +16,7 @@ import { FinancialCategoriesFormComponent } from './shared/financial-categories-
   selector: 'app-financial-categories',
   templateUrl: './financial-categories.component.html',
   styleUrl: './financial-categories.component.scss',
-  imports: [CrudComponent, NotFoundRegisterComponent],
+  imports: [CrudComponent],
 })
 export class FinancialCategoriesComponent implements OnInit {
   private readonly financialCategoriesService = inject(FinancialCategoriesService);
@@ -26,7 +25,6 @@ export class FinancialCategoriesComponent implements OnInit {
   private readonly confirmService = inject(ConfirmService);
   private readonly toast = inject(ToastService);
   private readonly loading = inject(LoadingService);
-
   public financialCategories: FinancialCategories[] = [];
   public dataSourceMat = new MatTableDataSource<FinancialCategories>(this.financialCategories);
   public columnDefinitions: ColumnDefinitionsProps[] = [

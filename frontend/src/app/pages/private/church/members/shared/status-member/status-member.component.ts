@@ -1,20 +1,14 @@
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Inject, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { CrudComponent } from 'app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
-import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { StatusMember } from 'app/model/Members';
-
 import { MembersService } from '../../members.service';
 import { StatusMemberFormComponent } from './status-member-form/status-member-form.component';
 import { StatusMemberService } from './status-member.service';
@@ -23,7 +17,7 @@ import { StatusMemberService } from './status-member.service';
   selector: 'app-status-member',
   templateUrl: './status-member.component.html',
   styleUrl: './status-member.component.scss',
-  imports: [CommonModule, NotFoundRegisterComponent, CrudComponent],
+  imports: [CrudComponent],
 })
 export class StatusMemberComponent implements OnInit {
   private _status_member: StatusMember[] = [];
@@ -37,8 +31,6 @@ export class StatusMemberComponent implements OnInit {
     }
   }
   @Output() statusMemberUpdated = new EventEmitter<StatusMember[]>();
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
   rendering: boolean = true;
   dataSourceMat = new MatTableDataSource<StatusMember>(this._status_member);
   columnDefinitions: ColumnDefinitionsProps[] = [
@@ -53,14 +45,13 @@ export class StatusMemberComponent implements OnInit {
   actions: ActionsProps[] = [
     {
       type: 'edit',
-      tooltip: 'Editar situação do membro',
       icon: 'edit',
       label: 'Editar',
+      color: 'inherit',
       action: (status_member: StatusMember) => this.handleEdit(status_member),
     },
     {
       type: 'delete',
-      tooltip: 'Excluir situação do membro',
       icon: 'delete',
       label: 'Excluir',
       color: 'warn',
@@ -68,19 +59,15 @@ export class StatusMemberComponent implements OnInit {
     },
   ];
 
-  constructor(
-    private confirmeService: ConfirmService,
-    private loadingService: LoadingService,
-    private toast: ToastService,
-    private modalService: ModalService,
-    private statusMemberService: StatusMemberService,
-    private membersService: MembersService,
-    @Inject(MAT_DIALOG_DATA) public data: { status_member: StatusMember[]; id: number },
-  ) {}
+  private confirmeService = inject(ConfirmService);
+  private loadingService = inject(LoadingService);
+  private toast = inject(ToastService);
+  private modalService = inject(ModalService);
+  private statusMemberService = inject(StatusMemberService);
+  private membersService = inject(MembersService);
+  public data = inject<{ status_member: StatusMember[]; id: number }>(MAT_DIALOG_DATA);
 
   ngOnInit() {
-    this.dataSourceMat.paginator = this.paginator;
-    this.dataSourceMat.sort = this.sort;
     this.rendering = false;
     this.loadStatusMember();
   }

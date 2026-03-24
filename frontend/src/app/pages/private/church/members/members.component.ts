@@ -1,7 +1,4 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { ConfirmService } from 'app/components/confirm/confirm.service';
@@ -9,7 +6,6 @@ import { CrudComponent } from 'app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
-import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Families } from 'app/model/Families';
@@ -26,23 +22,18 @@ import { StatusMemberComponent } from './shared/status-member/status-member.comp
   selector: 'app-members',
   templateUrl: './members.component.html',
   styleUrls: ['./members.component.scss'],
-  imports: [CommonModule, NotFoundRegisterComponent, CrudComponent],
+  imports: [CrudComponent],
 })
 export class MembersComponent implements OnInit {
-  constructor(
-    private confirmeService: ConfirmService,
-    private loading: LoadingService,
-    private toast: ToastService,
-    private membersService: MembersService,
-    private modalService: ModalService,
-  ) {}
-
+  private confirmeService = inject(ConfirmService);
+  private loading = inject(LoadingService);
+  private toast = inject(ToastService);
+  private membersService = inject(MembersService);
+  private modalService = inject(ModalService);
   private authService = inject(AuthService);
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
   families!: Families[];
-  member: Members[] = [];
-  dataSourceMat = new MatTableDataSource<Members>(this.member);
+  member = signal<Members[]>([]);
+  dataSourceMat = new MatTableDataSource<Members>([]);
   columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'person.name', header: 'Nome', type: 'string' },
     { key: 'person.cpf', header: 'CPF', type: 'cpf' },
@@ -63,6 +54,7 @@ export class MembersComponent implements OnInit {
       type: 'edit',
       icon: 'edit',
       label: 'Editar',
+      color: 'inherit',
       action: (member: Members) => this.handleUpdate(member),
       visible: () => this.authService.hasPermission('write_church_membros'),
     },
@@ -70,6 +62,7 @@ export class MembersComponent implements OnInit {
       type: 'filiation',
       icon: 'family_restroom',
       label: 'Filiação',
+      color: 'inherit',
       action: (member: Members) => this.handleFiliation(member),
       visible: () => this.authService.hasPermission('write_church_membros'),
     },
@@ -77,6 +70,7 @@ export class MembersComponent implements OnInit {
       type: 'ordination',
       icon: 'church',
       label: 'Ordenação',
+      color: 'inherit',
       action: (member: Members) => this.handleOrdination(member),
       visible: () => this.authService.hasPermission('write_church_membros'),
     },
@@ -84,6 +78,7 @@ export class MembersComponent implements OnInit {
       type: 'status',
       icon: 'sensor_occupied',
       label: 'Situação',
+      color: 'inherit',
       action: (member: Members) => this.handleStatusMember(member),
       visible: () => this.authService.hasPermission('write_church_membros'),
     },
@@ -91,6 +86,7 @@ export class MembersComponent implements OnInit {
       type: 'history',
       icon: 'history',
       label: 'Log de mudanças',
+      color: 'inherit',
       action: (member: Members) => this.handleHistory(member),
       visible: () => this.authService.hasPermission('write_church_membros'),
     },
@@ -111,11 +107,9 @@ export class MembersComponent implements OnInit {
   private findAll = () => {
     this.loading.show();
     this.membersService.findAll().subscribe({
-      next: (members) => {
-        this.member = members;
-        this.dataSourceMat.data = this.member;
-        this.dataSourceMat.paginator = this.paginator;
-        this.dataSourceMat.sort = this.sort;
+      next: (membersResp) => {
+        this.member.set(membersResp);
+        this.dataSourceMat.data = membersResp;
       },
       error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
       complete: () => this.loading.hide(),

@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Occupation } from 'app/model/Occupation';
 import { environment } from 'environments/environment';
 import { Observable } from 'rxjs';
@@ -8,15 +8,14 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class OccupationsService {
-  constructor(private http: HttpClient) {}
-
   private api = `${environment.apiUrl}/admin/occupations`;
+  private http = inject(HttpClient);
 
   getOccupations(): Observable<Occupation[]> {
     return this.http.get<Occupation[]>(this.api);
   }
 
-  getOccupationById(id: string): Observable<Occupation> {
+  findOccupationById(id: string): Observable<Occupation> {
     return this.http.get<Occupation>(`${this.api}/${id}`);
   }
 
@@ -24,14 +23,8 @@ export class OccupationsService {
     return this.http.post<Occupation>(this.api, occupation);
   }
 
-  updateOccupation(
-    occupationId: string,
-    occupationData: Partial<Occupation>,
-  ): Observable<Occupation> {
-    return this.http.put<Occupation>(
-      `${this.api}/${occupationId}`,
-      occupationData,
-    );
+  updateOccupation(occupationId: string, occupationData: Partial<Occupation>): Observable<Occupation> {
+    return this.http.put<Occupation>(`${this.api}/${occupationId}`, occupationData);
   }
 
   updatedStatus(id: string, status: boolean): Observable<Occupation> {

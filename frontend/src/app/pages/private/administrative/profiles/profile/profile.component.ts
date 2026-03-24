@@ -1,5 +1,5 @@
 import { FlatTreeControl } from '@angular/cdk/tree';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -11,7 +11,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableModule } from '@angular/material/table';
 import { MatTreeFlatDataSource, MatTreeFlattener, MatTreeModule } from '@angular/material/tree';
-
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
@@ -20,7 +19,6 @@ import { ToastService } from 'app/components/toast/toast.service';
 import { Modules } from 'app/model/Modules';
 import { Profile, ProfileModule } from 'app/model/Profile';
 import { ValidationService } from 'app/services/validation/validation.service';
-
 import { ModuleService } from '../../modules/modules.service';
 import { ProfilesService } from '../profiles.service';
 
@@ -35,7 +33,7 @@ interface ProfileModuleData {
 interface ModuleNode {
   name: string;
   id?: string;
-  controlName?: string; // can_read, can_write, etc.
+  controlName?: string;
   parentFormGroup?: FormGroup;
   children?: ModuleNode[];
 }
@@ -68,25 +66,23 @@ interface FlatNode {
     ColumnComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
 })
 export class ProfileComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly fb = inject(FormBuilder);
   private readonly validationService = inject(ValidationService);
-  private readonly loading = inject(LoadingService);
-  private readonly toast = inject(ToastService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly toastService = inject(ToastService);
   private readonly profilesService = inject(ProfilesService);
   private readonly moduleService = inject(ModuleService);
   private readonly dialogRef = inject(MatDialogRef<ProfileComponent>);
   readonly data = inject<{ profile: Profile } | undefined>(MAT_DIALOG_DATA, { optional: true });
-
+  readonly displayedColumns: string[] = ['name', 'can_read', 'can_write', 'can_delete'];
   profileForm: FormGroup;
   profile: Profile[] = [];
   modules: Modules[] = [];
   profileModule: ProfileModule[] = [];
-  readonly displayedColumns: string[] = ['name', 'can_read', 'can_write', 'can_delete'];
-  isEditMode: boolean = false;
+  isEditMode = signal(false);
 
   private readonly _transformer = (node: ModuleNode, level: number): FlatNode => {
     return {
@@ -109,7 +105,6 @@ export class ProfileComponent implements OnInit {
     (node) => node.children,
   );
   readonly dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
-
   readonly hasChild = (_: number, node: FlatNode) => node.expandable;
 
   constructor() {
@@ -119,7 +114,7 @@ export class ProfileComponent implements OnInit {
   ngOnInit(): void {
     this.loadModules();
     if (this.data?.profile) {
-      this.isEditMode = true;
+      this.isEditMode.set(true);
       this.patchProfile(this.data.profile);
     }
   }
@@ -141,7 +136,7 @@ export class ProfileComponent implements OnInit {
 
     return controls.every((group) => {
       const val = group.value;
-      // Verifica se as 3 permissões estão true
+
       return val.can_read === true && val.can_write === true && val.can_delete === true;
     });
   }
@@ -151,11 +146,9 @@ export class ProfileComponent implements OnInit {
   }
 
   toggleSelectAll(): void {
-    const shouldSelect = !this.isAllSelected; // Se tudo estiver marcado, o próximo estado é false
+    const shouldSelect = !this.isAllSelected;
 
     this.modulesFormArray.controls.forEach((group) => {
-      // Usamos emitEvent: false se quiser evitar disparos excessivos,
-      // mas aqui deixamos padrão para atualizar a UI corretamente
       group.patchValue({
         can_read: shouldSelect,
         can_write: shouldSelect,
@@ -163,7 +156,7 @@ export class ProfileComponent implements OnInit {
       });
     });
 
-    this.cdr.markForCheck(); // Garante atualização visual no OnPush
+    this.cdr.markForCheck();
   }
 
   get isAllExpanded(): boolean {
@@ -183,12 +176,12 @@ export class ProfileComponent implements OnInit {
   }
 
   loadModules(): void {
-    this.loading.show();
-    this.moduleService.getAll().subscribe({
+    this.loadingService.show();
+    this.moduleService.findAll().subscribe({
       next: (allModules) => {
         this.modules = allModules;
 
-        if (this.isEditMode && this.data?.profile?.id) {
+        if (this.isEditMode() && this.data?.profile?.id) {
           this.profilesService.getProfileById(this.data.profile.id).subscribe({
             next: (profileData) => {
               this.patchProfile(profileData);
@@ -197,23 +190,22 @@ export class ProfileComponent implements OnInit {
                 ? (profileData.modules as unknown as ProfileModuleData[])
                 : [];
               this.initModulesFormArray(modulesArray);
-              this.loading.hide();
+              this.loadingService.hide();
               this.cdr.detectChanges();
             },
             error: () => this.onError(MESSAGES.LOADING_ERROR),
-            complete: () => this.loading.hide(),
+            complete: () => this.loadingService.hide(),
           });
         } else {
-          // Modo Criação: Inicia tudo como falso
           this.initModulesFormArray([]);
-          this.loading.hide();
+          this.loadingService.hide();
           this.cdr.detectChanges();
         }
         this.cdr.detectChanges();
       },
       error: () => {
-        this.loading.hide();
-        this.toast.openError(MESSAGES.LOADING_ERROR);
+        this.loadingService.hide();
+        this.toastService.openError(MESSAGES.LOADING_ERROR);
       },
     });
   }
@@ -249,7 +241,7 @@ export class ProfileComponent implements OnInit {
 
     this.dataSource.data = treeData;
 
-    if (this.isEditMode) {
+    if (this.isEditMode()) {
       this.expandActiveNodes();
     }
   }
@@ -292,14 +284,14 @@ export class ProfileComponent implements OnInit {
   }
 
   private onSuccess(message: string): void {
-    this.loading.hide();
-    this.toast.openSuccess(message);
+    this.loadingService.hide();
+    this.toastService.openSuccess(message);
     this.dialogRef.close(this.profileForm.value);
   }
 
   private onError(message: string): void {
-    this.loading.hide();
-    this.toast.openError(message);
+    this.loadingService.hide();
+    this.toastService.openError(message);
   }
 
   handleBack(): void {
@@ -313,7 +305,7 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
-    if (this.isEditMode) {
+    if (this.isEditMode()) {
       this.handleUpdate(profile.id, profile);
     } else {
       this.handleCreate(profile);
@@ -321,20 +313,20 @@ export class ProfileComponent implements OnInit {
   }
 
   handleCreate(data: Profile): void {
-    this.loading.show();
+    this.loadingService.show();
     this.profilesService.createProfile(data).subscribe({
       next: () => this.onSuccess(MESSAGES.CREATE_SUCCESS),
       error: () => this.onError(MESSAGES.CREATE_ERROR),
-      complete: () => this.loading.hide(),
+      complete: () => this.loadingService.hide(),
     });
   }
 
   handleUpdate(id: string, data: Profile): void {
-    this.loading.show();
+    this.loadingService.show();
     this.profilesService.updateProfile(id, data).subscribe({
       next: () => this.onSuccess(MESSAGES.UPDATE_SUCCESS),
       error: () => this.onError(MESSAGES.UPDATE_ERROR),
-      complete: () => this.loading.hide(),
+      complete: () => this.loadingService.hide(),
     });
   }
 

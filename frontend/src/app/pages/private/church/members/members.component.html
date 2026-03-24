@@ -1,13 +1,9 @@
-@if (member && member.length > 0) {
-  <app-crud
-    [fields]="member"
-    [dataSourceMat]="dataSourceMat"
-    [columnDefinitions]="columnDefinitions"
-    (add)="onCreate()"
-    [actions]="actions"
-    [writePermission]="'write_church_membros'"
-    [deletePermission]="'delete_church_membros'"
-  ></app-crud>
-} @else {
-  <app-not-found-register (add)="onCreate()"></app-not-found-register>
-}
+<app-crud
+  [fields]="member()"
+  [dataSourceMat]="dataSourceMat"
+  [columnDefinitions]="columnDefinitions"
+  (add)="onCreate()"
+  [actions]="actions"
+  [writePermission]="'write_church_membros'"
+  [deletePermission]="'delete_church_membros'"
+></app-crud>

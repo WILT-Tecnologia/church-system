@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -44,11 +44,6 @@ import { EventTypesService } from '../eventTypes.service';
   ],
 })
 export class EventTypeComponent implements OnInit {
-  eventTypeForm: FormGroup;
-  isEditMode: boolean = false;
-  isVisible: boolean = false;
-  chromeControl = new ColorPickerControl().hidePresets();
-
   constructor(
     private fb: FormBuilder,
     private eventTypesService: EventTypesService,
@@ -60,6 +55,10 @@ export class EventTypeComponent implements OnInit {
   ) {
     this.eventTypeForm = this.createForm();
   }
+  eventTypeForm: FormGroup;
+  isEditMode = signal(false);
+  isVisible = signal(false);
+  chromeControl = new ColorPickerControl().hidePresets();
 
   ngOnInit() {
     this.modeEdit();
@@ -87,26 +86,27 @@ export class EventTypeComponent implements OnInit {
 
   toggleColorPicker(event: MouseEvent) {
     event.stopPropagation();
-    this.isVisible = !this.isVisible;
+    this.isVisible.set(!this.isVisible());
   }
 
   applyColor(color: string) {
     this.eventTypeForm.patchValue({ color });
-    this.isVisible = false;
+    this.isVisible.set(false);
   }
 
   discardColor() {
     this.chromeControl.setValueFrom(this.eventTypeForm.get('color')?.value || '#ffffff');
-    this.isVisible = false;
+    this.isVisible.set(false);
   }
 
   handleSubmit() {
     if (this.eventTypeForm.invalid) {
+      this.toast.openError('Preencha os campos obrigatórios.');
       return;
     }
 
     const eventTypeData = this.eventTypeForm.value;
-    if (this.isEditMode) {
+    if (this.isEditMode()) {
       this.handleUpdate(eventTypeData);
     } else {
       this.handleCreate();
@@ -114,7 +114,7 @@ export class EventTypeComponent implements OnInit {
   }
 
   handleBack() {
-    this.dialogRef.close(false);
+    this.dialogRef.close();
   }
 
   private showLoading() {
@@ -128,7 +128,7 @@ export class EventTypeComponent implements OnInit {
   private onSuccess(message: string) {
     this.hideLoading();
     this.toast.openSuccess(message);
-    this.dialogRef.close(this.eventTypeForm.value);
+    this.dialogRef.close(true);
   }
 
   private onError(message: string) {
@@ -138,7 +138,7 @@ export class EventTypeComponent implements OnInit {
 
   private modeEdit() {
     if (this.data && this.data.eventType) {
-      this.isEditMode = true;
+      this.isEditMode.set(true);
       this.eventTypeForm.patchValue(this.data.eventType);
       this.handleEditMode();
     }

@@ -30,7 +30,7 @@ import { CepService } from 'app/services/search-cep/search-cep.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 import { cnpjValidator } from 'app/services/validators/cnpj-validator';
 import { PersonsService } from '../../persons/persons.service';
-import { ChurchsService } from '../churches.service';
+import { ChurchesService } from '../churches.service';
 
 @Component({
   selector: 'app-church',
@@ -59,7 +59,7 @@ import { ChurchsService } from '../churches.service';
 export class ChurchComponent implements OnInit, OnDestroy {
   constructor(
     private personService: PersonsService,
-    private churchsService: ChurchsService,
+    private churchesService: ChurchesService,
     private fb: FormBuilder,
     private toast: ToastService,
     private cepService: CepService,
@@ -235,7 +235,7 @@ export class ChurchComponent implements OnInit, OnDestroy {
 
   handleCreate(data: Church) {
     this.loading.show();
-    this.churchsService.createChurch(data).subscribe({
+    this.churchesService.createChurch(data).subscribe({
       next: () => {
         this.notificationService.onSuccess(MESSAGES.CREATE_SUCCESS, this.dialogRef, this.churchForm.value);
       },
@@ -248,7 +248,7 @@ export class ChurchComponent implements OnInit, OnDestroy {
 
   handleUpdate(churchId: string, data: Church) {
     this.loading.show();
-    this.churchsService.updateChurch(churchId, data).subscribe({
+    this.churchesService.updateChurch(churchId, data).subscribe({
       next: () => {
         this.notificationService.onSuccess(MESSAGES.CREATE_SUCCESS, this.dialogRef, this.churchForm.value);
       },

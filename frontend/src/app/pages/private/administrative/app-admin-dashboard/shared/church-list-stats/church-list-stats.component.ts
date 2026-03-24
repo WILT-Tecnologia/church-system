@@ -6,8 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { ColumnComponent } from 'app/components/column/column.component';
 import { Church } from 'app/model/Church';
-
-import { ChurchsService } from '../../../churches/churches.service';
+import { ChurchesService } from '../../../churches/churches.service';
 
 @Component({
   selector: 'app-church-list-stats',
@@ -17,7 +16,7 @@ import { ChurchsService } from '../../../churches/churches.service';
 })
 export class ChurchListStatsComponent implements OnInit {
   @Output() accessRoute = new EventEmitter<void>();
-  churchService = inject(ChurchsService).getChurch();
+  churchService = inject(ChurchesService).getChurches();
 
   churchs = signal<Church[]>([]);
 

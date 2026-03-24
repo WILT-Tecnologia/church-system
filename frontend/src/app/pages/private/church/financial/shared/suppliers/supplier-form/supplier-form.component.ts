@@ -20,7 +20,7 @@ import { ToastService } from 'app/components/toast/toast.service';
 import { Address } from 'app/model/Address';
 import { Church } from 'app/model/Church';
 import { Suppliers, TypeService, TypeSupplier } from 'app/model/Suppliers';
-import { ChurchsService } from 'app/pages/private/administrative/churches/churches.service';
+import { ChurchesService } from 'app/pages/private/administrative/churches/churches.service';
 import { CepService } from 'app/services/search-cep/search-cep.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 import { phoneValidator } from 'app/services/validators/phone-validator';
@@ -60,7 +60,7 @@ export class SupplierFormComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private suppliersService = inject(SuppliersService);
   private readonly validationService = inject(ValidationService);
-  private churchsService = inject(ChurchsService);
+  private churchesService = inject(ChurchesService);
   private toast = inject(ToastService);
   private cepService = inject(CepService);
   private readonly dialogRef = inject(MatDialogRef<SupplierFormComponent>);
@@ -172,7 +172,7 @@ export class SupplierFormComponent implements OnInit, OnDestroy {
 
   private loadData() {
     forkJoin({
-      churchs: this.churchsService.getChurch(),
+      churchs: this.churchesService.getChurches(),
     }).subscribe({
       next: ({ churchs }) => {
         this.churchs = churchs;

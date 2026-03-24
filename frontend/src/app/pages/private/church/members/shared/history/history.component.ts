@@ -1,18 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
-
 import { LoadingService } from 'app/components/loading/loading.service';
 import { NoRowComponent } from 'app/components/no-row/no-row.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { History } from 'app/model/Members';
-import { HistoryService } from './history.service';
-
 import { MembersService } from '../../members.service';
+import { HistoryService } from './history.service';
 
 @Component({
   selector: 'app-history',
@@ -22,15 +20,11 @@ import { MembersService } from '../../members.service';
 })
 export class HistoryComponent implements OnInit {
   @Input() history_member: History[] = [];
-  rendering: boolean = true;
-
-  constructor(
-    private loadingService: LoadingService,
-    private toast: ToastService,
-    private historyService: HistoryService,
-    private membersService: MembersService,
-    @Inject(MAT_DIALOG_DATA) public data: { history_member: History },
-  ) {}
+  private loadingService = inject(LoadingService);
+  private toast = inject(ToastService);
+  private historyService = inject(HistoryService);
+  private membersService = inject(MembersService);
+  public data = inject<{ history_member: History }>(MAT_DIALOG_DATA);
 
   ngOnInit() {
     this.loadHistories();
@@ -50,7 +44,6 @@ export class HistoryComponent implements OnInit {
     this.membersService.getHistMember(memberId!).subscribe({
       next: (history_member) => {
         this.history_member = history_member;
-        this.rendering = false;
       },
       error: () => {
         this.hideLoading();

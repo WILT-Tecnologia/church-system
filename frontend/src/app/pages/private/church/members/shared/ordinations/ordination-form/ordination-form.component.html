@@ -40,18 +40,22 @@
       <input matInput [matDatepicker]="initial_date" formControlName="initial_date" readonly />
       <mat-datepicker-toggle matSuffix [for]="initial_date"></mat-datepicker-toggle>
       <mat-datepicker #initial_date></mat-datepicker>
-      <mat-error *ngIf="ordinationForm.get('initial_date')?.invalid && ordinationForm.get('initial_date')?.touched">
-        {{ getErrorMessage('initial_date') }}
-      </mat-error>
+      @if (ordinationForm.get('initial_date')?.invalid) {
+        <mat-error>
+          {{ getErrorMessage('initial_date') }}
+        </mat-error>
+      }
     </mat-form-field>
     <mat-form-field appearance="fill">
       <mat-label>Data Final</mat-label>
       <input matInput [matDatepicker]="end_date" formControlName="end_date" readonly />
       <mat-datepicker-toggle matSuffix [for]="end_date"></mat-datepicker-toggle>
       <mat-datepicker #end_date></mat-datepicker>
-      <mat-error *ngIf="ordinationForm.get('end_date')?.invalid && ordinationForm.get('end_date')?.touched">
-        {{ getErrorMessage('end_date') }}
-      </mat-error>
+      @if (ordinationForm.get('end_date')?.invalid) {
+        <mat-error>
+          {{ getErrorMessage('end_date') }}
+        </mat-error>
+      }
     </mat-form-field>
   </app-column>
 

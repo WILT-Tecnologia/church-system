@@ -23,7 +23,7 @@ import { FinancialCategories } from 'app/model/FinancialCategories';
 import { CustomerSupplier, EntryExit, FinancialTransations, Payment } from 'app/model/FinancialTransations';
 import { Members } from 'app/model/Members';
 import { Suppliers } from 'app/model/Suppliers';
-import { ChurchsService } from 'app/pages/private/administrative/churches/churches.service';
+import { ChurchesService } from 'app/pages/private/administrative/churches/churches.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { forkJoin, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
@@ -68,7 +68,7 @@ export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
   private membersService = inject(MembersService);
   private suppliersService = inject(SuppliersService);
   private financialCategoriesService = inject(FinancialCategoriesService);
-  private churchsService = inject(ChurchsService);
+  private churchesService = inject(ChurchesService);
   private toast = inject(ToastService);
   private formatsPipe = inject(FormatsPipe);
   private readonly validationService = inject(ValidationService);
@@ -202,7 +202,7 @@ export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
 
   private loadInitialData() {
     forkJoin({
-      churches: this.churchsService.getChurch(),
+      churches: this.churchesService.getChurches(),
       members: this.membersService.findAll(),
       suppliers: this.suppliersService.findAllSuppliers(),
       categories: this.financialCategoriesService.findAllFinancialCategories(),

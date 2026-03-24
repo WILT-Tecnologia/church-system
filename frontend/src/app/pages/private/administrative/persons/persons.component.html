@@ -1,13 +1,9 @@
-@if ((persons && persons.length > 0) || rendering) {
-  <app-crud
-    [fields]="persons"
-    [dataSourceMat]="dataSourceMat"
-    [columnDefinitions]="columnDefinitions"
-    [actions]="actions"
-    (add)="onCreate()"
-    writePermission="write_administrative_pessoas"
-    deletePermission="delete_administrative_pessoas"
-  ></app-crud>
-} @else {
-  <app-not-found-register (add)="onCreate()"></app-not-found-register>
-}
+<app-crud
+  [fields]="persons()"
+  [dataSourceMat]="dataSourceMat"
+  [columnDefinitions]="columnDefinitions"
+  [actions]="actions"
+  (add)="onCreate()"
+  [writePermission]="'write_administrative_pessoas'"
+  [deletePermission]="'delete_administrative_pessoas'"
+></app-crud>

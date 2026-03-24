@@ -14,10 +14,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { forkJoin, map, Observable, startWith, Subject } from 'rxjs';
-
-import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
-
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
@@ -26,10 +22,12 @@ import { MESSAGES } from 'app/components/toast/messages';
 import { Church } from 'app/model/Church';
 import { Members } from 'app/model/Members';
 import { Patrimonies } from 'app/model/Patrimonies';
-import { ChurchsService } from 'app/pages/private/administrative/churches/churches.service';
+import { ChurchesService } from 'app/pages/private/administrative/churches/churches.service';
 import { MembersService } from 'app/pages/private/church/members/members.service';
 import { NotificationService } from 'app/services/notification/notification.service';
 import { ValidationService } from 'app/services/validation/validation.service';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
+import { forkJoin, map, Observable, startWith, Subject } from 'rxjs';
 import { PatrimoniesService } from '../patrimonies.service';
 
 @Component({
@@ -69,7 +67,7 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
   private readonly loading = inject(LoadingService);
   private readonly validationService = inject(ValidationService);
   private readonly notification = inject(NotificationService);
-  private readonly churchsService = inject(ChurchsService);
+  private readonly churchesService = inject(ChurchesService);
   private readonly patrimoniesService = inject(PatrimoniesService);
   private readonly membersService = inject(MembersService);
   private readonly dialogRef = inject(MatDialogRef<PatrimoniesFormComponent>);
@@ -223,7 +221,7 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
 
   private loadData() {
     forkJoin({
-      churchs: this.churchsService.getChurch(),
+      churchs: this.churchesService.getChurches(),
       members: this.membersService.findAll(),
     }).subscribe({
       next: ({ churchs, members }) => {

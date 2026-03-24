@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from 'environments/environment';
@@ -11,12 +11,11 @@ import { Profile, ProfileModule } from 'app/model/Profile';
   providedIn: 'root',
 })
 export class ProfilesService {
-  constructor(private http: HttpClient) {}
-
+  private http = inject(HttpClient);
   private api = `${environment.apiUrl}/admin/profiles`;
   private apiUrlPermission = `${environment.apiUrl}/admin/modules`;
 
-  getProfiles(): Observable<Profile[]> {
+  finAllProfiles(): Observable<Profile[]> {
     return this.http.get<Profile[]>(this.api);
   }
 

@@ -6,7 +6,7 @@ import { MatListModule } from '@angular/material/list';
 import { Router } from '@angular/router';
 
 import { Church } from 'app/model/Church';
-import { ChurchsService } from 'app/pages/private/administrative/churches/churches.service';
+import { ChurchesService } from 'app/pages/private/administrative/churches/churches.service';
 import { AuthService } from 'app/services/auth/auth.service';
 import { RouteFallbackService } from 'app/services/guards/route-fallback.service';
 
@@ -22,7 +22,7 @@ export class SelectChurchComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private churchService: ChurchsService,
+    private churchesService: ChurchesService,
     private authService: AuthService,
     private routeFallbackService: RouteFallbackService,
     @Inject(PLATFORM_ID) private platformId: object,
@@ -51,9 +51,8 @@ export class SelectChurchComponent implements OnInit {
     }
   }
 
-  // No selectChurch()
   selectChurch(church: Church): Promise<boolean> {
-    this.churchService.setSelectedChurch(church);
+    this.churchesService.setSelectedChurch(church);
     localStorage.setItem('selectedChurch', church.id);
 
     const permissions = this.authService.getPermissions();
@@ -62,7 +61,7 @@ export class SelectChurchComponent implements OnInit {
   }
 
   clearSelectedChurch(): void {
-    this.churchService.clearSelectedChurch();
+    this.churchesService.clearSelectedChurch();
     this.selectedChurchId = null;
   }
 }

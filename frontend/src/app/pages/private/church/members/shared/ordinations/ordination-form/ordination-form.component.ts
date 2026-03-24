@@ -1,22 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import {
-  MatAutocompleteModule,
-  MatAutocompleteSelectedEvent,
-} from '@angular/material/autocomplete';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
-import {
-  MAT_DATE_LOCALE,
-  MatOptionModule,
-  provideNativeDateAdapter,
-} from '@angular/material/core';
+import { MAT_DATE_LOCALE, MatOptionModule, provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
@@ -45,11 +32,7 @@ import { OrdinationsService } from '../ordinations.service';
   selector: 'app-ordination-form',
   templateUrl: './ordination-form.component.html',
   styleUrls: ['./ordination-form.component.scss'],
-  providers: [
-    provideNativeDateAdapter(),
-    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
-    provideNgxMask(),
-  ],
+  providers: [provideNativeDateAdapter(), { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' }, provideNgxMask()],
   imports: [
     MatAutocompleteModule,
     MatDatepickerModule,
@@ -101,14 +84,8 @@ export class OrdinationFormComponent implements OnInit {
     return this.fb.group({
       id: [this.data?.ordination?.id ?? ''],
       member_id: [this.data?.ordination?.member?.id ?? '', Validators.required],
-      occupation_id: [
-        this.data?.ordination?.occupation?.id ?? '',
-        Validators.required,
-      ],
-      initial_date: [
-        this.data?.ordination?.initial_date ?? '',
-        Validators.required,
-      ],
+      occupation_id: [this.data?.ordination?.occupation?.id ?? '', Validators.required],
+      initial_date: [this.data?.ordination?.initial_date ?? '', Validators.required],
       end_date: [this.data?.ordination?.end_date ?? '', Validators.required],
       status: [this.data?.ordination?.status ?? true, Validators.required],
     });
@@ -138,17 +115,13 @@ export class OrdinationFormComponent implements OnInit {
           return value ? value.name : '';
         }
       }),
-      map((name: string) =>
-        name.length >= 1 ? this._filterOccupations(name) : this.occupation,
-      ),
+      map((name: string) => (name.length >= 1 ? this._filterOccupations(name) : this.occupation)),
     );
   }
 
   private _filterOccupations(name: string): Occupation[] {
     const filterValue = name.toLowerCase();
-    return this.occupation.filter((occupation) =>
-      occupation.name.toLowerCase().includes(filterValue),
-    );
+    return this.occupation.filter((occupation) => occupation.name.toLowerCase().includes(filterValue));
   }
 
   onSelectedOccupation(event: MatAutocompleteSelectedEvent) {
@@ -219,12 +192,8 @@ export class OrdinationFormComponent implements OnInit {
     if (!this.data?.ordination) return;
 
     if (this.data?.ordination?.occupation) {
-      this.searchControlOccupation.setValue(
-        this.data?.ordination?.occupation?.name,
-      );
-      this.ordinationForm
-        .get('occupation_id')
-        ?.setValue(this.data?.ordination?.occupation?.id);
+      this.searchControlOccupation.setValue(this.data?.ordination?.occupation?.name);
+      this.ordinationForm.get('occupation_id')?.setValue(this.data?.ordination?.occupation?.id);
     }
 
     this.ordinationForm.patchValue({
@@ -237,12 +206,6 @@ export class OrdinationFormComponent implements OnInit {
   // }
 
   openAddOccupationForm() {
-    this.modalService.openModal(
-      `modal-${Math.random()}`,
-      OccupationComponent,
-      'Adicionando ocupação',
-      true,
-      true,
-    );
+    this.modalService.openModal(`modal-${Math.random()}`, OccupationComponent, 'Adicionando ocupação', true, true);
   }
 }

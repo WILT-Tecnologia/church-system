@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit, Optional } from '@angular/core';
+import { Component, Inject, OnInit, Optional, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,7 +16,6 @@ import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Modules } from 'app/model/Modules';
 import { ValidationService } from 'app/services/validation/validation.service';
-
 import { ModuleService } from '../modules.service';
 
 interface ModuleType {
@@ -57,9 +56,7 @@ export class ModuleFormComponent implements OnInit {
 
   moduleForm: FormGroup;
   modules: Modules[] = [];
-  isEdit: boolean = false;
-  hide: boolean = true;
-  change_password: boolean = false;
+  isEdit = signal(false);
   modulesTypes: ModuleType[] = [
     { value: 'Administrativo', title: 'Administrativo' },
     { value: 'Igreja', title: 'Igreja' },
@@ -78,14 +75,13 @@ export class ModuleFormComponent implements OnInit {
   }
 
   loadModules() {
-    this.modulesService.getAll().subscribe({
+    this.loadingService.show();
+    this.modulesService.findAll().subscribe({
       next: (modules) => {
         this.modules = modules;
       },
-      error: (error) => {
-        const errorMessage = error.error.message ?? MESSAGES.LOADING_ERROR;
-        this.onError(errorMessage);
-      },
+      error: (error) => this.onError(error.error.message ?? MESSAGES.LOADING_ERROR),
+      complete: () => this.loadingService.hide(),
     });
   }
 
@@ -110,37 +106,31 @@ export class ModuleFormComponent implements OnInit {
   }
 
   handleSubmit() {
-    const user = this.moduleForm.value;
+    const module = this.moduleForm.value;
 
-    if (!user) return;
+    if (!module) return;
 
-    if (this.isEdit) {
-      this.handleUpdate(user.id, user);
+    if (this.isEdit()) {
+      this.handleUpdate(module.id, module);
     } else {
-      this.handleCreate(user);
+      this.handleCreate(module);
     }
   }
 
   handleCreate(data: Partial<Modules>) {
     this.loadingService.show();
-    this.modulesService.create(data).subscribe({
+    this.modulesService.createModule(data).subscribe({
       next: () => this.onSuccess(MESSAGES.CREATE_SUCCESS),
-      error: (error) => {
-        const errorMessage = error.error.message ?? MESSAGES.CREATE_ERROR;
-        this.onError(errorMessage);
-      },
+      error: (error) => this.onError(error.error.message ?? MESSAGES.CREATE_ERROR),
       complete: () => this.loadingService.hide(),
     });
   }
 
-  handleUpdate(userId: string, data: Partial<Modules>) {
+  handleUpdate(moduleId: string, data: Partial<Modules>) {
     this.loadingService.show();
-    this.modulesService.update(userId, data).subscribe({
+    this.modulesService.updateModule(moduleId, data).subscribe({
       next: () => this.onSuccess(MESSAGES.UPDATE_SUCCESS),
-      error: (error) => {
-        const errorMessage = error.error.message ?? MESSAGES.UPDATE_ERROR;
-        this.onError(errorMessage);
-      },
+      error: (error) => this.onError(error.error.message ?? MESSAGES.UPDATE_ERROR),
       complete: () => this.loadingService.hide(),
     });
   }

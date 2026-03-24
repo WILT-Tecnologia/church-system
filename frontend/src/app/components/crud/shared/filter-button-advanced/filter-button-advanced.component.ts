@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, effect, input, OnInit, output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -48,15 +48,13 @@ export interface FilterField {
     NgxMatSelectSearchModule,
   ],
 })
-export class FilterButtonAdvancedComponent implements OnInit, OnChanges {
-  @Input() fields: FilterField[] = [];
-  @Input() applyFilter: any;
-  @Output() filterChange = new EventEmitter<any>();
-  filterForm: FormGroup = new FormGroup({});
+export class FilterButtonAdvancedComponent implements OnInit {
+  fields = input<FilterField[]>([]);
+  applyFilter = input<any>();
+  filterChange = output<any>();
+  filterForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {}
-
-  ngOnInit() {
+  constructor(private fb: FormBuilder) {
     this.filterForm = this.fb.group({
       dateRange: [''],
       select: [''],
@@ -69,31 +67,17 @@ export class FilterButtonAdvancedComponent implements OnInit, OnChanges {
       component: [''],
       duration: [0],
     });
-    // Adiciona controles dinamicamente com base nos campos
-    this.fields.forEach((field) => {
-      if (!this.filterForm.contains(field.controlName)) {
-        this.filterForm.addControl(field.controlName, this.fb.control([]));
-      }
 
-      // Configura os campos do tipo select
-      if (field.type === 'select' && field.options) {
-        field.searchCtrl = new FormControl('');
-        field.filteredOptions = field.searchCtrl.valueChanges.pipe(
-          startWith(''),
-          map((search) => field.options!.filter((option) => option.label.toLowerCase().includes(search.toLowerCase()))),
-        );
-      }
-    });
-
-    this.filterForm.valueChanges.subscribe((values) => {
-      this.filterChange.emit(values);
+    effect(() => {
+      const currentFields = this.fields();
+      this.initializeFormControls(currentFields);
     });
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['fields']) {
-      this.initializeFormControls();
-    }
+  ngOnInit() {
+    this.filterForm.valueChanges.subscribe((values) => {
+      this.filterChange.emit(values);
+    });
   }
 
   formatLabel(value: number): string {
@@ -109,15 +93,15 @@ export class FilterButtonAdvancedComponent implements OnInit, OnChanges {
     const control = this.filterForm.get(controlName);
     if (!control) return false;
 
-    const field = this.fields.find((field) => field.controlName === controlName);
-    if (!field || !field.options) return false; // Check if options exist
+    const field = this.fields().find((field) => field.controlName === controlName);
+    if (!field || !field.options) return false;
 
-    return control.value.length === field.options.length;
+    return control.value && control.value.length === field.options.length;
   }
 
   toggleAllSelection(controlName: string): void {
     const control = this.filterForm.get(controlName);
-    const field = this.fields.find((field) => field.controlName === controlName);
+    const field = this.fields().find((field) => field.controlName === controlName);
     if (control && field && field.options) {
       if (this.isAllSelected(controlName)) {
         control.setValue([]);
@@ -129,17 +113,16 @@ export class FilterButtonAdvancedComponent implements OnInit, OnChanges {
 
   isIndeterminate(controlName: string): boolean {
     const control = this.filterForm.get(controlName);
-    const field = this.fields.find((field) => field.controlName === controlName);
-    if (!control || !field || !field.options) return false; // Check if options exist
+    const field = this.fields().find((field) => field.controlName === controlName);
+    if (!control || !field || !field.options) return false;
 
-    return control.value.length > 0 && control.value.length < field.options.length;
+    return control.value && control.value.length > 0 && control.value.length < field.options.length;
   }
 
-  private initializeFormControls() {
-    this.filterForm = this.fb.group({});
-
-    this.fields.forEach((field) => {
-      if (!this.filterForm.get(field.controlName)) {
+  private initializeFormControls(fieldsConfig: FilterField[]) {
+    // Preserve current main form object, just add controls dynamically
+    fieldsConfig.forEach((field) => {
+      if (!this.filterForm.contains(field.controlName)) {
         this.filterForm.addControl(field.controlName, this.fb.control([]));
       }
 
@@ -150,12 +133,14 @@ export class FilterButtonAdvancedComponent implements OnInit, OnChanges {
   }
 
   private setupSelectField(field: FilterField) {
-    field.searchCtrl = new FormControl('');
-    field.filteredOptions = field.searchCtrl.valueChanges.pipe(
-      startWith(''),
-      map((search) =>
-        (field.options || []).filter((option) => option.label.toLowerCase().includes(search.toLowerCase())),
-      ),
-    );
+    if (!field.searchCtrl) {
+      field.searchCtrl = new FormControl('');
+      field.filteredOptions = field.searchCtrl.valueChanges.pipe(
+        startWith(''),
+        map((search) =>
+          (field.options || []).filter((option) => option.label.toLowerCase().includes(search.toLowerCase())),
+        ),
+      );
+    }
   }
 }

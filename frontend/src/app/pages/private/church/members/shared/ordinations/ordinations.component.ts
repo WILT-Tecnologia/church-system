@@ -1,20 +1,14 @@
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Inject, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, inject, OnInit, Output, signal } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { CrudComponent } from 'app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
-import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Ordination } from 'app/model/Ordination';
-
 import { MembersService } from '../../members.service';
 import { OrdinationFormComponent } from './ordination-form/ordination-form.component';
 import { OrdinationsService } from './ordinations.service';
@@ -23,25 +17,20 @@ import { OrdinationsService } from './ordinations.service';
   selector: 'app-ordinations',
   templateUrl: './ordinations.component.html',
   styleUrls: ['./ordinations.component.scss'],
-  imports: [CommonModule, NotFoundRegisterComponent, CrudComponent],
+  imports: [CrudComponent],
 })
 export class OrdinationsComponent implements OnInit {
-  constructor(
-    private confirmService: ConfirmService,
-    private loading: LoadingService,
-    private toast: ToastService,
-    private modal: ModalService,
-    private ordinationService: OrdinationsService,
-    private membersService: MembersService,
-    @Inject(MAT_DIALOG_DATA) public data: { ordinations: Ordination[]; id: number },
-  ) {}
-
+  private confirmService = inject(ConfirmService);
+  private loading = inject(LoadingService);
+  private toast = inject(ToastService);
+  private modal = inject(ModalService);
+  private ordinationService = inject(OrdinationsService);
+  private membersService = inject(MembersService);
+  public data = inject<{ ordinations: Ordination[]; id: number }>(MAT_DIALOG_DATA);
   @Output() ordinationUpdated = new EventEmitter<Ordination[]>();
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
-  private ordination: Ordination[] = [];
-  rendering: boolean = true;
-  dataSourceMat = new MatTableDataSource<Ordination>(this.ordination);
+  ordination = signal<Ordination[]>([]);
+  rendering = signal(true);
+  dataSourceMat = new MatTableDataSource<Ordination>([]);
   columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'status', header: 'Status', type: 'boolean' },
     { key: 'occupation.name', header: 'Ocupação', type: 'string' },
@@ -51,14 +40,13 @@ export class OrdinationsComponent implements OnInit {
   actions: ActionsProps[] = [
     {
       type: 'edit',
-      tooltip: 'Editar ordinação',
       icon: 'edit',
       label: 'Editar',
+      color: 'inherit',
       action: (ordination: Ordination) => this.handleEdit(ordination),
     },
     {
       type: 'delete',
-      tooltip: 'Excluir ordinação',
       icon: 'delete',
       label: 'Excluir',
       action: (ordination: Ordination) => this.handleDelete(ordination),
@@ -66,27 +54,23 @@ export class OrdinationsComponent implements OnInit {
   ];
 
   ngOnInit() {
-    this.dataSourceMat.paginator = this.paginator;
-    this.dataSourceMat.sort = this.sort;
-    this.rendering = false;
+    this.rendering.set(false);
     this.loadOrdinations();
   }
 
   get ordinationData(): Ordination[] {
-    return this.ordination;
+    return this.ordination();
   }
 
   private loadOrdinations = () => {
     this.loading.show();
     const memberId = this.membersService.getEditingMemberId();
     this.ordinationService.getOrdinationByMemberId(memberId!).subscribe({
-      next: (ordination) => {
-        this.ordination = ordination;
-        this.dataSourceMat.data = this.ordination;
-        this.dataSourceMat.paginator = this.paginator;
-        this.dataSourceMat.sort = this.sort;
-        this.rendering = false;
-        this.ordinationUpdated.emit(this.ordination);
+      next: (ordinationResp) => {
+        this.ordination.set(ordinationResp);
+        this.dataSourceMat.data = ordinationResp;
+        this.rendering.set(false);
+        this.ordinationUpdated.emit(ordinationResp);
       },
       error: () => {
         this.loading.hide();

@@ -1,11 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -16,11 +11,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
-import { LoadingService } from 'app/components/loading/loading.service';
+import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Occupation } from 'app/model/Occupation';
 import { ValidationService } from 'app/services/validation/validation.service';
-import dayjs from 'dayjs';
 import { OccupationsService } from '../occupations.service';
 
 @Component({
@@ -42,33 +36,18 @@ import { OccupationsService } from '../occupations.service';
   ],
 })
 export class OccupationComponent implements OnInit {
-  occupationForm: FormGroup;
-  occupationId: string | null = null;
-  isEditMode: boolean = false;
-
-  constructor(
-    private fb: FormBuilder,
-    private loadingService: LoadingService,
-    private toast: ToastService,
-    private occupationsService: OccupationsService,
-    private validationService: ValidationService,
-    private dialogRef: MatDialogRef<OccupationComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { occupation: Occupation },
-  ) {
-    this.occupationForm = this.createForm();
-  }
+  private fb = inject(FormBuilder);
+  private toast = inject(ToastService);
+  private occupationsService = inject(OccupationsService);
+  private validationService = inject(ValidationService);
+  private dialogRef = inject(MatDialogRef<OccupationComponent>);
+  private data = inject(MAT_DIALOG_DATA);
+  occupationForm!: FormGroup;
+  isEditMode = signal(false);
 
   ngOnInit() {
-    if (this.data && this.data.occupation) {
-      this.isEditMode = true;
-      this.occupationId = this.data.occupation.id;
-      this.occupationForm.patchValue(this.data.occupation);
-      this.handleEditMode();
-    }
-  }
-
-  get pageTitle() {
-    return this.isEditMode ? 'Editando ocupação' : 'Criando ocupação';
+    this.occupationForm = this.createForm();
+    this.handleEditMode();
   }
 
   getErrorMessage(controlName: string) {
@@ -77,93 +56,64 @@ export class OccupationComponent implements OnInit {
   }
 
   createForm() {
+    const occupation: Occupation = this.data?.occupation;
+
     return this.fb.group({
-      id: [this.data?.occupation?.id || ''],
-      name: [
-        this.data?.occupation?.name || '',
-        [
-          Validators.required,
-          Validators.minLength(1),
-          Validators.maxLength(255),
-        ],
-      ],
-      description: [
-        this.data?.occupation?.description || '',
-        [Validators.maxLength(255)],
-      ],
-      status: [this.data?.occupation?.status || true],
-      updated_at: [this.data?.occupation?.updated_at || ''],
+      id: [occupation?.id ?? ''],
+      name: [occupation?.name ?? '', [Validators.required, Validators.minLength(1), Validators.maxLength(255)]],
+      description: [occupation?.description ?? '', [Validators.maxLength(255)]],
+      status: [occupation?.status ?? true],
+      updated_at: [occupation?.updated_at ?? ''],
     });
   }
 
-  handleBack = () => {
+  handleBack() {
     this.dialogRef.close();
-  };
+  }
 
-  handleSubmit = () => {
+  handleSubmit() {
     if (this.occupationForm.invalid) {
+      this.toast.openError('Preencha todos os campos obrigatórios!');
       return;
     }
 
     const occupationData = this.occupationForm.value;
-    if (this.isEditMode) {
-      this.updateOccupation(occupationData.id);
+    if (this.isEditMode()) {
+      this.updateOccupation(occupationData);
     } else {
-      this.createOccupation();
+      this.createOccupation(occupationData);
     }
-    this.dialogRef.close(occupationData);
-  };
-
-  createOccupation() {
-    this.loadingService.show();
-    this.occupationsService
-      .createOccupation(this.occupationForm.value)
-      .subscribe({
-        next: () => {
-          this.toast.openSuccess('Ocupação criada com sucesso!');
-          this.dialogRef.close(this.occupationForm.value);
-        },
-        error: () => {
-          this.toast.openError('Erro ao criar a ocupação. Tente novamente!');
-          this.loadingService.hide();
-        },
-        complete: () => {
-          this.loadingService.hide();
-        },
-      });
   }
 
-  updateOccupation(occupationId: string) {
-    this.loadingService.show();
-    this.occupationsService
-      .updateOccupation(occupationId!, this.occupationForm.value)
-      .subscribe({
-        next: () => {
-          this.toast.openSuccess('Ocupação atualizada com sucesso!');
-          this.dialogRef.close(this.occupationForm.value);
-        },
-        error: () => {
-          this.loadingService.hide();
-          this.toast.openError(
-            'Erro ao atualizar a ocupação. Tente novamente!',
-          );
-        },
-        complete: () => {
-          this.loadingService.hide();
-        },
-      });
+  createOccupation(occupation: Occupation) {
+    this.occupationsService.createOccupation(occupation).subscribe({
+      next: () => this.toast.openSuccess(MESSAGES.CREATE_SUCCESS),
+      error: () => this.toast.openError(MESSAGES.CREATE_ERROR),
+      complete: () => {
+        this.dialogRef.close(occupation);
+      },
+    });
   }
 
-  handleEditMode = () => {
-    this.occupationsService
-      .getOccupationById(this.occupationId!)
-      .subscribe((occupation: Occupation) => {
-        this.occupationForm.patchValue({
-          ...occupation,
-          updated_at: dayjs(occupation.updated_at).format(
-            'DD/MM/YYYY [às] HH:mm:ss',
-          ),
-        });
+  updateOccupation(occupation: Occupation) {
+    this.occupationsService.updateOccupation(occupation.id!, occupation).subscribe({
+      next: () => this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS),
+      error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
+      complete: () => this.dialogRef.close(occupation),
+    });
+  }
+
+  handleEditMode() {
+    if (!this.data?.occupation?.id) {
+      this.isEditMode.set(false);
+      return;
+    }
+
+    this.isEditMode.set(true);
+    this.occupationsService.findOccupationById(this.data.occupation.id).subscribe((occupation: Occupation) => {
+      this.occupationForm.patchValue({
+        ...occupation,
       });
-  };
+    });
+  }
 }

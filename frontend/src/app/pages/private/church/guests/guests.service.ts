@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from 'environments/environment';
@@ -10,8 +10,7 @@ import { Guest } from 'app/model/Guest';
   providedIn: 'root',
 })
 export class GuestsService {
-  constructor(private http: HttpClient) {}
-
+  private http = inject(HttpClient);
   private api = `${environment.apiUrl}/admin/persons`;
 
   findAll(): Observable<Guest[]> {

@@ -15,13 +15,15 @@
               required
             />
             <mat-autocomplete #autoPerson="matAutocomplete" (optionSelected)="onPersonSelected($event)">
-              <mat-option *ngFor="let person of filteredPerson | async" [value]="person">
-                {{ person.name }}
-              </mat-option>
+              @for (person of filteredPerson | async; track person.id) {
+                <mat-option [value]="person">
+                  {{ person.name }}
+                </mat-option>
+              }
             </mat-autocomplete>
-            <mat-error *ngIf="stepOneForm.get('person_id')?.invalid && stepOneForm.get('person_id')?.touched">
-              {{ getErrorMessage('person_id') }}
-            </mat-error>
+            @if (stepOneForm.get('person_id')?.invalid) {
+              <mat-error>{{ getErrorMessage('person_id') }}</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="fill">
@@ -36,13 +38,15 @@
               required
             />
             <mat-autocomplete #autoChurch="matAutocomplete" (optionSelected)="onChurchSelected($event)">
-              <mat-option *ngFor="let church of filteredChurch | async" [value]="church">
-                {{ church.name }}
-              </mat-option>
+              @for (church of filteredChurch | async; track church.id) {
+                <mat-option [value]="church">
+                  {{ church.name }}
+                </mat-option>
+              }
             </mat-autocomplete>
-            <mat-error *ngIf="stepOneForm.get('church_id')?.invalid && stepOneForm.get('church_id')?.touched">
-              {{ getErrorMessage('church_id') }}
-            </mat-error>
+            @if (stepOneForm.get('church_id')?.invalid) {
+              <mat-error>{{ getErrorMessage('church_id') }}</mat-error>
+            }
           </mat-form-field>
         </app-column>
 
@@ -50,16 +54,16 @@
           <mat-form-field appearance="fill">
             <mat-label>RG</mat-label>
             <input matInput formControlName="rg" maxlength="15" />
-            <mat-error *ngIf="stepOneForm.get('rg')?.invalid && stepOneForm.get('rg')?.touched">
-              {{ getErrorMessage('rg') }}
-            </mat-error>
+            @if (stepOneForm.get('rg')?.invalid) {
+              <mat-error>{{ getErrorMessage('rg') }}</mat-error>
+            }
           </mat-form-field>
           <mat-form-field appearance="fill">
             <mat-label>Orgão Expedidor</mat-label>
             <input matInput formControlName="issuing_body" maxlength="15" />
-            <mat-error *ngIf="stepOneForm.get('issuing_body')?.invalid && stepOneForm.get('issuing_body')?.touched">
-              {{ getErrorMessage('issuing_body') }}
-            </mat-error>
+            @if (stepOneForm.get('issuing_body')?.invalid) {
+              <mat-error>{{ getErrorMessage('issuing_body') }}</mat-error>
+            }
           </mat-form-field>
         </app-column>
 
@@ -76,15 +80,15 @@
               required
             />
             <mat-autocomplete #autoCivilStatus="matAutocomplete" (optionSelected)="onCivilStatusSelected($event)">
-              <mat-option *ngFor="let civilStatus of filteredCivilStatus | async" [value]="civilStatus">
-                {{ civilStatus.name }}
-              </mat-option>
+              @for (civilStatus of filteredCivilStatus | async; track civilStatus.id) {
+                <mat-option [value]="civilStatus">
+                  {{ civilStatus.name }}
+                </mat-option>
+              }
             </mat-autocomplete>
-            <mat-error
-              *ngIf="stepOneForm.get('civil_status_id')?.invalid && stepOneForm.get('civil_status_id')?.touched"
-            >
-              {{ getErrorMessage('civil_status_id') }}
-            </mat-error>
+            @if (stepOneForm.get('civil_status_id')?.invalid) {
+              <mat-error>{{ getErrorMessage('civil_status_id') }}</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="fill">
@@ -99,13 +103,15 @@
               required
             />
             <mat-autocomplete #autoColorRace="matAutocomplete" (optionSelected)="onColorRaceSelected($event)">
-              <mat-option *ngFor="let colorRace of filteredColorRace | async" [value]="colorRace">
-                {{ colorRace.name }}
-              </mat-option>
+              @for (colorRace of filteredColorRace | async; track colorRace.id) {
+                <mat-option [value]="colorRace">
+                  {{ colorRace.name }}
+                </mat-option>
+              }
             </mat-autocomplete>
-            <mat-error *ngIf="stepOneForm.get('color_race_id')?.invalid && stepOneForm.get('color_race_id')?.touched">
-              {{ getErrorMessage('color_race_id') }}
-            </mat-error>
+            @if (stepOneForm.get('color_race_id')?.invalid) {
+              <mat-error>{{ getErrorMessage('color_race_id') }}</mat-error>
+            }
           </mat-form-field>
         </app-column>
 
@@ -113,16 +119,16 @@
           <mat-form-field appearance="fill">
             <mat-label>Nacionalidade</mat-label>
             <input matInput formControlName="nationality" />
-            <mat-error *ngIf="stepOneForm.get('nationality')?.invalid && stepOneForm.get('nationality')?.touched">
-              {{ getErrorMessage('nationality') }}
-            </mat-error>
+            @if (stepOneForm.get('nationality')?.invalid) {
+              <mat-error>{{ getErrorMessage('nationality') }}</mat-error>
+            }
           </mat-form-field>
           <mat-form-field appearance="fill">
             <mat-label>Naturalidade</mat-label>
             <input matInput formControlName="naturalness" />
-            <mat-error *ngIf="stepOneForm.get('naturalness')?.invalid && stepOneForm.get('naturalness')?.touched">
-              {{ getErrorMessage('naturalness') }}
-            </mat-error>
+            @if (stepOneForm.get('naturalness')?.invalid) {
+              <mat-error>{{ getErrorMessage('naturalness') }}</mat-error>
+            }
           </mat-form-field>
         </app-column>
       </div>

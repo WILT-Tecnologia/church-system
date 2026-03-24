@@ -1,7 +1,4 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { ConfirmService } from 'app/components/confirm/confirm.service';
@@ -9,7 +6,6 @@ import { CrudComponent } from 'app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
-import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Patrimonies } from 'app/model/Patrimonies';
@@ -21,7 +17,7 @@ import { PatrimoniesService } from './patrimonies.service';
   selector: 'app-patrimonies',
   templateUrl: './patrimonies.component.html',
   styleUrl: './patrimonies.component.scss',
-  imports: [CrudComponent, NotFoundRegisterComponent, CommonModule],
+  imports: [CrudComponent],
 })
 export class PatrimoniesComponent implements OnInit {
   private toast = inject(ToastService);
@@ -33,8 +29,6 @@ export class PatrimoniesComponent implements OnInit {
 
   patrimonies: Patrimonies[] = [];
   dataSourceMat = new MatTableDataSource<Patrimonies>(this.patrimonies);
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
   columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'church.name', header: 'Igreja', type: 'string' },
     { key: 'number', header: 'N° do patrimônio', type: 'string' },
@@ -50,6 +44,7 @@ export class PatrimoniesComponent implements OnInit {
       type: 'edit',
       icon: 'edit',
       label: 'Editar',
+      color: 'inherit',
       action: (patrimonies: Patrimonies) => this.editPatrimonies(patrimonies),
       visible: () => this.authService.hasPermission('write_church_patrimonios'),
     },
@@ -74,8 +69,6 @@ export class PatrimoniesComponent implements OnInit {
           donorOrMember: patrimonies.donor ? patrimonies.donor : (patrimonies.member?.person?.name ?? '--'),
           ...patrimonies,
         }));
-        this.dataSourceMat.paginator = this.paginator;
-        this.dataSourceMat.sort = this.sort;
       },
       error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
       complete: () => this.loading.hide(),

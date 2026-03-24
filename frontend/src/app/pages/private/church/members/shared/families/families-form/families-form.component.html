@@ -27,7 +27,7 @@
             <mat-option class="add-option" (click)="openAddPersonDialog()"> Adicionar nova pessoa </mat-option>
           }
         </mat-autocomplete>
-        @if (familyForm.get('person_id')?.invalid && familyForm.get('person_id')?.touched) {
+        @if (familyForm.get('person_id')?.invalid) {
           <mat-error>
             {{ getErrorMessage('person_id') }}
           </mat-error>
@@ -37,7 +37,7 @@
       <mat-form-field appearance="fill">
         <mat-label>Nome</mat-label>
         <input matInput formControlName="name" required />
-        @if (familyForm.get('name')?.invalid && familyForm.get('name')?.touched) {
+        @if (familyForm.get('name')?.invalid) {
           <mat-error>{{ getErrorMessage('name') }}</mat-error>
         }
       </mat-form-field>
@@ -60,7 +60,7 @@
           </mat-option>
         }
       </mat-autocomplete>
-      @if (familyForm.get('kinship_id')?.invalid && familyForm.get('kinship_id')?.touched) {
+      @if (familyForm.get('kinship_id')?.invalid) {
         <mat-error>
           {{ getErrorMessage('kinship_id') }}
         </mat-error>

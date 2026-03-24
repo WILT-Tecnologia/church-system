@@ -1,13 +1,9 @@
-@if (financialTransactions && financialTransactions.length > 0) {
-  <app-crud
-    [fields]="financialTransactions"
-    [dataSourceMat]="dataSourceMat"
-    [columnDefinitions]="columnDefinitions"
-    (add)="createFinancialTransactions()"
-    [actions]="actions"
-    [writePermission]="'write_church_lancamentos_financeiros'"
-    [deletePermission]="'delete_church_lancamentos_financeiros'"
-  ></app-crud>
-} @else {
-  <app-not-found-register (add)="createFinancialTransactions()"></app-not-found-register>
-}
+<app-crud
+  [fields]="financialTransactions"
+  [dataSourceMat]="dataSourceMat"
+  [columnDefinitions]="columnDefinitions"
+  (add)="createFinancialTransactions()"
+  [actions]="actions"
+  [writePermission]="'write_church_lancamentos_financeiros'"
+  [deletePermission]="'delete_church_lancamentos_financeiros'"
+></app-crud>

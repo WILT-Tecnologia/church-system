@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, input, OnInit, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
@@ -8,8 +8,8 @@ import { MatButtonModule } from '@angular/material/button';
   imports: [MatButtonModule],
 })
 export class NotFoundRegisterComponent implements OnInit {
-  @Input() ctaLabel: string = 'Adicionar';
-  @Output() add = new EventEmitter<void>();
+  ctaLabel = input<string>('Adicionar');
+  add = output<void>();
 
   constructor() {}
 

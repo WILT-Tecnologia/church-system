@@ -19,11 +19,11 @@
         [style.background-color]="eventTypeForm.get('color')?.value || '#ffffff'"
         (click)="toggleColorPicker($event)"
       ></div>
-      @if (isVisible) {
+      @if (isVisible()) {
         <div class="picker">
           <app-color-picker
             [control]="chromeControl"
-            [isVisible]="isVisible"
+            [isVisible]="isVisible()"
             (apply)="applyColor($event)"
             (discard)="discardColor()"
           >
@@ -46,7 +46,7 @@
   <app-actions>
     <button type="button" mat-stroked-button color="warn" (click)="handleBack()">Cancelar</button>
     <button type="submit" mat-flat-button color="primary" [disabled]="eventTypeForm.invalid">
-      {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
+      {{ isEditMode() ? 'Atualizar' : 'Cadastrar' }}
     </button>
   </app-actions>
 </form>

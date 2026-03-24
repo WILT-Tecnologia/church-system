@@ -22,12 +22,12 @@ import { MESSAGES } from 'app/components/toast/messages';
 import { Church } from 'app/model/Church';
 import { Events } from 'app/model/Events';
 import { EventTypes } from 'app/model/EventTypes';
-import { ChurchsService } from 'app/pages/private/administrative/churches/churches.service';
 import { EventTypesService } from 'app/pages/private/administrative/event-types/eventTypes.service';
 import { NotificationService } from 'app/services/notification/notification.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 import { provideNgxMask } from 'ngx-mask';
 
+import { ChurchesService } from 'app/pages/private/administrative/churches/churches.service';
 import { EventsService } from '../../events.service';
 
 @Component({
@@ -78,7 +78,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     private loading: LoadingService,
     private validationService: ValidationService,
     private notification: NotificationService,
-    private churchsService: ChurchsService,
+    private churchesService: ChurchesService,
     private eventTypesService: EventTypesService,
     private eventsService: EventsService,
     private dialogRef: MatDialogRef<EventsFormComponent>,
@@ -150,7 +150,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
       this.eventForm.get('church_id')?.setValue(selectedChurchId);
       this.eventForm.get('church_id')?.disable();
 
-      this.churchsService.getChurch().subscribe({
+      this.churchesService.getChurches().subscribe({
         next: (churches) => {
           const selectedChurch = churches.find((church) => church.id === selectedChurchId);
           if (selectedChurch) {

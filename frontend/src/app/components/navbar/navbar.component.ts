@@ -9,11 +9,10 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenav, MatSidenavContainer, MatSidenavContent } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { filter } from 'rxjs/operators';
-
 import { routes } from 'app/app.routes';
-import { ChurchsService } from 'app/pages/private/administrative/churches/churches.service';
+import { ChurchesService } from 'app/pages/private/administrative/churches/churches.service';
 import { AuthService } from 'app/services/auth/auth.service';
+import { filter } from 'rxjs/operators';
 import { LoadingService } from '../loading/loading.service';
 import { USER } from './routes';
 import { LogoComponent } from './shared/logo/logo.component';
@@ -99,7 +98,7 @@ export class NavbarComponent implements OnInit {
     private router: Router,
     private loading: LoadingService,
     private authService: AuthService,
-    private churchService: ChurchsService,
+    private churchesService: ChurchesService,
     private activatedRoute: ActivatedRoute,
     @Inject(PLATFORM_ID) private platformId: object,
   ) {}
@@ -219,7 +218,7 @@ export class NavbarComponent implements OnInit {
   }
 
   private async getChurch() {
-    this.churchService.getSelectedChurch().subscribe((church) => {
+    this.churchesService.getSelectedChurch().subscribe((church) => {
       if (church) {
         this.selectedChurchId = church.id;
         this.selectedChurchName = church.name;

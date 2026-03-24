@@ -1,14 +1,11 @@
-@if (isValidStatusMember()) {
-  <app-crud
-    [enablePagination]="false"
-    [fields]="statusMemberFields"
-    [dataSourceMat]="dataSourceMat"
-    [columnDefinitions]="columnDefinitions"
-    (addFn)="onCreate()"
-    [actions]="actions"
-    writePermission="write_church_membros"
-    deletePermission="delete_church_membros"
-  ></app-crud>
-} @else {
-  <app-not-found-register (add)="onCreate()"></app-not-found-register>
-}
+<app-crud
+  [enablePagination]="false"
+  [fields]="statusMemberFields"
+  [dataSourceMat]="dataSourceMat"
+  [columnDefinitions]="columnDefinitions"
+  [enableAddButtonAdd]="!isValidStatusMember()"
+  (add)="onCreate()"
+  [actions]="actions"
+  writePermission="write_church_membros"
+  deletePermission="delete_church_membros"
+></app-crud>

@@ -1,31 +1,20 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import { Person } from 'app/model/Person';
 import { environment } from 'environments/environment';
-import { map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PersonsService {
-  constructor(private http: HttpClient) {}
-
   private api = `${environment.apiUrl}/admin/persons`;
+  private http = inject(HttpClient);
   private formats = new FormatsPipe();
 
   getPersons(): Observable<Person[]> {
-    return this.http.get<Person[]>(this.api).pipe(
-      map((person: Person[]) => {
-        return person.map((person) => {
-          person.cpf = this.formats.cpfFormat(person.cpf);
-          person.birth_date = this.formats.dateFormat(person.birth_date);
-          person.sex = this.formats.SexTransform(person.sex, 'toView');
-          person.phone_one = this.formats.phoneFormat(person.phone_one);
-          return person;
-        });
-      }),
-    );
+    return this.http.get<Person[]>(this.api);
   }
 
   getPersonById(id: string): Observable<Person> {
@@ -36,13 +25,10 @@ export class PersonsService {
     return this.http.post<Person>(this.api, person);
   }
 
-  updatePerson(
-    personId: string,
-    personData: Partial<Person>,
-  ): Observable<Person> {
+  updatePerson(personId: string, personData: Partial<Person>): Observable<Person> {
     const sanitizedData = {
       ...personData,
-      sex: this.formats.SexTransform(personData.sex || '', 'toModel'),
+      sex: this.formats.SexTransform(personData.sex ?? '', 'toModel'),
     };
 
     return this.http.put<Person>(`${this.api}/${personId}`, sanitizedData);

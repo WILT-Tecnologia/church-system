@@ -6,7 +6,7 @@
   </p>
   @if (!!add) {
     <button mat-flat-button color="primary" type="button" (click)="add.emit()">
-      {{ ctaLabel || 'Adicionar' }}
+      {{ ctaLabel() || 'Adicionar' }}
     </button>
   }
 </div>

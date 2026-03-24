@@ -1,7 +1,7 @@
 <div class="container">
   <form [formGroup]="filterForm" class="filter-form">
-    @for (field of fields; track $index) {
-      <div class="field" [ngClass]="{ 'single-field': fields.length === 1 }">
+    @for (field of fields(); track $index) {
+      <div class="field" [ngClass]="{ 'single-field': fields().length === 1 }">
         @if (field.type === 'select') {
           <mat-form-field class="select" appearance="fill">
             <mat-label>{{ field.label }}</mat-label>
@@ -24,7 +24,7 @@
                 Selecionar Todos
               </mat-checkbox>
 
-              @for (option of (field.filteredOptions | async); track $index) {
+              @for (option of field.filteredOptions | async; track $index) {
                 <mat-option [value]="option.value">
                   {{ option.label }}
                 </mat-option>

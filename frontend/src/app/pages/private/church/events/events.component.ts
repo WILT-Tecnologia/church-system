@@ -5,7 +5,6 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  Inject,
   inject,
   OnDestroy,
   OnInit,
@@ -22,22 +21,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { BehaviorSubject, forkJoin, Observable, of, Subject } from 'rxjs';
-import { debounceTime, mergeWith, switchMap, takeUntil } from 'rxjs/operators';
-
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, DateSelectArg, EventApi, EventClickArg } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import dayjs from 'dayjs';
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-
 import { ColumnComponent } from 'app/components/column/column.component';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
@@ -52,6 +43,11 @@ import { ToastService } from 'app/components/toast/toast.service';
 import { EventCall, Events } from 'app/model/Events';
 import { EventTypes } from 'app/model/EventTypes';
 import { AuthService } from 'app/services/auth/auth.service';
+import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import { BehaviorSubject, forkJoin, Observable, of, Subject } from 'rxjs';
+import { debounceTime, mergeWith, switchMap, takeUntil } from 'rxjs/operators';
 import { EventTypesService } from '../../administrative/event-types/eventTypes.service';
 import { EventsService } from './events.service';
 import { AddMembersGuestsComponent } from './shared/add-members-guests/add-members-guests.component';
@@ -74,7 +70,6 @@ dayjs.extend(isSameOrBefore);
     MatFormFieldModule,
     MatIconModule,
     MatTableModule,
-    MatSortModule,
     MatButtonModule,
     MatInputModule,
     MatTooltipModule,
@@ -89,17 +84,17 @@ dayjs.extend(isSameOrBefore);
   providers: [FormatsPipe],
 })
 export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
-  constructor(
-    private toast: ToastService,
-    private loading: LoadingService,
-    private confirmService: ConfirmService,
-    private modal: ModalService,
-    private eventsService: EventsService,
-    private format: FormatsPipe,
-    private cdr: ChangeDetectorRef,
-    private eventTypesService: EventTypesService,
-    @Inject(PLATFORM_ID) private platformId: object,
-  ) {
+  private toast = inject(ToastService);
+  private loading = inject(LoadingService);
+  private confirmService = inject(ConfirmService);
+  private modal = inject(ModalService);
+  private eventsService = inject(EventsService);
+  private format = inject(FormatsPipe);
+  private cdr = inject(ChangeDetectorRef);
+  private eventTypesService = inject(EventTypesService);
+  private platformId = inject(PLATFORM_ID);
+
+  constructor() {
     this.findEventsByTabIdAdapter = this.findEventsByTabIdAdapter.bind(this);
   }
 
@@ -123,6 +118,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       type: 'edit',
       icon: 'edit',
       label: 'Editar',
+      color: 'inherit',
       action: (events: Events) => this.onEditEvent(events),
       visible: () => this.authService.hasPermission('write_church_eventos'),
     },
@@ -130,6 +126,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       type: 'person_add',
       icon: 'person_add',
       label: 'Adicionar participantes',
+      color: 'inherit',
       action: (events: Events) => this.onAddMembersGuests(events),
       visible: () => this.authService.hasPermission('write_church_eventos'),
     },
@@ -137,6 +134,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       type: 'add_circle',
       icon: 'add_circle',
       label: 'Chamadas do evento',
+      color: 'inherit',
       action: (events: Events) => this.onCreateCall(events),
       visible: () => this.authService.hasPermission('write_church_eventos'),
     },
@@ -144,6 +142,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       type: 'add_circle',
       icon: 'add_circle',
       label: 'Frequências',
+      color: 'inherit',
       action: (events: Events) => this.onFrequency(events),
       visible: () => this.authService.hasPermission('write_church_eventos'),
     },
@@ -286,6 +285,9 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       editFn: this.onEditEvent.bind(this),
       deleteFn: this.onDeleteEvent.bind(this),
       enableToggleStatus: true,
+      readPermission: 'read_church_eventos',
+      writePermission: 'write_church_eventos',
+      deletePermission: 'write_church_eventos',
     };
   }
 

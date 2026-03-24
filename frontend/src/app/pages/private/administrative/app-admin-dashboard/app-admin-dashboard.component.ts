@@ -4,7 +4,7 @@ import { forkJoin } from 'rxjs';
 
 import { ColumnComponent } from 'app/components/column/column.component';
 
-import { ChurchsService } from '../churches/churches.service';
+import { ChurchesService } from '../churches/churches.service';
 import { UsersService } from '../users/users.service';
 import { DashboardStatsService } from './dashboard-stats.service';
 import { ChurchListStatsComponent } from './shared/church-list-stats/church-list-stats.component';
@@ -43,7 +43,7 @@ export class AdminDashboardComponent implements OnInit {
   });
 
   private usersService = inject(UsersService);
-  private churchService = inject(ChurchsService);
+  private churchesService = inject(ChurchesService);
   private statsService = inject(DashboardStatsService);
   private router = inject(Router);
 
@@ -53,7 +53,7 @@ export class AdminDashboardComponent implements OnInit {
 
   private loadData() {
     const users$ = this.usersService.getUsers();
-    const churches$ = this.churchService.getChurch();
+    const churches$ = this.churchesService.getChurches();
 
     forkJoin([users$, churches$]).subscribe(([users, churches]) => {
       const stats = this.statsService.calculateUserStats(users);

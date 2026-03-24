@@ -14,4 +14,7 @@ export interface CrudConfig {
   deleteFn: (item: any) => void;
   toggleFn?: (item: any) => void;
   enableToggleStatus: boolean;
+  readPermission?: string;
+  writePermission?: string;
+  deletePermission?: string;
 }

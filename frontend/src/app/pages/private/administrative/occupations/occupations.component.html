@@ -1,15 +1,11 @@
-@if ((occupations && occupations.length > 0) || rendering) {
-  <app-crud
-    [fields]="occupations"
-    [dataSourceMat]="dataSourceMat"
-    [columnDefinitions]="columnDefinitions"
-    [actions]="actions"
-    (add)="onCreate()"
-    (toggle)="toggleStatus($any($event))"
-    [enableToggleStatus]="true"
-    writePermission="write_administrative_cargos_ministeriais"
-    deletePermission="delete_administrative_cargos_ministeriais"
-  ></app-crud>
-} @else {
-  <app-not-found-register (add)="onCreate()"></app-not-found-register>
-}
+<app-crud
+  [fields]="occupations()"
+  [dataSourceMat]="dataSourceMat"
+  [columnDefinitions]="columnDefinitions"
+  [actions]="actions"
+  (add)="onCreate()"
+  (toggle)="onChangeStatus($event)"
+  [enableToggleStatus]="true"
+  [writePermission]="'write_administrative_cargos_ministeriais'"
+  [deletePermission]="'delete_administrative_cargos_ministeriais'"
+></app-crud>

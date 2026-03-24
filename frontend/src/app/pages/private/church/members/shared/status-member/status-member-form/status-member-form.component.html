@@ -33,7 +33,7 @@
         matInput
         name="initial_period"
         [matDatepicker]="initial_period"
-        placeholder="dd/mm/aaaa"
+        placeholder="__/__/____"
         formControlName="initial_period"
         (click)="openCalendarInitial_period()"
         [min]="minDate"
@@ -63,7 +63,7 @@
         </mat-datepicker-actions>
       </mat-datepicker>
 
-      @if (statusMemberForm.get('initial_period')?.invalid && statusMemberForm.get('initial_period')?.touched) {
+      @if (statusMemberForm.get('initial_period')?.invalid) {
         <mat-error>{{ getErrorMessage('initial_period') }} </mat-error>
       }
     </mat-form-field>
@@ -74,7 +74,7 @@
         matInput
         name="final_period"
         [matDatepicker]="final_period"
-        placeholder="dd/mm/aaaa"
+        placeholder="__/__/____"
         formControlName="final_period"
         (click)="openCalendarFinal_period()"
         [min]="minDate"
@@ -104,7 +104,7 @@
         </mat-datepicker-actions>
       </mat-datepicker>
 
-      @if (statusMemberForm.get('final_period')?.invalid && statusMemberForm.get('final_period')?.touched) {
+      @if (statusMemberForm.get('final_period')?.invalid) {
         <mat-error>{{ getErrorMessage('final_period') }} </mat-error>
       }
     </mat-form-field>

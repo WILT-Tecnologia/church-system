@@ -1,25 +1,22 @@
 import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
-
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { CrudComponent } from 'app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
-import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { EventCall, Events } from 'app/model/Events';
-
 import { EventCallService } from './event-call.service';
-import { CreateEventCallComponent } from './shared/create-event-call/create-event-call.component';
+import { CreateEventCallComponent } from './shared/event-call-form/create-event-call.component';
 
 @Component({
   selector: 'app-event-call',
   templateUrl: './event-call.component.html',
   styleUrl: './event-call.component.scss',
-  imports: [CrudComponent, NotFoundRegisterComponent],
+  imports: [CrudComponent],
 })
 export class EventCallComponent implements OnInit {
   constructor(
@@ -49,6 +46,7 @@ export class EventCallComponent implements OnInit {
       type: 'edit',
       icon: 'edit',
       label: 'Editar',
+      color: 'inherit',
       action: (eventCall: EventCall) => this.onEdit(eventCall),
     },
     {
@@ -126,29 +124,31 @@ export class EventCallComponent implements OnInit {
   }
 
   private onDelete(eventCall: EventCall) {
-    this.confirmService
-      .openConfirm('Excluir a chamada do dia', 'Tem certeza que deseja excluir?', 'Confirmar', 'Cancelar')
-      .afterClosed()
-      .subscribe({
-        next: (confirmed) => {
-          if (confirmed) {
-            const eventId = this.data?.event?.id;
-            if (!eventId || !eventCall.id) {
-              this.onError('Evento ou chamada não encontrada!');
-              return;
-            }
-            this.loading.show();
-            this.eventCallService.delete(eventId, eventCall.id).subscribe({
-              next: () => {
-                this.onSuccess('Chamada do dia excluída com sucesso!');
-                this.loadEventCall();
-              },
-              error: (error) => {
-                this.onError(error?.error?.error || MESSAGES.DELETE_ERROR);
-              },
-            });
+    const modal = this.confirmService.openConfirm(
+      'Excluir a chamada do dia',
+      'Tem certeza que deseja excluir?',
+      'Confirmar',
+      'Cancelar',
+    );
+
+    modal.afterClosed().subscribe({
+      next: (confirmed) => {
+        if (confirmed) {
+          const eventId = this.data?.event?.id;
+          if (!eventId || !eventCall.id) {
+            this.onError('Evento ou chamada não encontrada!');
+            return;
           }
-        },
-      });
+          this.eventCallService.delete(eventId, eventCall.id).subscribe({
+            next: () => this.onSuccess('Chamada do dia excluída com sucesso!'),
+            error: (error) => this.onError(error?.error?.error || MESSAGES.DELETE_ERROR),
+            complete: () => {
+              this.loadEventCall();
+              this.loading.hide();
+            },
+          });
+        }
+      },
+    });
   }
 }

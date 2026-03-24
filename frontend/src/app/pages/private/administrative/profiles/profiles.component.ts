@@ -1,17 +1,10 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { CrudComponent } from 'app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
-import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Profile } from 'app/model/Profile';
@@ -23,24 +16,19 @@ import { ProfilesService } from './profiles.service';
   selector: 'app-profiles',
   templateUrl: './profiles.component.html',
   styleUrls: ['./profiles.component.scss'],
-  imports: [MatCardModule, MatButtonModule, NotFoundRegisterComponent, CommonModule, CrudComponent],
+  imports: [CrudComponent],
 })
 export class ProfilesComponent implements OnInit {
-  constructor(
-    private modal: ModalService,
-    private confirmModal: ConfirmService,
-    private toast: ToastService,
-    private loading: LoadingService,
-    private profilesService: ProfilesService,
-  ) {}
-
+  private modal = inject(ModalService);
+  private confirmModal = inject(ConfirmService);
+  private toast = inject(ToastService);
+  private loading = inject(LoadingService);
+  private profilesService = inject(ProfilesService);
   private authService = inject(AuthService);
-
-  profiles: Profile[] = [];
-  rendering: boolean = true;
-  dataSourceMat = new MatTableDataSource<Profile>(this.profiles);
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  private writePermission = this.authService.hasPermission('write_administrative_perfis');
+  private deletePermission = this.authService.hasPermission('delete_administrative_perfis');
+  profiles = signal<Profile[]>([]);
+  dataSourceMat = new MatTableDataSource<Profile>([]);
   columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'status', header: 'Situação', type: 'boolean' },
     { key: 'name', header: 'Cargo', type: 'string' },
@@ -52,22 +40,23 @@ export class ProfilesComponent implements OnInit {
       type: 'toggle',
       activeLabel: 'Ativar',
       inactiveLabel: 'Desativar',
-      action: (profile: Profile) => this.toggleStatus(profile),
+      action: (profile: Profile) => this.onChangeStatus(profile),
     },
     {
       type: 'edit',
       icon: 'edit',
       label: 'Editar',
-      action: (profile: Profile) => this.handleEdit(profile),
-      visible: () => this.authService.hasPermission('write_administrative_perfis'),
+      color: 'inherit',
+      action: (profile: Profile) => this.onEdit(profile),
+      visible: () => this.writePermission,
     },
     {
       type: 'delete',
       icon: 'delete',
       label: 'Excluir',
       color: 'warn',
-      action: (profile: Profile) => this.handleDelete(profile),
-      visible: () => this.authService.hasPermission('delete_administrative_perfis'),
+      action: (profile: Profile) => this.onDelete(profile),
+      visible: () => this.deletePermission,
     },
   ];
 
@@ -76,13 +65,11 @@ export class ProfilesComponent implements OnInit {
   }
 
   loadProfiles() {
-    this.profilesService.getProfiles().subscribe({
-      next: (profiles) => {
-        this.profiles = profiles;
-        this.dataSourceMat.data = this.profiles;
-        this.dataSourceMat.paginator = this.paginator;
-        this.dataSourceMat.sort = this.sort;
-        this.rendering = false;
+    this.loading.show();
+    this.profilesService.finAllProfiles().subscribe({
+      next: (profilesResp) => {
+        this.profiles.set(profilesResp);
+        this.dataSourceMat.data = profilesResp;
       },
       error: () => {
         this.loading.hide();
@@ -99,6 +86,9 @@ export class ProfilesComponent implements OnInit {
       'Adicionando um novo perfil',
       true,
       true,
+      {},
+      '',
+      true,
     );
 
     modal.afterClosed().subscribe((result) => {
@@ -108,7 +98,7 @@ export class ProfilesComponent implements OnInit {
     });
   }
 
-  handleEdit = (profile: Profile) => {
+  onEdit = (profile: Profile) => {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       ProfileComponent,
@@ -116,6 +106,8 @@ export class ProfilesComponent implements OnInit {
       true,
       true,
       { profile },
+      '',
+      true,
     );
 
     modal.afterClosed().subscribe((result) => {
@@ -125,7 +117,7 @@ export class ProfilesComponent implements OnInit {
     });
   };
 
-  handleDelete(profile: Profile) {
+  onDelete(profile: Profile) {
     const modal = this.confirmModal.openConfirm(
       'Confirmar exclusão',
       `Tem certeza que deseja excluir o perfil ${profile.name}?`,
@@ -150,15 +142,13 @@ export class ProfilesComponent implements OnInit {
     });
   }
 
-  toggleStatus(profile: Profile) {
+  onChangeStatus(profile: Profile) {
     this.loading.show();
     const updatedStatus = !profile.status;
     profile.status = updatedStatus;
 
     this.profilesService.updatedStatus(profile.id, updatedStatus).subscribe({
-      next: () => {
-        this.toast.openSuccess(`Perfil ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`);
-      },
+      next: () => this.toast.openSuccess(`Perfil ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`),
       error: () => {
         this.loading.hide();
         this.toast.openError(MESSAGES.UPDATE_ERROR);

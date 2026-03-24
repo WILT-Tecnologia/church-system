@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 
@@ -7,7 +6,6 @@ import { CrudComponent } from 'app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
-import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Suppliers } from 'app/model/Suppliers';
@@ -19,7 +17,7 @@ import { SuppliersService } from './suppliers.service';
   selector: 'app-suppliers',
   templateUrl: './suppliers.component.html',
   styleUrl: './suppliers.component.scss',
-  imports: [CrudComponent, NotFoundRegisterComponent, CommonModule],
+  imports: [CrudComponent],
 })
 export class SuppliersComponent implements OnInit {
   private readonly suppliersService = inject(SuppliersService);
@@ -28,7 +26,6 @@ export class SuppliersComponent implements OnInit {
   private readonly confirmService = inject(ConfirmService);
   private readonly toast = inject(ToastService);
   private readonly loading = inject(LoadingService);
-
   public suppliers: Suppliers[] = [];
   public dataSourceMat = new MatTableDataSource<Suppliers>();
   public columnDefinitions: ColumnDefinitionsProps[] = [

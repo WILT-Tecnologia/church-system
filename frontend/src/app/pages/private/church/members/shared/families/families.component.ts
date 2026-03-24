@@ -1,20 +1,14 @@
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Inject, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, inject, OnInit, Output, signal } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { CrudComponent } from 'app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
-import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Families } from 'app/model/Families';
-
 import { MembersService } from '../../members.service';
 import { FamiliesFormComponent } from './families-form/families-form.component';
 import { FamiliesService } from './families.service';
@@ -23,15 +17,20 @@ import { FamiliesService } from './families.service';
   selector: 'app-families',
   templateUrl: './families.component.html',
   styleUrls: ['./families.component.scss'],
-  imports: [CommonModule, NotFoundRegisterComponent, CrudComponent],
+  imports: [CrudComponent],
 })
 export class FamiliesComponent implements OnInit {
-  private _families: Families[] = [];
-  rendering: boolean = true;
-  dataSourceMat = new MatTableDataSource<Families>(this._families);
+  private confirmService = inject(ConfirmService);
+  private loading = inject(LoadingService);
+  private toast = inject(ToastService);
+  private familiesService = inject(FamiliesService);
+  private modal = inject(ModalService);
+  private membersService = inject(MembersService);
+  public data = inject(MAT_DIALOG_DATA);
+  families = signal<Families[]>([]);
+  rendering = signal(true);
+  dataSourceMat = new MatTableDataSource<Families>([]);
   @Output() familyUpdated = new EventEmitter<Families[]>();
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
   columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'is_member', header: 'A filiação é membro?', type: 'YesNo' },
     { key: 'combinedName', header: 'Nome', type: 'string' },
@@ -40,39 +39,26 @@ export class FamiliesComponent implements OnInit {
   actions: ActionsProps[] = [
     {
       type: 'edit',
-      tooltip: 'Editar filiação',
       icon: 'edit',
       label: 'Editar',
+      color: 'inherit',
       action: (family: Families) => this.handleUpdate(family),
     },
     {
       type: 'delete',
-      tooltip: 'Excluir filiação',
       icon: 'delete',
       label: 'Excluir',
       action: (family: Families) => this.handleDelete(family),
     },
   ];
 
-  constructor(
-    private confirmService: ConfirmService,
-    private loading: LoadingService,
-    private toast: ToastService,
-    private familiesService: FamiliesService,
-    private modal: ModalService,
-    private membersService: MembersService,
-    @Inject(MAT_DIALOG_DATA) public data: { families: Families[]; id: number },
-  ) {}
-
   ngOnInit() {
-    this.dataSourceMat.paginator = this.paginator;
-    this.dataSourceMat.sort = this.sort;
-    this.rendering = false;
+    this.rendering.set(false);
     this.findAll();
   }
 
   get familiesData(): Families[] {
-    return this._families;
+    return this.families();
   }
 
   private findAll = () => {
@@ -80,12 +66,13 @@ export class FamiliesComponent implements OnInit {
     const memberId = this.membersService.getEditingMemberId();
     if (memberId) {
       this.membersService.getFamilyOfMemberId(memberId).subscribe({
-        next: (families) => {
-          this._families = families.map((family) => ({
+        next: (familiesResp) => {
+          const mapped = familiesResp.map((family) => ({
             ...family,
             combinedName: family.person ? family.person.name : family.name || '',
           }));
-          this.dataSourceMat.data = this._families;
+          this.families.set(mapped);
+          this.dataSourceMat.data = mapped;
         },
         error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
         complete: () => this.loading.hide(),

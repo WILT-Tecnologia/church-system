@@ -1,7 +1,4 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { ConfirmService } from 'app/components/confirm/confirm.service';
@@ -9,7 +6,6 @@ import { CrudComponent } from 'app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
-import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Guest } from 'app/model/Guest';
@@ -21,23 +17,17 @@ import { GuestsService } from './guests.service';
   selector: 'app-guests',
   templateUrl: './guests.component.html',
   styleUrl: './guests.component.scss',
-  imports: [NotFoundRegisterComponent, CommonModule, CrudComponent],
+  imports: [CrudComponent],
 })
 export class GuestsComponent implements OnInit {
-  constructor(
-    private toast: ToastService,
-    private loading: LoadingService,
-    private confirmService: ConfirmService,
-    private modal: ModalService,
-    private guestsService: GuestsService,
-  ) {}
-
+  private toast = inject(ToastService);
+  private loading = inject(LoadingService);
+  private confirmService = inject(ConfirmService);
+  private modal = inject(ModalService);
+  private guestsService = inject(GuestsService);
   private authService = inject(AuthService);
-
-  guest: Guest[] = [];
-  dataSourceMat = new MatTableDataSource<Guest>(this.guest);
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  guest = signal<Guest[]>([]);
+  dataSourceMat = new MatTableDataSource<Guest>([]);
   columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'name', header: 'Nome', type: 'string' },
     { key: 'phone_one', header: 'Celular', type: 'phone' },
@@ -48,6 +38,7 @@ export class GuestsComponent implements OnInit {
       type: 'edit',
       icon: 'edit',
       label: 'Editar',
+      color: 'inherit',
       action: (guest: Guest) => this.handleEdit(guest),
       visible: () => this.authService.hasPermission('write_church_convidados_e_visitantes'),
     },
@@ -68,9 +59,8 @@ export class GuestsComponent implements OnInit {
   loadGuests = () => {
     this.guestsService.findAll().subscribe({
       next: (data) => {
-        this.guest = data;
-        this.dataSourceMat.paginator = this.paginator;
-        this.dataSourceMat.sort = this.sort;
+        this.guest.set(data);
+        this.dataSourceMat.data = data;
       },
       error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
       complete: () => this.loading.hide(),

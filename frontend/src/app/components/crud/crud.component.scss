@@ -104,11 +104,8 @@
   border-collapse: collapse;
   border-spacing: 0;
   width: 100%;
-  table-layout: fixed;
-
-  @media screen and (max-width: 768px) {
-    table-layout: auto;
-  }
+  min-width: 0;
+  table-layout: auto;
 }
 
 .mat-header-cell,
@@ -119,11 +116,10 @@ th {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  // border-right: 1px solid rgba(0, 0, 0, 0.12); // Adiciona a borda direita
-
-  // &:last-child {
-  //   border-right: none; // Remove a borda direita da última coluna
-  // }
+  //border-right: 1px solid rgba(0, 0, 0, 0.12);
+  //&:last-child {
+  //  border-right: none;
+  //}
 
   @media screen and (max-width: 1280px) {
     font-size: 0.7rem;

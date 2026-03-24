@@ -1,5 +1,5 @@
 ::ng-deep .cdk-overlay-container {
-  backdrop-filter: blur(0.1rem);
+  backdrop-filter: blur(0.2rem);
   background-color: rgba(0, 0, 0, 0.32);
 }
 
@@ -8,9 +8,9 @@
   max-width: 100%;
   overflow: hidden;
   transition: all 0.3s ease-in-out;
-  width: 60dvw;
-  height: auto;
-  min-width: auto;
+  width: 50dvw;
+  height: 50dvh;
+  min-width: 50dvw;
   display: flex;
   flex-direction: column;
   padding: 0;

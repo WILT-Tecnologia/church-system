@@ -475,6 +475,15 @@ export class MemberComponent implements OnInit, OnDestroy {
       this.isInitialStepCompleted.set(true);
       this.memberId = this.data.members.id;
 
+      const hasAnyDisability =
+        this.data.members.def_physical ||
+        this.data.members.def_visual ||
+        this.data.members.def_hearing ||
+        this.data.members.def_intellectual ||
+        this.data.members.def_mental ||
+        this.data.members.def_multiple ||
+        this.data.members.def_other;
+
       this.memberForm.patchValue({
         stepOne: {
           id: this.data.members.id,
@@ -491,7 +500,7 @@ export class MemberComponent implements OnInit, OnDestroy {
           formation_id: this.data.members.formation?.id || '',
           formation_course: this.data.members.formation_course || '',
           profission: this.data.members.profission || '',
-          has_disability: this.data.members.has_disability || false,
+          has_disability: this.data.members.has_disability || !!hasAnyDisability,
           def_physical: this.data.members.def_physical || false,
           def_visual: this.data.members.def_visual || false,
           def_hearing: this.data.members.def_hearing || false,
@@ -541,7 +550,7 @@ export class MemberComponent implements OnInit, OnDestroy {
     this.searchControlMemberOrigins.setValue(memberOrigin?.name || '');
   }
 
-  private onSuccessUpdate(message: string, closeDialog: boolean = false) {
+  private onSuccessUpdate(message: string, _closeDialog: boolean = false) {
     this.hideLoading();
     this.toast.openSuccess(message);
     this.dialogRef.close(true);

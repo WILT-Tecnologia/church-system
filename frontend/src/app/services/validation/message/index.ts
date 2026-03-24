@@ -23,6 +23,7 @@ export const messages = {
   invalidCnpj: 'O CNPJ informado é inválido.',
   invalidCnpjLength: 'O CNPJ deve conter 14 dígitos.',
   invalidCnpjSequence: 'O CNPJ não pode conter todos os dígitos iguais.',
+  mask: 'O valor não está seguindo o padrão do campo.',
 
   'validation.required': 'Este campo é obrigatório.',
   'validation.required_unless': 'Campo obrigatório dependendo de outra seleção.',

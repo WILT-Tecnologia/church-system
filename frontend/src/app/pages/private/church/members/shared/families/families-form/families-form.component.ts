@@ -243,7 +243,7 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
   }
 
   handleBack() {
-    this.dialogRef.close(false);
+    this.dialogRef.close();
   }
 
   handleSubmit() {

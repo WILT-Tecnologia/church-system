@@ -1,7 +1,4 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { ConfirmService } from 'app/components/confirm/confirm.service';
@@ -10,7 +7,6 @@ import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
-import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Person } from 'app/model/Person';
@@ -22,25 +18,20 @@ import { PersonsService } from './persons.service';
   selector: 'app-persons',
   templateUrl: './persons.component.html',
   styleUrls: ['./persons.component.scss'],
-  imports: [NotFoundRegisterComponent, CommonModule, CrudComponent],
+  imports: [CrudComponent],
   providers: [FormatsPipe],
 })
 export class PersonsComponent implements OnInit {
-  constructor(
-    private toast: ToastService,
-    private loading: LoadingService,
-    private confirmService: ConfirmService,
-    private modalService: ModalService,
-    private personsService: PersonsService,
-  ) {}
-
+  private toast = inject(ToastService);
+  private loading = inject(LoadingService);
+  private confirmService = inject(ConfirmService);
+  private modalService = inject(ModalService);
+  private personsService = inject(PersonsService);
   private authService = inject(AuthService);
-
-  persons: Person[] = [];
-  rendering: boolean = true;
-  dataSourceMat = new MatTableDataSource<Person>(this.persons);
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  private writePermission = this.authService.hasPermission('write_administrative_pessoas');
+  private deletePermission = this.authService.hasPermission('delete_administrative_pessoas');
+  persons = signal<Person[]>([]);
+  dataSourceMat = new MatTableDataSource<Person>([]);
   columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'name', header: 'Nome', type: 'string' },
     { key: 'cpf', header: 'CPF', type: 'cpf' },
@@ -55,16 +46,17 @@ export class PersonsComponent implements OnInit {
       type: 'edit',
       icon: 'edit',
       label: 'Editar',
-      action: (person: Person) => this.handleEdit(person),
-      visible: () => this.authService.hasPermission('write_administrative_pessoas'),
+      color: 'inherit',
+      action: (person: Person) => this.onEdit(person),
+      visible: () => this.writePermission,
     },
     {
       type: 'delete',
       icon: 'delete',
       label: 'Excluir',
       color: 'warn',
-      action: (person: Person) => this.handleDelete(person),
-      visible: () => this.authService.hasPermission('delete_administrative_pessoas'),
+      action: (person: Person) => this.onDelete(person),
+      visible: () => this.deletePermission,
     },
   ];
 
@@ -72,37 +64,36 @@ export class PersonsComponent implements OnInit {
     this.loadPersons();
   }
 
-  loadPersons = () => {
+  loadPersons() {
+    this.loading.show();
     this.personsService.getPersons().subscribe({
       next: (data) => {
-        this.persons = data;
-        this.dataSourceMat.paginator = this.paginator;
-        this.dataSourceMat.sort = this.sort;
-        this.rendering = false;
+        this.persons.set(data);
+        this.dataSourceMat.data = data;
       },
       error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
       complete: () => this.loading.hide(),
     });
-  };
+  }
 
-  onCreate = () => {
-    const dialogRef = this.modalService.openModal(
+  onCreate() {
+    const modal = this.modalService.openModal(
       `modal-${Math.random()}`,
       PersonComponent,
-      'Adicionando uma pessoa',
+      'Adicionando pessoa',
       true,
       true,
     );
 
-    dialogRef.afterClosed().subscribe((person: Person) => {
-      if (person) {
+    modal.afterClosed().subscribe((result: boolean) => {
+      if (result) {
         this.loadPersons();
       }
     });
-  };
+  }
 
-  handleEdit = (person: Person) => {
-    const dialogRef = this.modalService.openModal(
+  onEdit(person: Person) {
+    const modal = this.modalService.openModal(
       `modal-${Math.random()}`,
       PersonComponent,
       `Editando a pessoa: ${person.name}`,
@@ -111,37 +102,30 @@ export class PersonsComponent implements OnInit {
       { person },
     );
 
-    dialogRef.afterClosed().subscribe((person: Person) => {
-      if (person) {
+    modal.afterClosed().subscribe((result: boolean) => {
+      if (result) {
         this.loadPersons();
       }
     });
-  };
+  }
 
-  handleDelete = (person: Person) => {
-    this.confirmService
-      .openConfirm(
-        'Atenção',
-        `Você tem certeza que deseja excluir o registro da pessoa ${person.name}?`,
-        'Confirmar',
-        'Cancelar',
-      )
-      .afterClosed()
-      .subscribe((result) => {
-        if (result) {
-          this.loading.show();
-          this.personsService.deletePerson(person).subscribe({
-            next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
-            error: () => {
-              this.loading.hide();
-              this.toast.openError(MESSAGES.DELETE_ERROR);
-            },
-            complete: () => {
-              this.loadPersons();
-              this.loading.hide();
-            },
-          });
-        }
-      });
-  };
+  onDelete(person: Person) {
+    const modal = this.confirmService.openConfirm(
+      'Atenção',
+      `Você tem certeza que deseja excluir o registro da pessoa ${person.name}?`,
+      'Confirmar',
+      'Cancelar',
+    );
+
+    modal.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        this.loading.show();
+        this.personsService.deletePerson(person).subscribe({
+          next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
+          error: () => this.toast.openError(MESSAGES.DELETE_ERROR),
+          complete: () => this.loadPersons(),
+        });
+      }
+    });
+  }
 }

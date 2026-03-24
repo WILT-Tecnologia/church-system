@@ -68,6 +68,7 @@ export class FrequenciesComponent implements OnInit {
       type: 'edit',
       icon: 'edit',
       label: 'Editar',
+      color: 'inherit',
       action: (row: EventCall) => this.onMarkFrequency(row),
     },
   ];

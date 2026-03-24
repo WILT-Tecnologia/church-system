@@ -47,6 +47,7 @@ export class AdditionalInformationComponent implements OnInit {
     this.setupAutocomplete();
     this.onFormationChange(this.stepTwoForm.get('formation_id')?.value, this.formations);
     this.setupDefOtherConditionalValidation();
+    this.setupHasDisabilityListener();
   }
 
   initializeForm = () => {
@@ -134,5 +135,33 @@ export class AdditionalInformationComponent implements OnInit {
       defOtherDescControl?.setValidators([Validators.required, Validators.maxLength(255)]);
       defOtherDescControl?.updateValueAndValidity();
     }
+  }
+
+  private setupHasDisabilityListener() {
+    const hasDisabilityControl = this.stepTwoForm.get('has_disability');
+    const disabilityFields = [
+      'def_physical',
+      'def_visual',
+      'def_hearing',
+      'def_intellectual',
+      'def_mental',
+      'def_multiple',
+      'def_other',
+      'def_other_description',
+    ];
+
+    hasDisabilityControl?.valueChanges.subscribe((hasDisability: boolean) => {
+      if (!hasDisability) {
+        disabilityFields.forEach((field) => {
+          const control = this.stepTwoForm.get(field);
+          if (control) {
+            const defaultValue = field === 'def_other_description' ? '' : false;
+            control.setValue(defaultValue, { emitEvent: false });
+            control.clearValidators();
+            control.updateValueAndValidity({ emitEvent: false });
+          }
+        });
+      }
+    });
   }
 }

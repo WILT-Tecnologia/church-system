@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
@@ -6,7 +5,6 @@ import { CrudComponent } from 'app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
-import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { CustomerSupplier, EntryExit, FinancialTransations, Payment } from 'app/model/FinancialTransations';
@@ -18,7 +16,7 @@ import { FinancialTransactionsFormComponent } from './shared/financial-transacti
   selector: 'app-financial-transactions',
   templateUrl: './financial-transactions.component.html',
   styleUrl: './financial-transactions.component.scss',
-  imports: [CrudComponent, NotFoundRegisterComponent, CommonModule],
+  imports: [CrudComponent],
 })
 export class FinancialTransactionsComponent implements OnInit {
   private readonly financialTransactionsService = inject(FinancialTransactionsService);

@@ -21,7 +21,7 @@
           <mat-option disabled>Nenhum tipo de evento encontrado.</mat-option>
         }
       </mat-autocomplete>
-      @if (eventCallForm.get('event_id')?.invalid && eventCallForm.get('event_id')?.touched) {
+      @if (eventCallForm.get('event_id')?.invalid) {
         <mat-error>{{ getErrorMessage('event_id') }}</mat-error>
       }
     </mat-form-field>
@@ -29,7 +29,7 @@
     <mat-form-field appearance="fill">
       <mat-label>Tema</mat-label>
       <input matInput formControlName="theme" maxlength="255" />
-      @if (eventCallForm.get('theme')?.invalid && eventCallForm.get('theme')?.touched) {
+      @if (eventCallForm.get('theme')?.invalid) {
         <mat-error>{{ getErrorMessage('theme') }}</mat-error>
       }
     </mat-form-field>
@@ -45,7 +45,7 @@
           type="text"
           name="start_date"
           [matDatepicker]="start_date"
-          placeholder="dd/mm/aaaa"
+          placeholder="__/__/____"
           formControlName="start_date"
           [min]="minDate"
           required
@@ -72,7 +72,7 @@
             }
           </mat-datepicker-actions>
         </mat-datepicker>
-        @if (eventCallForm.get('start_date')?.invalid && eventCallForm.get('start_date')?.touched) {
+        @if (eventCallForm.get('start_date')?.invalid) {
           <mat-error>{{ getErrorMessage('start_date') }} </mat-error>
         }
       </mat-form-field>
@@ -80,7 +80,7 @@
       <mat-form-field appearance="fill">
         <mat-label>Hora inicial</mat-label>
         <input matInput type="time" formControlName="start_time" required placeholder="hh:mm" />
-        @if (eventCallForm.get('start_time')?.invalid && eventCallForm.get('start_time')?.touched) {
+        @if (eventCallForm.get('start_time')?.invalid) {
           <mat-error>{{ getErrorMessage('start_time') }}</mat-error>
         }
       </mat-form-field>
@@ -92,7 +92,7 @@
         <input
           matInput
           name="end_date"
-          placeholder="dd/mm/aaaa"
+          placeholder="__/__/____"
           formControlName="end_date"
           [matDatepicker]="end_date"
           [min]="minDate"
@@ -121,7 +121,7 @@
             }
           </mat-datepicker-actions>
         </mat-datepicker>
-        @if (eventCallForm.get('end_date')?.invalid && eventCallForm.get('end_date')?.touched) {
+        @if (eventCallForm.get('end_date')?.invalid) {
           <mat-error>{{ getErrorMessage('end_date') }} </mat-error>
         }
       </mat-form-field>
@@ -129,7 +129,7 @@
       <mat-form-field appearance="fill">
         <mat-label>Hora final</mat-label>
         <input matInput type="time" formControlName="end_time" required placeholder="hh:mm" />
-        @if (eventCallForm.get('end_time')?.invalid && eventCallForm.get('end_time')?.touched) {
+        @if (eventCallForm.get('end_time')?.invalid) {
           <mat-error>{{ getErrorMessage('end_time') }}</mat-error>
         }
       </mat-form-field>
@@ -140,7 +140,7 @@
     <mat-form-field appearance="fill">
       <mat-label>Local</mat-label>
       <input matInput formControlName="location" maxlength="255" />
-      @if (eventCallForm.get('location')?.invalid && eventCallForm.get('location')?.touched) {
+      @if (eventCallForm.get('location')?.invalid) {
         <mat-error>{{ getErrorMessage('location') }}</mat-error>
       }
     </mat-form-field>

@@ -22,7 +22,7 @@
           <mat-option disabled>Nenhuma igreja encontrada.</mat-option>
         }
       </mat-autocomplete>
-      @if (eventForm.get('church_id')?.invalid && eventForm.get('church_id')?.touched) {
+      @if (eventForm.get('church_id')?.invalid) {
         <mat-error>{{ getErrorMessage('church_id') }}</mat-error>
       }
     </mat-form-field>
@@ -49,10 +49,7 @@
           <mat-option disabled>Nenhum tipo de evento encontrado ou ativo.</mat-option>
         }
       </mat-autocomplete>
-      @if (
-        eventForm.get('event_type_id')?.invalid &&
-        (eventForm.get('event_type_id')?.touched || eventForm.get('event_type_id')?.dirty)
-      ) {
+      @if (eventForm.get('event_type_id')?.invalid) {
         <mat-error>{{ getErrorMessage('event_type_id') }}</mat-error>
       }
     </mat-form-field>
@@ -60,9 +57,9 @@
     <mat-form-field appearance="fill">
       <mat-label>Nome</mat-label>
       <input matInput formControlName="name" maxlength="255" required />
-      <mat-error *ngIf="eventForm.get('name')?.invalid && eventForm.get('name')?.touched"
-        >{{ getErrorMessage('name') }}
-      </mat-error>
+      @if (eventForm.get('name')?.invalid) {
+        <mat-error>{{ getErrorMessage('name') }}</mat-error>
+      }
     </mat-form-field>
   </app-column>
 
