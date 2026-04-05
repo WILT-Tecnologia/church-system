@@ -21,15 +21,15 @@ export class ModuleService {
     return this.http.get<Modules>(`${this.apiUrl}/${id}`);
   }
 
-  createModule(module: Partial<Modules>): Observable<any> {
-    return this.http.post(this.apiUrl, module);
+  createModule(module: Partial<Modules>): Observable<Modules> {
+    return this.http.post<Modules>(this.apiUrl, module);
   }
 
-  updateModule(id: string, module: Partial<Modules>): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, module);
+  updateModule(module: Modules): Observable<Modules> {
+    return this.http.put<Modules>(`${this.apiUrl}/${module.id}`, module);
   }
 
-  delete(id: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+  delete(id: string): Observable<Modules> {
+    return this.http.delete<Modules>(`${this.apiUrl}/${id}`);
   }
 }

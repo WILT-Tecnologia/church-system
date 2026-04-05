@@ -9,6 +9,7 @@
         </mat-error>
       }
     </mat-form-field>
+
     <mat-form-field appearance="fill">
       <mat-label>Grupo</mat-label>
       <mat-select formControlName="context" required>
@@ -23,11 +24,4 @@
       }
     </mat-form-field>
   </app-column>
-
-  <app-actions>
-    <button type="button" mat-stroked-button color="warn" (click)="handleBack()">Cancelar</button>
-    <button mat-flat-button color="primary" type="submit" [disabled]="moduleForm.invalid">
-      {{ isEdit() ? 'Atualizar' : 'Cadastrar' }}
-    </button>
-  </app-actions>
 </form>
