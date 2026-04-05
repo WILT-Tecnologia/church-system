@@ -4,11 +4,13 @@ import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { CrudComponent } from 'app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalAction } from 'app/components/modal/modal.component';
 import { ModalService } from 'app/components/modal/modal.service';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Profile } from 'app/model/Profile';
 import { AuthService } from 'app/services/auth/auth.service';
+import { Subject } from 'rxjs';
 import { ProfileComponent } from './profile/profile.component';
 import { ProfilesService } from './profiles.service';
 
@@ -19,14 +21,15 @@ import { ProfilesService } from './profiles.service';
   imports: [CrudComponent],
 })
 export class ProfilesComponent implements OnInit {
-  private modal = inject(ModalService);
-  private confirmModal = inject(ConfirmService);
-  private toast = inject(ToastService);
-  private loading = inject(LoadingService);
+  private modalService = inject(ModalService);
+  private confirmModalService = inject(ConfirmService);
+  private toastService = inject(ToastService);
+  private loadingService = inject(LoadingService);
   private profilesService = inject(ProfilesService);
   private authService = inject(AuthService);
   private writePermission = this.authService.hasPermission('write_administrative_perfis');
   private deletePermission = this.authService.hasPermission('delete_administrative_perfis');
+
   profiles = signal<Profile[]>([]);
   dataSourceMat = new MatTableDataSource<Profile>([]);
   columnDefinitions: ColumnDefinitionsProps[] = [
@@ -65,60 +68,104 @@ export class ProfilesComponent implements OnInit {
   }
 
   loadProfiles() {
-    this.loading.show();
     this.profilesService.finAllProfiles().subscribe({
       next: (profilesResp) => {
         this.profiles.set(profilesResp);
         this.dataSourceMat.data = profilesResp;
       },
       error: () => {
-        this.loading.hide();
-        this.toast.openError(MESSAGES.LOADING_ERROR);
+        this.loadingService.hide();
+        this.toastService.openError(MESSAGES.LOADING_ERROR);
       },
-      complete: () => this.loading.hide(),
+      complete: () => this.loadingService.hide(),
     });
   }
 
   onCreate() {
-    const modal = this.modal.openModal(
+    const submitSubject = new Subject<void>();
+    const formAction: ModalAction[] = [
+      {
+        label: 'Cancelar',
+        type: 'stroked',
+        color: 'warn',
+        icon: 'close',
+        onClick: (ref) => ref.close(),
+      },
+      {
+        label: 'Salvar',
+        type: 'flat',
+        color: 'primary',
+        icon: 'save',
+        onClick: () => submitSubject.next(),
+      },
+    ];
+
+    const modal = this.modalService.openModal(
       `modal-${Math.random()}`,
       ProfileComponent,
       'Adicionando um novo perfil',
       true,
       true,
-      {},
-      '',
-      true,
+      { submitSubject },
+      undefined,
+      false,
+      formAction,
     );
 
-    modal.afterClosed().subscribe((result) => {
+    modal.afterClosed().subscribe((result: Profile) => {
       if (result) {
-        this.loadProfiles();
+        this.profilesService.createProfile(result).subscribe({
+          next: () => this.toastService.openSuccess(MESSAGES.CREATE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.CREATE_ERROR),
+          complete: () => this.loadProfiles(),
+        });
       }
     });
   }
 
-  onEdit = (profile: Profile) => {
-    const modal = this.modal.openModal(
+  onEdit(profile: Profile) {
+    const submitSubject = new Subject<void>();
+    const formAction: ModalAction[] = [
+      {
+        label: 'Cancelar',
+        type: 'stroked',
+        color: 'warn',
+        icon: 'close',
+        onClick: (ref) => ref.close(),
+      },
+      {
+        label: 'Atualizar',
+        type: 'flat',
+        color: 'primary',
+        icon: 'save',
+        onClick: () => submitSubject.next(),
+      },
+    ];
+    const modal = this.modalService.openModal(
       `modal-${Math.random()}`,
       ProfileComponent,
       `Você está editando o perfil: ${profile.name}`,
       true,
       true,
-      { profile },
-      '',
-      true,
+      { profile, submitSubject },
+      undefined,
+      false,
+      formAction,
     );
 
-    modal.afterClosed().subscribe((result) => {
+    modal.afterClosed().subscribe((result: Profile) => {
       if (result) {
-        this.loadProfiles();
+        this.profilesService.updateProfile(result).subscribe({
+          next: () => this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
+          complete: () => this.loadProfiles(),
+        });
       }
     });
-  };
+  }
 
   onDelete(profile: Profile) {
-    const modal = this.confirmModal.openConfirm(
+    const modal = this.confirmModalService.openConfirm(
       'Confirmar exclusão',
       `Tem certeza que deseja excluir o perfil ${profile.name}?`,
       'Excluir',
@@ -128,35 +175,23 @@ export class ProfilesComponent implements OnInit {
     modal.afterClosed().subscribe((result: Profile) => {
       if (result) {
         this.profilesService.deleteProfile(profile.id).subscribe({
-          next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
-          error: () => {
-            this.loading.hide();
-            this.toast.openError(MESSAGES.DELETE_ERROR);
-          },
-          complete: () => {
-            this.loadProfiles();
-            this.loading.hide();
-          },
+          next: () => this.toastService.openSuccess(MESSAGES.DELETE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.DELETE_ERROR),
+          complete: () => this.loadProfiles(),
         });
       }
     });
   }
 
   onChangeStatus(profile: Profile) {
-    this.loading.show();
+    this.loadingService.show();
     const updatedStatus = !profile.status;
     profile.status = updatedStatus;
 
-    this.profilesService.updatedStatus(profile.id, updatedStatus).subscribe({
-      next: () => this.toast.openSuccess(`Perfil ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`),
-      error: () => {
-        this.loading.hide();
-        this.toast.openError(MESSAGES.UPDATE_ERROR);
-      },
-      complete: () => {
-        this.loadProfiles();
-        this.loading.hide();
-      },
+    this.profilesService.updatedStatus(profile).subscribe({
+      next: () => this.toastService.openSuccess(`Perfil ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`),
+      error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
+      complete: () => this.loadProfiles(),
     });
   }
 }

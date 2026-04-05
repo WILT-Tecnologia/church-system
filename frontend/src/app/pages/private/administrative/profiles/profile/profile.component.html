@@ -8,9 +8,9 @@
   <app-column>
     <mat-form-field appearance="fill">
       <mat-label>Nome</mat-label>
-      <input matInput formControlName="name" maxlength="255" required />
+      <input type="text" matInput formControlName="name" maxlength="255" required />
       @if (profileForm.get('name')?.invalid) {
-        <mat-error> >{{ getErrorMessage('name') }} </mat-error>
+        <mat-error>{{ getErrorMessage('name') }} </mat-error>
       }
     </mat-form-field>
   </app-column>
@@ -18,7 +18,7 @@
   <app-column>
     <mat-form-field appearance="fill">
       <mat-label>Descrição</mat-label>
-      <textarea matInput rows="3" formControlName="description" maxlength="255"></textarea>
+      <textarea matInput rows="4" formControlName="description" maxlength="255"></textarea>
       @if (profileForm.get('description')?.invalid) {
         <mat-error>{{ getErrorMessage('description') }} </mat-error>
       }
@@ -69,11 +69,4 @@
   } @else {
     <p>Carregando módulos...</p>
   }
-
-  <app-actions>
-    <button type="button" mat-stroked-button color="warn" (click)="handleBack()">Cancelar</button>
-    <button type="submit" mat-flat-button color="primary" [disabled]="profileForm.invalid">
-      {{ isEditMode() ? 'Atualizar' : 'Cadastrar' }}
-    </button>
-  </app-actions>
 </form>

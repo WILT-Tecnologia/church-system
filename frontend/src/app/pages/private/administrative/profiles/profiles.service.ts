@@ -13,7 +13,7 @@ import { Profile, ProfileModule } from 'app/model/Profile';
 export class ProfilesService {
   private http = inject(HttpClient);
   private api = `${environment.apiUrl}/admin/profiles`;
-  private apiUrlPermission = `${environment.apiUrl}/admin/modules`;
+  private apiUrl_modules = `${environment.apiUrl}/admin/modules`;
 
   finAllProfiles(): Observable<Profile[]> {
     return this.http.get<Profile[]>(this.api);
@@ -27,13 +27,12 @@ export class ProfilesService {
     return this.http.post<Profile>(this.api, profile);
   }
 
-  updateProfile(profileId: string, profileData: Partial<Profile>): Observable<Profile> {
-    return this.http.put<Profile>(`${this.api}/${profileId}`, profileData);
+  updateProfile(profile: Profile): Observable<Profile> {
+    return this.http.put<Profile>(`${this.api}/${profile.id}`, profile);
   }
 
-  updatedStatus(id: string, status: boolean): Observable<Profile> {
-    const statusData = { status };
-    return this.http.put<Profile>(`${this.api}/${id}`, statusData);
+  updatedStatus(profile: Profile): Observable<Profile> {
+    return this.http.put<Profile>(`${this.api}/${profile.id}`, profile);
   }
 
   deleteProfile(profileId: string): Observable<Profile> {
@@ -41,17 +40,14 @@ export class ProfilesService {
   }
 
   getPermissions(): Observable<ProfileModule[]> {
-    return this.http.get<ProfileModule[]>(this.apiUrlPermission);
+    return this.http.get<ProfileModule[]>(this.apiUrl_modules);
   }
 
   getProfilePermissions(profileId: string): Observable<ProfilePermissions[]> {
     return this.http.get<ProfilePermissions[]>(`${this.api}/${profileId}/modules`);
   }
 
-  updatePermission(profileId: string, permissionId: string, data: any): Observable<ProfileModule> {
-    return this.http.patch<ProfileModule>(
-      `${this.apiUrlPermission}/profiles/${profileId}/modules/${permissionId}`,
-      data,
-    );
+  updatePermission(profileId: string, permissionId: string, data: Partial<ProfileModule>): Observable<ProfileModule> {
+    return this.http.patch<ProfileModule>(`${this.apiUrl_modules}/profiles/${profileId}/modules/${permissionId}`, data);
   }
 }

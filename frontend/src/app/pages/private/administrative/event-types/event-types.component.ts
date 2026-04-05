@@ -1,6 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { CrudComponent } from 'app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';

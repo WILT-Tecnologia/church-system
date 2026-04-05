@@ -11,7 +11,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableModule } from '@angular/material/table';
 import { MatTreeFlatDataSource, MatTreeFlattener, MatTreeModule } from '@angular/material/tree';
-import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { MESSAGES } from 'app/components/toast/messages';
@@ -19,6 +18,7 @@ import { ToastService } from 'app/components/toast/toast.service';
 import { Modules } from 'app/model/Modules';
 import { Profile, ProfileModule } from 'app/model/Profile';
 import { ValidationService } from 'app/services/validation/validation.service';
+import { Subject, takeUntil } from 'rxjs';
 import { ModuleService } from '../../modules/modules.service';
 import { ProfilesService } from '../profiles.service';
 
@@ -50,6 +50,7 @@ interface FlatNode {
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatButtonModule,
     MatInputModule,
@@ -62,10 +63,8 @@ interface FlatNode {
     ReactiveFormsModule,
     FormsModule,
     MatTreeModule,
-    ActionsComponent,
     ColumnComponent,
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
@@ -76,13 +75,14 @@ export class ProfileComponent implements OnInit {
   private readonly profilesService = inject(ProfilesService);
   private readonly moduleService = inject(ModuleService);
   private readonly dialogRef = inject(MatDialogRef<ProfileComponent>);
-  readonly data = inject<{ profile: Profile } | undefined>(MAT_DIALOG_DATA, { optional: true });
-  readonly displayedColumns: string[] = ['name', 'can_read', 'can_write', 'can_delete'];
-  profileForm: FormGroup;
+  private readonly data: { profile: Profile; submitSubject?: Subject<void> } = inject(MAT_DIALOG_DATA);
+
+  profileForm: FormGroup = this.createForm();
   profile: Profile[] = [];
   modules: Modules[] = [];
   profileModule: ProfileModule[] = [];
   isEditMode = signal(false);
+  private destroy$ = new Subject<void>();
 
   private readonly _transformer = (node: ModuleNode, level: number): FlatNode => {
     return {
@@ -107,25 +107,33 @@ export class ProfileComponent implements OnInit {
   readonly dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
   readonly hasChild = (_: number, node: FlatNode) => node.expandable;
 
-  constructor() {
-    this.profileForm = this.createForm();
-  }
-
-  ngOnInit(): void {
+  ngOnInit() {
     this.loadModules();
-    if (this.data?.profile) {
+    if (this.data && this.data?.profile) {
       this.isEditMode.set(true);
-      this.patchProfile(this.data.profile);
+      this.profileForm.patchValue({
+        id: this.data.profile.id,
+        name: this.data.profile.name,
+        description: this.data.profile.description,
+        status: this.data.profile.status,
+      });
+    }
+
+    if (this.data?.submitSubject) {
+      this.data.submitSubject.pipe(takeUntil(this.destroy$)).subscribe(() => {
+        this.handleSubmit();
+      });
     }
   }
 
   private createForm(): FormGroup {
+    const profile = this.data?.profile;
     return this.fb.group({
-      id: [this.data?.profile?.id ?? ''],
-      name: [this.data?.profile?.name ?? '', [Validators.required, Validators.minLength(1)]],
-      description: [this.data?.profile?.description ?? '', [Validators.maxLength(255)]],
-      status: [this.data?.profile?.status ?? true],
-      guard_name: [this.data?.profile?.guard_name ?? 'sanctum'],
+      id: [profile?.id ?? ''],
+      name: [profile?.name ?? '', [Validators.required, Validators.minLength(1)]],
+      description: [profile?.description ?? '', [Validators.maxLength(255)]],
+      status: [profile?.status ?? true],
+      guard_name: [profile?.guard_name ?? 'sanctum'],
       modules: this.fb.array([]),
     });
   }
@@ -166,7 +174,6 @@ export class ProfileComponent implements OnInit {
     return expandableNodes.every((node) => this.treeControl.isExpanded(node));
   }
 
-  /** Alterna entre expandir tudo e recolher tudo */
   toggleExpandAll(): void {
     if (this.isAllExpanded) {
       this.treeControl.collapseAll();
@@ -175,8 +182,7 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  loadModules(): void {
-    this.loadingService.show();
+  private loadModules(): void {
     this.moduleService.findAll().subscribe({
       next: (allModules) => {
         this.modules = allModules;
@@ -184,7 +190,12 @@ export class ProfileComponent implements OnInit {
         if (this.isEditMode() && this.data?.profile?.id) {
           this.profilesService.getProfileById(this.data.profile.id).subscribe({
             next: (profileData) => {
-              this.patchProfile(profileData);
+              this.profileForm.patchValue({
+                id: profileData.id,
+                name: profileData.name,
+                description: profileData.description,
+                status: profileData.status,
+              });
 
               const modulesArray = Array.isArray(profileData.modules)
                 ? (profileData.modules as unknown as ProfileModuleData[])
@@ -193,7 +204,7 @@ export class ProfileComponent implements OnInit {
               this.loadingService.hide();
               this.cdr.detectChanges();
             },
-            error: () => this.onError(MESSAGES.LOADING_ERROR),
+            error: () => this.toastService.openError(MESSAGES.LOADING_ERROR),
             complete: () => this.loadingService.hide(),
           });
         } else {
@@ -210,7 +221,7 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  initModulesFormArray(profileModules: ProfileModuleData[]): void {
+  private initModulesFormArray(profileModules: ProfileModuleData[]): void {
     const modulesArray = this.modulesFormArray;
     modulesArray.clear();
 
@@ -232,7 +243,7 @@ export class ProfileComponent implements OnInit {
       treeData.push({
         name: module.name,
         children: [
-          { name: 'Visualizar registros', controlName: 'can_read', parentFormGroup: group },
+          { name: 'Ler registros', controlName: 'can_read', parentFormGroup: group },
           { name: 'Editar registros', controlName: 'can_write', parentFormGroup: group },
           { name: 'Excluir registros', controlName: 'can_delete', parentFormGroup: group },
         ],
@@ -280,63 +291,18 @@ export class ProfileComponent implements OnInit {
 
   getErrorMessage(controlName: string): string | null {
     const control = this.profileForm.get(controlName);
-    return control ? this.validationService.getErrorMessage(control) : null;
-  }
-
-  private onSuccess(message: string): void {
-    this.loadingService.hide();
-    this.toastService.openSuccess(message);
-    this.dialogRef.close(this.profileForm.value);
-  }
-
-  private onError(message: string): void {
-    this.loadingService.hide();
-    this.toastService.openError(message);
-  }
-
-  handleBack(): void {
-    this.dialogRef.close();
+    if (!control) return null;
+    return this.validationService.getErrorMessage(control);
   }
 
   handleSubmit(): void {
-    const profile = this.profileForm.value;
+    this.profileForm.markAllAsTouched();
 
-    if (!profile) {
-      return;
-    }
-
-    if (this.isEditMode()) {
-      this.handleUpdate(profile.id, profile);
+    if (this.profileForm.valid) {
+      this.dialogRef.close(this.profileForm.value);
     } else {
-      this.handleCreate(profile);
+      this.toastService.openWarning(MESSAGES.FORM_VALUES_NOT_FOUND);
     }
-  }
-
-  handleCreate(data: Profile): void {
-    this.loadingService.show();
-    this.profilesService.createProfile(data).subscribe({
-      next: () => this.onSuccess(MESSAGES.CREATE_SUCCESS),
-      error: () => this.onError(MESSAGES.CREATE_ERROR),
-      complete: () => this.loadingService.hide(),
-    });
-  }
-
-  handleUpdate(id: string, data: Profile): void {
-    this.loadingService.show();
-    this.profilesService.updateProfile(id, data).subscribe({
-      next: () => this.onSuccess(MESSAGES.UPDATE_SUCCESS),
-      error: () => this.onError(MESSAGES.UPDATE_ERROR),
-      complete: () => this.loadingService.hide(),
-    });
-  }
-
-  private patchProfile(profile: Profile): void {
-    this.profileForm.patchValue({
-      id: profile.id,
-      name: profile.name,
-      description: profile.description,
-      status: profile.status,
-    });
   }
 
   private getChildControls(node: FlatNode): FlatNode[] {
