@@ -101,36 +101,39 @@
               </div>
             }
             @case ('boolean') {
-              <span [class]="rowFields[column.key] ? 'active' : 'inactive'">
-                {{ rowFields[column.key] ? 'Ativado' : 'Desativado' }}
-              </span>
+              <app-status-badge [value]="rowFields[column.key]" />
             }
             @case ('YesNo') {
-              <span
-                [ngClass]="{
-                  no: rowFields[column.key] === false,
-                  yes: rowFields[column.key] === true,
-                }"
-              >
-                {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
-              </span>
+              <app-status-badge
+                [value]="rowFields[column.key]"
+                [configs]="[
+                  { when: true, label: 'Sim', variant: 'success' },
+                  { when: false, label: 'Não', variant: 'danger' },
+                ]"
+              />
             }
             @case ('situation') {
-              <span
-                [class]="{
-                  'status-warning': rowFields[column.key] === 'Pendente',
-                  'status-blue': rowFields[column.key] === 'Em análise',
-                  'status-success': rowFields[column.key] === 'Verificado',
-                }"
-              >
-                {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
-              </span>
+              <app-status-badge
+                [value]="rowFields[column.key]"
+                [configs]="[
+                  { when: 'Pendente', label: 'Pendente', variant: 'warning' },
+                  { when: 'Em análise', label: 'Em análise', variant: 'info' },
+                  { when: 'Verificado', label: 'Verificado', variant: 'success' },
+                ]"
+              />
             }
             @case ('currency') {
               {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
             }
             @case ('typeEntry') {
-              <app-badge-type [type]="rowFields[column.key]" />
+              <app-status-badge
+                [value]="rowFields[column.key]"
+                [configs]="[
+                  { when: 'T', label: 'Transferência', variant: 'warning' },
+                  { when: 'C', label: 'Compra', variant: 'success' },
+                  { when: 'D', label: 'Doação', variant: 'info' },
+                ]"
+              />
             }
             @case ('select') {
               {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}

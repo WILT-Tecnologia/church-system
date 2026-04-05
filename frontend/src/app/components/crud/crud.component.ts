@@ -24,13 +24,12 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule, SortDirection } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-
 import { FormatValuesPipe } from 'app/components/crud/pipes/format-values.pipe';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import { AuthService } from 'app/services/auth/auth.service';
 import { ModalService } from '../modal/modal.service';
 import { NotFoundRegisterComponent } from '../not-found-register/not-found-register.component';
-import { BadgeTypeComponent } from './shared/badge-type/badge-type.component';
+import { StatusBadgeComponent } from '../status-badge/status-badge.component';
 import {
   FilterButtonAdvancedComponent,
   FilterField,
@@ -68,15 +67,14 @@ export class HasNonToggleActionsPipe implements PipeTransform {
     FormatValuesPipe,
     HasNonToggleActionsPipe,
     FilterButtonAdvancedComponent,
-    BadgeTypeComponent,
     NotFoundRegisterComponent,
+    StatusBadgeComponent,
   ],
   providers: [FormatsPipe],
 })
 export class CrudComponent implements OnInit, AfterViewInit {
   paginator = viewChild(MatPaginator);
   sort = viewChild(MatSort);
-
   fields = input<TableField[]>([]);
   ctaLabel = input<string>('Adicionar');
   columnDefinitions = input<ColumnDefinitionsProps[]>([]);

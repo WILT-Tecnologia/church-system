@@ -1,0 +1,11 @@
+<span [class]="badgeClass()">
+  @if (!hideDot()) {
+    <span class="status-badge__dot-wrapper">
+      @if (showPing()) {
+        <span [class]="pingClass()"></span>
+      }
+      <span [class]="dotClass()"></span>
+    </span>
+  }
+  <span class="status-badge__label">{{ label() }}</span>
+</span>
