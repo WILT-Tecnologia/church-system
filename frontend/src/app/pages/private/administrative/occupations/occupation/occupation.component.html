@@ -8,7 +8,7 @@
   <app-column>
     <mat-form-field appearance="fill">
       <mat-label>Nome</mat-label>
-      <input matInput formControlName="name" maxlength="255" required />
+      <input type="text" matInput formControlName="name" maxlength="255" required />
       @if (occupationForm.get('name')?.invalid) {
         <mat-error>{{ getErrorMessage('name') }}</mat-error>
       }
@@ -24,11 +24,4 @@
       }
     </mat-form-field>
   </app-column>
-
-  <app-actions>
-    <button type="button" mat-stroked-button color="warn" (click)="handleBack()">Cancelar</button>
-    <button type="submit" mat-flat-button color="primary" [disabled]="occupationForm.invalid">
-      {{ isEditMode() ? 'Atualizar' : 'Cadastrar' }}
-    </button>
-  </app-actions>
 </form>

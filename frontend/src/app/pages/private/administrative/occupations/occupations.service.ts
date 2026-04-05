@@ -15,7 +15,7 @@ export class OccupationsService {
     return this.http.get<Occupation[]>(this.api);
   }
 
-  findOccupationById(id: string): Observable<Occupation> {
+  getOccupationById(id: string): Observable<Occupation> {
     return this.http.get<Occupation>(`${this.api}/${id}`);
   }
 
@@ -23,16 +23,15 @@ export class OccupationsService {
     return this.http.post<Occupation>(this.api, occupation);
   }
 
-  updateOccupation(occupationId: string, occupationData: Partial<Occupation>): Observable<Occupation> {
-    return this.http.put<Occupation>(`${this.api}/${occupationId}`, occupationData);
+  updateOccupation(occupationData: Partial<Occupation>): Observable<Occupation> {
+    return this.http.put<Occupation>(`${this.api}/${occupationData.id}`, occupationData);
   }
 
-  updatedStatus(id: string, status: boolean): Observable<Occupation> {
-    const statusData = { status };
-    return this.http.put<Occupation>(`${this.api}/${id}`, statusData);
+  updateStatus(occupationData: Partial<Occupation>): Observable<Occupation> {
+    return this.http.put<Occupation>(`${this.api}/${occupationData.id}`, occupationData);
   }
 
-  deleteOccupation(occupationId: string): Observable<Occupation> {
-    return this.http.delete<Occupation>(`${this.api}/${occupationId}`);
+  deleteOccupation(occupationData: Partial<Occupation>): Observable<Occupation> {
+    return this.http.delete<Occupation>(`${this.api}/${occupationData.id}`);
   }
 }

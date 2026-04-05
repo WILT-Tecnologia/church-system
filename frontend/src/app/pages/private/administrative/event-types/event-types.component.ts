@@ -172,7 +172,7 @@ export class EventTypesComponent implements OnInit {
       'Cancelar',
     );
 
-    modal.afterClosed().subscribe((result) => {
+    modal.afterClosed().subscribe((result: EventTypes) => {
       if (result) {
         this.eventTypesService.delete(eventType).subscribe({
           next: () => this.toastService.openSuccess(MESSAGES.DELETE_SUCCESS),
