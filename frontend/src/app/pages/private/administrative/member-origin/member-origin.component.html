@@ -6,6 +6,6 @@
   (add)="onCreate()"
   (toggle)="onChangeStatus($event)"
   [enableToggleStatus]="true"
-  writePermission="write_administrative_origem_do_membro"
-  deletePermission="delete_administrative_origem_do_membro"
+  [writePermission]="'write_administrative_origem_do_membro'"
+  [deletePermission]="'delete_administrative_origem_do_membro'"
 ></app-crud>

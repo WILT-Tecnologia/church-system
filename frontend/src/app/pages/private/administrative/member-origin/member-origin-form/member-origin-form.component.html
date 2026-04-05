@@ -8,8 +8,8 @@
   <app-column>
     <mat-form-field appearance="fill">
       <mat-label>Nome</mat-label>
-      <input matInput formControlName="name" />
-      @if (memberOriginForm.get('name')?.invalid) {
+      <input type="text" matInput formControlName="name" />
+      @if (memberOriginForm.get('name')?.invalid && memberOriginForm.get('name')?.touched) {
         <mat-error>{{ getErrorMessage('name') }}</mat-error>
       }
     </mat-form-field>
@@ -24,11 +24,4 @@
       }
     </mat-form-field>
   </app-column>
-
-  <app-actions>
-    <button mat-stroked-button color="warn" type="button" (click)="handleBack()">Cancelar</button>
-    <button mat-flat-button color="primary" [disabled]="memberOriginForm.invalid">
-      {{ isEditMode() ? 'Atualizar' : 'Cadastrar' }}
-    </button>
-  </app-actions>
 </form>

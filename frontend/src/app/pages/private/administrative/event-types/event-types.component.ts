@@ -22,8 +22,8 @@ import { EventTypesService } from './eventTypes.service';
   imports: [CrudComponent],
 })
 export class EventTypesComponent implements OnInit {
-  private toast = inject(ToastService);
-  private loading = inject(LoadingService);
+  private toastService = inject(ToastService);
+  private loadingService = inject(LoadingService);
   private confirmService = inject(ConfirmService);
   private modalService = inject(ModalService);
   private eventTypesService = inject(EventTypesService);
@@ -75,8 +75,8 @@ export class EventTypesComponent implements OnInit {
         this.eventTypes.set(eventTypesResp);
         this.dataSourceMat.data = eventTypesResp;
       },
-      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
-      complete: () => this.loading.hide(),
+      error: () => this.toastService.openError(MESSAGES.LOADING_ERROR),
+      complete: () => this.loadingService.hide(),
     });
   }
 
@@ -114,8 +114,8 @@ export class EventTypesComponent implements OnInit {
     modal.afterClosed().subscribe((newEventType) => {
       if (newEventType) {
         this.eventTypesService.create(newEventType).subscribe({
-          next: () => this.toast.openSuccess(MESSAGES.CREATE_SUCCESS),
-          error: () => this.toast.openError(MESSAGES.CREATE_ERROR),
+          next: () => this.toastService.openSuccess(MESSAGES.CREATE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.CREATE_ERROR),
           complete: () => this.loadEventTypes(),
         });
       }
@@ -140,6 +140,7 @@ export class EventTypesComponent implements OnInit {
         onClick: () => submitSubject.next(),
       },
     ];
+
     const modal = this.modalService.openModal(
       `modal-${Math.random()}`,
       EventTypeComponent,
@@ -154,9 +155,9 @@ export class EventTypesComponent implements OnInit {
 
     modal.afterClosed().subscribe((newEventType) => {
       if (newEventType) {
-        this.eventTypesService.update(eventType.id, newEventType).subscribe({
-          next: () => this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS),
-          error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
+        this.eventTypesService.update(newEventType).subscribe({
+          next: () => this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
           complete: () => this.loadEventTypes(),
         });
       }
@@ -174,8 +175,8 @@ export class EventTypesComponent implements OnInit {
     modal.afterClosed().subscribe((result) => {
       if (result) {
         this.eventTypesService.delete(eventType).subscribe({
-          next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
-          error: () => this.toast.openError(MESSAGES.DELETE_ERROR),
+          next: () => this.toastService.openSuccess(MESSAGES.DELETE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.DELETE_ERROR),
           complete: () => this.loadEventTypes(),
         });
       }
@@ -187,8 +188,9 @@ export class EventTypesComponent implements OnInit {
     eventType.status = updatedStatus;
 
     this.eventTypesService.updatedStatus(eventType).subscribe({
-      next: () => this.toast.openSuccess(`Tipo de evento ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`),
-      error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
+      next: () =>
+        this.toastService.openSuccess(`Tipo de evento ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`),
+      error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
       complete: () => this.loadEventTypes(),
     });
   }

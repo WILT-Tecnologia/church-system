@@ -23,8 +23,8 @@ export class EventTypesService {
     return this.http.post<EventTypes>(this.api, eventType);
   }
 
-  update(eventTypeId: string, eventTypeData: Partial<EventTypes>): Observable<EventTypes> {
-    return this.http.put<EventTypes>(`${this.api}/${eventTypeId}`, eventTypeData);
+  update(eventType: EventTypes): Observable<EventTypes> {
+    return this.http.put<EventTypes>(`${this.api}/${eventType.id}`, eventType);
   }
 
   updatedStatus(eventType: Partial<EventTypes>): Observable<EventTypes> {

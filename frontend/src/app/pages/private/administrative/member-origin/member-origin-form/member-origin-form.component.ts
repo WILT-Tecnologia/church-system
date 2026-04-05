@@ -6,13 +6,12 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { MemberOrigin } from 'app/model/MemberOrigins';
 import { ValidationService } from 'app/services/validation/validation.service';
-import { MemberOriginService } from '../member-origin.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-member-origin-form',
@@ -26,22 +25,30 @@ import { MemberOriginService } from '../member-origin.service';
     ReactiveFormsModule,
     CommonModule,
     ColumnComponent,
-    ActionsComponent,
   ],
 })
 export class MemberOriginFormComponent implements OnInit {
-  memberOriginForm!: FormGroup;
-  isEditMode = signal(false);
   private fb = inject(FormBuilder);
   private toast = inject(ToastService);
-  private memberOriginService = inject(MemberOriginService);
   private validationService = inject(ValidationService);
   private dialogRef = inject(MatDialogRef<MemberOriginFormComponent>);
-  private data = inject(MAT_DIALOG_DATA);
+  private data: { memberOrigin: MemberOrigin; submitSubject?: Subject<void> } = inject(MAT_DIALOG_DATA);
+
+  memberOriginForm!: FormGroup;
+  isEditMode = signal(false);
+  private destroy$ = new Subject<void>();
 
   ngOnInit() {
     this.memberOriginForm = this.createForm();
-    this.editMode();
+    if (this.data && this.data?.memberOrigin) {
+      this.isEditMode.set(true);
+    }
+
+    if (this.data?.submitSubject) {
+      this.data.submitSubject.pipe(takeUntil(this.destroy$)).subscribe(() => {
+        this.handleSubmit();
+      });
+    }
   }
 
   createForm() {
@@ -57,46 +64,16 @@ export class MemberOriginFormComponent implements OnInit {
 
   getErrorMessage(controlName: string) {
     const control = this.memberOriginForm.get(controlName);
-    if (control) return this.validationService.getErrorMessage(control);
-    return null;
-  }
-
-  handleBack() {
-    this.dialogRef.close();
+    if (!control) return null;
+    return this.validationService.getErrorMessage(control);
   }
 
   handleSubmit() {
-    if (!this.memberOriginForm.valid) {
-      this.toast.openError('Preencha os campos obrigatórios.');
-      return;
-    }
-    const memberOriginData: MemberOrigin = this.memberOriginForm.value;
-    if (this.isEditMode()) {
-      this.handleUpdate(memberOriginData.id, memberOriginData);
+    this.memberOriginForm.markAllAsTouched();
+    if (this.memberOriginForm.valid) {
+      this.dialogRef.close(this.memberOriginForm.value);
     } else {
-      this.handleCreate(memberOriginData);
+      this.toast.openWarning(MESSAGES.FORM_VALUES_NOT_FOUND);
     }
-  }
-
-  editMode() {
-    if (this.data && this.data?.memberOrigin) {
-      this.isEditMode.set(true);
-    }
-  }
-
-  handleCreate(memberOriginData: MemberOrigin) {
-    this.memberOriginService.create(memberOriginData).subscribe({
-      next: () => this.toast.openSuccess(MESSAGES.CREATE_SUCCESS),
-      error: () => this.toast.openError(MESSAGES.CREATE_ERROR),
-      complete: () => this.dialogRef.close(this.memberOriginForm.value),
-    });
-  }
-
-  handleUpdate(memberOriginId: string, memberOriginData: MemberOrigin) {
-    this.memberOriginService.update(memberOriginId!, memberOriginData).subscribe({
-      next: () => this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS),
-      error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
-      complete: () => this.dialogRef.close(this.memberOriginForm.value),
-    });
   }
 }

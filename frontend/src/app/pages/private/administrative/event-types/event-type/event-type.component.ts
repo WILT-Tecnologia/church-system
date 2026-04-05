@@ -9,10 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-
 import { ColorPickerControl } from '@iplab/ngx-color-picker';
-
-import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColorPickerComponent } from 'app/components/color-picker/color-picker.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { MESSAGES } from 'app/components/toast/messages';
@@ -37,14 +34,11 @@ import { Subject, takeUntil } from 'rxjs';
     MatIconModule,
     ReactiveFormsModule,
     ColumnComponent,
-    ActionsComponent,
     ColorPickerComponent,
     CommonModule,
   ],
 })
 export class EventTypeComponent implements OnInit {
-  constructor() {}
-
   private fb = inject(FormBuilder);
   private toast = inject(ToastService);
   private validationService = inject(ValidationService);
@@ -58,8 +52,11 @@ export class EventTypeComponent implements OnInit {
   private destroy$ = new Subject<void>();
 
   ngOnInit() {
-    this.modeEdit();
-    this.chromeControl.setValueFrom(this.eventTypeForm.get('color')?.value || '#ffffff');
+    if (this.data && this.data.eventType) {
+      this.isEditMode.set(true);
+      this.eventTypeForm.patchValue(this.data.eventType);
+      this.chromeControl.setValueFrom(this.data.eventType.color || '#ffffff');
+    }
 
     if (this.data?.submitSubject) {
       this.data.submitSubject.pipe(takeUntil(this.destroy$)).subscribe(() => {
@@ -69,22 +66,22 @@ export class EventTypeComponent implements OnInit {
   }
 
   private createForm() {
+    const eventType = this.data?.eventType;
+
     return this.fb.group({
-      id: [this.data?.eventType?.id || ''],
-      name: [
-        this.data?.eventType?.name || '',
-        [Validators.required, Validators.minLength(3), Validators.maxLength(255)],
-      ],
-      description: [this.data?.eventType?.description || '', [Validators.maxLength(255)]],
-      status: [this.data?.eventType?.status || true],
-      color: [this.data?.eventType?.color || '#ffffff'],
-      updated_at: [this.data?.eventType?.updated_at || ''],
+      id: [eventType?.id ?? ''],
+      name: [eventType?.name ?? '', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
+      description: [eventType?.description ?? '', [Validators.maxLength(255)]],
+      status: [eventType?.status ?? true],
+      color: [eventType?.color ?? '#ffffff'],
+      updated_at: [eventType?.updated_at ?? ''],
     });
   }
 
   getErrorMessage(controlName: string) {
     const control = this.eventTypeForm.get(controlName);
-    return control ? this.validationService.getErrorMessage(control) : null;
+    if (!control) return null;
+    return this.validationService.getErrorMessage(control);
   }
 
   toggleColorPicker(event: MouseEvent) {
@@ -108,14 +105,6 @@ export class EventTypeComponent implements OnInit {
       this.dialogRef?.close(this.eventTypeForm.value);
     } else {
       this.toast.openWarning(MESSAGES.FORM_VALUES_NOT_FOUND);
-    }
-  }
-
-  private modeEdit() {
-    if (this.data && this.data.eventType) {
-      this.isEditMode.set(true);
-      this.eventTypeForm.patchValue(this.data.eventType);
-      this.chromeControl.setValueFrom(this.data.eventType.color || '#ffffff');
     }
   }
 }
