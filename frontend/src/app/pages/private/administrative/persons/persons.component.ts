@@ -3,14 +3,15 @@ import { MatTableDataSource } from '@angular/material/table';
 
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { CrudComponent } from 'app/components/crud/crud.component';
-import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalAction } from 'app/components/modal/modal.component';
 import { ModalService } from 'app/components/modal/modal.service';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Person } from 'app/model/Person';
 import { AuthService } from 'app/services/auth/auth.service';
+import { Subject } from 'rxjs';
 import { PersonComponent } from './person/person.component';
 import { PersonsService } from './persons.service';
 
@@ -19,7 +20,6 @@ import { PersonsService } from './persons.service';
   templateUrl: './persons.component.html',
   styleUrls: ['./persons.component.scss'],
   imports: [CrudComponent],
-  providers: [FormatsPipe],
 })
 export class PersonsComponent implements OnInit {
   private toast = inject(ToastService);
@@ -30,6 +30,7 @@ export class PersonsComponent implements OnInit {
   private authService = inject(AuthService);
   private writePermission = this.authService.hasPermission('write_administrative_pessoas');
   private deletePermission = this.authService.hasPermission('delete_administrative_pessoas');
+
   persons = signal<Person[]>([]);
   dataSourceMat = new MatTableDataSource<Person>([]);
   columnDefinitions: ColumnDefinitionsProps[] = [
@@ -77,34 +78,85 @@ export class PersonsComponent implements OnInit {
   }
 
   onCreate() {
+    const submitSubject = new Subject<void>();
+    const formAction: ModalAction[] = [
+      {
+        label: 'Cancelar',
+        type: 'stroked',
+        color: 'warn',
+        icon: 'close',
+        onClick: (ref) => ref.close(),
+      },
+      {
+        label: 'Salvar',
+        type: 'flat',
+        color: 'primary',
+        icon: 'save',
+        onClick: () => submitSubject.next(),
+      },
+    ];
+
     const modal = this.modalService.openModal(
       `modal-${Math.random()}`,
       PersonComponent,
       'Adicionando pessoa',
       true,
       true,
+      { submitSubject },
+      undefined,
+      false,
+      formAction,
     );
 
-    modal.afterClosed().subscribe((result: boolean) => {
-      if (result) {
-        this.loadPersons();
+    modal.afterClosed().subscribe((person: Person) => {
+      if (person) {
+        this.personsService.createPerson(person).subscribe({
+          next: () => this.toast.openSuccess(MESSAGES.CREATE_SUCCESS),
+          error: () => this.toast.openError(MESSAGES.CREATE_ERROR),
+          complete: () => this.loadPersons(),
+        });
       }
     });
   }
 
   onEdit(person: Person) {
+    const submitSubject = new Subject<void>();
+    const formAction: ModalAction[] = [
+      {
+        label: 'Cancelar',
+        type: 'stroked',
+        color: 'warn',
+        icon: 'close',
+        onClick: (ref) => ref.close(),
+      },
+      {
+        label: 'Atualizar',
+        type: 'flat',
+        color: 'primary',
+        icon: 'save',
+        onClick: () => submitSubject.next(),
+      },
+    ];
+
     const modal = this.modalService.openModal(
       `modal-${Math.random()}`,
       PersonComponent,
       `Editando a pessoa: ${person.name}`,
       true,
       true,
-      { person },
+      { person, submitSubject },
+      undefined,
+      false,
+      formAction,
     );
 
-    modal.afterClosed().subscribe((result: boolean) => {
-      if (result) {
-        this.loadPersons();
+    modal.afterClosed().subscribe((person: Person) => {
+      if (person) {
+        this.personsService.updatePerson(person).subscribe({
+          next: () => this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS),
+          error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
+          complete: () => this.loadPersons(),
+        });
       }
     });
   }

@@ -1,20 +1,23 @@
 import { Component, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import {
-  MAT_SNACK_BAR_DATA,
-  MatSnackBarRef,
-} from '@angular/material/snack-bar';
+import { MAT_SNACK_BAR_DATA, MatSnackBarRef } from '@angular/material/snack-bar';
+
+interface ToastData {
+  message: string;
+  icon: string;
+  action: string;
+}
 
 @Component({
-    selector: 'app-toast',
-    templateUrl: './toast.component.html',
-    styleUrl: './toast.component.scss',
-    imports: [MatIconModule, MatButtonModule]
+  selector: 'app-toast',
+  templateUrl: './toast.component.html',
+  styleUrl: './toast.component.scss',
+  imports: [MatIconModule, MatButtonModule],
 })
 export class ToastComponent {
   constructor(
-    @Inject(MAT_SNACK_BAR_DATA) public data: any,
+    @Inject(MAT_SNACK_BAR_DATA) public data: ToastData,
     private snackBarRef: MatSnackBarRef<ToastComponent>,
   ) {}
 

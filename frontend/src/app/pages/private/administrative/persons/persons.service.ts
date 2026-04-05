@@ -25,13 +25,13 @@ export class PersonsService {
     return this.http.post<Person>(this.api, person);
   }
 
-  updatePerson(personId: string, personData: Partial<Person>): Observable<Person> {
+  updatePerson(person: Person): Observable<Person> {
     const sanitizedData = {
-      ...personData,
-      sex: this.formats.SexTransform(personData.sex ?? '', 'toModel'),
+      ...person,
+      sex: this.formats.SexTransform(person.sex ?? '', 'toModel'),
     };
 
-    return this.http.put<Person>(`${this.api}/${personId}`, sanitizedData);
+    return this.http.put<Person>(`${this.api}/${person.id}`, sanitizedData);
   }
 
   deletePerson(person: Person): Observable<Person> {

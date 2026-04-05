@@ -1,4 +1,4 @@
-<div [ngClass]="{ fullscreen: isFullscreen, 'responsive-modal': true }" class="mat-dialog-container">
+<div [class.fullscreen]="isFullscreen" class="mat-dialog-container">
   <div class="wrapper">
     <!-- HEADER -->
     <div class="header">
@@ -36,5 +36,140 @@
         <ng-container *ngComponentOutlet="data.customContent"></ng-container>
       }
     </div>
+
+    <!-- Footer com Actions -->
+    @if (data.actions && data.actions.length > 0) {
+      <mat-divider></mat-divider>
+      <div class="footer">
+        @for (action of data.actions; track action.label) {
+          @switch (action.type) {
+            @case ('basic') {
+              <button
+                mat-button
+                [color]="action.color"
+                [disabled]="action.disabled"
+                [matTooltip]="action.tooltip || ''"
+                (click)="handleAction(action)"
+                type="button"
+              >
+                @if (action.icon) {
+                  <mat-icon>{{ action.icon }}</mat-icon>
+                }
+                {{ action.label }}
+              </button>
+            }
+
+            @case ('raised') {
+              <button
+                mat-raised-button
+                [color]="action.color"
+                [disabled]="action.disabled"
+                [matTooltip]="action.tooltip || ''"
+                (click)="handleAction(action)"
+                type="button"
+              >
+                @if (action.icon) {
+                  <mat-icon>{{ action.icon }}</mat-icon>
+                }
+                {{ action.label }}
+              </button>
+            }
+
+            @case ('stroked') {
+              <button
+                mat-stroked-button
+                [color]="action.color"
+                [disabled]="action.disabled"
+                [matTooltip]="action.tooltip || ''"
+                (click)="handleAction(action)"
+                type="button"
+              >
+                @if (action.icon) {
+                  <mat-icon>{{ action.icon }}</mat-icon>
+                }
+                {{ action.label }}
+              </button>
+            }
+
+            @case ('flat') {
+              <button
+                mat-flat-button
+                [color]="action.color"
+                [disabled]="action.disabled"
+                [matTooltip]="action.tooltip || ''"
+                (click)="handleAction(action)"
+                type="button"
+              >
+                @if (action.icon) {
+                  <mat-icon>{{ action.icon }}</mat-icon>
+                }
+                {{ action.label }}
+              </button>
+            }
+
+            @case ('icon') {
+              <button
+                mat-icon-button
+                [color]="action.color"
+                [disabled]="action.disabled"
+                [matTooltip]="action.tooltip || action.label"
+                (click)="handleAction(action)"
+                type="button"
+              >
+                <mat-icon>{{ action.icon }}</mat-icon>
+              </button>
+            }
+
+            @case ('fab') {
+              <button
+                mat-fab
+                [color]="action.color"
+                [disabled]="action.disabled"
+                [matTooltip]="action.tooltip || ''"
+                (click)="handleAction(action)"
+                type="button"
+              >
+                @if (action.icon) {
+                  <mat-icon>{{ action.icon }}</mat-icon>
+                }
+                @if (action.label) {
+                  <span>{{ action.label }}</span>
+                }
+              </button>
+            }
+
+            @case ('mini-fab') {
+              <button
+                mat-mini-fab
+                [color]="action.color"
+                [disabled]="action.disabled"
+                [matTooltip]="action.tooltip || action.label"
+                (click)="handleAction(action)"
+                type="button"
+              >
+                <mat-icon>{{ action.icon }}</mat-icon>
+              </button>
+            }
+
+            @case ('extended-fab') {
+              <button
+                mat-fab
+                extended
+                [color]="action.color"
+                [disabled]="action.disabled"
+                [matTooltip]="action.tooltip || ''"
+                (click)="handleAction(action)"
+                type="button"
+              >
+                @if (action.icon) {
+                  <mat-icon>{{ action.icon }}</mat-icon>
+                }
+                {{ action.label }}
+              </button>
+            }
+          }
+        }
+      </div>
+    }
   </div>
 </div>

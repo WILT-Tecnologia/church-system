@@ -34,4 +34,17 @@ export const messages = {
   'validation.numeric': 'O valor deve ser numérico.',
   'validation.email': 'O e-mail informado não é válido.',
   'validation.unique': 'Este registro já existe no sistema.',
+  'validation.password':
+    'A senha deve ter pelo menos uma letra maiúscula, uma minúscula, um número e um caracter especial (@,$,!,%,*,?,&).',
+  'validation.phone': 'O telefone informado é inválido.',
+  'validation.phoneLength': 'O telefone deve ter 10 ou 11 dígitos.',
+  'validation.phoneStart': 'O telefone com 11 dígitos deve começar com 9.',
+  'validation.phoneSequence': 'O telefone não pode ter todos os dígitos iguais.',
+  'validation.cpf': 'O CPF informado é inválido.',
+  'validation.cpfLength': 'O CPF deve conter 11 dígitos.',
+  'validation.cpfSequence': 'O CPF não pode conter todos os dígitos iguais.',
+  'validation.cnpj': 'O CNPJ informado é inválido.',
+  'validation.cnpjLength': 'O CNPJ deve conter 14 dígitos.',
+  'validation.cnpjSequence': 'O CNPJ não pode conter todos os dígitos iguais.',
+  'validation.mask': 'O valor não está seguindo o padrão do campo.',
 };

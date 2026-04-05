@@ -4,12 +4,13 @@ import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { CrudComponent } from 'app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalAction } from 'app/components/modal/modal.component';
 import { ModalService } from 'app/components/modal/modal.service';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Church } from 'app/model/Church';
 import { AuthService } from 'app/services/auth/auth.service';
-import { NotificationService } from 'app/services/notification/notification.service';
+import { Subject } from 'rxjs';
 import { ChurchComponent } from './church/church.component';
 import { ChurchesService } from './churches.service';
 
@@ -26,7 +27,8 @@ export class ChurchesComponent implements OnInit {
   private loading = inject(LoadingService);
   private confirmService = inject(ConfirmService);
   private modalService = inject(ModalService);
-  private notification = inject(NotificationService);
+  private writePermission = this.authService.hasPermission('write_administrative_igrejas');
+  private deletePermission = this.authService.hasPermission('delete_administrative_igrejas');
 
   churchs = signal<Church[]>([]);
   dataSourceMat = new MatTableDataSource<Church>([]);
@@ -45,7 +47,7 @@ export class ChurchesComponent implements OnInit {
       label: 'Editar',
       color: 'inherit',
       action: (church: Church) => this.onEdit(church),
-      visible: () => this.authService.hasPermission('write_administrative_igrejas'),
+      visible: () => this.writePermission,
     },
     {
       type: 'delete',
@@ -53,7 +55,7 @@ export class ChurchesComponent implements OnInit {
       label: 'Excluir',
       color: 'warn',
       action: (church: Church) => this.onDelete(church),
-      visible: () => this.authService.hasPermission('delete_administrative_igrejas'),
+      visible: () => this.deletePermission,
     },
   ];
 
@@ -64,9 +66,9 @@ export class ChurchesComponent implements OnInit {
   private loadChurch() {
     this.loading.show();
     this.churchsService.getChurches().subscribe({
-      next: (churchsResp) => {
-        this.churchs.set(churchsResp);
-        this.dataSourceMat.data = churchsResp;
+      next: (churches) => {
+        this.churchs.set(churches);
+        this.dataSourceMat.data = churches;
       },
       error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
       complete: () => this.loading.hide(),
@@ -74,51 +76,102 @@ export class ChurchesComponent implements OnInit {
   }
 
   onCreate() {
-    const dialogRef = this.modalService.openModal(
+    const submitSubject = new Subject<void>();
+    const formAction: ModalAction[] = [
+      {
+        label: 'Cancelar',
+        type: 'stroked',
+        color: 'warn',
+        icon: 'close',
+        onClick: (ref) => ref.close(),
+      },
+      {
+        label: 'Salvar',
+        type: 'flat',
+        color: 'primary',
+        icon: 'save',
+        onClick: () => submitSubject.next(),
+      },
+    ];
+
+    const modal = this.modalService.openModal(
       `modal-${Math.random()}`,
       ChurchComponent,
       'Adicionando uma igreja',
       true,
       true,
+      { submitSubject },
+      undefined,
+      false,
+      formAction,
     );
 
-    dialogRef.afterClosed().subscribe((church: Church) => {
+    modal.afterClosed().subscribe((church: Church) => {
       if (church) {
-        this.loadChurch();
+        this.churchsService.createChurch(church).subscribe({
+          next: () => this.toast.openSuccess(MESSAGES.CREATE_SUCCESS),
+          error: () => this.toast.openError(MESSAGES.CREATE_ERROR),
+          complete: () => this.loadChurch(),
+        });
       }
     });
   }
 
   private onEdit(church: Church) {
-    const dialogRef = this.modalService.openModal(
+    const submitSubject = new Subject<void>();
+    const formAction: ModalAction[] = [
+      {
+        label: 'Cancelar',
+        type: 'stroked',
+        color: 'warn',
+        icon: 'close',
+        onClick: (ref) => ref.close(),
+      },
+      {
+        label: 'Atualizar',
+        type: 'flat',
+        color: 'primary',
+        icon: 'save',
+        onClick: () => submitSubject.next(),
+      },
+    ];
+
+    const modal = this.modalService.openModal(
       `modal-${Math.random()}`,
       ChurchComponent,
       `Editando a igreja: ${church.name}`,
       true,
       true,
-      { church },
+      { church, submitSubject },
+      undefined,
+      false,
+      formAction,
     );
 
-    dialogRef.afterClosed().subscribe((church: Church) => {
+    modal.afterClosed().subscribe((church: Church) => {
       if (church) {
-        this.loadChurch();
+        this.churchsService.updateChurch(church).subscribe({
+          next: () => this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS),
+          error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
+          complete: () => this.loadChurch(),
+        });
       }
     });
   }
 
   private onDelete(church: Church) {
-    const dialogRef = this.confirmService.openConfirm(
+    const modal = this.confirmService.openConfirm(
       'Atenção',
       `Você tem certeza que deseja excluir a igreja ${church.name}?`,
       'Confirmar',
       'Cancelar',
     );
 
-    dialogRef.afterClosed().subscribe((result) => {
+    modal.afterClosed().subscribe((result) => {
       if (result) {
         this.churchsService.deleteChurch(church).subscribe({
-          next: () => this.notification.onSuccess(MESSAGES.DELETE_SUCCESS),
-          error: () => this.notification.onError(MESSAGES.DELETE_ERROR),
+          next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
+          error: () => this.toast.openError(MESSAGES.DELETE_ERROR),
           complete: () => this.loadChurch(),
         });
       }

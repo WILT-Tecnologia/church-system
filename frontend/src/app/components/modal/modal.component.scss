@@ -15,6 +15,11 @@
   flex-direction: column;
   padding: 0;
 
+  @media screen and (max-width: 768px) {
+    height: 95dvh;
+    width: 95dvw;
+  }
+
   &.fullscreen {
     border-radius: 0;
     height: 100vh;
@@ -126,4 +131,27 @@
   font-size: 1rem;
   font-weight: 600;
   padding: 0 0.5rem;
+}
+
+.footer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  background-color: var(--neutral-light);
+  flex-shrink: 0;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+
+  @media screen and (max-width: 480px) {
+    flex-wrap: wrap;
+    flex-direction: column-reverse;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.5rem;
+
+    button {
+      width: 100%;
+    }
+  }
 }

@@ -1,6 +1,6 @@
-<mat-tab-group>
-  <mat-tab label="Identificação">
-    <form [formGroup]="churchForm" (ngSubmit)="handleNext()" class="form-field-group">
+<form [formGroup]="churchForm" (ngSubmit)="handleSubmit()" class="form-field-group">
+  <mat-tab-group>
+    <mat-tab label="Identificação">
       <app-column [columns]="2">
         <mat-form-field appearance="fill">
           <mat-label>Pastor/Dirigente responsável</mat-label>
@@ -14,13 +14,13 @@
             required
           />
           <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onResponsibleSelected($event)">
-            @for (responsible of filterResponsable | async; track $index) {
+            @for (responsible of filterResponsable() | async; track $index) {
               <mat-option [value]="responsible">
                 {{ responsible.name }}
               </mat-option>
             }
           </mat-autocomplete>
-          @if (churchForm.get('responsible_id')?.invalid) {
+          @if (searchResponsibleControl.invalid && searchResponsibleControl.touched) {
             <mat-error>{{ getErrorMessage('responsible_id') }}</mat-error>
           }
         </mat-form-field>
@@ -49,16 +49,9 @@
           }
         </mat-form-field>
       </app-column>
+    </mat-tab>
 
-      <app-actions>
-        <button mat-stroked-button type="button" color="warn" (click)="handleCancel()">Cancelar</button>
-        <button mat-flat-button type="submit" color="primary">Avançar</button>
-      </app-actions>
-    </form>
-  </mat-tab>
-
-  <mat-tab label="Endereço">
-    <form [formGroup]="churchForm" (ngSubmit)="handleSubmit()" class="form-field-group">
+    <mat-tab label="Endereço">
       <app-column [columns]="3">
         <mat-form-field appearance="fill">
           <mat-label>CEP</mat-label>
@@ -126,13 +119,6 @@
           }
         </mat-form-field>
       </app-column>
-
-      <app-actions>
-        <button mat-stroked-button type="button" color="warn" (click)="handleBack()">Voltar</button>
-        <button mat-flat-button type="submit" color="primary" [disabled]="churchForm.invalid">
-          {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
-        </button>
-      </app-actions>
-    </form>
-  </mat-tab>
-</mat-tab-group>
+    </mat-tab>
+  </mat-tab-group>
+</form>

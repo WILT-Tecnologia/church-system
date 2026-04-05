@@ -1,6 +1,10 @@
 @mixin autocomplete-theme() {
   .mat-mdc-option {
-    background-color: transparent !important;
+    background-color: var(--transparent-color) !important;
+  }
+
+  .mdc-list-item--selected {
+    background-color: var(--neutral-light-2) !important;
   }
 
   .mdc-list-item--selected,

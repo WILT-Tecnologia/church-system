@@ -18,12 +18,14 @@
 
   --primary-color: #{mat.get-theme-color(theme.$light-theme, primary, 50)};
   --primary-color-light: #{mat.get-theme-color(theme.$light-theme, primary, 90)};
+  --primary-color-light-2: #{mat.get-theme-color(theme.$light-theme, primary, 95)};
   --primary-color-dark: #{mat.get-theme-color(theme.$light-theme, primary, 40)};
   --secondary-color: #{mat.get-theme-color(theme.$light-theme, secondary)};
   --tertiary-color: #{mat.get-theme-color(theme.$light-theme, tertiary)};
   --neutral-40: #{mat.get-theme-color(theme.$light-theme, neutral, 40)};
   --neutral-50: #{mat.get-theme-color(theme.$light-theme, neutral, 50)};
   --neutral-light: #{mat.get-theme-color(theme.$light-theme, neutral, 95)};
+  --neutral-light-2: #{mat.get-theme-color(theme.$light-theme, neutral, 90)};
   --grey-very-light: #{theme.$greyVeryLight};
   --grey-light: #{theme.$greyLight};
   --grey-main: #{theme.$greyMain};
@@ -164,7 +166,7 @@ body {
 
 .custom-snackbar {
   .mat-mdc-snack-bar-container .mdc-snackbar__surface {
-    border-radius: 0.8rem !important;
+    border-radius: 1rem !important;
   }
 
   .mat-mdc-button.mat-mdc-snack-bar-action {
@@ -175,6 +177,7 @@ body {
 .snackbar-success {
   .mdc-snackbar__surface {
     background-color: var(--success-color) !important;
+    border-radius: 1rem !important;
   }
 
   .mdc-snackbar__label {
@@ -185,6 +188,7 @@ body {
 .snackbar-error {
   .mdc-snackbar__surface {
     background-color: var(--danger-color) !important;
+    border-radius: 1rem !important;
   }
 
   .mdc-snackbar__label {
@@ -195,6 +199,7 @@ body {
 .snackbar-warning {
   .mdc-snackbar__surface {
     background-color: var(--warning-color) !important;
+    border-radius: 1rem !important;
   }
 
   .mdc-snackbar__label {
@@ -432,7 +437,7 @@ mat-form-field {
 .mat-mdc-fab,
 .mat-mdc-mini-fab,
 .mat-expansion-panel {
-  border-radius: 0.2rem !important;
+  border-radius: 0.5rem !important;
 }
 
 .mat-mdc-card-outlined,

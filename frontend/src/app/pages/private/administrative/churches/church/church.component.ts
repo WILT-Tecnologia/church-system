@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,11 +12,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
-import { debounceTime, distinctUntilChanged, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
-
-import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
-
-import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { MESSAGES } from 'app/components/toast/messages';
@@ -24,13 +19,12 @@ import { ToastService } from 'app/components/toast/toast.service';
 import { Address } from 'app/model/Address';
 import { Church } from 'app/model/Church';
 import { Person } from 'app/model/Person';
-import { NotificationService } from 'app/services/notification/notification.service';
-import { SanitizeValuesService } from 'app/services/sanitize/sanitize-values.service';
 import { CepService } from 'app/services/search-cep/search-cep.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 import { cnpjValidator } from 'app/services/validators/cnpj-validator';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
+import { debounceTime, distinctUntilChanged, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
 import { PersonsService } from '../../persons/persons.service';
-import { ChurchesService } from '../churches.service';
 
 @Component({
   selector: 'app-church',
@@ -52,44 +46,50 @@ import { ChurchesService } from '../churches.service';
     ReactiveFormsModule,
     CommonModule,
     ColumnComponent,
-    ActionsComponent,
   ],
   providers: [provideNgxMask()],
 })
 export class ChurchComponent implements OnInit, OnDestroy {
-  constructor(
-    private personService: PersonsService,
-    private churchesService: ChurchesService,
-    private fb: FormBuilder,
-    private toast: ToastService,
-    private cepService: CepService,
-    private loading: LoadingService,
-    private validationService: ValidationService,
-    private sanitize: SanitizeValuesService,
-    private notificationService: NotificationService,
-    private dialogRef: MatDialogRef<ChurchComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { church: Church },
-  ) {
-    this.churchForm = this.createForm();
-  }
+  constructor() {}
 
-  churchForm: FormGroup;
-  church: Church[] = [];
-  responsible: Person[] = [];
-  isEditMode: boolean = false;
+  private personService = inject(PersonsService);
+  private fb = inject(FormBuilder);
+  private toast = inject(ToastService);
+  private cepService = inject(CepService);
+  private loading = inject(LoadingService);
+  private validationService = inject(ValidationService);
+  private dialogRef = inject(MatDialogRef<ChurchComponent>);
+  private data: { church: Church; submitSubject?: Subject<void> } = inject(MAT_DIALOG_DATA);
 
-  searchResponsibleControl = new FormControl('');
-  filterResponsable: Observable<Person[]> = new Observable<Person[]>();
+  churchForm: FormGroup = this.createForm();
+  church = signal<Church[]>([]);
+  responsible = signal<Person[]>([]);
+  isEditMode = signal(false);
+
+  searchResponsibleControl = new FormControl<string>('', [Validators.required]);
+  filterResponsable = signal<Observable<Person[]>>(new Observable<Person[]>());
 
   private destroy$ = new Subject<void>();
-  @ViewChild(MatDatepicker) picker!: MatDatepicker<Date>;
-  @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;
+  picker = viewChild(MatDatepicker);
+  tabGroup = viewChild(MatTabGroup);
 
   ngOnInit() {
     this.checkEditMode();
     this.loadResponsibles();
     this.initialSearchCep();
     this.initialFilterResponsibles();
+
+    this.searchResponsibleControl.valueChanges.subscribe((value) => {
+      if (!value) {
+        this.churchForm.get('responsible_id')?.setValue(null);
+      }
+    });
+
+    if (this.data?.submitSubject) {
+      this.data.submitSubject.pipe(takeUntil(this.destroy$)).subscribe(() => {
+        this.handleSubmit();
+      });
+    }
   }
 
   ngOnDestroy(): void {
@@ -118,7 +118,7 @@ export class ChurchComponent implements OnInit, OnDestroy {
   private loadResponsibles() {
     this.personService.getPersons().subscribe({
       next: (res) => {
-        this.responsible = res;
+        this.responsible.set(res);
       },
       error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
       complete: () => this.loading.hide(),
@@ -127,7 +127,7 @@ export class ChurchComponent implements OnInit, OnDestroy {
 
   private checkEditMode() {
     if (this.data?.church) {
-      this.isEditMode = true;
+      this.isEditMode.set(true);
 
       if (this.data?.church?.responsible) {
         this.searchResponsibleControl.setValue(this.data.church.responsible.name);
@@ -142,36 +142,40 @@ export class ChurchComponent implements OnInit, OnDestroy {
   }
 
   showAllResponsibles() {
-    this.filterResponsable = this.searchResponsibleControl.valueChanges.pipe(
-      startWith(''),
-      map((value: any) => {
-        if (typeof value === 'string') {
-          return value;
-        } else {
-          return value ? value.name : '';
-        }
-      }),
-      map((name) => (name.length >= 1 ? this._filterResponsables(name) : this.responsible)),
+    this.filterResponsable.set(
+      this.searchResponsibleControl.valueChanges.pipe(
+        startWith(''),
+        map((value: any) => {
+          if (typeof value === 'string') {
+            return value;
+          } else {
+            return value ? value.name : '';
+          }
+        }),
+        map((name) => (name.length >= 1 ? this._filterResponsables(name) : this.responsible())),
+      ),
     );
   }
 
   private initialFilterResponsibles() {
-    this.filterResponsable = this.searchResponsibleControl.valueChanges.pipe(
-      startWith(''),
-      map((value: any) => {
-        if (typeof value === 'string') {
-          return value;
-        } else {
-          return value ? value.name : '';
-        }
-      }),
-      map((name) => (name.length >= 1 ? this._filterResponsables(name) : this.responsible)),
+    this.filterResponsable.set(
+      this.searchResponsibleControl.valueChanges.pipe(
+        startWith(''),
+        map((value: any) => {
+          if (typeof value === 'string') {
+            return value;
+          } else {
+            return value ? value.name : '';
+          }
+        }),
+        map((name) => (name.length >= 1 ? this._filterResponsables(name) : this.responsible())),
+      ),
     );
   }
 
   private _filterResponsables(name: string): Person[] {
     const filterValue = name.toLowerCase();
-    return this.responsible.filter((responsible) => responsible.name.toLowerCase().includes(filterValue));
+    return this.responsible().filter((responsible) => responsible.name.toLowerCase().includes(filterValue));
   }
 
   onResponsibleSelected(event: MatAutocompleteSelectedEvent) {
@@ -187,79 +191,33 @@ export class ChurchComponent implements OnInit, OnDestroy {
 
   handleSubmit() {
     this.churchForm.markAllAsTouched();
+    this.searchResponsibleControl.markAsTouched();
 
-    if (this.churchForm.invalid) {
-      return;
-    }
-
-    const church = this.churchForm.value;
-
-    if (!church) {
-      return;
-    }
-
-    const sanitizeChurchValues = this.sanitize.sanitizeInput(church);
-
-    if (this.isEditMode) {
-      this.handleUpdate(sanitizeChurchValues.id, sanitizeChurchValues);
+    if (this.churchForm.valid) {
+      this.dialogRef?.close(this.churchForm.value);
     } else {
-      this.handleCreate(sanitizeChurchValues);
+      this.toast.openWarning(MESSAGES.FORM_VALUES_NOT_FOUND);
+      this.scrollToFirstInvalidControl();
     }
   }
 
-  handleNext() {
-    const identificationFields = ['responsible_id', 'name', 'email', 'cnpj'];
+  private scrollToFirstInvalidControl() {
+    const controls = this.churchForm.controls;
+    for (const name in controls) {
+      if (controls[name].invalid) {
+        const addressFields = ['cep', 'street', 'number', 'complement', 'district', 'city', 'state', 'country'];
+        const targetTabIndex = addressFields.includes(name) ? 1 : 0;
 
-    identificationFields.forEach((field) => {
-      const control = this.churchForm.get(field);
-      control?.markAsTouched();
-      control?.updateValueAndValidity();
-      this.toast.openError('Preencha todos os campos obrigatórios.');
-      return;
-    });
-
-    const isIdentificationValid = identificationFields.every((field) => this.churchForm.get(field)?.valid);
-
-    if (isIdentificationValid) {
-      this.tabGroup.selectedIndex = 1;
+        const tabGroup = this.tabGroup();
+        if (tabGroup && tabGroup.selectedIndex !== targetTabIndex) {
+          tabGroup.selectedIndex = targetTabIndex;
+        }
+        break;
+      }
     }
   }
 
-  handleBack() {
-    this.tabGroup.selectedIndex = 0;
-  }
-
-  handleCancel() {
-    this.dialogRef.close();
-  }
-
-  handleCreate(data: Church) {
-    this.loading.show();
-    this.churchesService.createChurch(data).subscribe({
-      next: () => {
-        this.notificationService.onSuccess(MESSAGES.CREATE_SUCCESS, this.dialogRef, this.churchForm.value);
-      },
-      error: () => {
-        this.notificationService.onError(MESSAGES.CREATE_ERROR);
-      },
-      complete: () => this.loading.hide(),
-    });
-  }
-
-  handleUpdate(churchId: string, data: Church) {
-    this.loading.show();
-    this.churchesService.updateChurch(churchId, data).subscribe({
-      next: () => {
-        this.notificationService.onSuccess(MESSAGES.CREATE_SUCCESS, this.dialogRef, this.churchForm.value);
-      },
-      error: () => {
-        this.notificationService.onError(MESSAGES.CREATE_ERROR);
-      },
-      complete: () => this.loading.hide(),
-    });
-  }
-
-  initialSearchCep() {
+  private initialSearchCep() {
     let previousCepValue = this.churchForm.get('cep')?.value;
 
     this.churchForm
@@ -273,7 +231,7 @@ export class ChurchComponent implements OnInit, OnDestroy {
       });
   }
 
-  searchCep(cep: string): void {
+  private searchCep(cep: string): void {
     if (this.churchForm.get('cep')?.value?.length === '') {
       return;
     }

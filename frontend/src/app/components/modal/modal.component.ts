@@ -7,18 +7,31 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
+export type ModalActionType = 'basic' | 'raised' | 'stroked' | 'flat' | 'icon' | 'fab' | 'mini-fab' | 'extended-fab';
+export type ModalActionColor = 'primary' | 'accent' | 'warn';
+
+export interface ModalAction {
+  label: string;
+  type: ModalActionType;
+  color?: ModalActionColor;
+  icon?: string;
+  disabled?: boolean;
+  tooltip?: string;
+  onClick: (dialogRef: MatDialogRef<ModalComponent>) => void;
+}
+
 type ModalProps = {
   title?: string;
   isHandleClose?: boolean;
   enableFullscreen?: boolean;
   customContent?: any;
+  actions?: ModalAction[];
 };
 
 @Component({
   selector: 'app-modal',
   templateUrl: './modal.component.html',
   styleUrl: './modal.component.scss',
-  standalone: true,
   imports: [
     MatCardModule,
     MatTooltipModule,
@@ -66,5 +79,9 @@ export class ModalComponent implements OnInit, AfterViewInit {
     }
 
     this.cdr.detectChanges();
+  }
+
+  handleAction(action: ModalAction): void {
+    action.onClick(this.dialogRef);
   }
 }

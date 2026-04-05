@@ -62,8 +62,8 @@ export class ChurchesService {
     return this.http.post<Church>(this.api, church);
   }
 
-  updateChurch(id: string, data: Partial<Church>): Observable<Church> {
-    return this.http.put<Church>(`${this.api}/${id}`, data);
+  updateChurch(data: Partial<Church>): Observable<Church> {
+    return this.http.put<Church>(`${this.api}/${data.id}`, data);
   }
 
   deleteChurch(church: Church): Observable<Church> {
