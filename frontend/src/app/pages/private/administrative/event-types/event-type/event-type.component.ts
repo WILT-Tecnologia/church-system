@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -15,18 +15,17 @@ import { ColorPickerControl } from '@iplab/ngx-color-picker';
 import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColorPickerComponent } from 'app/components/color-picker/color-picker.component';
 import { ColumnComponent } from 'app/components/column/column.component';
-import { LoadingService } from 'app/components/loading/loading.service';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { EventTypes } from 'app/model/EventTypes';
 import { ValidationService } from 'app/services/validation/validation.service';
-import { EventTypesService } from '../eventTypes.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-event-type',
   templateUrl: './event-type.component.html',
   styleUrls: ['./event-type.component.scss'],
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatCardModule,
     MatButtonModule,
@@ -44,25 +43,29 @@ import { EventTypesService } from '../eventTypes.service';
   ],
 })
 export class EventTypeComponent implements OnInit {
-  constructor(
-    private fb: FormBuilder,
-    private eventTypesService: EventTypesService,
-    private toast: ToastService,
-    private loadingService: LoadingService,
-    private validationService: ValidationService,
-    private dialogRef: MatDialogRef<EventTypeComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { eventType: EventTypes },
-  ) {
-    this.eventTypeForm = this.createForm();
-  }
-  eventTypeForm: FormGroup;
+  constructor() {}
+
+  private fb = inject(FormBuilder);
+  private toast = inject(ToastService);
+  private validationService = inject(ValidationService);
+  private dialogRef = inject(MatDialogRef<EventTypeComponent>);
+  private data: { eventType: EventTypes; submitSubject?: Subject<void> } = inject(MAT_DIALOG_DATA);
+
+  eventTypeForm: FormGroup = this.createForm();
   isEditMode = signal(false);
   isVisible = signal(false);
   chromeControl = new ColorPickerControl().hidePresets();
+  private destroy$ = new Subject<void>();
 
   ngOnInit() {
     this.modeEdit();
     this.chromeControl.setValueFrom(this.eventTypeForm.get('color')?.value || '#ffffff');
+
+    if (this.data?.submitSubject) {
+      this.data.submitSubject.pipe(takeUntil(this.destroy$)).subscribe(() => {
+        this.handleSubmit();
+      });
+    }
   }
 
   private createForm() {
@@ -100,74 +103,19 @@ export class EventTypeComponent implements OnInit {
   }
 
   handleSubmit() {
-    if (this.eventTypeForm.invalid) {
-      this.toast.openError('Preencha os campos obrigatórios.');
-      return;
-    }
-
-    const eventTypeData = this.eventTypeForm.value;
-    if (this.isEditMode()) {
-      this.handleUpdate(eventTypeData);
+    this.eventTypeForm.markAllAsTouched();
+    if (this.eventTypeForm.valid) {
+      this.dialogRef?.close(this.eventTypeForm.value);
     } else {
-      this.handleCreate();
+      this.toast.openWarning(MESSAGES.FORM_VALUES_NOT_FOUND);
     }
-  }
-
-  handleBack() {
-    this.dialogRef.close();
-  }
-
-  private showLoading() {
-    this.loadingService.show();
-  }
-
-  private hideLoading() {
-    this.loadingService.hide();
-  }
-
-  private onSuccess(message: string) {
-    this.hideLoading();
-    this.toast.openSuccess(message);
-    this.dialogRef.close(true);
-  }
-
-  private onError(message: string) {
-    this.hideLoading();
-    this.toast.openError(message);
   }
 
   private modeEdit() {
     if (this.data && this.data.eventType) {
       this.isEditMode.set(true);
       this.eventTypeForm.patchValue(this.data.eventType);
-      this.handleEditMode();
+      this.chromeControl.setValueFrom(this.data.eventType.color || '#ffffff');
     }
-  }
-
-  private handleEditMode() {
-    this.eventTypesService.findById(this.data.eventType.id).subscribe((eventType: EventTypes) => {
-      this.eventTypeForm.patchValue({
-        ...eventType,
-      });
-      this.chromeControl.setValueFrom(eventType.color || '#ffffff');
-    });
-  }
-
-  private handleCreate() {
-    this.showLoading();
-    this.eventTypesService.create(this.eventTypeForm.value).subscribe({
-      next: () => this.onSuccess(MESSAGES.CREATE_SUCCESS),
-      error: () => this.onError(MESSAGES.CREATE_ERROR),
-      complete: () => this.hideLoading(),
-    });
-  }
-
-  private handleUpdate(eventType: EventTypes) {
-    this.showLoading();
-    this.eventTypesService.update(eventType.id, this.eventTypeForm.value).subscribe({
-      next: () => this.onSuccess(MESSAGES.UPDATE_SUCCESS),
-      error: () => this.onError(MESSAGES.UPDATE_ERROR),
-      complete: () => this.hideLoading(),
-    });
   }
 }

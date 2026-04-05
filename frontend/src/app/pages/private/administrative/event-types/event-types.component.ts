@@ -5,11 +5,13 @@ import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { CrudComponent } from 'app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalAction } from 'app/components/modal/modal.component';
 import { ModalService } from 'app/components/modal/modal.service';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { EventTypes } from 'app/model/EventTypes';
 import { AuthService } from 'app/services/auth/auth.service';
+import { Subject } from 'rxjs';
 import { EventTypeComponent } from './event-type/event-type.component';
 import { EventTypesService } from './eventTypes.service';
 
@@ -26,6 +28,9 @@ export class EventTypesComponent implements OnInit {
   private modalService = inject(ModalService);
   private eventTypesService = inject(EventTypesService);
   private authService = inject(AuthService);
+  private writePermission = this.authService.hasPermission('write_administrative_tipos_de_eventos');
+  private deletePermission = this.authService.hasPermission('delete_administrative_tipos_de_eventos');
+
   eventTypes = signal<EventTypes[]>([]);
   dataSourceMat = new MatTableDataSource<EventTypes>([]);
   columnDefinitions: ColumnDefinitionsProps[] = [
@@ -48,7 +53,7 @@ export class EventTypesComponent implements OnInit {
       label: 'Editar',
       color: 'inherit',
       action: (eventType: EventTypes) => this.onEdit(eventType),
-      visible: () => this.authService.hasPermission('write_administrative_tipos_de_eventos'),
+      visible: () => this.writePermission,
     },
     {
       type: 'delete',
@@ -56,7 +61,7 @@ export class EventTypesComponent implements OnInit {
       label: 'Excluir',
       color: 'warn',
       action: (eventType: EventTypes) => this.onDelete(eventType),
-      visible: () => this.authService.hasPermission('delete_administrative_tipos_de_eventos'),
+      visible: () => this.deletePermission,
     },
   ];
 
@@ -65,7 +70,6 @@ export class EventTypesComponent implements OnInit {
   }
 
   private loadEventTypes() {
-    this.loading.show();
     this.eventTypesService.findAll().subscribe({
       next: (eventTypesResp) => {
         this.eventTypes.set(eventTypesResp);
@@ -77,34 +81,84 @@ export class EventTypesComponent implements OnInit {
   }
 
   onCreate() {
+    const submitSubject = new Subject<void>();
+    const formAction: ModalAction[] = [
+      {
+        label: 'Cancelar',
+        type: 'stroked',
+        color: 'warn',
+        icon: 'close',
+        onClick: (ref) => ref.close(),
+      },
+      {
+        label: 'Salvar',
+        type: 'flat',
+        color: 'primary',
+        icon: 'save',
+        onClick: () => submitSubject.next(),
+      },
+    ];
+
     const modal = this.modalService.openModal(
       `modal-${Math.random()}`,
       EventTypeComponent,
       'Adicionando tipo de evento',
       true,
       true,
+      { submitSubject },
+      undefined,
+      false,
+      formAction,
     );
 
     modal.afterClosed().subscribe((newEventType) => {
       if (newEventType) {
-        this.loadEventTypes();
+        this.eventTypesService.create(newEventType).subscribe({
+          next: () => this.toast.openSuccess(MESSAGES.CREATE_SUCCESS),
+          error: () => this.toast.openError(MESSAGES.CREATE_ERROR),
+          complete: () => this.loadEventTypes(),
+        });
       }
     });
   }
 
   private onEdit(eventType: EventTypes) {
+    const submitSubject = new Subject<void>();
+    const formAction: ModalAction[] = [
+      {
+        label: 'Cancelar',
+        type: 'stroked',
+        color: 'warn',
+        icon: 'close',
+        onClick: (ref) => ref.close(),
+      },
+      {
+        label: 'Atualizar',
+        type: 'flat',
+        color: 'primary',
+        icon: 'save',
+        onClick: () => submitSubject.next(),
+      },
+    ];
     const modal = this.modalService.openModal(
       `modal-${Math.random()}`,
       EventTypeComponent,
       `Editando o tipo de evento: ${eventType.name}`,
       true,
       true,
-      { eventType },
+      { eventType, submitSubject },
+      undefined,
+      false,
+      formAction,
     );
 
     modal.afterClosed().subscribe((newEventType) => {
       if (newEventType) {
-        this.loadEventTypes();
+        this.eventTypesService.update(eventType.id, newEventType).subscribe({
+          next: () => this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS),
+          error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
+          complete: () => this.loadEventTypes(),
+        });
       }
     });
   }
@@ -132,7 +186,7 @@ export class EventTypesComponent implements OnInit {
     const updatedStatus = !eventType.status;
     eventType.status = updatedStatus;
 
-    this.eventTypesService.updatedStatus(eventType.id, updatedStatus).subscribe({
+    this.eventTypesService.updatedStatus(eventType).subscribe({
       next: () => this.toast.openSuccess(`Tipo de evento ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`),
       error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
       complete: () => this.loadEventTypes(),

@@ -19,17 +19,17 @@ export class EventTypesService {
     return this.http.get<EventTypes>(`${this.api}/${id}`);
   }
 
-  create(eventType: EventTypes): Observable<any> {
-    return this.http.post(this.api, eventType);
+  create(eventType: EventTypes): Observable<EventTypes> {
+    return this.http.post<EventTypes>(this.api, eventType);
   }
 
   update(eventTypeId: string, eventTypeData: Partial<EventTypes>): Observable<EventTypes> {
     return this.http.put<EventTypes>(`${this.api}/${eventTypeId}`, eventTypeData);
   }
 
-  updatedStatus(id: string, status: boolean): Observable<EventTypes> {
-    const statusData = { status };
-    return this.http.put<EventTypes>(`${this.api}/${id}`, statusData);
+  updatedStatus(eventType: Partial<EventTypes>): Observable<EventTypes> {
+    const statusData = { status: eventType.status };
+    return this.http.put<EventTypes>(`${this.api}/${eventType.id}`, statusData);
   }
 
   delete(eventType: EventTypes): Observable<EventTypes> {

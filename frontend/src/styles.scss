@@ -32,6 +32,7 @@
   --grey-dark: #{theme.$greyDark};
   --text-color: #{theme.$textColor};
   --error-color: #{theme.$error};
+  --error-color-light: #{mat.get-theme-color(theme.$light-theme, error, 50)};
   --danger-color: #{theme.$danger};
   --success-color: #{theme.$success};
   --warning-color: #{theme.$warning};

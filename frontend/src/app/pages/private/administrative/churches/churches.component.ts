@@ -64,7 +64,6 @@ export class ChurchesComponent implements OnInit {
   }
 
   private loadChurch() {
-    this.loading.show();
     this.churchsService.getChurches().subscribe({
       next: (churches) => {
         this.churchs.set(churches);

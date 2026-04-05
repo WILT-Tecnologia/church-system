@@ -97,7 +97,7 @@ export class ChurchComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  createForm() {
+  private createForm() {
     return this.fb.group({
       id: [this.data?.church?.id ?? ''],
       responsible_id: [this.data?.church?.responsible?.id ?? '', [Validators.required]],
