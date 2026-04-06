@@ -21,7 +21,7 @@ class User extends Authenticatable
         'email',
         'password',
         'status',
-        'change_password'
+        'change_password',
     ];
 
     protected $hidden = [
@@ -43,6 +43,6 @@ class User extends Authenticatable
     }
 
     public function profile() {
-        return $this->belongsToMany(Profile::class, 'user_profile', 'user_id', 'profile_id');
+        return $this->roles();
     }
 }

@@ -1,3 +1,5 @@
+import { Profile } from './Profile';
+
 export type User = {
   id: string;
   name: string;
@@ -6,6 +8,7 @@ export type User = {
   change_password: boolean;
   status: boolean;
   profile_id: string;
+  profile: Profile;
   created_at: Date | string;
   updated_at: Date | string;
 };

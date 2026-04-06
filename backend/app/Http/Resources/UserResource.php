@@ -12,14 +12,15 @@ class UserResource extends JsonResource
      *
      * @return array<int|string, mixed>
      */
-    public function toArray(Request $request): array
-    {
+    public function toArray(Request $request): array {
         return [
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
             'status' => $this->status,
             'change_password' => $this->change_password,
+            'profile_id' => $this->relationLoaded('roles') ? $this->roles->first()?->id : ($this->relationLoaded('profile') ? $this->profile->first()?->id : null),
+            'profile' => new ProfileResource($this->whenLoaded('profile')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];
