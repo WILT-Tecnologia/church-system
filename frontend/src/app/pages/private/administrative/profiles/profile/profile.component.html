@@ -1,72 +1,76 @@
 <form [formGroup]="profileForm" (ngSubmit)="handleSubmit()" class="form-field-group">
-  <app-column>
-    <mat-slide-toggle formControlName="status" color="primary"
-      >{{ profileForm.get('status')?.value ? 'Ativado' : 'Desativado' }}
-    </mat-slide-toggle>
-  </app-column>
+  <mat-tab-group>
+    <mat-tab label="Identificação">
+      <app-column>
+        <mat-slide-toggle formControlName="status" color="primary"
+          >{{ profileForm.get('status')?.value ? 'Ativado' : 'Desativado' }}
+        </mat-slide-toggle>
+      </app-column>
 
-  <app-column>
-    <mat-form-field appearance="fill">
-      <mat-label>Nome</mat-label>
-      <input type="text" matInput formControlName="name" maxlength="255" required />
-      @if (profileForm.get('name')?.invalid) {
-        <mat-error>{{ getErrorMessage('name') }} </mat-error>
-      }
-    </mat-form-field>
-  </app-column>
+      <app-column>
+        <mat-form-field appearance="fill">
+          <mat-label>Nome</mat-label>
+          <input type="text" matInput formControlName="name" maxlength="255" required />
+          @if (profileForm.get('name')?.invalid) {
+            <mat-error>{{ getErrorMessage('name') }} </mat-error>
+          }
+        </mat-form-field>
+      </app-column>
 
-  <app-column>
-    <mat-form-field appearance="fill">
-      <mat-label>Descrição</mat-label>
-      <textarea matInput rows="4" formControlName="description" maxlength="255"></textarea>
-      @if (profileForm.get('description')?.invalid) {
-        <mat-error>{{ getErrorMessage('description') }} </mat-error>
-      }
-    </mat-form-field>
-  </app-column>
+      <app-column>
+        <mat-form-field appearance="fill">
+          <mat-label>Descrição</mat-label>
+          <textarea matInput rows="4" formControlName="description" maxlength="255"></textarea>
+          @if (profileForm.get('description')?.invalid) {
+            <mat-error>{{ getErrorMessage('description') }} </mat-error>
+          }
+        </mat-form-field>
+      </app-column>
+    </mat-tab>
 
-  <div class="tree-header-container">
-    <h3>Permissões</h3>
+    <mat-tab label="Permissões">
+      <div class="tree-header-container">
+        @if (modulesFormArray && modulesFormArray.controls.length > 0) {
+          <div class="tree-actions">
+            <button type="button" mat-stroked-button color="primary" (click)="toggleSelectAll()">
+              <mat-icon>{{ isAllSelected ? 'check_box_outline_blank' : 'check_box' }}</mat-icon>
+              {{ isAllSelected ? 'Desmarcar tudo' : 'Marcar tudo' }}
+            </button>
 
-    @if (modulesFormArray && modulesFormArray.controls.length > 0) {
-      <div class="tree-actions">
-        <button type="button" mat-stroked-button color="primary" (click)="toggleSelectAll()">
-          <mat-icon>{{ isAllSelected ? 'check_box_outline_blank' : 'check_box' }}</mat-icon>
-          {{ isAllSelected ? 'Desmarcar tudo' : 'Marcar tudo' }}
-        </button>
-
-        <button type="button" mat-stroked-button (click)="toggleExpandAll()">
-          <mat-icon>{{ isAllExpanded ? 'unfold_less' : 'unfold_more' }}</mat-icon>
-          {{ isAllExpanded ? 'Recolher tudo' : 'Expandir tudo' }}
-        </button>
+            <button type="button" mat-stroked-button (click)="toggleExpandAll()">
+              <mat-icon>{{ isAllExpanded ? 'unfold_less' : 'unfold_more' }}</mat-icon>
+              {{ isAllExpanded ? 'Recolher tudo' : 'Expandir tudo' }}
+            </button>
+          </div>
+        }
       </div>
-    }
-  </div>
 
-  @if (modulesFormArray && modulesFormArray.controls.length > 0) {
-    <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-      <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
-        <button type="button" mat-icon-button disabled></button>
-        <mat-checkbox [formControl]="node.parentFormGroup.get(node.controlName)" color="primary">
-          {{ node.name }}
-        </mat-checkbox>
-      </mat-tree-node>
+      @if (modulesFormArray && modulesFormArray.controls.length > 0) {
+        <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+          <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+            <button type="button" mat-icon-button disabled></button>
+            <mat-checkbox [formControl]="node.parentFormGroup.get(node.controlName)" color="primary">
+              {{ node.name }}
+            </mat-checkbox>
+          </mat-tree-node>
 
-      <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
-        <button type="button" mat-icon-button matTreeNodeToggle>
-          <mat-icon>{{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}</mat-icon>
-        </button>
-        <mat-checkbox
-          [checked]="isParentSelected(node)"
-          [indeterminate]="isParentIndeterminate(node)"
-          (change)="toggleParent(node)"
-          color="primary"
-        >
-          <strong>{{ node.name }}</strong>
-        </mat-checkbox>
-      </mat-tree-node>
-    </mat-tree>
-  } @else {
-    <p>Carregando módulos...</p>
-  }
+          <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+            <button type="button" mat-icon-button matTreeNodeToggle>
+              <mat-icon>{{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+            </button>
+            <mat-checkbox
+              [checked]="isParentSelected(node)"
+              [indeterminate]="isParentIndeterminate(node)"
+              (change)="toggleParent(node)"
+              color="primary"
+            >
+              <strong>{{ node.name }}</strong>
+            </mat-checkbox>
+          </mat-tree-node>
+        </mat-tree>
+      } @else {
+        <p>Carregando módulos...</p>
+      }
+    </mat-tab>
+  </mat-tab-group>
 </form>

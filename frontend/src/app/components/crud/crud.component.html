@@ -5,59 +5,59 @@
     </button>
   </div>
 }
-<div class="filter-container">
-  <div class="filter-container-content">
-    <div class="search-container">
-      <div class="search">
-        <mat-form-field appearance="fill">
-          <div class="search-icon-input">
-            <mat-icon>search</mat-icon>
-            <input (input)="applyFilter($event)" matInput placeholder="Digite para pesquisar" />
-          </div>
-        </mat-form-field>
-      </div>
-      @if (enableFilterAdvanced()) {
-        <button
-          (click)="toggleFilter()"
-          [class.selected]="buttonSelected()"
-          aria-label="Filtros"
-          class="filter-button"
-          mat-icon-button
-          matTooltip="Filtro"
-          type="button"
-        >
-          <mat-icon>filter_alt</mat-icon>
-        </button>
-      }
-      @if (showFindDataButton()) {
-        <div class="findDataButton">
-          <button mat-stroked-button color="primary" (click)="findData.emit()">
-            {{ findDataLabel() }}
-          </button>
+@if (dataSourceMat().filteredData.length > 0) {
+  <div class="filter-container">
+    <div class="filter-container-content">
+      <div class="search-container">
+        <div class="search">
+          <mat-form-field appearance="fill">
+            <div class="search-icon-input">
+              <mat-icon>search</mat-icon>
+              <input (input)="applyFilter($event)" matInput placeholder="Digite para pesquisar" />
+            </div>
+          </mat-form-field>
         </div>
+        @if (enableFilterAdvanced()) {
+          <button
+            (click)="toggleFilter()"
+            [class.selected]="buttonSelected()"
+            aria-label="Filtros"
+            class="filter-button"
+            mat-icon-button
+            matTooltip="Filtro"
+            type="button"
+          >
+            <mat-icon>filter_alt</mat-icon>
+          </button>
+        }
+        @if (showFindDataButton()) {
+          <div class="findDataButton">
+            <button mat-stroked-button color="primary" (click)="findData.emit()">
+              {{ findDataLabel() }}
+            </button>
+          </div>
+        }
+      </div>
+      @if (enablePagination()) {
+        <mat-paginator
+          [length]="length()"
+          [pageSizeOptions]="pageSizeOptions()"
+          [pageSize]="pageSize()"
+          class="paginator"
+          color="primary"
+          showFirstLastButtons
+        ></mat-paginator>
       }
     </div>
-    @if (enablePagination()) {
-      <mat-paginator
-        [length]="length()"
-        [pageSizeOptions]="pageSizeOptions()"
-        [pageSize]="pageSize()"
-        class="paginator"
-        color="primary"
-        showFirstLastButtons
-      ></mat-paginator>
+    @if (enableFilterAdvanced() && !!showFilter()) {
+      <app-filter-button-advanced
+        [fields]="filterFields()"
+        [applyFilter]="applyFilter"
+        (filterChange)="applyAdvancedFilter($event)"
+      ></app-filter-button-advanced>
     }
   </div>
-  @if (enableFilterAdvanced() && !!showFilter()) {
-    <app-filter-button-advanced
-      [fields]="filterFields()"
-      [applyFilter]="applyFilter"
-      (filterChange)="applyAdvancedFilter($event)"
-    ></app-filter-button-advanced>
-  }
-</div>
 
-@if (dataSourceMat().filteredData.length > 0) {
   <div class="mat-table-responsive">
     <table [dataSource]="dataSourceMat()" mat-table matSort>
       <ng-container *ngFor="let column of columnDefinitions()" [matColumnDef]="column.key">
