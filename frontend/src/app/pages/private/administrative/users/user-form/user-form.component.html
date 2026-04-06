@@ -9,9 +9,9 @@
     <mat-form-field appearance="fill">
       <mat-label>Nome</mat-label>
       <input matInput formControlName="name" maxlength="255" />
-      <mat-error *ngIf="userForm.get('name')?.invalid && userForm.get('name')?.touched">
-        {{ getErrorMessage('name') }}
-      </mat-error>
+      @if (userForm.get('name')?.invalid && userForm.get('name')?.touched) {
+        <mat-error>{{ getErrorMessage('name') }} </mat-error>
+      }
     </mat-form-field>
 
     <mat-form-field appearance="fill">
@@ -21,9 +21,9 @@
           <mat-option [value]="profile.id">{{ profile.name }}</mat-option>
         }
       </mat-select>
-      <mat-error *ngIf="userForm.get('profile_id')?.invalid && userForm.get('profile_id')?.touched">
-        {{ getErrorMessage('profile_id') }}
-      </mat-error>
+      @if (userForm.get('profile_id')?.invalid && userForm.get('profile_id')?.touched) {
+        <mat-error>{{ getErrorMessage('profile_id') }} </mat-error>
+      }
     </mat-form-field>
   </app-column>
 
@@ -31,9 +31,9 @@
     <mat-form-field appearance="fill">
       <mat-label>E-mail</mat-label>
       <input type="email" matInput formControlName="email" maxlength="255" />
-      <mat-error *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched">
-        {{ getErrorMessage('email') }}
-      </mat-error>
+      @if (userForm.get('email')?.invalid && userForm.get('email')?.touched) {
+        <mat-error>{{ getErrorMessage('email') }} </mat-error>
+      }
     </mat-form-field>
     <mat-form-field appearance="fill" *ngIf="!isEdit() || (isEdit() && change_password())">
       <mat-label>Senha</mat-label>
@@ -48,20 +48,15 @@
       <button mat-icon-button matSuffix type="button" (click)="toggleHide()">
         <mat-icon>{{ hide() ? 'visibility_off' : 'visibility' }}</mat-icon>
       </button>
-      <mat-error *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched"
-        >{{ getErrorMessage('password') }}
-      </mat-error>
+      @if (userForm.get('password')?.invalid && userForm.get('password')?.touched) {
+        <mat-error>{{ getErrorMessage('password') }} </mat-error>
+      }
     </mat-form-field>
 
-    <div *ngIf="isEdit() && !change_password()" class="align-button-change-password">
-      <button mat-stroked-button color="primary" type="button" (click)="changePassword()">Alterar Senha</button>
-    </div>
+    @if (isEdit() && !change_password()) {
+      <div class="align-button-change-password">
+        <button mat-stroked-button color="primary" type="button" (click)="changePassword()">Alterar Senha</button>
+      </div>
+    }
   </app-column>
-
-  <app-actions>
-    <button type="button" mat-stroked-button color="warn" (click)="handleBack()">Cancelar</button>
-    <button mat-flat-button color="primary" type="submit" [disabled]="userForm.invalid">
-      {{ isEdit() ? 'Atualizar' : 'Cadastrar' }}
-    </button>
-  </app-actions>
 </form>

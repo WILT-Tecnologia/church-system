@@ -21,28 +21,27 @@ class UserRequest extends FormRequest
      */
     public function rules(): array {
         $isCreating = $this->isMethod('post');
-        $userId = $this->route('id') ?? $this->input('id');
+        $userId = $this->route('user') ?? $this->route('id') ?? $this->input('id');
 
         return [
-            'name' => $isCreating ? 'required|string|max:255' : 'nullable|string|max:255',
+            'name' => ($isCreating ? 'required' : 'sometimes') . '|string|max:255',
             'email' => [
-                $isCreating ? 'required' : 'nullable',
+                $isCreating ? 'required' : 'sometimes',
                 'string',
                 'email',
                 'max:255',
                 Rule::unique('users', 'email')->ignore($userId),
             ],
-            'password' => $isCreating ? 'nullable|string|min:8|max:30|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/' : 'nullable|string|min:8|max:30',
+            'password' => $isCreating 
+                ? 'required|string|min:8|max:30|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/' 
+                : 'sometimes|nullable|string|min:8|max:30',
             'status' => 'sometimes|boolean',
             'change_password' => 'sometimes|boolean',
-            /*
-                Esse regex assegura que a senha:
-                    1. Tenha pelo menos 8 caracteres;
-                    2. Contenha pelo menos uma letra minúscula;
-                    3. Contenha pelo menos uma letra maiúscula;
-                    4. Contenha pelo menos um número;
-                    5. Contenha pelo menos um caractere especial dos seguintes: @, $, !, %, *, ?, &.
-            */
+            'profile_id' => [
+                $isCreating ? 'required' : 'sometimes',
+                'uuid',
+                Rule::exists('profile', 'id')
+            ],
         ];
     }
 

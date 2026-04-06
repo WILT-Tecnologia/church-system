@@ -10,7 +10,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { MESSAGES } from 'app/components/toast/messages';
@@ -18,8 +17,8 @@ import { ToastService } from 'app/components/toast/toast.service';
 import { Profile } from 'app/model/Profile';
 import { User } from 'app/model/User';
 import { ValidationService } from 'app/services/validation/validation.service';
+import { Subject, takeUntil } from 'rxjs';
 import { ProfilesService } from '../../profiles/profiles.service';
-import { UsersService } from '../users.service';
 
 @Component({
   selector: 'app-user-form',
@@ -33,23 +32,23 @@ import { UsersService } from '../users.service';
     MatDividerModule,
     MatIconModule,
     ReactiveFormsModule,
-    CommonModule,
-    ActionsComponent,
-    ColumnComponent,
     MatAutocompleteModule,
     MatSelectModule,
+    CommonModule,
+    ColumnComponent,
   ],
 })
 export class UserFormComponent implements OnInit {
+  private readonly fb = inject(FormBuilder);
   private readonly loadingService = inject(LoadingService);
   private readonly dialogRef = inject(MatDialogRef<UserFormComponent>);
-  private readonly usersService = inject(UsersService);
   private readonly profilesService = inject(ProfilesService);
-  private readonly toast = inject(ToastService);
+  private readonly toastService = inject(ToastService);
   private readonly validationService = inject(ValidationService);
-  private readonly fb = inject(FormBuilder);
-  private readonly data = inject(MAT_DIALOG_DATA);
-  userForm!: FormGroup;
+  private readonly data: { user: User; submitSubject?: Subject<void> } = inject(MAT_DIALOG_DATA);
+  private destroy$ = new Subject<void>();
+
+  userForm: FormGroup = this.createForm();
   users = signal<User[]>([]);
   profiles = signal<Profile[]>([]);
   isEdit = signal(false);
@@ -57,9 +56,23 @@ export class UserFormComponent implements OnInit {
   change_password = signal(false);
 
   ngOnInit() {
-    this.userForm = this.createForm();
     this.loadProfiles();
-    this.checkEditMode();
+
+    if (this.data?.user) {
+      this.isEdit.set(true);
+      this.userForm.get('password')?.clearValidators();
+      this.userForm.get('password')?.updateValueAndValidity();
+
+      this.userForm.patchValue({
+        profile_id: this.data.user.profile_id,
+      });
+    }
+
+    if (this.data?.submitSubject) {
+      this.data.submitSubject.pipe(takeUntil(this.destroy$)).subscribe(() => {
+        this.handleSubmit();
+      });
+    }
   }
 
   createForm(): FormGroup {
@@ -90,30 +103,21 @@ export class UserFormComponent implements OnInit {
   }
 
   loadProfiles() {
-    this.profilesService.finAllProfiles().subscribe({
+    this.profilesService.getAllProfiles().subscribe({
       next: (profiles) => {
-        this.profiles.set(profiles.filter((p) => p.status));
+        this.profiles.set(profiles);
       },
       error: () => {
-        this.toast.openError('Erro ao carregar perfis.');
+        this.toastService.openError(MESSAGES.LOADING_ERROR);
+      },
+      complete: () => {
+        this.loadingService.hide();
       },
     });
   }
 
   toggleHide() {
     this.hide.set(!this.hide());
-  }
-
-  checkEditMode() {
-    if (this.data?.user) {
-      this.isEdit.set(true);
-      this.userForm.get('password')?.clearValidators();
-      this.userForm.get('password')?.updateValueAndValidity();
-
-      this.userForm.patchValue({
-        profile_id: this.data.user.profile_id,
-      });
-    }
   }
 
   changePassword() {
@@ -134,54 +138,13 @@ export class UserFormComponent implements OnInit {
     return control?.errors ? this.validationService.getErrorMessage(control) : null;
   }
 
-  onSuccess(message: string) {
-    this.loadingService.hide();
-    this.toast.openSuccess(message);
-    this.dialogRef.close(this.userForm.value);
-  }
-
-  onError(message: string) {
-    this.loadingService.hide();
-    this.toast.openError(message);
-  }
-
-  handleBack() {
-    this.dialogRef.close();
-  }
-
   handleSubmit() {
-    const user = this.userForm.value;
+    this.userForm.markAllAsTouched();
 
-    if (!user) {
-      return;
-    }
-
-    if (this.change_password()) {
-      this.userForm.get('password')?.setValidators([Validators.required]);
-    }
-
-    if (this.isEdit()) {
-      this.handleUpdate(user);
+    if (this.userForm.valid) {
+      this.dialogRef.close(this.userForm.value);
     } else {
-      this.handleCreate(user);
+      this.toastService.openError(MESSAGES.FORM_VALUES_NOT_FOUND);
     }
-  }
-
-  handleCreate(data: User) {
-    this.loadingService.show();
-    this.usersService.createUser(data).subscribe({
-      next: () => this.onSuccess(MESSAGES.CREATE_SUCCESS),
-      error: (error) => this.onError(error.error.message ?? MESSAGES.CREATE_ERROR),
-      complete: () => this.loadingService.hide(),
-    });
-  }
-
-  handleUpdate(user: User) {
-    this.loadingService.show();
-    this.usersService.updateUser(user.id, user).subscribe({
-      next: () => this.onSuccess(MESSAGES.UPDATE_SUCCESS),
-      error: (error) => this.onError(error.error.message ?? MESSAGES.UPDATE_ERROR),
-      complete: () => this.loadingService.hide(),
-    });
   }
 }

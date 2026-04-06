@@ -223,7 +223,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.isLoading.set(true);
 
     this.userService
-      .updateUser(userId, userData)
+      .updateUser(userData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (updatedUser) => {

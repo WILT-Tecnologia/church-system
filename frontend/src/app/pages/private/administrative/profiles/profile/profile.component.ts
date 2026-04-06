@@ -301,7 +301,41 @@ export class ProfileComponent implements OnInit {
     this.profileForm.markAllAsTouched();
 
     if (this.profileForm.valid) {
-      this.dialogRef.close(this.profileForm.value);
+      const formValue = this.profileForm.getRawValue();
+      const selectedModules = formValue.modules.filter((m: any) => m.can_read || m.can_write || m.can_delete);
+
+      if (selectedModules.length === 0) {
+        this.toastService.openWarning('Por favor, selecione ao menos um módulo e uma permissão.');
+        return;
+      }
+
+      this.loadingService.show();
+      const profileData = { ...formValue, modules: selectedModules };
+      const request$ = this.isEditMode()
+        ? this.profilesService.updateProfile(profileData)
+        : this.profilesService.createProfile(profileData);
+
+      request$.subscribe({
+        next: () => {
+          this.toastService.openSuccess(this.isEditMode() ? MESSAGES.UPDATE_SUCCESS : MESSAGES.CREATE_SUCCESS);
+          this.dialogRef.close(true);
+        },
+        error: (err) => {
+          this.loadingService.hide();
+          if (err.status === 422 && err.error?.errors) {
+            const errors = err.error.errors;
+            Object.keys(errors).forEach((key) => {
+              const messages = errors[key];
+              if (Array.isArray(messages)) {
+                messages.forEach((msg: string) => this.toastService.openError(msg));
+              }
+            });
+          } else {
+            this.toastService.openError(this.isEditMode() ? MESSAGES.UPDATE_ERROR : MESSAGES.CREATE_ERROR);
+          }
+        },
+        complete: () => this.loadingService.hide(),
+      });
     } else {
       this.toastService.openWarning(MESSAGES.FORM_VALUES_NOT_FOUND);
     }

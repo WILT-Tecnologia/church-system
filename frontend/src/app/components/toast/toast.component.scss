@@ -4,12 +4,18 @@
   justify-content: space-between;
   gap: 2rem;
   padding: 0.5rem;
+  width: 100%;
 
   @media screen and (max-width: 768px) {
     mat-icon {
       display: none !important;
     }
   }
+}
+
+.icon {
+  width: 2rem;
+  height: 2rem;
 }
 
 button {

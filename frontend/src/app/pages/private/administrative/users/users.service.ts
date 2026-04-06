@@ -20,20 +20,20 @@ export class UsersService {
     return this.http.get<User>(`${this.api}/${id}`);
   }
 
-  createUser(user: User): Observable<any> {
-    return this.http.post(this.api, user);
+  createUser(user: User): Observable<User> {
+    return this.http.post<User>(this.api, user);
   }
 
-  updateUser(userId: string, userData: Partial<User>): Observable<User> {
-    return this.http.put<User>(`${this.api}/${userId}`, userData);
+  updateUser(user: User): Observable<User> {
+    return this.http.put<User>(`${this.api}/${user.id}`, user);
   }
 
-  updatedStatus(id: string, status: boolean): Observable<User> {
-    const statusData = { status };
-    return this.http.put<User>(`${this.api}/${id}`, statusData);
+  updatedStatus(user: Partial<User>): Observable<User> {
+    const statusData = { status: user.status };
+    return this.http.patch<User>(`${this.api}/${user.id}`, statusData);
   }
 
-  deleteUser(userId: string): Observable<any> {
-    return this.http.delete(`${this.api}/${userId}`);
+  deleteUser(user: User): Observable<User> {
+    return this.http.delete<User>(`${this.api}/${user.id}`);
   }
 }

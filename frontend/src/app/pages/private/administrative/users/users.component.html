@@ -5,6 +5,6 @@
   (add)="onCreate()"
   (toggle)="onChangeStatus($event)"
   [actions]="actions"
-  writePermission="write_administrative_usuarios"
-  deletePermission="delete_administrative_usuarios"
+  [writePermission]="'write_administrative_usuarios'"
+  [deletePermission]="'delete_administrative_usuarios'"
 ></app-crud>

@@ -68,7 +68,7 @@ export class ProfilesComponent implements OnInit {
   }
 
   loadProfiles() {
-    this.profilesService.finAllProfiles().subscribe({
+    this.profilesService.getAllProfiles().subscribe({
       next: (profilesResp) => {
         this.profiles.set(profilesResp);
         this.dataSourceMat.data = profilesResp;
@@ -112,13 +112,9 @@ export class ProfilesComponent implements OnInit {
       formAction,
     );
 
-    modal.afterClosed().subscribe((result: Profile) => {
+    modal.afterClosed().subscribe((result: boolean) => {
       if (result) {
-        this.profilesService.createProfile(result).subscribe({
-          next: () => this.toastService.openSuccess(MESSAGES.CREATE_SUCCESS),
-          error: () => this.toastService.openError(MESSAGES.CREATE_ERROR),
-          complete: () => this.loadProfiles(),
-        });
+        this.loadProfiles();
       }
     });
   }
@@ -141,10 +137,11 @@ export class ProfilesComponent implements OnInit {
         onClick: () => submitSubject.next(),
       },
     ];
+
     const modal = this.modalService.openModal(
       `modal-${Math.random()}`,
       ProfileComponent,
-      `Você está editando o perfil: ${profile.name}`,
+      `Editando o perfil ${profile.name}`,
       true,
       true,
       { profile, submitSubject },
@@ -153,13 +150,9 @@ export class ProfilesComponent implements OnInit {
       formAction,
     );
 
-    modal.afterClosed().subscribe((result: Profile) => {
+    modal.afterClosed().subscribe((result: boolean) => {
       if (result) {
-        this.profilesService.updateProfile(result).subscribe({
-          next: () => this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS),
-          error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
-          complete: () => this.loadProfiles(),
-        });
+        this.loadProfiles();
       }
     });
   }

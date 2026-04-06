@@ -15,7 +15,7 @@ export class ProfilesService {
   private api = `${environment.apiUrl}/admin/profiles`;
   private apiUrl_modules = `${environment.apiUrl}/admin/modules`;
 
-  finAllProfiles(): Observable<Profile[]> {
+  getAllProfiles(): Observable<Profile[]> {
     return this.http.get<Profile[]>(this.api);
   }
 
@@ -32,7 +32,8 @@ export class ProfilesService {
   }
 
   updatedStatus(profile: Profile): Observable<Profile> {
-    return this.http.put<Profile>(`${this.api}/${profile.id}`, profile);
+    const statusData = { status: profile.status };
+    return this.http.patch<Profile>(`${this.api}/${profile.id}`, statusData);
   }
 
   deleteProfile(profileId: string): Observable<Profile> {

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Permission; // Usando o modelo de Permissão do App\Models
 use Illuminate\Support\Str;
+use App\Http\Requests\ProfileRequest;
 
 class ProfileController extends Controller
 {
@@ -46,29 +47,7 @@ class ProfileController extends Controller
         return response()->json($profiles);
     }
 
-    public function store(Request $request) {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|unique:profile,name',
-            'description' => 'nullable|string',
-            'status' => 'boolean',
-            'modules' => 'required|array|min:1',
-            'modules.*.module_id' => 'required|exists:module,id',
-            'modules.*.can_read' => 'boolean',
-            'modules.*.can_write' => 'boolean',
-            'modules.*.can_delete' => 'boolean',
-        ], [
-            'name.required' => 'O nome do perfil é obrigatório',
-            'name.unique' => 'Já existe um perfil com este nome',
-            'modules.required' => 'Selecione ao menos um módulo',
-            'modules.min' => 'Selecione ao menos um módulo',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
+    public function store(ProfileRequest $request) {
 
         DB::beginTransaction();
         try {
@@ -170,7 +149,7 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function update(Request $request, string $id) {
+    public function update(ProfileRequest $request, string $id) {
         $profile = Profile::find($id);
 
         if (!$profile) {
@@ -180,78 +159,57 @@ class ProfileController extends Controller
             ], 404);
         }
 
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|unique:profile,name,' . $id,
-            'description' => 'nullable|string',
-            'status' => 'boolean',
-            'modules' => 'required|array|min:1',
-            'modules.*.module_id' => 'required|exists:module,id',
-            'modules.*.can_read' => 'boolean',
-            'modules.*.can_write' => 'boolean',
-            'modules.*.can_delete' => 'boolean',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
         DB::beginTransaction();
         try {
             $guardApi = 'sanctum';
 
-            $profile->update([
-                'name' => $request->name,
-                'description' => $request->description,
-                'status' => $request->status ?? true,
-                'guard_name' => $guardApi,
-            ]);
+            $profile->update($request->only(['name', 'description', 'status', 'guard_name']));
 
-            DB::table('profile_modules')->where('profile_id', $profile->id)->delete();
+            if ($request->has('modules')) {
+                DB::table('profile_modules')->where('profile_id', $profile->id)->delete();
 
-            $permissions = [];
-            foreach ($request->modules as $moduleData) {
-                $moduleId = $moduleData['module_id'];
+                $permissions = [];
+                foreach ($request->modules as $moduleData) {
+                    $moduleId = $moduleData['module_id'];
 
-                $module = Module::findOrFail($moduleId);
+                    $module = Module::findOrFail($moduleId);
 
-                $moduleKey = $this->permissionService->permissionKey($module);
+                    $moduleKey = $this->permissionService->permissionKey($module);
 
-                DB::table('profile_modules')->insert([
-                    'id' => DB::raw('gen_random_uuid()'),
-                    'profile_id' => $profile->id,
-                    'module_id' => $module->id,
-                    'can_read' => $moduleData['can_read'] ?? false,
-                    'can_write' => $moduleData['can_write'] ?? false,
-                    'can_delete' => $moduleData['can_delete'] ?? false,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                    DB::table('profile_modules')->insert([
+                        'id' => DB::raw('gen_random_uuid()'),
+                        'profile_id' => $profile->id,
+                        'module_id' => $module->id,
+                        'can_read' => $moduleData['can_read'] ?? false,
+                        'can_write' => $moduleData['can_write'] ?? false,
+                        'can_delete' => $moduleData['can_delete'] ?? false,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
 
-                if ($moduleData['can_read'] ?? false) {
-                    $permissions[] = "read_{$moduleKey}";
+                    if ($moduleData['can_read'] ?? false) {
+                        $permissions[] = "read_{$moduleKey}";
+                    }
+
+                    if ($moduleData['can_write'] ?? false) {
+                        $permissions[] = "write_{$moduleKey}";
+                    }
+
+                    if ($moduleData['can_delete'] ?? false) {
+                        $permissions[] = "delete_{$moduleKey}";
+                    }
                 }
 
-                if ($moduleData['can_write'] ?? false) {
-                    $permissions[] = "write_{$moduleKey}";
+                foreach ($permissions as $permissionName) {
+                    Permission::firstOrCreate(
+                        ['name' => $permissionName, 'guard_name' => $guardApi],
+                        ['guard_name' => $guardApi]
+                    );
                 }
 
-                if ($moduleData['can_delete'] ?? false) {
-                    $permissions[] = "delete_{$moduleKey}";
-                }
+                $profile->syncPermissions($permissions);
+                app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
             }
-
-            foreach ($permissions as $permissionName) {
-                Permission::firstOrCreate(
-                    ['name' => $permissionName, 'guard_name' => $guardApi],
-                    ['guard_name' => $guardApi]
-                );
-            }
-
-            $profile->syncPermissions($permissions);
-            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
             DB::commit();
 

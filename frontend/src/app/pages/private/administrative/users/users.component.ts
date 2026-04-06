@@ -5,11 +5,13 @@ import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { CrudComponent } from 'app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalAction } from 'app/components/modal/modal.component';
 import { ModalService } from 'app/components/modal/modal.service';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { User } from 'app/model/User';
 import { AuthService } from 'app/services/auth/auth.service';
+import { Subject } from 'rxjs';
 import { UserFormComponent } from './user-form/user-form.component';
 import { UsersService } from './users.service';
 
@@ -20,14 +22,15 @@ import { UsersService } from './users.service';
   imports: [CrudComponent],
 })
 export class UsersComponent implements OnInit {
-  private toast = inject(ToastService);
-  private loading = inject(LoadingService);
+  private toastService = inject(ToastService);
+  private loadingService = inject(LoadingService);
   private confirmService = inject(ConfirmService);
   private modalService = inject(ModalService);
   private userService = inject(UsersService);
   private authService = inject(AuthService);
   private writePermission = this.authService.hasPermission('write_administrative_usuarios');
   private deletePermission = this.authService.hasPermission('delete_administrative_usuarios');
+
   users = signal<User[]>([]);
   dataSourceMat = new MatTableDataSource<User>([]);
   columnDefinitions: ColumnDefinitionsProps[] = [
@@ -68,46 +71,96 @@ export class UsersComponent implements OnInit {
   }
 
   loadUsers() {
-    this.loading.show();
     this.userService.getUsers().subscribe({
       next: (usersResp) => {
         this.users.set(usersResp);
         this.dataSourceMat.data = usersResp;
       },
-      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
-      complete: () => this.loading.hide(),
+      error: () => this.toastService.openError(MESSAGES.LOADING_ERROR),
+      complete: () => this.loadingService.hide(),
     });
   }
 
   onCreate() {
+    const submitSubject = new Subject<void>();
+    const formAction: ModalAction[] = [
+      {
+        label: 'Cancelar',
+        type: 'stroked',
+        color: 'warn',
+        icon: 'close',
+        onClick: (ref) => ref.close(),
+      },
+      {
+        label: 'Salvar',
+        type: 'flat',
+        color: 'primary',
+        icon: 'save',
+        onClick: () => submitSubject.next(),
+      },
+    ];
+
     const modal = this.modalService.openModal(
       `modal-${Math.random()}`,
       UserFormComponent,
       'Adicionar Usuário',
       true,
       true,
+      { submitSubject },
+      undefined,
+      false,
+      formAction,
     );
 
     modal.afterClosed().subscribe((user: User) => {
       if (user) {
-        this.loadUsers();
+        this.userService.createUser(user).subscribe({
+          next: () => this.toastService.openSuccess(MESSAGES.CREATE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.CREATE_ERROR),
+          complete: () => this.loadUsers(),
+        });
       }
     });
   }
 
   onEdit(user: User) {
+    const submitSubject = new Subject<void>();
+    const formAction: ModalAction[] = [
+      {
+        label: 'Cancelar',
+        type: 'stroked',
+        color: 'warn',
+        icon: 'close',
+        onClick: (ref) => ref.close(),
+      },
+      {
+        label: 'Atualizar',
+        type: 'flat',
+        color: 'primary',
+        icon: 'save',
+        onClick: () => submitSubject.next(),
+      },
+    ];
+
     const modal = this.modalService.openModal(
       `modal-${Math.random()}`,
       UserFormComponent,
-      'Editar Usuário',
+      `Editando o usuário ${user.name}`,
       true,
       true,
-      { user },
+      { user, submitSubject },
+      undefined,
+      false,
+      formAction,
     );
 
     modal.afterClosed().subscribe((user: User) => {
       if (user) {
-        this.loadUsers();
+        this.userService.updateUser(user).subscribe({
+          next: () => this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
+          complete: () => this.loadUsers(),
+        });
       }
     });
   }
@@ -115,15 +168,15 @@ export class UsersComponent implements OnInit {
   onDelete(user: User) {
     const modal = this.confirmService.openConfirm(
       'Atenção',
-      'Deseja realmente excluir o usuário?',
+      `Tem certeza que deseja excluir o usuário ${user.name}?`,
       'Confirmar',
       'Cancelar',
     );
-    modal.afterClosed().subscribe((result: boolean) => {
+    modal.afterClosed().subscribe((result: User) => {
       if (result) {
-        this.userService.deleteUser(user.id).subscribe({
-          next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
-          error: () => this.toast.openError(MESSAGES.DELETE_ERROR),
+        this.userService.deleteUser(result).subscribe({
+          next: () => this.toastService.openSuccess(MESSAGES.DELETE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.DELETE_ERROR),
           complete: () => this.loadUsers(),
         });
       }
@@ -134,9 +187,9 @@ export class UsersComponent implements OnInit {
     const updatedStatus = !user.status;
     user.status = updatedStatus;
 
-    this.userService.updatedStatus(user.id, updatedStatus).subscribe({
-      next: () => this.toast.openSuccess(`Usuário ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`),
-      error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
+    this.userService.updatedStatus(user).subscribe({
+      next: () => this.toastService.openSuccess(`Usuário ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`),
+      error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
       complete: () => this.loadUsers(),
     });
   }

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Exception;
 use Illuminate\Validation\Rule;
+use App\Http\Requests\UserRequest;
 
 class UserController extends Controller
 {
@@ -33,19 +34,7 @@ class UserController extends Controller
         return response()->json($users);
     }
 
-    public function store(Request $request) {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|max:30|regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{8,30}$/',
-            'status' => 'boolean',
-            'change_password' => 'boolean',
-            'profile_id' => ['required', 'uuid', Rule::exists('profile', 'id')],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
-        }
+    public function store(UserRequest $request) {
 
         try {
             $user = User::create([
@@ -87,30 +76,11 @@ class UserController extends Controller
         return response()->json($userData);
     }
 
-    public function update(Request $request, string $id) {
+    public function update(UserRequest $request, string $id) {
         $user = User::find($id);
 
         if (!$user) {
             return response()->json(['status' => false, 'message' => 'Usuário não encontrado'], 404);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => [
-                'required',
-                'string',
-                'email',
-                'max:255',
-                Rule::unique('users')->ignore($user->id),
-            ],
-            'password' => 'nullable|string|min:8|max:30|regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{8,30}$/',
-            'status' => 'boolean',
-            'change_password' => 'boolean',
-            'profile_id' => ['required', 'uuid', Rule::exists('profile', 'id')],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
         }
 
         try {
@@ -122,8 +92,10 @@ class UserController extends Controller
 
             $user->update($data);
 
-            $profile = Profile::findOrFail($request->profile_id);
-            $user->syncRoles([$profile]); // Sincroniza o perfil
+            if ($request->filled('profile_id')) {
+                $profile = Profile::findOrFail($request->profile_id);
+                $user->syncRoles([$profile]); // Sincroniza o perfil
+            }
 
             return response()->json(['status' => true, 'message' => 'Usuário atualizado com sucesso', 'data' => $user], 200);
         } catch (Exception $e) {
