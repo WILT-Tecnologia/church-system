@@ -60,7 +60,14 @@ export class StatusBadgeComponent {
   showPing = computed<boolean>(() => {
     const cfgAnimated = this.resolvedConfig()?.animated;
     const isAnimated = cfgAnimated !== undefined ? cfgAnimated : this.animated();
-    return isAnimated && this.variant() === 'success';
+    return (
+      isAnimated &&
+      (this.variant() === 'success' ||
+        this.variant() === 'warning' ||
+        this.variant() === 'info' ||
+        this.variant() === 'neutral' ||
+        this.variant() === 'danger')
+    );
   });
 
   badgeClass = computed<string>(() =>

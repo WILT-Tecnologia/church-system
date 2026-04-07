@@ -14,7 +14,6 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
-import { LoadingService } from 'app/components/loading/loading.service';
 import { TabDirective } from 'app/components/tabs/tab.directive';
 import { TabsComponent } from 'app/components/tabs/tabs.component';
 import { MESSAGES } from 'app/components/toast/messages';
@@ -73,7 +72,6 @@ export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
   private formatsPipe = inject(FormatsPipe);
   private readonly validationService = inject(ValidationService);
   private readonly dialogRef = inject(MatDialogRef<FinancialTransactionsFormComponent>);
-  private readonly loadingService = inject(LoadingService);
   private readonly data = inject(MAT_DIALOG_DATA) as {
     financialTransactions?: FinancialTransations;
     submitSubject?: Subject<void>;
@@ -285,11 +283,29 @@ export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
   private checkEditMode(): void {
     if (this.data?.financialTransactions?.id) {
       this.isEditMode.set(true);
+      this.disableFieldsForEditMode();
 
       if (this.data.financialTransactions.receipt && typeof this.data.financialTransactions.receipt === 'string') {
         this.photoPreview = this.data.financialTransactions.receipt;
       }
     }
+  }
+
+  private disableFieldsForEditMode(): void {
+    const fieldsToDisable = [
+      'entry_exit',
+      'customer_supplier',
+      'member_id',
+      'supplier_id',
+      'cat_financial_id',
+      'payment',
+      'amount',
+      'payment_date',
+    ];
+
+    fieldsToDisable.forEach((field) => {
+      this.financialTransactionsForm.get(field)?.disable();
+    });
   }
 
   onFileSelected(event: Event) {

@@ -37,9 +37,9 @@ export class EventCallComponent implements OnInit {
     { key: 'church.name', header: 'Igreja', type: 'string' },
     { key: 'theme', header: 'Tema', type: 'string' },
     { key: 'start_date', header: 'Data inicial', type: 'date' },
-    { key: 'start_time', header: 'Hora inicial', type: 'hour' },
+    { key: 'start_time', header: 'Hora inicial', type: 'time' },
     { key: 'end_date', header: 'Data final', type: 'date' },
-    { key: 'end_time', header: 'Hora final', type: 'hour' },
+    { key: 'end_time', header: 'Hora final', type: 'time' },
   ];
   actions: ActionsProps[] = [
     {

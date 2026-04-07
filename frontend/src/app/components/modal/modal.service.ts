@@ -20,8 +20,9 @@ export class ModalService {
    * @param customClassContainer Classe CSS para o container
    * @param enableFullscreen Habilita o botão de tela cheia
    * @param actions Lista de botões exibidos no rodapé do modal
+   * @param width Adiciona uma largura ao modal
+   * @param height Adiciona uma altura ao modal
    * @returns Referência do dialog aberto
-   *
    * @example
    * // Botão cancelar (warn) + botão salvar (primary)
    * this.modalService.openModal(
@@ -49,6 +50,8 @@ export class ModalService {
    *       onClick: (ref) => { this.salvar(); ref.close(true); },
    *     },
    *   ],
+   *   width: '500px',
+   *   height: '500px',
    * );
    */
   public openModal(
@@ -62,10 +65,9 @@ export class ModalService {
     enableFullscreen: boolean = false,
     actions: ModalAction[] = [],
     width: string = 'auto',
-    height: string = '65dvh',
+    height: string = '50dvh',
   ) {
     const isMobile = window.innerWidth <= 768 || window.innerHeight <= 600;
-
     const panelClasses = Array.isArray(customClassContainer)
       ? [...customClassContainer, 'responsive-modal']
       : customClassContainer

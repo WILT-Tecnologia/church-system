@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Inject, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -26,6 +26,8 @@ type ModalProps = {
   enableFullscreen?: boolean;
   customContent?: any;
   actions?: ModalAction[];
+  width?: string;
+  height?: string;
 };
 
 @Component({
@@ -42,7 +44,7 @@ type ModalProps = {
     CommonModule,
   ],
 })
-export class ModalComponent implements OnInit, AfterViewInit {
+export class ModalComponent implements AfterViewInit {
   isFullscreen: boolean = false;
 
   @ViewChild('customContent', { static: false }) customContent: any;
@@ -52,10 +54,6 @@ export class ModalComponent implements OnInit, AfterViewInit {
     @Inject(MAT_DIALOG_DATA) public data: ModalProps,
     private cdr: ChangeDetectorRef,
   ) {}
-
-  ngOnInit() {
-    this.dialogRef.updateSize();
-  }
 
   ngAfterViewInit() {
     setTimeout(() => {

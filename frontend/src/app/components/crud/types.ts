@@ -14,5 +14,30 @@ export type ActionsProps = {
 export type ColumnDefinitionsProps = {
   key: string;
   header: string;
-  type: string;
+  type:
+    | 'string'
+    | 'number'
+    | 'email'
+    | 'phone'
+    | 'select'
+    | 'url'
+    | 'boolean'
+    | 'time'
+    | 'date'
+    | 'datetime'
+    | 'color'
+    | 'cpfCnpj'
+    | 'cpf'
+    | 'cnpj'
+    | 'YesNo'
+    | 'situation'
+    | 'typeEntry'
+    | 'sex'
+    | 'currency'
+    | 'typePayment'
+    | 'costCenter'
+    | 'customerSupplier'
+    | 'entryExit'
+    | 'typeService'
+    | 'typeSupplier';
 };

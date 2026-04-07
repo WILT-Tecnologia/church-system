@@ -147,6 +147,58 @@
               ]"
             />
           }
+          @case ('typePayment') {
+            <app-status-badge
+              [value]="rowFields[column.key]"
+              [configs]="[
+                { when: 'dinheiro', label: 'Dinheiro', variant: 'success' },
+                { when: 'credito', label: 'Cartão de Crédito', variant: 'info' },
+                { when: 'debito', label: 'Cartão de Débito', variant: 'neutral' },
+                { when: 'pix', label: 'PIX', variant: 'warning' },
+                { when: 'boleto', label: 'Boleto', variant: 'info' },
+                { when: 'cheque', label: 'Cheque', variant: 'neutral' },
+              ]"
+            />
+          }
+          @case ('customerSupplier') {
+            <app-status-badge
+              [value]="rowFields[column.key]"
+              [configs]="[
+                { when: 'membro', label: 'Membro', variant: 'success' },
+                { when: 'fornecedor', label: 'Fornecedor', variant: 'info' },
+                { when: 'pessoa', label: 'Pessoa', variant: 'neutral' },
+              ]"
+            />
+          }
+          @case ('entryExit') {
+            <app-status-badge
+              [value]="rowFields[column.key]"
+              [configs]="[
+                { when: 'entrada', label: 'Entrada', variant: 'success' },
+                { when: 'saida', label: 'Saída', variant: 'danger' },
+                { when: 'saída', label: 'Saída', variant: 'danger' },
+              ]"
+            />
+          }
+          @case ('typeService') {
+            <app-status-badge
+              [value]="rowFields[column.key]"
+              [configs]="[
+                { when: 'produto', label: 'Produto', variant: 'warning' },
+                { when: 'servico', label: 'Serviço', variant: 'success' },
+                { when: 'ambos', label: 'Ambos', variant: 'info' },
+              ]"
+            />
+          }
+          @case ('typeSupplier') {
+            <app-status-badge
+              [value]="rowFields[column.key]"
+              [configs]="[
+                { when: 'PF', label: 'Pessoa Física', variant: 'success' },
+                { when: 'PJ', label: 'Pessoa Jurídica', variant: 'info' },
+              ]"
+            />
+          }
           @case ('select') {
             {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
           }

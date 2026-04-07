@@ -34,7 +34,7 @@ export class SuppliersComponent implements OnInit {
     { key: 'name', header: 'Nome', type: 'string' },
     { key: 'cpf_cnpj', header: 'CPF/CNPJ', type: 'cpfCnpj' },
     { key: 'type_supplier', header: 'Tipo do Fornecedor', type: 'typeSupplier' },
-    { key: 'type_service', header: 'Tipo de Serviço', type: 'string' },
+    { key: 'type_service', header: 'Tipo de Serviço', type: 'typeService' },
     { key: 'phone_one', header: 'Telefone', type: 'phone' },
     { key: 'email', header: 'Email', type: 'email' },
     { key: 'contact_name', header: 'Contato', type: 'string' },

@@ -18,6 +18,8 @@ export interface FinancialTransations {
   cat_financial_id: string;
   category_id?: FinancialCategories;
   category?: FinancialCategories;
+  entry_exit_label?: string;
+  payment_label?: string;
   payment: Payment;
   amount: number;
   discount?: number;

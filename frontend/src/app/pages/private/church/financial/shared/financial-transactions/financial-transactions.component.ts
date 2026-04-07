@@ -35,14 +35,14 @@ export class FinancialTransactionsComponent implements OnInit {
   public columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'church.name', header: 'Igreja', type: 'string' },
     { key: 'category.name', header: 'Categoria', type: 'string' },
-    { key: 'customer_supplier_label', header: 'Tipo', type: 'string' },
+    { key: 'customer_supplier_label', header: 'Tipo', type: 'customerSupplier' },
     { key: 'person_supplier_name', header: 'Pessoa/Fornecedor', type: 'string' },
-    { key: 'entry_exit_label', header: 'Tipo', type: 'string' },
-    { key: 'payment_label', header: 'Forma de Pagamento', type: 'string' },
-    { key: 'amount', header: 'Valor Original', type: 'currency' },
-    { key: 'discount', header: 'Valor do Desconto', type: 'currency' },
-    { key: 'amount_discount', header: 'Valor com Desconto', type: 'currency' },
-    { key: 'payment_date', header: 'Data de Pagamento', type: 'date' },
+    { key: 'entry_exit_label', header: 'Tipo de lançamento', type: 'entryExit' },
+    { key: 'payment_label', header: 'Forma de pagamento', type: 'typePayment' },
+    { key: 'amount', header: 'Valor original', type: 'currency' },
+    { key: 'discount', header: 'Valor do desconto', type: 'currency' },
+    { key: 'amount_discount', header: 'Valor com desconto', type: 'currency' },
+    { key: 'payment_date', header: 'Data de pagamento', type: 'date' },
   ];
   public actions: ActionsProps[] = [
     {
@@ -174,7 +174,7 @@ export class FinancialTransactionsComponent implements OnInit {
     const modal = this.dialog.openModal(
       `modal-${Math.random()}`,
       FinancialTransactionsFormComponent,
-      'Adicionar Lançamento',
+      'Adicionar lançamento',
       true,
       true,
       { submitSubject },
@@ -216,7 +216,7 @@ export class FinancialTransactionsComponent implements OnInit {
     const modal = this.dialog.openModal(
       `modal-${Math.random()}`,
       FinancialTransactionsFormComponent,
-      `Editando o Lançamento`,
+      `Editando o lançamento ${financialTransactions.category?.name} - ${financialTransactions.entry_exit_label} - ${financialTransactions.payment_label}`,
       true,
       true,
       { financialTransactions, submitSubject },
