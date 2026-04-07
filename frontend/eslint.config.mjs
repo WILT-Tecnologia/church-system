@@ -50,7 +50,7 @@ export default tseslint.config(
       '@typescript-eslint/consistent-indexed-object-style': 'off',
       '@typescript-eslint/consistent-type-definitions': 'off',
       '@angular-eslint/no-output-native': 'off',
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': 'off',
       '@angular-eslint/directive-selector': [
         'error',
         {

@@ -10,8 +10,8 @@ import { FinancialTransations } from 'app/model/FinancialTransations';
   providedIn: 'root',
 })
 export class FinancialTransactionsService {
-  private readonly baseUrl = `${environment.apiUrl}/church/financial-transactions`;
   private http = inject(HttpClient);
+  private readonly baseUrl = `${environment.apiUrl}/church/financial-transactions`;
 
   findAllFinancialTransactions(): Observable<FinancialTransations[]> {
     return this.http.get<FinancialTransations[]>(this.baseUrl);
@@ -29,15 +29,12 @@ export class FinancialTransactionsService {
     return this.http.post<FinancialTransations>(this.baseUrl, formData);
   }
 
-  updateFinancialTransactions(
-    id: string,
-    financialTransactions: Partial<FinancialTransations>,
-  ): Observable<FinancialTransations> {
-    return this.http.put<FinancialTransations>(`${this.baseUrl}/${id}`, financialTransactions);
+  updateFinancialTransactions(financialTransactions: Partial<FinancialTransations>): Observable<FinancialTransations> {
+    return this.http.put<FinancialTransations>(`${this.baseUrl}/${financialTransactions.id}`, financialTransactions);
   }
 
-  updateWithFormData(id: string, formData: FormData): Observable<FinancialTransations> {
-    return this.http.post<FinancialTransations>(`${this.baseUrl}/${id}`, formData);
+  updateWithFormData(formData: FormData): Observable<FinancialTransations> {
+    return this.http.put<FinancialTransations>(`${this.baseUrl}/${formData.get('id')}`, formData);
   }
 
   deleteFinancialTransactions(financialTransactions: FinancialTransations): Observable<FinancialTransations> {

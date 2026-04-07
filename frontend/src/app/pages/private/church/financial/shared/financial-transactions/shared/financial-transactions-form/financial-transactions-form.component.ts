@@ -12,10 +12,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { TabDirective } from 'app/components/tabs/tab.directive';
+import { TabsComponent } from 'app/components/tabs/tabs.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Church } from 'app/model/Church';
@@ -30,7 +31,6 @@ import { forkJoin, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
 import { MembersService } from '../../../../../members/members.service';
 import { FinancialCategoriesService } from '../../../financial-categories/financial-categories.service';
 import { SuppliersService } from '../../../suppliers/suppliers.service';
-import { FinancialTransactionsService } from '../../financial-transactions.service';
 
 @Component({
   selector: 'app-financial-transactions-form',
@@ -38,7 +38,6 @@ import { FinancialTransactionsService } from '../../financial-transactions.servi
   styleUrl: './financial-transactions-form.component.scss',
   imports: [
     ColumnComponent,
-    ActionsComponent,
     MatFormFieldModule,
     MatSelectModule,
     MatOptionModule,
@@ -54,6 +53,8 @@ import { FinancialTransactionsService } from '../../financial-transactions.servi
     MatDatepickerModule,
     MatTabsModule,
     MatTooltipModule,
+    TabsComponent,
+    TabDirective,
   ],
   providers: [
     provideNgxMask(),
@@ -64,7 +65,6 @@ import { FinancialTransactionsService } from '../../financial-transactions.servi
 })
 export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
-  private financialTransactionsService = inject(FinancialTransactionsService);
   private membersService = inject(MembersService);
   private suppliersService = inject(SuppliersService);
   private financialCategoriesService = inject(FinancialCategoriesService);
@@ -73,7 +73,11 @@ export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
   private formatsPipe = inject(FormatsPipe);
   private readonly validationService = inject(ValidationService);
   private readonly dialogRef = inject(MatDialogRef<FinancialTransactionsFormComponent>);
-  private readonly data = inject(MAT_DIALOG_DATA) as { financialTransactions: FinancialTransations };
+  private readonly loadingService = inject(LoadingService);
+  private readonly data = inject(MAT_DIALOG_DATA) as {
+    financialTransactions?: FinancialTransations;
+    submitSubject?: Subject<void>;
+  };
 
   financialTransactionsForm!: FormGroup;
   isEditMode = signal(false);
@@ -83,7 +87,6 @@ export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
   @ViewChild('payment_date') payment_date!: MatDatepicker<Date>;
 
   private destroy$ = new Subject<void>();
-  private readonly loadingService = inject(LoadingService);
 
   entryExit = EntryExit;
   customerSupplier = CustomerSupplier;
@@ -124,6 +127,12 @@ export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
     this.setupCalculationLogic();
     this.setupConditionalValidation();
     this.loadData();
+
+    if (this.data?.submitSubject) {
+      this.data.submitSubject.pipe(takeUntil(this.destroy$)).subscribe(() => {
+        this.handleSubmit();
+      });
+    }
   }
 
   ngOnDestroy(): void {
@@ -132,7 +141,7 @@ export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
   }
 
   private createForm(): FormGroup {
-    const pat: FinancialTransations = this.data?.financialTransactions;
+    const pat: FinancialTransations = this.data?.financialTransactions as FinancialTransations;
     const selectedChurchId = localStorage.getItem('selectedChurch');
 
     const pDate = this.formatsPipe.parseDateLocal(pat?.payment_date);
@@ -313,8 +322,7 @@ export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
 
   private loadData(): void {
     if (this.isEditMode()) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { receipt: _receipt, payment_date, ...dataToPatch } = this.data.financialTransactions;
+      const { receipt, payment_date, ...dataToPatch } = this.data.financialTransactions!;
 
       const pDate = this.formatsPipe.parseDateLocal(payment_date as string | Date | null | undefined);
 
@@ -327,92 +335,36 @@ export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
   }
 
   handleSubmit() {
+    this.financialTransactionsForm.markAllAsTouched();
+
     if (this.financialTransactionsForm.invalid) {
-      this.financialTransactionsForm.markAllAsTouched();
-      this.toast.openError(MESSAGES.FORM_INVALID);
+      this.toast.openWarning(MESSAGES.FORM_VALUES_NOT_FOUND);
       return;
     }
 
+    const data = this.financialTransactionsForm.getRawValue();
+    const formData = new FormData();
+
+    Object.keys(data).forEach((key) => {
+      if (data[key] !== null && data[key] !== undefined) {
+        if (key === 'payment_date' && data[key] instanceof Date) {
+          formData.append(key, data[key].toISOString().split('T')[0]);
+        } else if (key === 'receipt' && data[key] instanceof File) {
+          formData.append(key, data[key]);
+        } else {
+          formData.append(key, data[key]);
+        }
+      }
+    });
+
     if (this.isEditMode()) {
-      this.updateFinancialTransactions(
-        this.data?.financialTransactions?.id,
-        this.financialTransactionsForm.getRawValue(),
-      );
-    } else {
-      this.handleCreate(this.financialTransactionsForm.getRawValue());
+      formData.append('_method', 'PUT');
     }
-  }
 
-  private handleCreate(data: any) {
-    this.loadingService.show();
-
-    const formData = new FormData();
-    Object.keys(data).forEach((key) => {
-      if (data[key] !== null && data[key] !== undefined) {
-        if (key === 'payment_date' && data[key] instanceof Date) {
-          formData.append(key, data[key].toISOString().split('T')[0]);
-        } else if (key === 'receipt' && data[key] instanceof File) {
-          formData.append(key, data[key]);
-        } else {
-          formData.append(key, data[key]);
-        }
-      }
-    });
-
-    this.financialTransactionsService.createWithFormData(formData).subscribe({
-      next: () => {
-        this.toast.openSuccess(MESSAGES.CREATE_SUCCESS);
-        this.dialogRef?.close(true);
-      },
-      error: (error) => {
-        this.toast.openError(error.error.message || 'Erro ao salvar');
-      },
-      complete: () => this.loadingService.hide(),
-    });
-  }
-
-  private updateFinancialTransactions(id: string, data: any) {
-    this.loadingService.show();
-
-    const formData = new FormData();
-    Object.keys(data).forEach((key) => {
-      if (data[key] !== null && data[key] !== undefined) {
-        if (key === 'payment_date' && data[key] instanceof Date) {
-          formData.append(key, data[key].toISOString().split('T')[0]);
-        } else if (key === 'receipt' && data[key] instanceof File) {
-          formData.append(key, data[key]);
-        } else {
-          formData.append(key, data[key]);
-        }
-      }
-    });
-
-    formData.append('_method', 'PUT');
-
-    // Laravel uses POST for updates when sending files via FormData due to PHP limitations with PUT
-    this.financialTransactionsService.updateWithFormData(id, formData).subscribe({
-      next: () => {
-        this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS);
-        this.dialogRef?.close(true);
-      },
-      error: (error) => {
-        this.toast.openError(error.error.message || 'Erro ao atualizar');
-      },
-      complete: () => this.loadingService.hide(),
-    });
-  }
-
-  handleCancel() {
-    this.dialogRef.close(false);
+    this.dialogRef.close(formData);
   }
 
   clearDate(fieldName: string) {
     this.financialTransactionsForm.get(fieldName)?.reset();
-  }
-
-  private openCalendarDate(): void {
-    if (this.payment_date) {
-      this.payment_date.open();
-    }
   }
 }

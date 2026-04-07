@@ -1,8 +1,8 @@
 <app-crud
-  [fields]="financialTransactions"
+  [fields]="financialTransactions()"
   [dataSourceMat]="dataSourceMat"
   [columnDefinitions]="columnDefinitions"
-  (add)="createFinancialTransactions()"
+  (add)="onCreate()"
   [actions]="actions"
   [writePermission]="'write_church_lancamentos_financeiros'"
   [deletePermission]="'delete_church_lancamentos_financeiros'"

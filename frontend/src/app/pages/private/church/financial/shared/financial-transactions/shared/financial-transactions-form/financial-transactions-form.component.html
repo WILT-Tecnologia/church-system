@@ -1,6 +1,6 @@
 <form [formGroup]="financialTransactionsForm" (ngSubmit)="handleSubmit()" class="form-field-group">
-  <mat-tab-group animationDuration="300ms">
-    <mat-tab label="Identificação">
+  <app-tabs>
+    <ng-template appTab label="Identificação">
       <app-column [columns]="2">
         <mat-form-field appearance="fill">
           <mat-label>Igreja</mat-label>
@@ -106,19 +106,9 @@
           }
         </app-column>
       }
+    </ng-template>
 
-      <app-column [columns]="1">
-        <mat-form-field>
-          <mat-label>Descrição</mat-label>
-          <textarea matInput formControlName="description" rows="3"></textarea>
-          @if (getErrorMessage('description')) {
-            <mat-error>{{ getErrorMessage('description') }}</mat-error>
-          }
-        </mat-form-field>
-      </app-column>
-    </mat-tab>
-
-    <mat-tab label="Financeiro">
+    <ng-template appTab label="Financeiro">
       <app-column [columns]="2">
         <mat-form-field>
           <mat-label>Valor</mat-label>
@@ -221,9 +211,9 @@
           }
         </mat-form-field>
       </app-column>
-    </mat-tab>
+    </ng-template>
 
-    <mat-tab label="Comprovante">
+    <ng-template appTab label="Comprovante">
       <div class="photo-container">
         <label class="photo-label">Recibo / Comprovante</label>
 
@@ -253,13 +243,18 @@
           </div>
         }
       </div>
-    </mat-tab>
-  </mat-tab-group>
+    </ng-template>
 
-  <app-actions (onCancel)="handleCancel()">
-    <button mat-stroked-button type="button" color="warn" (click)="handleCancel()">Cancelar</button>
-    <button mat-flat-button type="submit" color="primary">
-      {{ isEditMode() ? 'Atualizar' : 'Salvar' }}
-    </button>
-  </app-actions>
+    <ng-template appTab label="Informações complementares">
+      <app-column [columns]="1">
+        <mat-form-field>
+          <mat-label>Descrição</mat-label>
+          <textarea matInput formControlName="description" rows="3"></textarea>
+          @if (getErrorMessage('description')) {
+            <mat-error>{{ getErrorMessage('description') }}</mat-error>
+          }
+        </mat-form-field>
+      </app-column>
+    </ng-template>
+  </app-tabs>
 </form>
