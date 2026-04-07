@@ -21,10 +21,30 @@
           [deletePermission]="crudConfig.deletePermission"
         ></app-crud>
       } @else {
-        <app-not-found-register (add)="addFn.emit()"></app-not-found-register>
+        <div class="not-found-container">
+          <mat-icon class="not-found-icon">inbox</mat-icon>
+          <span class="not-found-text">Nenhuma informação encontrada</span>
+          @if (enableAddButtonAdd()) {
+            <div class="margin-not-found">
+              <button mat-flat-button color="primary" type="button" (click)="add.emit()">
+                {{ ctaLabel() || 'Adicionar' }}
+              </button>
+            </div>
+          }
+        </div>
       }
     </mat-tab>
   } @empty {
-    <app-not-found-register (add)="addFn.emit()"></app-not-found-register>
+    <div class="not-found-container">
+      <mat-icon class="not-found-icon">inbox</mat-icon>
+      <span class="not-found-text">Nenhuma informação encontrada</span>
+      @if (enableAddButtonAdd()) {
+        <div class="margin-not-found">
+          <button mat-flat-button color="primary" type="button" (click)="add.emit()">
+            {{ ctaLabel() || 'Adicionar' }}
+          </button>
+        </div>
+      }
+    </div>
   }
 </mat-tab-group>

@@ -11,3 +11,38 @@ mat-tab-group {
 app-crud {
   margin-top: 1rem;
 }
+
+.no-data-row {
+  margin: 2.5rem !important;
+}
+
+.no-data-cell {
+  text-align: center !important;
+  padding-top: 2rem !important;
+  padding-bottom: 2rem !important;
+}
+
+.not-found-container {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  color: var(--neutral-40) !important;
+  padding: 3.75rem !important;
+}
+
+.not-found-icon {
+  width: 4rem !important;
+  height: 4rem !important;
+  font-size: 4rem !important;
+  opacity: 0.5 !important;
+}
+
+.not-found-text {
+  font-size: 1.125rem !important;
+  font-weight: 500 !important;
+}
+
+.margin-not-found {
+  margin: 0.6rem;
+}

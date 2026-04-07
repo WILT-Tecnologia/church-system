@@ -8,7 +8,6 @@ import { CrudComponent } from 'app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
 import { ModalService } from 'app/components/modal/modal.service';
-import { NotFoundRegisterComponent } from 'app/components/not-found-register/not-found-register.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { EventCall, Events } from 'app/model/Events';
@@ -24,7 +23,7 @@ import { FrequencyFormComponent } from './shared/frequency-form/frequency-form.c
   templateUrl: './frequencies.component.html',
   styleUrl: './frequencies.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CrudComponent, NotFoundRegisterComponent],
+  imports: [CrudComponent],
   providers: [
     ToastService,
     LoadingService,
@@ -41,7 +40,6 @@ export class FrequenciesComponent implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly loading = inject(LoadingService);
   private readonly eventsService = inject(EventsService);
-  private readonly frequencyService = inject(FrequenciesService);
   private readonly callToDayService = inject(EventCallService);
   private readonly modal = inject(ModalService);
   private readonly dialogRef = inject(MatDialogRef);
@@ -49,9 +47,7 @@ export class FrequenciesComponent implements OnInit {
 
   event = signal<Events | null>(null);
   callToDays = signal<EventCall[]>([]);
-
   dataSourceMat = new MatTableDataSource<EventCall>([]);
-
   columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'church.name', header: 'Igreja', type: 'string' },
     { key: 'event.name', header: 'Evento', type: 'string' },
@@ -62,7 +58,6 @@ export class FrequenciesComponent implements OnInit {
     { key: 'theme', header: 'Tema', type: 'string' },
     { key: 'location', header: 'Local', type: 'string' },
   ];
-
   actions: ActionsProps[] = [
     {
       type: 'edit',

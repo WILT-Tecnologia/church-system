@@ -108,6 +108,40 @@
   table-layout: auto;
 }
 
+.loading-container {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--transparent-color);
+  z-index: 10;
+}
+
+.loading-container-spacings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.loading-container-icon {
+  color: var(--primary-color);
+  font-size: 3rem;
+  width: 3rem;
+  height: 3rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .mat-header-cell,
 .mat-cell,
 td,
@@ -235,6 +269,7 @@ th {
 
 .paginator {
   padding: 1rem 0;
+  background-color: var(--transparent-color);
 }
 
 .toggle {
@@ -302,13 +337,51 @@ button.active {
 .color-display {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
 }
 
 .color-box {
   width: 1.5rem;
   height: 1.5rem;
-  border-radius: 0.25rem;
+  border-radius: 1rem;
   border: 0.1rem solid var(--neutral-40);
-  flex-shrink: 0;
+  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.row-relative {
+  position: relative;
+}
+
+.no-data-row {
+  margin: 2.5rem !important;
+}
+
+.no-data-cell {
+  text-align: center !important;
+  padding-top: 2rem !important;
+  padding-bottom: 2rem !important;
+}
+
+.not-found-container {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  color: var(--neutral-40) !important;
+  padding: 3.75rem !important;
+}
+
+.not-found-icon {
+  width: 4rem !important;
+  height: 4rem !important;
+  font-size: 4rem !important;
+  opacity: 0.5 !important;
+}
+
+.not-found-text {
+  font-size: 1.125rem !important;
+  font-weight: 500 !important;
+}
+
+.margin-not-found {
+  margin: 0.6rem;
 }

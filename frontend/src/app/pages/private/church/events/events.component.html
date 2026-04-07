@@ -44,10 +44,9 @@
             [tabs]="eventTypesValue"
             [crudConfig]="crudConfig"
             [dataService]="findEventsByTabIdAdapter"
-            (addFn)="onCreateEvent()"
+            (add)="onCreateEvent()"
+            [ctaLabel]="'Novo Evento'"
           ></app-tab-crud>
-        } @else {
-          <app-not-found-register (add)="onCreateEvent()"></app-not-found-register>
         }
       </ng-container>
     }

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable, Type } from '@angular/core';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 
 import { ModalAction, ModalComponent } from './modal.component';
@@ -7,7 +7,7 @@ import { ModalAction, ModalComponent } from './modal.component';
   providedIn: 'root',
 })
 export class ModalService {
-  constructor(private dialog: MatDialog) {}
+  private dialog = inject(MatDialog);
 
   /**
    * Modal para ser usado em toda a aplicação
@@ -53,7 +53,7 @@ export class ModalService {
    */
   public openModal(
     id?: string,
-    customContent?: any,
+    customContent?: Type<any>,
     title: string = '',
     isHandleClose: boolean = false,
     disableClose: boolean = true,
@@ -61,6 +61,8 @@ export class ModalService {
     customClassContainer?: string | string[],
     enableFullscreen: boolean = false,
     actions: ModalAction[] = [],
+    width: string = 'auto',
+    height: string = '65dvh',
   ) {
     const isMobile = window.innerWidth <= 768 || window.innerHeight <= 600;
 
@@ -71,13 +73,13 @@ export class ModalService {
         : ['responsive-modal'];
 
     const dialogConfig: MatDialogConfig = {
-      width: '50dvw',
-      maxWidth: '50dvw',
-      minWidth: '50dvw',
-      maxHeight: '80dvh',
+      width: isMobile ? '100dvw' : width,
+      height: isMobile ? '100dvh' : height,
+      maxWidth: '100dvw',
+      maxHeight: '90vh',
       role: 'dialog',
       autoFocus: false,
-      disableClose,
+      disableClose: disableClose,
       panelClass: panelClasses,
       data: {
         id,
@@ -87,15 +89,11 @@ export class ModalService {
         customClassContainer,
         enableFullscreen,
         actions,
+        width,
+        height,
         ...data,
       },
     };
-
-    if (isMobile) {
-      dialogConfig.width = '100dvw';
-      dialogConfig.maxWidth = '100dvw';
-      dialogConfig.height = '100dvh';
-    }
 
     return this.dialog.open<ModalComponent>(ModalComponent, dialogConfig);
   }

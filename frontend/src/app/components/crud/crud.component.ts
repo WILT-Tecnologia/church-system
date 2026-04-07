@@ -28,7 +28,8 @@ import { FormatValuesPipe } from 'app/components/crud/pipes/format-values.pipe';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import { AuthService } from 'app/services/auth/auth.service';
 import { ModalService } from '../modal/modal.service';
-import { NotFoundRegisterComponent } from '../not-found-register/not-found-register.component';
+
+import { LoadingComponent } from '../loading/loading.component';
 import { StatusBadgeComponent } from '../status-badge/status-badge.component';
 import {
   FilterButtonAdvancedComponent,
@@ -67,8 +68,8 @@ export class HasNonToggleActionsPipe implements PipeTransform {
     FormatValuesPipe,
     HasNonToggleActionsPipe,
     FilterButtonAdvancedComponent,
-    NotFoundRegisterComponent,
     StatusBadgeComponent,
+    LoadingComponent,
   ],
   providers: [FormatsPipe],
 })
@@ -79,6 +80,7 @@ export class CrudComponent implements OnInit, AfterViewInit {
   ctaLabel = input<string>('Adicionar');
   columnDefinitions = input<ColumnDefinitionsProps[]>([]);
   enableFilterAdvanced = input<boolean>(false);
+  isLoading = input(false);
   enablePagination = input<boolean>(true);
   enableToggleStatus = input<boolean>(false);
   enableAddButtonAdd = input<boolean>(true);

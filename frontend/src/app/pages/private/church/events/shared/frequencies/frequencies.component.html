@@ -1,13 +1,9 @@
-@if (callToDays().length > 0) {
-  <app-crud
-    [fields]="callToDays()"
-    [dataSourceMat]="dataSourceMat"
-    [columnDefinitions]="columnDefinitions"
-    [enableAddButtonAdd]="false"
-    [actions]="actions"
-    readPermission="write_church_eventos"
-    writePermission="write_church_eventos"
-  ></app-crud>
-} @else {
-  <app-not-found-register (add)="onAddFrequency()"></app-not-found-register>
-}
+<app-crud
+  [fields]="callToDays()"
+  [dataSourceMat]="dataSourceMat"
+  [columnDefinitions]="columnDefinitions"
+  [enableAddButtonAdd]="false"
+  [actions]="actions"
+  readPermission="write_church_eventos"
+  writePermission="write_church_eventos"
+></app-crud>

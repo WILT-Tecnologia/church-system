@@ -51,8 +51,8 @@
   box-sizing: border-box;
   outline: none;
   scroll-behavior: smooth;
-  font-family: 'Mulish', 'Roboto', 'Poppins', sans-serif !important;
-  font-weight: 600;
+  font-family: 'Outfit', 'Mulish', 'Poppins', 'Roboto', sans-serif !important;
+  font-weight: 500;
 }
 
 ::selection {
@@ -76,7 +76,7 @@ body {
   color: var(--text-color);
   font-size: 1.3rem;
   margin: 1rem 0;
-  font-family: 'Poppins', 'Mulish', sans-serif !important;
+  font-family: 'Outfit', 'Mulish', 'Poppins', 'Roboto', sans-serif !important;
 
   @media screen and (max-width: 768px) {
     display: flex;

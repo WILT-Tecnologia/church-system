@@ -1,21 +1,30 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, signal } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  input,
+  Input,
+  OnInit,
+  output,
+  Output,
+  signal,
+} from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { Observable } from 'rxjs';
-
-import { CrudConfig, TabConfig } from './types';
-
 import { CrudComponent } from '../crud/crud.component';
 import { LoadingService } from '../loading/loading.service';
-import { NotFoundRegisterComponent } from '../not-found-register/not-found-register.component';
 import { MESSAGES } from '../toast/messages';
 import { ToastService } from '../toast/toast.service';
+import { CrudConfig, TabConfig } from './types';
 
 @Component({
   selector: 'app-tab-crud',
   templateUrl: './tab-crud.component.html',
   styleUrl: './tab-crud.component.scss',
-  imports: [CommonModule, MatTabsModule, CrudComponent, NotFoundRegisterComponent],
+  imports: [CommonModule, MatTabsModule, CrudComponent, MatButtonModule, MatIconModule],
 })
 export class TabCrudComponent implements OnInit {
   constructor(
@@ -28,6 +37,9 @@ export class TabCrudComponent implements OnInit {
   @Input() crudConfig!: CrudConfig;
   @Input() dataService!: (tabId: string) => Observable<any[]>;
   @Output() addFn = new EventEmitter<void>();
+  enableAddButtonAdd = input<boolean>(true);
+  ctaLabel = input<string>('Adicionar');
+  add = output<void>();
   selectedTabIndex = signal(0);
   dataSources = signal<{ [key: string]: any[] }>({});
   loading = signal(false);
