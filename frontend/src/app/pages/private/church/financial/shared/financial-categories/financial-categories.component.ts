@@ -1,14 +1,16 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { CrudComponent } from 'app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalAction } from 'app/components/modal/modal.component';
 import { ModalService } from 'app/components/modal/modal.service';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { FinancialCategories } from 'app/model/FinancialCategories';
 import { AuthService } from 'app/services/auth/auth.service';
+import { Subject } from 'rxjs';
 import { FinancialCategoriesService } from './financial-categories.service';
 import { FinancialCategoriesFormComponent } from './shared/financial-categories-form/financial-categories-form.component';
 
@@ -20,13 +22,20 @@ import { FinancialCategoriesFormComponent } from './shared/financial-categories-
 })
 export class FinancialCategoriesComponent implements OnInit {
   private readonly financialCategoriesService = inject(FinancialCategoriesService);
-  private authService = inject(AuthService);
-  private readonly dialog = inject(ModalService);
+  private readonly authService = inject(AuthService);
+  private readonly dialogService = inject(ModalService);
   private readonly confirmService = inject(ConfirmService);
-  private readonly toast = inject(ToastService);
-  private readonly loading = inject(LoadingService);
-  public financialCategories: FinancialCategories[] = [];
-  public dataSourceMat = new MatTableDataSource<FinancialCategories>(this.financialCategories);
+  private readonly toastService = inject(ToastService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly writeChurchCategoriesFinancial = this.authService.hasPermission(
+    'write_church_categorias_financeiras',
+  );
+  private readonly deleteChurchCategoriesFinancial = this.authService.hasPermission(
+    'delete_church_categorias_financeiras',
+  );
+
+  public financialCategories = signal<FinancialCategories[]>([]);
+  public dataSourceMat = new MatTableDataSource<FinancialCategories>(this.financialCategories());
   public columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'status', header: 'Situação', type: 'boolean' },
     { key: 'name', header: 'Nome', type: 'string' },
@@ -39,7 +48,7 @@ export class FinancialCategoriesComponent implements OnInit {
       activeLabel: 'Ativar',
       inactiveLabel: 'Desativar',
       action: (financialCategories: FinancialCategories) => this.updatedStatus(financialCategories),
-      visible: () => this.authService.hasPermission('write_church_categorias_financeiras'),
+      visible: () => this.writeChurchCategoriesFinancial,
     },
     {
       type: 'edit',
@@ -47,7 +56,7 @@ export class FinancialCategoriesComponent implements OnInit {
       icon: 'edit',
       color: 'inherit',
       action: (financialCategories: FinancialCategories) => this.editFinancialCategories(financialCategories),
-      visible: () => this.authService.hasPermission('write_church_categorias_financeiras'),
+      visible: () => this.writeChurchCategoriesFinancial,
     },
     {
       type: 'delete',
@@ -55,100 +64,140 @@ export class FinancialCategoriesComponent implements OnInit {
       icon: 'delete',
       color: 'warn',
       action: (financialCategories: FinancialCategories) => this.deleteFinancialCategories(financialCategories),
-      visible: () => this.authService.hasPermission('delete_church_categorias_financeiras'),
+      visible: () => this.deleteChurchCategoriesFinancial,
     },
   ];
 
   ngOnInit(): void {
-    this.findAllFinancialCategories();
+    this.getAllFinancialCategories();
   }
 
-  private findAllFinancialCategories(): void {
-    this.loading.show();
+  private getAllFinancialCategories() {
     this.financialCategoriesService.findAllFinancialCategories().subscribe({
       next: (financialCategories: FinancialCategories[]) => {
-        this.financialCategories = financialCategories;
-        this.dataSourceMat.data = this.financialCategories;
-        this.loading.hide();
+        this.financialCategories.set(financialCategories);
+        this.dataSourceMat.data = this.financialCategories();
       },
-      error: (error) => {
-        this.toast.openError(error.error.message ?? MESSAGES.LOADING_ERROR);
-        this.loading.hide();
-      },
+      error: (error) => this.toastService.openError(error.error.message ?? MESSAGES.LOADING_ERROR),
+      complete: () => this.loadingService.hide(),
     });
   }
 
-  createFinancialCategories(): void {
-    const dialogRef = this.dialog.openModal(
+  onCreate() {
+    const submitSubject = new Subject<void>();
+    const formAction: ModalAction[] = [
+      {
+        label: 'Cancelar',
+        type: 'stroked',
+        color: 'warn',
+        icon: 'close',
+        onClick: (ref) => ref.close(),
+      },
+      {
+        label: 'Salvar',
+        type: 'flat',
+        color: 'primary',
+        icon: 'save',
+        onClick: () => submitSubject.next(),
+      },
+    ];
+
+    const modal = this.dialogService.openModal(
       `modal-${Math.random()}`,
       FinancialCategoriesFormComponent,
       'Adicionar categoria',
       true,
       true,
-      {},
+      { submitSubject },
+      undefined,
+      false,
+      formAction,
     );
 
-    dialogRef.afterClosed().subscribe((result) => {
+    modal.afterClosed().subscribe((result: FinancialCategories) => {
       if (result) {
-        this.findAllFinancialCategories();
+        this.financialCategoriesService.createFinancialCategories(result).subscribe({
+          next: () => this.toastService.openSuccess(MESSAGES.CREATE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.CREATE_ERROR),
+          complete: () => this.getAllFinancialCategories(),
+        });
       }
     });
   }
 
-  private editFinancialCategories(financialCategories: FinancialCategories): void {
-    const dialogRef = this.dialog.openModal(
+  private editFinancialCategories(financialCategories: FinancialCategories) {
+    const submitSubject = new Subject<void>();
+    const formAction: ModalAction[] = [
+      {
+        label: 'Cancelar',
+        type: 'stroked',
+        color: 'warn',
+        icon: 'close',
+        onClick: (ref) => ref.close(),
+      },
+      {
+        label: 'Atualizar',
+        type: 'flat',
+        color: 'primary',
+        icon: 'save',
+        onClick: () => submitSubject.next(),
+      },
+    ];
+
+    const modal = this.dialogService.openModal(
       `modal-${Math.random()}`,
       FinancialCategoriesFormComponent,
       `Editando a categoria ${financialCategories.name}`,
       true,
       true,
-      { financialCategories },
+      { financialCategories, submitSubject },
+      undefined,
+      false,
+      formAction,
     );
 
-    dialogRef.afterClosed().subscribe((result) => {
+    modal.afterClosed().subscribe((result) => {
       if (result) {
-        this.findAllFinancialCategories();
+        this.getAllFinancialCategories();
       }
     });
   }
 
   private deleteFinancialCategories(financialCategories: FinancialCategories): void {
-    const confirm = this.confirmService.openConfirm(
-      'Excluir categoria',
-      `Tem certeza que deseja excluir a categoria ${financialCategories.name}?`,
-      'Excluir',
+    const modal = this.confirmService.openConfirm(
+      'Exclusão de categoria de lançamento',
+      `Tem certeza que deseja excluir a categoria de lançamento "${financialCategories.name.toUpperCase()}"?`,
+      'Confirmar',
       'Cancelar',
     );
 
-    confirm.afterClosed().subscribe((result) => {
+    modal.afterClosed().subscribe((result) => {
       if (result) {
-        this.loading.show();
         this.financialCategoriesService.deleteFinancialCategories(financialCategories).subscribe({
-          next: () => {
-            this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
-            this.loading.hide();
-          },
-          error: (error) => {
-            this.toast.openError(error.error.message ?? MESSAGES.DELETE_ERROR);
-            this.loading.hide();
-          },
+          next: () => this.toastService.openSuccess(MESSAGES.DELETE_SUCCESS),
+          error: (error) => this.toastService.openError(error.error.message ?? MESSAGES.DELETE_ERROR),
+          complete: () => this.getAllFinancialCategories(),
         });
       }
     });
   }
 
   private updatedStatus(financialCategories: FinancialCategories): void {
-    this.loading.show();
-    this.financialCategoriesService.updatedStatus(financialCategories.id, !financialCategories.status).subscribe({
-      next: () => {
-        this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS);
-        this.loading.hide();
-      },
-      error: (error) => {
-        this.toast.openError(error.error.message ?? MESSAGES.UPDATE_ERROR);
-        this.loading.hide();
-      },
-      complete: () => this.findAllFinancialCategories(),
+    const modal = this.confirmService.openConfirm(
+      'Atualização de status de categoria de lançamento',
+      `Tem certeza que deseja ${financialCategories.status ? 'desativar' : 'ativar'} a categoria de lançamento "${financialCategories.name.toUpperCase()}"?`,
+      'Confirmar',
+      'Cancelar',
+    );
+
+    modal.afterClosed().subscribe((result) => {
+      if (result) {
+        this.financialCategoriesService.updatedStatus(financialCategories).subscribe({
+          next: () => this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS),
+          error: (error) => this.toastService.openError(error.error.message ?? MESSAGES.UPDATE_ERROR),
+          complete: () => this.getAllFinancialCategories(),
+        });
+      }
     });
   }
 }

@@ -1,9 +1,9 @@
 <app-crud
-  [fields]="financialCategories"
+  [fields]="financialCategories()"
   [dataSourceMat]="dataSourceMat"
   [columnDefinitions]="columnDefinitions"
   [actions]="actions"
-  (add)="createFinancialCategories()"
+  (add)="onCreate()"
   [writePermission]="'write_church_categorias_financeiras'"
   [deletePermission]="'delete_church_categorias_financeiras'"
 ></app-crud>

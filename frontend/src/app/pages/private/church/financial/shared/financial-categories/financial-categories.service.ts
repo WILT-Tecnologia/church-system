@@ -23,16 +23,13 @@ export class FinancialCategoriesService {
     return this.http.post<FinancialCategories>(this.baseUrl, financialCategories);
   }
 
-  updateFinancialCategories(
-    id: string,
-    financialCategories: Partial<FinancialCategories>,
-  ): Observable<FinancialCategories> {
-    return this.http.put<FinancialCategories>(`${this.baseUrl}/${id}`, financialCategories);
+  updateFinancialCategories(financialCategories: Partial<FinancialCategories>): Observable<FinancialCategories> {
+    return this.http.put<FinancialCategories>(`${this.baseUrl}/${financialCategories.id}`, financialCategories);
   }
 
-  updatedStatus(id: string, status: boolean): Observable<FinancialCategories> {
-    const statusData = { status };
-    return this.http.put<FinancialCategories>(`${this.baseUrl}/${id}`, statusData);
+  updatedStatus(financialCategories: FinancialCategories): Observable<FinancialCategories> {
+    const statusData = { status: !financialCategories.status };
+    return this.http.put<FinancialCategories>(`${this.baseUrl}/${financialCategories.id}`, statusData);
   }
 
   deleteFinancialCategories(financialCategories: FinancialCategories): Observable<FinancialCategories> {

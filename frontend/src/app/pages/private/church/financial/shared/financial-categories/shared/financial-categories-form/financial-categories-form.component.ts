@@ -83,44 +83,12 @@ export class FinancialCategoriesFormComponent implements OnInit, OnDestroy {
   }
 
   handleSubmit() {
-    if (this.financialCategoriesForm.invalid) {
-      this.financialCategoriesForm.markAllAsTouched();
-      this.toast.openError(MESSAGES.FORM_INVALID);
-      return;
-    }
+    this.financialCategoriesForm.markAllAsTouched();
 
-    if (this.isEditMode()) {
-      this.updateFinancialCategories(this.data?.financialCategories?.id, this.financialCategoriesForm.getRawValue());
+    if (this.financialCategoriesForm.valid) {
+      this.dialogRef.close(this.financialCategoriesForm.getRawValue());
     } else {
-      this.handleCreate(this.financialCategoriesForm.getRawValue());
+      this.toast.openError(MESSAGES.FORM_INVALID);
     }
-  }
-
-  private handleCreate(data: FinancialCategories) {
-    this.financialCategoriesService.createFinancialCategories(data).subscribe({
-      next: () => {
-        this.toast.openSuccess(MESSAGES.CREATE_SUCCESS);
-        this.dialogRef?.close(data);
-      },
-      error: (error) => {
-        this.toast.openError(error.error.message);
-      },
-    });
-  }
-
-  private updateFinancialCategories(id: string, data: FinancialCategories) {
-    this.financialCategoriesService.updateFinancialCategories(id, data).subscribe({
-      next: () => {
-        this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS);
-        this.dialogRef?.close(data);
-      },
-      error: (error) => {
-        this.toast.openError(error.error.message);
-      },
-    });
-  }
-
-  handleCancel() {
-    this.dialogRef.close(false);
   }
 }

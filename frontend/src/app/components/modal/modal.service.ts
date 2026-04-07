@@ -65,7 +65,7 @@ export class ModalService {
     enableFullscreen: boolean = false,
     actions: ModalAction[] = [],
     width: string = 'auto',
-    height: string = '50dvh',
+    height: string = '65dvh',
   ) {
     const isMobile = window.innerWidth <= 768 || window.innerHeight <= 600;
     const panelClasses = Array.isArray(customClassContainer)

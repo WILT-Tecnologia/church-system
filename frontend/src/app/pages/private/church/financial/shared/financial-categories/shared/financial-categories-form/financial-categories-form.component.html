@@ -18,17 +18,10 @@
   <app-column [columns]="1">
     <mat-form-field>
       <mat-label>Descrição</mat-label>
-      <textarea rows="5" matInput formControlName="description"></textarea>
+      <textarea rows="4" matInput formControlName="description"></textarea>
       @if (financialCategoriesForm.get('description')?.invalid) {
         <mat-error>{{ getErrorMessage('description') }}</mat-error>
       }
     </mat-form-field>
   </app-column>
-
-  <app-actions>
-    <button mat-stroked-button type="button" color="warn" (click)="handleCancel()">Cancelar</button>
-    <button mat-flat-button type="submit" color="primary">
-      {{ isEditMode() ? 'Atualizar' : 'Salvar' }}
-    </button>
-  </app-actions>
 </form>
