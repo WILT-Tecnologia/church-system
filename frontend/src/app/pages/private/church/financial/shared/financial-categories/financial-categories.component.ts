@@ -40,6 +40,7 @@ export class FinancialCategoriesComponent implements OnInit {
     { key: 'status', header: 'Situação', type: 'boolean' },
     { key: 'name', header: 'Nome', type: 'string' },
     { key: 'description', header: 'Descrição', type: 'string' },
+    { key: 'created_at', header: 'Data de criação', type: 'datetime' },
     { key: 'updated_at', header: 'Última atualização', type: 'datetime' },
   ];
   public actions: ActionsProps[] = [
@@ -78,7 +79,7 @@ export class FinancialCategoriesComponent implements OnInit {
         this.financialCategories.set(financialCategories);
         this.dataSourceMat.data = this.financialCategories();
       },
-      error: (error) => this.toastService.openError(error.error.message ?? MESSAGES.LOADING_ERROR),
+      error: () => this.toastService.openError(MESSAGES.LOADING_ERROR),
       complete: () => this.loadingService.hide(),
     });
   }
@@ -105,7 +106,7 @@ export class FinancialCategoriesComponent implements OnInit {
     const modal = this.dialogService.openModal(
       `modal-${Math.random()}`,
       FinancialCategoriesFormComponent,
-      'Adicionar categoria',
+      'Adicionar categoria de lançamento',
       true,
       true,
       { submitSubject },
@@ -147,7 +148,7 @@ export class FinancialCategoriesComponent implements OnInit {
     const modal = this.dialogService.openModal(
       `modal-${Math.random()}`,
       FinancialCategoriesFormComponent,
-      `Editando a categoria ${financialCategories.name}`,
+      `Editando a categoria de lançamento "${financialCategories.name.toUpperCase()}"`,
       true,
       true,
       { financialCategories, submitSubject },
@@ -158,7 +159,11 @@ export class FinancialCategoriesComponent implements OnInit {
 
     modal.afterClosed().subscribe((result) => {
       if (result) {
-        this.getAllFinancialCategories();
+        this.financialCategoriesService.updateFinancialCategories(result).subscribe({
+          next: () => this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
+          complete: () => this.getAllFinancialCategories(),
+        });
       }
     });
   }

@@ -3,7 +3,6 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 
 @Component({
   selector: 'app-column',
-  standalone: true,
   templateUrl: './column.component.html',
   styleUrl: './column.component.scss',
   imports: [CommonModule],
