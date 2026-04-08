@@ -1,0 +1,14 @@
+{
+  "tailwindCSS.experimental.configFile": {
+    "src/styles.scss": "src/**"
+  },
+  "tailwindCSS.includeLanguages": {
+    "html": "html",
+    "typescript": "javascript",
+    "scss": "css"
+  },
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+  "tailwindCSS.files.exclude": ["**/.git/**", "**/node_modules/**", "**/.hg/**"]
+}

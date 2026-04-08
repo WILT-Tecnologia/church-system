@@ -1,3 +1,5 @@
+@use 'sass:map';
+
 // ============================================================
 // Status Badge — variáveis de design
 // ============================================================
@@ -125,9 +127,9 @@ $sizes: (
 
   @each $name, $tokens in $variants {
     &--#{$name} {
-      background-color: map-get($tokens, bg);
-      color: map-get($tokens, color);
-      box-shadow: inset 0 0 0 1px map-get($tokens, ring);
+      background-color: map.get($tokens, bg);
+      color: map.get($tokens, color);
+      box-shadow: inset 0 0 0 1px map.get($tokens, ring);
     }
   }
 
@@ -137,11 +139,11 @@ $sizes: (
 
   @each $name, $tokens in $variants {
     &__dot--#{$name} {
-      background-color: map-get($tokens, dot);
+      background-color: map.get($tokens, dot);
     }
 
     &__ping--#{$name} {
-      background-color: map-get($tokens, ping);
+      background-color: map.get($tokens, ping);
     }
   }
 
@@ -151,15 +153,15 @@ $sizes: (
 
   @each $size, $tokens in $sizes {
     &--#{$size} {
-      padding: map-get($tokens, padding-y) map-get($tokens, padding-x);
-      font-size: map-get($tokens, font-size);
-      gap: map-get($tokens, gap);
+      padding: map.get($tokens, padding-y) map.get($tokens, padding-x);
+      font-size: map.get($tokens, font-size);
+      gap: map.get($tokens, gap);
     }
 
     // Dot size acoplado ao tamanho do badge
     &__dot--#{$size} {
-      width: map-get($tokens, dot-size);
-      height: map-get($tokens, dot-size);
+      width: map.get($tokens, dot-size);
+      height: map.get($tokens, dot-size);
     }
   }
 }

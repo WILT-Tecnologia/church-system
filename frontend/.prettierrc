@@ -8,5 +8,6 @@
   "bracketSpacing": true,
   "arrowParens": "always",
   "endOfLine": "lf",
-  "jsxSortProps": true
+  "jsxSortProps": true,
+  "plugins": ["prettier-plugin-tailwindcss"]
 }

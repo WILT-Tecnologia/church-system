@@ -108,7 +108,13 @@
       <app-column [columns]="4">
         <mat-form-field>
           <mat-label>CEP</mat-label>
-          <input type="text" matInput formControlName="cep" mask="00000-000" [showMaskTyped]="true" />
+          <input
+            type="text"
+            matInput
+            formControlName="cep"
+            mask="00000-000"
+            [showMaskTyped]="true"
+          />
           @if (supplierForm.get('cep')?.invalid) {
             <mat-error>{{ getErrorMessage('cep') }}</mat-error>
           }
@@ -183,21 +189,39 @@
       <app-column [columns]="3">
         <mat-form-field>
           <mat-label>Celular</mat-label>
-          <input type="text" matInput formControlName="phone_one" mask="(00) 00000-0000" [showMaskTyped]="true" />
+          <input
+            type="text"
+            matInput
+            formControlName="phone_one"
+            mask="(00) 00000-0000"
+            [showMaskTyped]="true"
+          />
           @if (supplierForm.get('phone_one')?.invalid) {
             <mat-error>{{ getErrorMessage('phone_one') }}</mat-error>
           }
         </mat-form-field>
         <mat-form-field>
           <mat-label>Telefone</mat-label>
-          <input type="text" matInput formControlName="phone_two" mask="(00) 00000-0000" [showMaskTyped]="true" />
+          <input
+            type="text"
+            matInput
+            formControlName="phone_two"
+            mask="(00) 00000-0000"
+            [showMaskTyped]="true"
+          />
           @if (supplierForm.get('phone_two')?.invalid) {
             <mat-error>{{ getErrorMessage('phone_two') }}</mat-error>
           }
         </mat-form-field>
         <mat-form-field>
           <mat-label>Telefone 2</mat-label>
-          <input type="text" matInput formControlName="phone_three" mask="(00) 00000-0000" [showMaskTyped]="true" />
+          <input
+            type="text"
+            matInput
+            formControlName="phone_three"
+            mask="(00) 00000-0000"
+            [showMaskTyped]="true"
+          />
           @if (supplierForm.get('phone_three')?.invalid) {
             <mat-error>{{ getErrorMessage('phone_three') }}</mat-error>
           }
