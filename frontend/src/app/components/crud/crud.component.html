@@ -73,35 +73,118 @@
 
   <table [dataSource]="dataSourceMat()" mat-table matSort>
     <ng-container *ngFor="let column of columnDefinitions()" [matColumnDef]="column.key">
-      <th mat-header-cell mat-sort-header *matHeaderCellDef [style.width.px]="columnWidths[column.key]">
+      <th mat-header-cell mat-sort-header *matHeaderCellDef class="header-cell">
         {{ column.header }}
-        <div class="resizer" (mousedown)="onResizeColumn($event, column.key)" (click)="$event.stopPropagation()"></div>
       </th>
-      <td *matCellDef="let rowFields" [title]="(rowFields | formatValues: column.key : column.type) ?? '--'" mat-cell>
+      <td
+        *matCellDef="let rowFields"
+        [title]="(rowFields | formatValues: column.key : column.type) ?? '--'"
+        mat-cell
+      >
         @switch (column.type) {
           @case ('date') {
-            {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
+            <span
+              #cellRef
+              class="cell-text"
+              [matTooltip]="
+                (cellRef | isTruncated)
+                  ? ((rowFields | formatValues: column.key : column.type) ?? '--')
+                  : ''
+              "
+            >
+              {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
+            </span>
           }
           @case ('string') {
-            {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
+            <span
+              #cellRef
+              class="cell-text"
+              [matTooltip]="
+                (cellRef | isTruncated)
+                  ? ((rowFields | formatValues: column.key : column.type) ?? '--')
+                  : ''
+              "
+            >
+              {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
+            </span>
           }
           @case ('cpf') {
-            {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
+            <span
+              #cellRef
+              class="cell-text"
+              [matTooltip]="
+                (cellRef | isTruncated)
+                  ? ((rowFields | formatValues: column.key : column.type) ?? '--')
+                  : ''
+              "
+            >
+              {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
+            </span>
           }
           @case ('cnpj') {
-            {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
+            <span
+              #cellRef
+              class="cell-text"
+              [matTooltip]="
+                (cellRef | isTruncated)
+                  ? ((rowFields | formatValues: column.key : column.type) ?? '--')
+                  : ''
+              "
+            >
+              {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
+            </span>
           }
           @case ('datetime') {
-            {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
+            <span
+              #cellRef
+              class="cell-text"
+              [matTooltip]="
+                (cellRef | isTruncated)
+                  ? ((rowFields | formatValues: column.key : column.type) ?? '--')
+                  : ''
+              "
+            >
+              {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
+            </span>
           }
           @case ('phone') {
-            {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
+            <span
+              #cellRef
+              class="cell-text"
+              [matTooltip]="
+                (cellRef | isTruncated)
+                  ? ((rowFields | formatValues: column.key : column.type) ?? '--')
+                  : ''
+              "
+            >
+              {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
+            </span>
           }
           @case ('sex') {
-            {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
+            <span
+              #cellRef
+              class="cell-text"
+              [matTooltip]="
+                (cellRef | isTruncated)
+                  ? ((rowFields | formatValues: column.key : column.type) ?? '--')
+                  : ''
+              "
+            >
+              {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
+            </span>
           }
           @case ('number') {
-            {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
+            <span
+              #cellRef
+              class="cell-text"
+              [matTooltip]="
+                (cellRef | isTruncated)
+                  ? ((rowFields | formatValues: column.key : column.type) ?? '--')
+                  : ''
+              "
+            >
+              {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
+            </span>
           }
           @case ('color') {
             <div class="color-display">
@@ -200,23 +283,51 @@
             />
           }
           @case ('select') {
-            {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
+            <span
+              #cellRef
+              class="cell-text"
+              [matTooltip]="
+                (cellRef | isTruncated)
+                  ? ((rowFields | formatValues: column.key : column.type) ?? '--')
+                  : ''
+              "
+            >
+              {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
+            </span>
           }
           @case ('email') {
-            {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
+            <span
+              #cellRef
+              class="cell-text"
+              [matTooltip]="
+                (cellRef | isTruncated)
+                  ? ((rowFields | formatValues: column.key : column.type) ?? '--')
+                  : ''
+              "
+            >
+              {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
+            </span>
           }
           @default {
-            {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
+            <span
+              #cellRef
+              class="cell-text"
+              [matTooltip]="
+                (cellRef | isTruncated)
+                  ? ((rowFields | formatValues: column.key : column.type) ?? '--')
+                  : ''
+              "
+            >
+              {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
+            </span>
           }
         }
       </td>
     </ng-container>
     @if (canShowActions()) {
-      <ng-container matColumnDef="actions">
-        <th *matHeaderCellDef mat-header-cell [style.width.px]="columnWidths['actions']">
-          <div class="resizer" (mousedown)="onResizeColumn($event, 'actions')" (click)="$event.stopPropagation()"></div>
-        </th>
-        <td *matCellDef="let rowFields" class="actions-cell" mat-cell>
+      <ng-container matColumnDef="actions" stickyEnd>
+        <th *matHeaderCellDef mat-header-cell></th>
+        <td *matCellDef="let rowFields" mat-cell>
           <div class="actions-container">
             @if (actions() | hasNonToggleActions) {
               <button type="button" mat-icon-button [matMenuTriggerFor]="menu" matTooltip="Ações">
@@ -226,7 +337,9 @@
                 @for (action of actions(); track $index) {
                   @if (
                     action.visible === undefined ||
-                    (typeof action.visible === 'function' ? action.visible(rowFields) : action.visible)
+                    (typeof action.visible === 'function'
+                      ? action.visible(rowFields)
+                      : action.visible)
                   ) {
                     @if (action.type === 'toggle') {
                       <div class="toggle">

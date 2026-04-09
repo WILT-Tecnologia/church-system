@@ -5,10 +5,8 @@
 
   & > button {
     min-width: 20rem;
-  }
 
-  @media screen and (max-width: 768px) {
-    & > button {
+    @media screen and (max-width: 768px) {
       min-width: 100%;
       width: 100%;
     }
@@ -96,15 +94,15 @@
 
 .mat-table-responsive {
   display: block;
-  overflow: auto;
   width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .mat-table-responsive table {
   border-collapse: collapse;
   border-spacing: 0;
   width: 100%;
-  min-width: 0;
   table-layout: auto;
 }
 
@@ -146,28 +144,38 @@
 .mat-cell,
 td,
 th {
-  width: auto;
+  // min-width: 80px;
+  // max-width: 260px;
   overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
-  //border-right: 1px solid rgba(0, 0, 0, 0.12);
-  //&:last-child {
-  //  border-right: none;
-  //}
+  padding: 0 1rem;
 
   @media screen and (max-width: 1280px) {
-    font-size: 0.7rem;
-    padding: 0.5rem;
+    font-size: 0.75rem;
+    padding: 0 0.75rem;
+    // max-width: 200px;
   }
 
   @media screen and (max-width: 768px) {
     font-size: 0.7rem;
-    padding: 0.5rem;
+    padding: 0 0.5rem;
+    // min-width: 90px;
+    // max-width: 140px;
   }
+}
+
+.cell-text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  font-weight: 400;
 }
 
 .rows:hover {
   background-color: var(--hover-color);
+  border-radius: 1rem;
 }
 
 .mat-header-cell {
@@ -176,33 +184,16 @@ th {
   position: relative;
 }
 
-.resizer {
-  position: absolute;
-  top: 0;
-  right: -2px;
-  width: 0.3rem;
-  cursor: col-resize;
-  height: 100%;
-  z-index: 10;
-  background-color: transparent;
-  transition: background-color 0.2s;
-}
-
-.resizer:hover,
-.resizer.resizing {
-  background-color: rgba(0, 0, 0, 0.6);
-}
-
 .cdk-drag-preview {
   box-sizing: border-box;
-  border-radius: 4px;
+  border-radius: 1rem;
   box-shadow:
     0 5px 5px -3px rgba(0, 0, 0, 0.2),
     0 8px 10px 1px rgba(0, 0, 0, 0.14),
     0 3px 14px 2px rgba(0, 0, 0, 0.12);
-  background: white; /* ou sua variável de cor de fundo principal */
+  background: var(--white-color);
   color: var(--text-color);
-  padding: 10px;
+  padding: 0.5rem;
   display: flex;
   align-items: center;
   font-weight: bold;
@@ -216,7 +207,10 @@ th {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
-.mat-table-responsive table .mat-header-row.cdk-drop-list-dragging .mat-header-cell:not(.cdk-drag-placeholder) {
+.mat-table-responsive
+  table
+  .mat-header-row.cdk-drop-list-dragging
+  .mat-header-cell:not(.cdk-drag-placeholder) {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
@@ -227,14 +221,24 @@ th {
   position: relative;
 }
 
-.actions-cell {
-  overflow: hidden;
-  position: relative;
-  width: 5rem;
+.mat-column-actions {
+  position: sticky !important;
+  right: 0 !important;
+  background-color: inherit !important;
+  z-index: 10 !important;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.05);
+
+  @media screen and (max-width: 1600px) {
+    background-color: var(--white-color) !important;
+  }
 }
 
-.rows:hover .actions-cell {
-  width: 5rem;
+mat-header-cell.mat-column-actions {
+  background-color: var(--hover-color) !important;
+}
+
+mat-cell.mat-column-actions {
+  background-color: var(--white-color) !important;
 }
 
 .rows.clickable {
@@ -242,29 +246,21 @@ th {
 
   &:hover {
     background-color: rgba(0, 0, 0, 0.04);
+    border-radius: 1rem;
   }
 }
 
 .actions-container {
-  display: none;
-  gap: 1rem;
+  display: flex;
   justify-content: flex-end;
-  transition: opacity 0.3s ease-in-out;
-
-  @media screen and (max-width: 1280px) {
-    display: block;
-  }
+  opacity: 0.4;
+  transition: opacity 0.2s;
 }
 
-.rows:hover .actions-container {
-  display: flex;
-}
-
-.actions-container > button > mat-icon {
-  align-items: center;
-  display: flex;
-  font-size: 1.18rem;
-  justify-content: center;
+.rows:hover .actions-container,
+.actions-container:focus-within {
+  opacity: 1;
+  border-radius: 1rem;
 }
 
 .paginator {
@@ -277,14 +273,6 @@ th {
   display: flex;
   justify-content: center;
   padding: 1rem;
-}
-
-.active {
-  color: var(--success-color);
-}
-
-.inactive {
-  color: var(--error-color-light);
 }
 
 .delete {
@@ -307,31 +295,6 @@ th {
 button.active {
   background-color: rgba(0, 0, 0, 0.1);
   box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1) inset;
-}
-
-.status-warning {
-  color: var(--warning-color);
-  font-weight: 500;
-}
-
-.status-blue {
-  color: var(--primary-color);
-  font-weight: 500;
-}
-
-.status-success {
-  color: var(--success-color);
-  font-weight: 500;
-}
-
-.no {
-  color: var(--no-color);
-  font-weight: 500;
-}
-
-.yes {
-  color: var(--success-color);
-  font-weight: 500;
 }
 
 .color-display {

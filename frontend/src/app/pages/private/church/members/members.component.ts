@@ -37,7 +37,7 @@ export class MembersComponent implements OnInit {
   columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'person.name', header: 'Nome', type: 'string' },
     { key: 'person.cpf', header: 'CPF', type: 'cpf' },
-    { key: 'person.email', header: 'Email', type: 'string' },
+    { key: 'person.email', header: 'Email', type: 'email' },
     { key: 'person.birth_date', header: 'Data de Nascimento', type: 'date' },
     { key: 'person.sex', header: 'Sexo', type: 'sex' },
     { key: 'person.phone_one', header: 'Celular', type: 'phone' },
@@ -47,7 +47,6 @@ export class MembersComponent implements OnInit {
       header: 'Pastor presidente',
       type: 'string',
     },
-    { key: 'updated_at', header: 'Última atualização', type: 'datetime' },
   ];
   actions: ActionsProps[] = [
     {

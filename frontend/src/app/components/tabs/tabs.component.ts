@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, contentChildren } from '@angular/core';
+import { Component, contentChildren, input, numberAttribute } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { TabDirective } from './tab.directive';
 
@@ -11,4 +11,7 @@ import { TabDirective } from './tab.directive';
 })
 export class TabsComponent {
   tabs = contentChildren(TabDirective);
+  animationDuration = input(300, { transform: numberAttribute });
+  stretchTabs = input<boolean>(false);
+  alignTabs = input<'start' | 'center' | 'end'>('start');
 }

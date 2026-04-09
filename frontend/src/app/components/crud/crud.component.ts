@@ -27,9 +27,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormatValuesPipe } from 'app/components/crud/pipes/format-values.pipe';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
 import { AuthService } from 'app/services/auth/auth.service';
-import { ModalService } from '../modal/modal.service';
-
 import { LoadingComponent } from '../loading/loading.component';
+import { ModalService } from '../modal/modal.service';
 import { StatusBadgeComponent } from '../status-badge/status-badge.component';
 import {
   FilterButtonAdvancedComponent,
@@ -45,6 +44,14 @@ export interface TableField {
 export class HasNonToggleActionsPipe implements PipeTransform {
   transform(actions: ActionsProps[]): boolean {
     return actions.some((action) => action.type !== 'toggle');
+  }
+}
+
+@Pipe({ name: 'isTruncated', standalone: true, pure: false })
+export class IsTruncatedPipe implements PipeTransform {
+  transform(el: HTMLElement | null): boolean {
+    if (!el) return false;
+    return el.scrollWidth > el.offsetWidth;
   }
 }
 
@@ -70,6 +77,7 @@ export class HasNonToggleActionsPipe implements PipeTransform {
     FilterButtonAdvancedComponent,
     StatusBadgeComponent,
     LoadingComponent,
+    IsTruncatedPipe,
   ],
   providers: [FormatsPipe],
 })
@@ -87,8 +95,8 @@ export class CrudComponent implements OnInit, AfterViewInit {
   enableRowClickDialog = input<boolean>(false);
   tooltipText = input<string>('');
   length = input<string>('0');
-  pageSize = input<number>(25);
-  pageSizeOptions = input<number[]>([25, 50, 100, 200]);
+  pageSize = input<number>(10);
+  pageSizeOptions = input<number[]>([10, 25, 50, 100, 200]);
   template = input<string>('');
   sortColumn = input<string>('');
   sortDirection = input<SortDirection>('asc');
@@ -112,6 +120,10 @@ export class CrudComponent implements OnInit, AfterViewInit {
   findData = output<void>();
   page = output<Event>();
 
+  currentPageIndex: number = 0;
+  showFilter = signal(false);
+  buttonSelected = signal(false);
+
   displayedColumns = computed(() => {
     const cols = this.columnDefinitions().map((col) => col.key);
     if (this.canShowActions()) {
@@ -119,10 +131,6 @@ export class CrudComponent implements OnInit, AfterViewInit {
     }
     return cols;
   });
-
-  currentPageIndex: number = 0;
-  showFilter = signal(false);
-  buttonSelected = signal(false);
 
   _canRead = computed(() => {
     const p = this.readPermission();
@@ -158,12 +166,6 @@ export class CrudComponent implements OnInit, AfterViewInit {
     return acts && acts.length > 0 ? acts[0].tooltip || '' : '';
   });
 
-  columnWidths: { [key: string]: number } = {};
-  isResizing = false;
-  currentResizeColumn: string | null = null;
-  startX = 0;
-  startWidth = 0;
-
   private hasSubscribedPaginator = false;
 
   constructor(
@@ -196,35 +198,6 @@ export class CrudComponent implements OnInit, AfterViewInit {
     effect(() => {
       this.dataSourceMat().data = this.fields();
     });
-  }
-
-  onResizeColumn(event: MouseEvent, columnKey: string) {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isResizing = true;
-    this.currentResizeColumn = columnKey;
-    this.startX = event.pageX;
-
-    const target = event.target as HTMLElement;
-    const th = target.closest('th');
-    this.startWidth = th ? th.offsetWidth : this.columnWidths[columnKey] || 150;
-
-    const mouseMoveHandler = (e: MouseEvent) => {
-      if (this.isResizing && this.currentResizeColumn) {
-        const width = this.startWidth + (e.pageX - this.startX);
-        this.columnWidths[this.currentResizeColumn] = width > 50 ? width : 50;
-      }
-    };
-
-    const mouseUpHandler = () => {
-      this.isResizing = false;
-      this.currentResizeColumn = null;
-      document.removeEventListener('mousemove', mouseMoveHandler);
-      document.removeEventListener('mouseup', mouseUpHandler);
-    };
-
-    document.addEventListener('mousemove', mouseMoveHandler);
-    document.addEventListener('mouseup', mouseUpHandler);
   }
 
   ngOnInit() {
@@ -324,7 +297,8 @@ export class CrudComponent implements OnInit, AfterViewInit {
             return filterValue === dataValue;
           case 'text':
             return (
-              filterValue.length === 0 || String(dataValue).toLowerCase().includes(String(filterValue).toLowerCase())
+              filterValue.length === 0 ||
+              String(dataValue).toLowerCase().includes(String(filterValue).toLowerCase())
             );
           case 'number':
             if (Array.isArray(filterValue)) {

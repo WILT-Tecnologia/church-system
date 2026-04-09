@@ -1,4 +1,8 @@
-<mat-tab-group animationDuration="300ms">
+<mat-tab-group
+  [animationDuration]="animationDuration()"
+  [mat-stretch-tabs]="stretchTabs()"
+  [mat-align-tabs]="alignTabs()"
+>
   @for (tab of tabs(); track tab.label()) {
     <mat-tab [label]="tab.label()">
       <ng-template matTabContent>
