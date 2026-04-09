@@ -4,31 +4,18 @@
 @use 'app/styles/autocomplete-theme' as autocomplete;
 @use 'sass:map';
 
-/*
- * Tailwind CSS v4 — Ordem de camadas
- * theme → base → material → components → utilities
- * As utilities do Tailwind têm prioridade sobre material e components.
- */
-@layer theme, base, material, components, utilities;
-
-@import 'tailwindcss';
-
-@layer material {
-  @include mat.core();
-}
+@include mat.core();
 
 :root {
-  @layer material {
-    @include mat.core-theme(theme.$light-theme);
-    @include mat.core-color(theme.$light-theme);
-    @include mat.button-theme(theme.$light-theme);
-    @include mat.all-component-themes(theme.$light-theme);
-    @include mat.system-level-colors(theme.$light-theme);
-    @include mat.system-level-typography(theme.$light-theme);
-    @include mat.all-component-typographies(theme.$light-theme);
-    @include mat.color-variants-backwards-compatibility(theme.$light-theme);
-    @include autocomplete.autocomplete-theme();
-  }
+  @include mat.core-theme(theme.$light-theme);
+  @include mat.core-color(theme.$light-theme);
+  @include mat.button-theme(theme.$light-theme);
+  @include mat.all-component-themes(theme.$light-theme);
+  @include mat.system-level-colors(theme.$light-theme);
+  @include mat.system-level-typography(theme.$light-theme);
+  @include mat.all-component-typographies(theme.$light-theme);
+  @include mat.color-variants-backwards-compatibility(theme.$light-theme);
+  @include autocomplete.autocomplete-theme();
 
   --primary-color: #{mat.get-theme-color(theme.$light-theme, primary, 50)};
   --primary-color-light: #{mat.get-theme-color(theme.$light-theme, primary, 90)};
@@ -145,32 +132,32 @@ body {
 
 @layer components {
   .spacer {
-    flex: 1 1 auto;
+    flex: 1 1 auto !important;
   }
 
-  // .p-1 {
-  //   padding: 1rem;
-  // }
+  .p-1 {
+    padding: 1rem !important;
+  }
 
-  // .p-2 {
-  //   padding: 2rem;
-  // }
+  .p-2 {
+    padding: 2rem !important;
+  }
 
-  // .w-full {
-  //   width: 100% !important;
-  // }
+  .w-full {
+    width: 100% !important;
+  }
 
-  // .bold {
-  //   font-weight: bold !important;
-  // }
+  .bold {
+    font-weight: bold !important;
+  }
 
-  // .black {
-  //   font-weight: 800 !important;
-  // }
+  .black {
+    font-weight: 800 !important;
+  }
 
-  // .extra-black {
-  //   font-weight: 900 !important;
-  // }
+  .extra-black {
+    font-weight: 900 !important;
+  }
 
   .cep-field {
     max-width: 10dvw;
@@ -486,7 +473,7 @@ mat-sidenav {
 }
 
 .event-tooltip {
-  color: #fff;
+  color: var(--white-color);
   border-radius: 0.5rem;
   font-size: 1rem;
   white-space: pre-wrap;
