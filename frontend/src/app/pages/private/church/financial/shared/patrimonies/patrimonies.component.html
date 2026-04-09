@@ -1,8 +1,8 @@
 <app-crud
-  [fields]="patrimonies"
+  [fields]="patrimonies()"
   [dataSourceMat]="dataSourceMat"
   [columnDefinitions]="columnDefinitions"
-  (add)="createPatrimonies()"
+  (add)="onCreate()"
   [actions]="actions"
   [writePermission]="'write_church_patrimonios'"
   [deletePermission]="'delete_church_patrimonios'"

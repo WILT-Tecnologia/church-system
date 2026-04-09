@@ -35,6 +35,8 @@
       right: 0.1rem;
       transform: scale(0.8);
       opacity: 0.8;
+      color: var(--error-color);
+      background-color: var(--neutral-light);
 
       &:hover {
         opacity: 1;

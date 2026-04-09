@@ -1,15 +1,17 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { CrudComponent } from 'app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalAction } from 'app/components/modal/modal.component';
 import { ModalService } from 'app/components/modal/modal.service';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Patrimonies } from 'app/model/Patrimonies';
 import { AuthService } from 'app/services/auth/auth.service';
+import { Subject } from 'rxjs';
 import { PatrimoniesFormComponent } from './patrimonies-form/patrimonies-form.component';
 import { PatrimoniesService } from './patrimonies.service';
 
@@ -20,15 +22,21 @@ import { PatrimoniesService } from './patrimonies.service';
   imports: [CrudComponent],
 })
 export class PatrimoniesComponent implements OnInit {
-  private toast = inject(ToastService);
-  private loading = inject(LoadingService);
-  private confirmService = inject(ConfirmService);
-  private modal = inject(ModalService);
-  private patrimoniesService = inject(PatrimoniesService);
-  private authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly confirmService = inject(ConfirmService);
+  private readonly modalService = inject(ModalService);
+  private readonly patrimoniesService = inject(PatrimoniesService);
+  private readonly authService = inject(AuthService);
+  private readonly writeChurchPatrimonios = this.authService.hasPermission(
+    'write_church_patrimonios',
+  );
+  private readonly deleteChurchPatrimonios = this.authService.hasPermission(
+    'delete_church_patrimonios',
+  );
 
-  patrimonies: Patrimonies[] = [];
-  dataSourceMat = new MatTableDataSource<Patrimonies>(this.patrimonies);
+  patrimonies = signal<Patrimonies[]>([]);
+  dataSourceMat = new MatTableDataSource<Patrimonies>(this.patrimonies());
   columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'church.name', header: 'Igreja', type: 'string' },
     { key: 'number', header: 'N° do patrimônio', type: 'string' },
@@ -46,7 +54,7 @@ export class PatrimoniesComponent implements OnInit {
       label: 'Editar',
       color: 'inherit',
       action: (patrimonies: Patrimonies) => this.editPatrimonies(patrimonies),
-      visible: () => this.authService.hasPermission('write_church_patrimonios'),
+      visible: () => this.writeChurchPatrimonios,
     },
     {
       type: 'delete',
@@ -54,7 +62,7 @@ export class PatrimoniesComponent implements OnInit {
       label: 'Excluir',
       color: 'warn',
       action: (patrimonies: Patrimonies) => this.deletePatrimonies(patrimonies),
-      visible: () => this.authService.hasPermission('delete_church_patrimonios'),
+      visible: () => this.deleteChurchPatrimonios,
     },
   ];
 
@@ -62,70 +70,121 @@ export class PatrimoniesComponent implements OnInit {
     this.loadPatrimonies();
   }
 
-  loadPatrimonies() {
-    this.patrimoniesService.findAll().subscribe({
+  private loadPatrimonies() {
+    this.patrimoniesService.getAllPatrimonies().subscribe({
       next: (data) => {
-        this.patrimonies = data.map((patrimonies) => ({
-          donorOrMember: patrimonies.donor ? patrimonies.donor : (patrimonies.member?.person?.name ?? '--'),
-          ...patrimonies,
-        }));
+        this.patrimonies.set(
+          data.map((patrimonies) => ({
+            donorOrMember: patrimonies.donor
+              ? patrimonies.donor
+              : (patrimonies.member?.person?.name ?? '--'),
+            ...patrimonies,
+          })),
+        );
       },
-      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
-      complete: () => this.loading.hide(),
+      error: () => this.toastService.openError(MESSAGES.LOADING_ERROR),
+      complete: () => this.loadingService.hide(),
     });
   }
 
-  createPatrimonies() {
-    const modal = this.modal.openModal(
+  onCreate() {
+    const submitSubject = new Subject<void>();
+    const formAction: ModalAction[] = [
+      {
+        label: 'Cancelar',
+        type: 'stroked',
+        color: 'warn',
+        icon: 'close',
+        onClick: (ref) => ref.close(),
+      },
+      {
+        label: 'Salvar',
+        type: 'flat',
+        color: 'primary',
+        icon: 'save',
+        onClick: () => submitSubject.next(),
+      },
+    ];
+
+    const modal = this.modalService.openModal(
       `modal-${Math.random()}`,
       PatrimoniesFormComponent,
       'Adicionar convidado',
       true,
       true,
-      {},
+      { submitSubject },
+      undefined,
+      false,
+      formAction,
     );
 
-    modal.afterClosed().subscribe((data) => {
+    modal.afterClosed().subscribe((data: FormData) => {
       if (data) {
-        this.loadPatrimonies();
+        this.patrimoniesService.createPatrimonies(data).subscribe({
+          next: () => this.toastService.openSuccess(MESSAGES.CREATE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.CREATE_ERROR),
+          complete: () => this.loadPatrimonies(),
+        });
       }
     });
   }
 
-  editPatrimonies(patrimonies: Patrimonies) {
-    const modal = this.modal.openModal(
+  private editPatrimonies(patrimonies: Patrimonies) {
+    const submitSubject = new Subject<void>();
+    const formAction: ModalAction[] = [
+      {
+        label: 'Cancelar',
+        type: 'stroked',
+        color: 'warn',
+        icon: 'close',
+        onClick: (ref) => ref.close(),
+      },
+      {
+        label: 'Atualizar',
+        type: 'flat',
+        color: 'primary',
+        icon: 'save',
+        onClick: () => submitSubject.next(),
+      },
+    ];
+
+    const modal = this.modalService.openModal(
       `modal-${Math.random()}`,
       PatrimoniesFormComponent,
       `Editando o patrimonio ${patrimonies.number} - ${patrimonies.name}`,
       true,
       true,
-      { patrimonies },
+      { patrimonies, submitSubject },
+      undefined,
+      false,
+      formAction,
     );
 
-    modal.afterClosed().subscribe((data) => {
+    modal.afterClosed().subscribe((data: FormData) => {
       if (data) {
-        this.loadPatrimonies();
+        this.patrimoniesService.updatePatrimonies(data).subscribe({
+          next: () => this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
+          complete: () => this.loadPatrimonies(),
+        });
       }
     });
   }
 
-  deletePatrimonies(patrimonies: Patrimonies) {
+  private deletePatrimonies(patrimonies: Patrimonies) {
     const modal = this.confirmService.openConfirm(
-      'Atenção',
-      'Tem certeza que deseja excluir este patrimônio?',
+      'Excluir patrimônio',
+      `Tem certeza que deseja excluir o patrimônio ${patrimonies.number} - ${patrimonies.name}?`,
       'Confirmar',
       'Cancelar',
     );
 
-    modal.afterClosed().subscribe((result) => {
+    modal.afterClosed().subscribe((result: boolean) => {
       if (result) {
         this.patrimoniesService.deletePatrimonies(patrimonies).subscribe({
-          next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
-          error: () => this.toast.openError(MESSAGES.DELETE_ERROR),
-          complete: () => {
-            this.loadPatrimonies();
-            this.toast.openError(MESSAGES.DELETE_ERROR);
-          },
+          next: () => this.toastService.openSuccess(MESSAGES.DELETE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.DELETE_ERROR),
+          complete: () => this.loadPatrimonies(),
         });
       }
     });

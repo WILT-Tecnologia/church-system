@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from 'environments/environment';
@@ -10,11 +10,10 @@ import { Patrimonies } from 'app/model/Patrimonies';
   providedIn: 'root',
 })
 export class PatrimoniesService {
-  constructor(private http: HttpClient) {}
+  private readonly http = inject(HttpClient);
+  private readonly api = `${environment.apiUrl}/church/patrimonies`;
 
-  private api = `${environment.apiUrl}/church/patrimonies`;
-
-  findAll(): Observable<Patrimonies[]> {
+  getAllPatrimonies(): Observable<Patrimonies[]> {
     return this.http.get<Patrimonies[]>(this.api);
   }
 
@@ -22,20 +21,20 @@ export class PatrimoniesService {
     return this.http.get<Patrimonies>(`${this.api}/${id}`);
   }
 
-  createWithFormData(formData: FormData): Observable<Patrimonies> {
-    return this.http.post<Patrimonies>(this.api, formData);
+  createPatrimonies(data: FormData): Observable<Patrimonies> {
+    return this.http.post<Patrimonies>(this.api, data);
   }
 
-  updateWithFormData(id: string, formData: FormData): Observable<Patrimonies> {
-    return this.http.post<Patrimonies>(`${this.api}/${id}`, formData);
+  updatePatrimonies(data: FormData): Observable<Patrimonies> {
+    return this.http.post<Patrimonies>(`${this.api}/${data.get('id')}`, data);
   }
 
   create(patrimonies: Patrimonies): Observable<Patrimonies> {
     return this.http.post<Patrimonies>(this.api, patrimonies);
   }
 
-  update(id: string, patrimonies: Partial<Patrimonies>): Observable<Patrimonies> {
-    return this.http.put<Patrimonies>(`${this.api}/${id}`, patrimonies);
+  update(patrimonies: Partial<Patrimonies>): Observable<Patrimonies> {
+    return this.http.put<Patrimonies>(`${this.api}/${patrimonies.id}`, patrimonies);
   }
 
   deletePatrimonies(patrimonies: Patrimonies): Observable<Patrimonies> {

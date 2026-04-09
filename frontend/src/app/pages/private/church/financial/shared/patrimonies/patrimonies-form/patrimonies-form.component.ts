@@ -1,8 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { Component, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker';
@@ -14,21 +23,20 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
-import { LoadingService } from 'app/components/loading/loading.service';
+import { TabDirective } from 'app/components/tabs/tab.directive';
+import { TabsComponent } from 'app/components/tabs/tabs.component';
 import { MESSAGES } from 'app/components/toast/messages';
+import { ToastService } from 'app/components/toast/toast.service';
 import { Church } from 'app/model/Church';
 import { Members } from 'app/model/Members';
 import { Patrimonies } from 'app/model/Patrimonies';
 import { ChurchesService } from 'app/pages/private/administrative/churches/churches.service';
 import { MembersService } from 'app/pages/private/church/members/members.service';
-import { NotificationService } from 'app/services/notification/notification.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
-import { forkJoin, map, Observable, startWith, Subject } from 'rxjs';
-import { PatrimoniesService } from '../patrimonies.service';
+import { forkJoin, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-patrimonies-form',
@@ -49,8 +57,9 @@ import { PatrimoniesService } from '../patrimonies.service';
     CommonModule,
     FormsModule,
     ColumnComponent,
-    ActionsComponent,
     NgxMaskDirective,
+    TabsComponent,
+    TabDirective,
   ],
   providers: [
     provideNgxMask(),
@@ -62,39 +71,39 @@ import { PatrimoniesService } from '../patrimonies.service';
 export class PatrimoniesFormComponent implements OnInit, OnDestroy {
   constructor() {}
 
-  private readonly destroyRef = inject(DestroyRef);
   private readonly fb = inject(FormBuilder);
-  private readonly loading = inject(LoadingService);
   private readonly validationService = inject(ValidationService);
-  private readonly notification = inject(NotificationService);
+  private readonly toastService = inject(ToastService);
   private readonly churchesService = inject(ChurchesService);
-  private readonly patrimoniesService = inject(PatrimoniesService);
   private readonly membersService = inject(MembersService);
   private readonly dialogRef = inject(MatDialogRef<PatrimoniesFormComponent>);
   private readonly data = inject(MAT_DIALOG_DATA);
-
-  patrimoniesForm!: FormGroup;
-
-  searchControlChurch = new FormControl<string | Church>('');
-  searchControlMember = new FormControl<string | Members>('');
+  private readonly destroy$ = new Subject<void>();
 
   churchs: Church[] = [];
   members: Members[] = [];
+  patrimoniesForm!: FormGroup;
+  searchControlChurch = new FormControl<string | Church>('');
+  searchControlMember = new FormControl<string | Members>('');
   filteredChurch: Observable<Church[]> = new Observable<Church[]>();
   filteredMember: Observable<Members[]> = new Observable<Members[]>();
-  isEditMode: boolean = false;
-  photoPreview: string | ArrayBuffer | null = null;
+  isEditMode = signal(false);
+  photoPreview = signal<string | ArrayBuffer | null>(null);
   readonly minDate = new Date(1900, 0, 1);
 
   @ViewChild('registration_date') registration_date!: MatDatepicker<Date>;
-
-  private destroy$ = new Subject<void>();
 
   ngOnInit() {
     this.patrimoniesForm = this.createForm();
     this.checkEditMode();
     this.loadData();
     this.setupConditionalValidations();
+
+    if (this.data?.submitSubject) {
+      this.data.submitSubject.pipe(takeUntil(this.destroy$)).subscribe(() => {
+        this.handleSubmit();
+      });
+    }
   }
 
   ngOnDestroy() {
@@ -103,7 +112,7 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
   }
 
   private createForm(): FormGroup {
-    const patrimonies: Patrimonies = this.data?.patrimonies || this.data;
+    const patrimonies = this.data?.patrimonies as Patrimonies;
 
     let regDate = new Date();
     if (patrimonies?.registration_date) {
@@ -117,7 +126,10 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
     return this.fb.group({
       id: [patrimonies?.id ?? ''],
       church_id: [patrimonies?.church?.id ?? '', [Validators.required]],
-      number: [patrimonies?.number ?? null, [Validators.required, Validators.minLength(0), Validators.maxLength(50)]],
+      number: [
+        patrimonies?.number ?? null,
+        [Validators.required, Validators.minLength(0), Validators.maxLength(50)],
+      ],
       name: [patrimonies?.name ?? '', [Validators.required, Validators.maxLength(255)]],
       registration_date: [regDate, Validators.required],
       description: [patrimonies?.description ?? '', [Validators.maxLength(255)]],
@@ -133,12 +145,12 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
   private setupConditionalValidations() {
     this.patrimoniesForm
       .get('type_entry')
-      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
       .subscribe(() => this.updateConditionalFields());
 
     this.patrimoniesForm
       .get('is_member')
-      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
       .subscribe(() => this.updateConditionalFields());
 
     this.updateConditionalFields();
@@ -229,7 +241,7 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
         this.members = members;
         this.setupAutocomplete();
 
-        if (this.isEditMode && this.data.patrimonies) {
+        if (this.isEditMode() && this.data.patrimonies) {
           const pat = this.data.patrimonies as Patrimonies;
           const church = this.churchs.find((c) => c.id === pat.church?.id);
           const member = this.members.find((m) => m.id === pat.member?.id);
@@ -238,7 +250,7 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
           if (member) this.searchControlMember.setValue(member);
         }
       },
-      error: () => this.notification.onError(MESSAGES.LOADING_ERROR),
+      error: () => this.toastService.openError(MESSAGES.LOADING_ERROR),
       complete: () => this.setupAutocomplete(),
     });
   }
@@ -266,7 +278,9 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
   }
 
   private filterMember(name: string): Members[] {
-    return this.members.filter((church) => church?.person?.name.toLowerCase().includes(name.toLowerCase()));
+    return this.members.filter((church) =>
+      church?.person?.name.toLowerCase().includes(name.toLowerCase()),
+    );
   }
 
   onChurchSelected(event: MatAutocompleteSelectedEvent) {
@@ -286,10 +300,10 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
 
   private checkEditMode() {
     if (this.data?.patrimonies?.id) {
-      this.isEditMode = true;
+      this.isEditMode.set(true);
 
       if (this.data.patrimonies.photo) {
-        this.photoPreview = this.data.patrimonies.photo;
+        this.photoPreview.set(this.data.patrimonies.photo);
         this.patrimoniesForm.patchValue({ photo: this.data.patrimonies.photo });
       }
     }
@@ -301,12 +315,12 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
 
     const file = input.files[0];
     if (!file.type.startsWith('image/')) {
-      this.notification.onError('Selecione apenas imagens.');
+      this.toastService.openError('Selecione apenas imagens.');
       return;
     }
 
     const reader = new FileReader();
-    reader.onload = () => (this.photoPreview = reader.result);
+    reader.onload = () => this.photoPreview.set(reader.result);
     reader.readAsDataURL(file);
 
     this.patrimoniesForm.patchValue({ photo: file });
@@ -314,7 +328,7 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
   }
 
   removePhoto() {
-    this.photoPreview = null;
+    this.photoPreview.set(null);
     this.patrimoniesForm.patchValue({ photo: null });
   }
 
@@ -323,62 +337,23 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
     return control?.errors ? this.validationService.getErrorMessage(control) : null;
   }
 
-  handleCancel() {
-    this.dialogRef?.close(false);
-  }
-
   handleSubmit() {
-    if (this.patrimoniesForm.invalid) {
-      this.patrimoniesForm.markAllAsTouched();
-      this.notification.onError('Verifique os campos obrigatórios.');
-      return;
-    }
+    this.patrimoniesForm.markAllAsTouched();
 
-    const formValue = this.patrimoniesForm;
+    if (this.patrimoniesForm.valid) {
+      const formValue = this.patrimoniesForm;
 
-    if (formValue.value.type_entry === 'C' && formValue.value.price != null) {
-      formValue.value.price = parseFloat(formValue.value.price).toFixed(2);
-    }
+      if (formValue.value.type_entry === 'C' && formValue.value.price != null) {
+        formValue.value.price = parseFloat(formValue.value.price).toFixed(2);
+      }
 
-    if (this.isEditMode && formValue.valid) {
-      this.handleUpdate(this.data?.patrimonies?.id, formValue.value);
+      this.dialogRef.close(formValue.value);
     } else {
-      this.handleCreate(formValue.value);
+      this.toastService.openWarning(MESSAGES.FORM_VALUES_NOT_FOUND);
     }
-  }
-
-  private handleCreate(data: Patrimonies) {
-    this.loading.show();
-    this.patrimoniesService.create(data).subscribe({
-      next: (patrimonies) => {
-        this.notification.onSuccess(MESSAGES.CREATE_SUCCESS);
-        this.dialogRef?.close(patrimonies);
-      },
-      error: (err) => this.notification.onError(err.error?.message || 'Erro ao salvar patrimônio.'),
-      complete: () => this.loading.hide(),
-    });
-  }
-
-  private handleUpdate(id: string, data: Patrimonies) {
-    this.loading.show();
-    this.patrimoniesService.update(id, data).subscribe({
-      next: (patrimonies) => {
-        this.loading.hide();
-        this.notification.onSuccess(MESSAGES.UPDATE_SUCCESS);
-        this.dialogRef?.close(patrimonies);
-      },
-      error: (err) => this.notification.onError(err.error?.message || 'Erro ao atualizar patrimônio.'),
-      complete: () => this.loading.hide(),
-    });
   }
 
   clearDate(fieldName: string) {
     this.patrimoniesForm.get(fieldName)?.reset();
-  }
-
-  private openCalendarDate(): void {
-    if (this.registration_date) {
-      this.registration_date.open();
-    }
   }
 }
