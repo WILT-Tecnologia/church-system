@@ -84,7 +84,7 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
   members: Members[] = [];
   patrimoniesForm!: FormGroup;
   searchControlChurch = new FormControl<string | Church>('', [Validators.required]);
-  searchControlMember = new FormControl<string | Members>('', [Validators.required]);
+  searchControlMember = new FormControl<string | Members>('');
   filteredChurch: Observable<Church[]> = new Observable<Church[]>();
   filteredMember: Observable<Members[]> = new Observable<Members[]>();
   isEditMode = signal(false);
@@ -189,6 +189,7 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
       if (isMember) {
         memberCtrl?.enable();
         memberCtrl?.setValidators([Validators.required]);
+        this.searchControlMember.setValidators([Validators.required]);
 
         donorCtrl?.clearValidators();
         donorCtrl?.setValue(null);
@@ -200,6 +201,7 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
         memberCtrl?.clearValidators();
         memberCtrl?.setValue(null);
         memberCtrl?.disable();
+        this.searchControlMember.clearValidators();
       }
     } else {
       /* =======================
@@ -216,11 +218,13 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
       memberCtrl?.clearValidators();
       memberCtrl?.setValue(null);
       memberCtrl?.disable();
+      this.searchControlMember.clearValidators();
     }
 
     priceCtrl?.updateValueAndValidity({ emitEvent: false });
     donorCtrl?.updateValueAndValidity({ emitEvent: false });
     memberCtrl?.updateValueAndValidity({ emitEvent: false });
+    this.searchControlMember.updateValueAndValidity({ emitEvent: false });
   }
 
   displayChurch(church: Church): string {
@@ -342,14 +346,60 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
     this.searchControlChurch.markAsTouched();
     this.searchControlMember.markAsTouched();
 
-    if (this.patrimoniesForm.valid) {
-      const formValue = this.patrimoniesForm;
+    if (
+      this.patrimoniesForm.valid &&
+      this.searchControlChurch.valid &&
+      this.searchControlMember.valid
+    ) {
+      const formData = new FormData();
+      const formValue = this.patrimoniesForm.getRawValue();
 
-      if (formValue.value.type_entry === 'C' && formValue.value.price != null) {
-        formValue.value.price = parseFloat(formValue.value.price).toFixed(2);
+      Object.keys(formValue).forEach((key) => {
+        const value = formValue[key];
+
+        if (key === 'photo') {
+          if (value instanceof File) {
+            formData.append('photo', value, value.name);
+          }
+          return;
+        }
+
+        if (key === 'registration_date' && value) {
+          const date = new Date(value);
+          if (!isNaN(date.getTime())) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            formData.append(key, `${year}-${month}-${day}`);
+          }
+          return;
+        }
+
+        if (key === 'price') {
+          if (formValue.type_entry === 'C' && value !== null && value !== undefined) {
+            const price = String(value).replace(',', '.');
+            formData.append(key, parseFloat(price).toFixed(2));
+          } else {
+            formData.append(key, '0.00');
+          }
+          return;
+        }
+
+        if (typeof value === 'boolean') {
+          formData.append(key, value ? '1' : '0');
+          return;
+        }
+
+        if (value !== null && value !== undefined) {
+          formData.append(key, value);
+        }
+      });
+
+      if (this.isEditMode()) {
+        formData.append('_method', 'PUT');
       }
 
-      this.dialogRef?.close(formValue.value);
+      this.dialogRef?.close(formData);
     } else {
       this.toastService.openWarning(MESSAGES.FORM_VALUES_NOT_FOUND);
     }

@@ -110,7 +110,7 @@ export class FinancialCategoriesComponent implements OnInit {
     const modal = this.dialogService.openModal(
       `modal-${Math.random()}`,
       FinancialCategoriesFormComponent,
-      'Adicionar categoria de lançamento',
+      'Adicionar nova categoria de lançamento',
       true,
       true,
       { submitSubject },

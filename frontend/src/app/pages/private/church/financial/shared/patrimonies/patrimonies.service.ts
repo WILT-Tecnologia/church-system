@@ -25,8 +25,9 @@ export class PatrimoniesService {
     return this.http.post<Patrimonies>(this.api, data);
   }
 
-  updatePatrimonies(data: FormData): Observable<Patrimonies> {
-    return this.http.post<Patrimonies>(`${this.api}/${data.get('id')}`, data);
+  updatePatrimonies(data: FormData | any): Observable<Patrimonies> {
+    const id = data instanceof FormData ? data.get('id') : data.id;
+    return this.http.post<Patrimonies>(`${this.api}/${id}`, data);
   }
 
   create(patrimonies: Patrimonies): Observable<Patrimonies> {

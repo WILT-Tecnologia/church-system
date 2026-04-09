@@ -8,7 +8,12 @@ import { ModalAction } from 'app/components/modal/modal.component';
 import { ModalService } from 'app/components/modal/modal.service';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
-import { CustomerSupplier, EntryExit, FinancialTransations, Payment } from 'app/model/FinancialTransations';
+import {
+  CustomerSupplier,
+  EntryExit,
+  FinancialTransations,
+  Payment,
+} from 'app/model/FinancialTransations';
 import { AuthService } from 'app/services/auth/auth.service';
 import { Subject } from 'rxjs';
 import { FinancialTransactionsService } from './financial-transactions.service';
@@ -27,8 +32,12 @@ export class FinancialTransactionsComponent implements OnInit {
   private readonly confirmService = inject(ConfirmService);
   private readonly toast = inject(ToastService);
   private readonly loading = inject(LoadingService);
-  private readonly writePermission = this.authService.hasPermission('write_church_lancamentos_financeiros');
-  private readonly deletePermission = this.authService.hasPermission('delete_church_lancamentos_financeiros');
+  private readonly writePermission = this.authService.hasPermission(
+    'write_church_lancamentos_financeiros',
+  );
+  private readonly deletePermission = this.authService.hasPermission(
+    'delete_church_lancamentos_financeiros',
+  );
 
   public financialTransactions = signal<FinancialTransations[]>([]);
   public dataSourceMat = new MatTableDataSource<FinancialTransations>();
@@ -174,7 +183,7 @@ export class FinancialTransactionsComponent implements OnInit {
     const modal = this.dialog.openModal(
       `modal-${Math.random()}`,
       FinancialTransactionsFormComponent,
-      'Adicionar lançamento',
+      'Adicionando novo lançamento',
       true,
       true,
       { submitSubject },
@@ -238,7 +247,7 @@ export class FinancialTransactionsComponent implements OnInit {
 
   private onDelete(financialTransactions: FinancialTransations): void {
     const modal = this.confirmService.openConfirm(
-      'Atenção',
+      'Excluindo lançamento',
       `Você tem certeza que deseja excluir o lançamento?`,
       'Confirmar',
       'Cancelar',
@@ -246,11 +255,13 @@ export class FinancialTransactionsComponent implements OnInit {
 
     modal.afterClosed().subscribe((result) => {
       if (result) {
-        this.financialTransactionsService.deleteFinancialTransactions(financialTransactions).subscribe({
-          next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
-          error: () => this.toast.openError(MESSAGES.DELETE_ERROR),
-          complete: () => this.loadFinancialTransactions(),
-        });
+        this.financialTransactionsService
+          .deleteFinancialTransactions(financialTransactions)
+          .subscribe({
+            next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
+            error: () => this.toast.openError(MESSAGES.DELETE_ERROR),
+            complete: () => this.loadFinancialTransactions(),
+          });
       }
     });
   }
