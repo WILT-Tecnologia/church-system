@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('number');
             $table->string('name');
             $table->date('registration_date');
-            $table->string('description');
+            $table->string('description')->nullable();
             $table->enum('type_entry', ['C', 'D', 'T']);
             $table->decimal('price', 10,2)->nullable();
             $table->boolean('is_member')->default(false);

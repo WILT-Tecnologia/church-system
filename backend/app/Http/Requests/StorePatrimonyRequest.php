@@ -29,13 +29,13 @@ class StorePatrimonyRequest extends FormRequest
             'number' =>  ['required'],
             'name' => ['required'],
             'registration_date' => ['required', 'date'],
-            'description' => ['required'],
+            'description' => ['sometimes', 'nullable', 'string', 'max:255'],
             'type_entry' => ['required',  new Enum(TypeEntryEnum::class)],
-            'price' => ['nullable', 'decimal:2'],
+            'price' => ['sometimes', 'nullable', 'decimal:2'],
             'is_member' => ['sometimes', 'boolean'],
             'member_id' => ['required_unless:is_member,false'],
-            'donor' => ['nullable', 'string'],
-            'photo' => ['nullable']
+            'donor' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'photo' => ['sometimes', 'nullable']
         ];
     }
 }

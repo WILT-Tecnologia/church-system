@@ -1,7 +1,24 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+  viewChild,
+} from '@angular/core';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker';
@@ -23,7 +40,15 @@ import { CepService } from 'app/services/search-cep/search-cep.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 import { cnpjValidator } from 'app/services/validators/cnpj-validator';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
-import { debounceTime, distinctUntilChanged, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  map,
+  Observable,
+  startWith,
+  Subject,
+  takeUntil,
+} from 'rxjs';
 import { PersonsService } from '../../persons/persons.service';
 
 @Component({
@@ -60,16 +85,14 @@ export class ChurchComponent implements OnInit, OnDestroy {
   private validationService = inject(ValidationService);
   private dialogRef = inject(MatDialogRef<ChurchComponent>);
   private data: { church: Church; submitSubject?: Subject<void> } = inject(MAT_DIALOG_DATA);
+  private destroy$ = new Subject<void>();
 
   churchForm: FormGroup = this.createForm();
   church = signal<Church[]>([]);
   responsible = signal<Person[]>([]);
   isEditMode = signal(false);
-
   searchResponsibleControl = new FormControl<string>('', [Validators.required]);
   filterResponsable = signal<Observable<Person[]>>(new Observable<Person[]>());
-
-  private destroy$ = new Subject<void>();
   picker = viewChild(MatDatepicker);
   tabGroup = viewChild(MatTabGroup);
 
@@ -108,7 +131,10 @@ export class ChurchComponent implements OnInit, OnDestroy {
       street: [this.data?.church?.street ?? '', [Validators.required, Validators.maxLength(255)]],
       number: [this.data?.church?.number ?? '', [Validators.required, Validators.maxLength(10)]],
       complement: [this.data?.church?.complement ?? '', [Validators.maxLength(255)]],
-      district: [this.data?.church?.district ?? '', [Validators.required, Validators.maxLength(255)]],
+      district: [
+        this.data?.church?.district ?? '',
+        [Validators.required, Validators.maxLength(255)],
+      ],
       city: [this.data?.church?.city ?? '', [Validators.required, Validators.maxLength(255)]],
       state: [this.data?.church?.state ?? '', [Validators.required, Validators.maxLength(255)]],
       country: [this.data?.church?.country ?? '', [Validators.required, Validators.maxLength(255)]],
@@ -175,7 +201,9 @@ export class ChurchComponent implements OnInit, OnDestroy {
 
   private _filterResponsables(name: string): Person[] {
     const filterValue = name.toLowerCase();
-    return this.responsible().filter((responsible) => responsible.name.toLowerCase().includes(filterValue));
+    return this.responsible().filter((responsible) =>
+      responsible.name.toLowerCase().includes(filterValue),
+    );
   }
 
   onResponsibleSelected(event: MatAutocompleteSelectedEvent) {
@@ -205,7 +233,16 @@ export class ChurchComponent implements OnInit, OnDestroy {
     const controls = this.churchForm.controls;
     for (const name in controls) {
       if (controls[name].invalid) {
-        const addressFields = ['cep', 'street', 'number', 'complement', 'district', 'city', 'state', 'country'];
+        const addressFields = [
+          'cep',
+          'street',
+          'number',
+          'complement',
+          'district',
+          'city',
+          'state',
+          'country',
+        ];
         const targetTabIndex = addressFields.includes(name) ? 1 : 0;
 
         const tabGroup = this.tabGroup();

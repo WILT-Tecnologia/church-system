@@ -83,8 +83,8 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
   churchs: Church[] = [];
   members: Members[] = [];
   patrimoniesForm!: FormGroup;
-  searchControlChurch = new FormControl<string | Church>('');
-  searchControlMember = new FormControl<string | Members>('');
+  searchControlChurch = new FormControl<string | Church>('', [Validators.required]);
+  searchControlMember = new FormControl<string | Members>('', [Validators.required]);
   filteredChurch: Observable<Church[]> = new Observable<Church[]>();
   filteredMember: Observable<Members[]> = new Observable<Members[]>();
   isEditMode = signal(false);
@@ -339,6 +339,8 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
 
   handleSubmit() {
     this.patrimoniesForm.markAllAsTouched();
+    this.searchControlChurch.markAsTouched();
+    this.searchControlMember.markAsTouched();
 
     if (this.patrimoniesForm.valid) {
       const formValue = this.patrimoniesForm;
@@ -347,7 +349,7 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
         formValue.value.price = parseFloat(formValue.value.price).toFixed(2);
       }
 
-      this.dialogRef.close(formValue.value);
+      this.dialogRef?.close(formValue.value);
     } else {
       this.toastService.openWarning(MESSAGES.FORM_VALUES_NOT_FOUND);
     }

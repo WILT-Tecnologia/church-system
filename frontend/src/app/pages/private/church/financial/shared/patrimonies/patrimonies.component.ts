@@ -109,7 +109,7 @@ export class PatrimoniesComponent implements OnInit {
     const modal = this.modalService.openModal(
       `modal-${Math.random()}`,
       PatrimoniesFormComponent,
-      'Adicionar convidado',
+      'Adicionando novo patrimônio',
       true,
       true,
       { submitSubject },
