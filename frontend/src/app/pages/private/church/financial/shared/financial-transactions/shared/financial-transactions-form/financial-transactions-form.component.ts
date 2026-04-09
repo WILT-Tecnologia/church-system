@@ -1,7 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DATE_LOCALE, MatOptionModule, provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker';
@@ -20,7 +30,12 @@ import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Church } from 'app/model/Church';
 import { FinancialCategories } from 'app/model/FinancialCategories';
-import { CustomerSupplier, EntryExit, FinancialTransations, Payment } from 'app/model/FinancialTransations';
+import {
+  CustomerSupplier,
+  EntryExit,
+  FinancialTransations,
+  Payment,
+} from 'app/model/FinancialTransations';
 import { Members } from 'app/model/Members';
 import { Suppliers } from 'app/model/Suppliers';
 import { ChurchesService } from 'app/pages/private/administrative/churches/churches.service';
@@ -114,7 +129,6 @@ export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
   suppliers: Suppliers[] = [];
   categories: FinancialCategories[] = [];
   churches: Church[] = [];
-
   searchControlChurch = new FormControl<string | Church>('');
   filteredChurch: Observable<Church[]> = new Observable<Church[]>();
 
@@ -146,7 +160,10 @@ export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
 
     return this.fb.group({
       id: [pat?.id ?? ''],
-      church_id: [{ value: selectedChurchId ?? pat?.church_id ?? '', disabled: true }, [Validators.required]],
+      church_id: [
+        { value: selectedChurchId ?? pat?.church_id ?? '', disabled: true },
+        [Validators.required],
+      ],
       entry_exit: [pat?.entry_exit ?? '', [Validators.required]],
       customer_supplier: [pat?.customer_supplier ?? '', [Validators.required]],
       member_id: [pat?.member_id ?? (pat as any)?.member?.id ?? ''],
@@ -177,7 +194,9 @@ export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
     const amount = Number(this.financialTransactionsForm.get('amount')?.value || 0);
     const discount = Number(this.financialTransactionsForm.get('discount')?.value || 0);
     const total = amount - discount;
-    this.financialTransactionsForm.get('amount_discount')?.setValue(total > 0 ? total : 0, { emitEvent: false });
+    this.financialTransactionsForm
+      .get('amount_discount')
+      ?.setValue(total > 0 ? total : 0, { emitEvent: false });
   }
 
   private setupConditionalValidation() {
@@ -212,7 +231,7 @@ export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
       churches: this.churchesService.getChurches(),
       members: this.membersService.findAll(),
       suppliers: this.suppliersService.findAllSuppliers(),
-      categories: this.financialCategoriesService.findAllFinancialCategories(),
+      categories: this.financialCategoriesService.getAllFinancialCategories(),
     }).subscribe({
       next: ({
         churches,
@@ -236,7 +255,9 @@ export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
 
         if (this.isEditMode() && this.data.financialTransactions) {
           const trans = this.data.financialTransactions;
-          const church = this.churches.find((c) => c.id === (trans.church_id || (trans as any).church?.id));
+          const church = this.churches.find(
+            (c) => c.id === (trans.church_id || (trans as any).church?.id),
+          );
           if (church) this.searchControlChurch.setValue(church);
           this.searchControlChurch.disable();
           this.calculateTotal();
@@ -285,7 +306,10 @@ export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
       this.isEditMode.set(true);
       this.disableFieldsForEditMode();
 
-      if (this.data.financialTransactions.receipt && typeof this.data.financialTransactions.receipt === 'string') {
+      if (
+        this.data.financialTransactions.receipt &&
+        typeof this.data.financialTransactions.receipt === 'string'
+      ) {
         this.photoPreview = this.data.financialTransactions.receipt;
       }
     }
@@ -340,7 +364,9 @@ export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
     if (this.isEditMode()) {
       const { receipt, payment_date, ...dataToPatch } = this.data.financialTransactions!;
 
-      const pDate = this.formatsPipe.parseDateLocal(payment_date as string | Date | null | undefined);
+      const pDate = this.formatsPipe.parseDateLocal(
+        payment_date as string | Date | null | undefined,
+      );
 
       this.financialTransactionsForm.patchValue({
         ...dataToPatch,

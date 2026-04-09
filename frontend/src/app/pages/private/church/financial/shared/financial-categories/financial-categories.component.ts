@@ -34,16 +34,18 @@ export class FinancialCategoriesComponent implements OnInit {
     'delete_church_categorias_financeiras',
   );
 
-  public financialCategories = signal<FinancialCategories[]>([]);
-  public dataSourceMat = new MatTableDataSource<FinancialCategories>(this.financialCategories());
-  public columnDefinitions: ColumnDefinitionsProps[] = [
+  public readonly financialCategories = signal<FinancialCategories[]>([]);
+  public readonly dataSourceMat = new MatTableDataSource<FinancialCategories>(
+    this.financialCategories(),
+  );
+  public readonly columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'status', header: 'Situação', type: 'boolean' },
     { key: 'name', header: 'Nome', type: 'string' },
     { key: 'description', header: 'Descrição', type: 'string' },
     { key: 'created_at', header: 'Data de criação', type: 'datetime' },
     { key: 'updated_at', header: 'Última atualização', type: 'datetime' },
   ];
-  public actions: ActionsProps[] = [
+  public readonly actions: ActionsProps[] = [
     {
       type: 'toggle',
       activeLabel: 'Ativar',
@@ -56,7 +58,8 @@ export class FinancialCategoriesComponent implements OnInit {
       label: 'Editar',
       icon: 'edit',
       color: 'inherit',
-      action: (financialCategories: FinancialCategories) => this.editFinancialCategories(financialCategories),
+      action: (financialCategories: FinancialCategories) =>
+        this.editFinancialCategories(financialCategories),
       visible: () => this.writeChurchCategoriesFinancial,
     },
     {
@@ -64,7 +67,8 @@ export class FinancialCategoriesComponent implements OnInit {
       label: 'Excluir',
       icon: 'delete',
       color: 'warn',
-      action: (financialCategories: FinancialCategories) => this.deleteFinancialCategories(financialCategories),
+      action: (financialCategories: FinancialCategories) =>
+        this.deleteFinancialCategories(financialCategories),
       visible: () => this.deleteChurchCategoriesFinancial,
     },
   ];
@@ -74,8 +78,8 @@ export class FinancialCategoriesComponent implements OnInit {
   }
 
   private getAllFinancialCategories() {
-    this.financialCategoriesService.findAllFinancialCategories().subscribe({
-      next: (financialCategories: FinancialCategories[]) => {
+    this.financialCategoriesService.getAllFinancialCategories().subscribe({
+      next: (financialCategories) => {
         this.financialCategories.set(financialCategories);
         this.dataSourceMat.data = this.financialCategories();
       },
@@ -180,7 +184,7 @@ export class FinancialCategoriesComponent implements OnInit {
       if (result) {
         this.financialCategoriesService.deleteFinancialCategories(financialCategories).subscribe({
           next: () => this.toastService.openSuccess(MESSAGES.DELETE_SUCCESS),
-          error: (error) => this.toastService.openError(error.error.message ?? MESSAGES.DELETE_ERROR),
+          error: () => this.toastService.openError(MESSAGES.DELETE_ERROR),
           complete: () => this.getAllFinancialCategories(),
         });
       }
@@ -199,7 +203,8 @@ export class FinancialCategoriesComponent implements OnInit {
       if (result) {
         this.financialCategoriesService.updatedStatus(financialCategories).subscribe({
           next: () => this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS),
-          error: (error) => this.toastService.openError(error.error.message ?? MESSAGES.UPDATE_ERROR),
+          error: (error) =>
+            this.toastService.openError(error.error.message ?? MESSAGES.UPDATE_ERROR),
           complete: () => this.getAllFinancialCategories(),
         });
       }

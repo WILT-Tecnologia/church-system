@@ -1,15 +1,17 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { ConfirmService } from 'app/components/confirm/confirm.service';
 import { CrudComponent } from 'app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
 import { LoadingService } from 'app/components/loading/loading.service';
+import { ModalAction } from 'app/components/modal/modal.component';
 import { ModalService } from 'app/components/modal/modal.service';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Suppliers } from 'app/model/Suppliers';
 import { AuthService } from 'app/services/auth/auth.service';
+import { Subject } from 'rxjs';
 import { SupplierFormComponent } from './supplier-form/supplier-form.component';
 import { SuppliersService } from './suppliers.service';
 
@@ -21,14 +23,20 @@ import { SuppliersService } from './suppliers.service';
 })
 export class SuppliersComponent implements OnInit {
   private readonly suppliersService = inject(SuppliersService);
-  private authService = inject(AuthService);
-  private readonly dialog = inject(ModalService);
+  private readonly authService = inject(AuthService);
+  private readonly dialogService = inject(ModalService);
   private readonly confirmService = inject(ConfirmService);
-  private readonly toast = inject(ToastService);
-  private readonly loading = inject(LoadingService);
-  public suppliers: Suppliers[] = [];
-  public dataSourceMat = new MatTableDataSource<Suppliers>();
-  public columnDefinitions: ColumnDefinitionsProps[] = [
+  private readonly toastService = inject(ToastService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly writeChurchFornecedores = this.authService.hasPermission(
+    'write_church_fornecedores',
+  );
+  private readonly deleteChurchFornecedores = this.authService.hasPermission(
+    'delete_church_fornecedores',
+  );
+  public readonly suppliers = signal<Suppliers[]>([]);
+  public readonly dataSourceMat = new MatTableDataSource<Suppliers>();
+  public readonly columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'status', header: 'Situação', type: 'boolean' },
     { key: 'church.name', header: 'Igreja', type: 'string' },
     { key: 'name', header: 'Nome', type: 'string' },
@@ -39,108 +47,169 @@ export class SuppliersComponent implements OnInit {
     { key: 'email', header: 'Email', type: 'email' },
     { key: 'contact_name', header: 'Contato', type: 'string' },
   ];
-  public actions: ActionsProps[] = [
+  public readonly actions: ActionsProps[] = [
     {
       type: 'toggle',
       activeLabel: 'Ativar',
       inactiveLabel: 'Desativar',
-      action: (suppliers: Suppliers) => this.updatedStatus(suppliers),
-      visible: () => this.authService.hasPermission('write_church_fornecedores'),
+      action: (suppliers: Suppliers) => this.onUpdatedStatus(suppliers),
+      visible: () => this.writeChurchFornecedores,
     },
     {
       type: 'edit',
       label: 'Editar',
       icon: 'edit',
       color: 'inherit',
-      action: (suppliers: Suppliers) => this.editSuppliers(suppliers),
-      visible: () => this.authService.hasPermission('write_church_fornecedores'),
+      action: (suppliers: Suppliers) => this.onEdit(suppliers),
+      visible: () => this.writeChurchFornecedores,
     },
     {
       type: 'delete',
       label: 'Excluir',
       icon: 'delete',
       color: 'warn',
-      action: (suppliers: Suppliers) => this.deleteSuppliers(suppliers),
-      visible: () => this.authService.hasPermission('delete_church_fornecedores'),
+      action: (suppliers: Suppliers) => this.onDelete(suppliers),
+      visible: () => this.deleteChurchFornecedores,
     },
   ];
 
-  ngOnInit(): void {
-    this.findAllSuppliers();
+  ngOnInit() {
+    this.getAllSuppliers();
   }
 
-  private findAllSuppliers(): void {
+  private getAllSuppliers() {
     this.suppliersService.findAllSuppliers().subscribe({
-      next: (data) => {
-        this.suppliers = data;
-        this.dataSourceMat.data = this.suppliers;
+      next: (suppliers) => {
+        this.suppliers.set(suppliers);
+        this.dataSourceMat.data = this.suppliers();
       },
-      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
-      complete: () => this.loading.hide(),
+      error: () => this.toastService.openError(MESSAGES.LOADING_ERROR),
+      complete: () => this.loadingService.hide(),
     });
   }
 
-  createSuppliers(): void {
-    const dialogRef = this.dialog.openModal(
+  onCreate() {
+    const submitSubject = new Subject<void>();
+    const formAction: ModalAction[] = [
+      {
+        label: 'Cancelar',
+        type: 'stroked',
+        color: 'warn',
+        icon: 'close',
+        onClick: (ref) => ref.close(),
+      },
+      {
+        label: 'Salvar',
+        type: 'flat',
+        color: 'primary',
+        icon: 'save',
+        onClick: () => submitSubject.next(),
+      },
+    ];
+
+    const modal = this.dialogService.openModal(
       `modal-${Math.random()}`,
       SupplierFormComponent,
-      'Adicionar fornecedor',
+      'Adicionando novo fornecedor',
       true,
       true,
-      {},
+      { submitSubject },
+      undefined,
+      false,
+      formAction,
     );
 
-    dialogRef.afterClosed().subscribe((result) => {
+    modal.afterClosed().subscribe((result: Suppliers) => {
       if (result) {
-        this.findAllSuppliers();
+        this.suppliersService.createSuppliers(result).subscribe({
+          next: () => this.toastService.openSuccess(MESSAGES.CREATE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.CREATE_ERROR),
+          complete: () => this.getAllSuppliers(),
+        });
       }
     });
   }
 
-  editSuppliers(suppliers: Suppliers): void {
-    const dialogRef = this.dialog.openModal(
+  private onEdit(suppliers: Suppliers) {
+    const submitSubject = new Subject<void>();
+    const formAction: ModalAction[] = [
+      {
+        label: 'Cancelar',
+        type: 'stroked',
+        color: 'warn',
+        icon: 'close',
+        onClick: (ref) => ref.close(),
+      },
+      {
+        label: 'Atualizar',
+        type: 'flat',
+        color: 'primary',
+        icon: 'save',
+        onClick: () => submitSubject.next(),
+      },
+    ];
+
+    const modal = this.dialogService.openModal(
       `modal-${Math.random()}`,
       SupplierFormComponent,
       `Editando o fornecedor ${suppliers.name}`,
       true,
       true,
-      { suppliers },
+      { suppliers, submitSubject },
+      undefined,
+      false,
+      formAction,
     );
 
-    dialogRef.afterClosed().subscribe((result) => {
+    modal.afterClosed().subscribe((result: Suppliers) => {
       if (result) {
-        this.findAllSuppliers();
+        this.suppliersService.updateSuppliers(result).subscribe({
+          next: () => this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
+          complete: () => this.getAllSuppliers(),
+        });
       }
     });
   }
 
-  deleteSuppliers(suppliers: Suppliers): void {
-    const dialogRef = this.confirmService.openConfirm(
+  private onDelete(suppliers: Suppliers) {
+    const modal = this.confirmService.openConfirm(
       'Atenção',
       `Você tem certeza que deseja excluir o fornecedor: ${suppliers.name}?`,
       'Confirmar',
       'Cancelar',
     );
 
-    dialogRef.afterClosed().subscribe((result) => {
+    modal.afterClosed().subscribe((result: boolean) => {
       if (result) {
         this.suppliersService.deleteSuppliers(suppliers).subscribe({
           next: () => {
-            this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
-            this.findAllSuppliers();
+            this.toastService.openSuccess(MESSAGES.DELETE_SUCCESS);
+            this.getAllSuppliers();
           },
-          error: () => this.toast.openError(MESSAGES.DELETE_ERROR),
-          complete: () => this.loading.hide(),
+          error: () => this.toastService.openError(MESSAGES.DELETE_ERROR),
+          complete: () => this.loadingService.hide(),
         });
       }
     });
   }
 
-  updatedStatus(suppliers: Suppliers) {
-    this.suppliersService.updatedStatus(suppliers.id, !suppliers.status).subscribe({
-      next: () => this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS),
-      error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
-      complete: () => this.findAllSuppliers(),
+  private onUpdatedStatus(suppliers: Suppliers) {
+    const modal = this.confirmService.openConfirm(
+      'Atenção',
+      `Você tem certeza que deseja ${suppliers.status ? 'desativar' : 'ativar'} o fornecedor: ${suppliers.name}?`,
+      'Confirmar',
+      'Cancelar',
+    );
+
+    modal.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        this.suppliersService.updatedStatus(suppliers).subscribe({
+          next: () => this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
+          complete: () => this.getAllSuppliers(),
+        });
+      }
     });
   }
 }

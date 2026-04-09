@@ -1,6 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -37,8 +43,10 @@ export class FinancialCategoriesFormComponent implements OnInit, OnDestroy {
   private readonly toastService = inject(ToastService);
   private readonly validationService = inject(ValidationService);
   private readonly dialogRef = inject(MatDialogRef<FinancialCategoriesFormComponent>);
-  private readonly data: { financialCategories: FinancialCategories; submitSubject?: Subject<void> } =
-    inject(MAT_DIALOG_DATA);
+  private readonly data: {
+    financialCategories: FinancialCategories;
+    submitSubject?: Subject<void>;
+  } = inject(MAT_DIALOG_DATA);
   private readonly destroy$ = new Subject<void>();
 
   public financialCategoriesForm!: FormGroup;

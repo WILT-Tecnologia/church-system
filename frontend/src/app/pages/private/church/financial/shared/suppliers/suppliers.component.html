@@ -1,8 +1,8 @@
 <app-crud
-  [fields]="suppliers"
+  [fields]="suppliers()"
   [dataSourceMat]="dataSourceMat"
   [columnDefinitions]="columnDefinitions"
-  (add)="createSuppliers()"
+  (add)="onCreate()"
   [actions]="actions"
   [writePermission]="'write_church_fornecedores'"
   [deletePermission]="'delete_church_fornecedores'"

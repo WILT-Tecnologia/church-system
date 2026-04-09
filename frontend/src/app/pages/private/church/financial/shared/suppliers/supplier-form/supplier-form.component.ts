@@ -1,8 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { MatButtonModule } from '@angular/material/button';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
 import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
@@ -12,9 +21,10 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTabsModule } from '@angular/material/tabs';
-import { ActionsComponent } from 'app/components/actions/actions.component';
 import { ColumnComponent } from 'app/components/column/column.component';
 import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
+import { TabDirective } from 'app/components/tabs/tab.directive';
+import { TabsComponent } from 'app/components/tabs/tabs.component';
 import { MESSAGES } from 'app/components/toast/messages';
 import { ToastService } from 'app/components/toast/toast.service';
 import { Address } from 'app/model/Address';
@@ -25,8 +35,22 @@ import { CepService } from 'app/services/search-cep/search-cep.service';
 import { ValidationService } from 'app/services/validation/validation.service';
 import { phoneValidator } from 'app/services/validators/phone-validator';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
-import { debounceTime, distinctUntilChanged, forkJoin, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  forkJoin,
+  map,
+  Observable,
+  startWith,
+  Subject,
+  takeUntil,
+} from 'rxjs';
 import { SuppliersService } from '../suppliers.service';
+
+interface TypeSupplierProps {
+  value: string;
+  label: string;
+}
 
 @Component({
   selector: 'app-supplier-form',
@@ -46,8 +70,8 @@ import { SuppliersService } from '../suppliers.service';
     FormsModule,
     ColumnComponent,
     NgxMaskDirective,
-    ActionsComponent,
-    MatButtonModule,
+    TabsComponent,
+    TabDirective,
   ],
   providers: [
     provideNgxMask(),
@@ -57,45 +81,43 @@ import { SuppliersService } from '../suppliers.service';
   ],
 })
 export class SupplierFormComponent implements OnInit, OnDestroy {
-  private fb = inject(FormBuilder);
-  private suppliersService = inject(SuppliersService);
+  private readonly fb = inject(FormBuilder);
+  private readonly suppliersService = inject(SuppliersService);
   private readonly validationService = inject(ValidationService);
-  private churchesService = inject(ChurchesService);
-  private toast = inject(ToastService);
-  private cepService = inject(CepService);
+  private readonly churchesService = inject(ChurchesService);
+  private readonly toastService = inject(ToastService);
+  private readonly cepService = inject(CepService);
   private readonly dialogRef = inject(MatDialogRef<SupplierFormComponent>);
-  private readonly data = inject(MAT_DIALOG_DATA);
+  private readonly data: { suppliers: Suppliers; submitSubject: Subject<void> } =
+    inject(MAT_DIALOG_DATA);
+  private readonly destroy$ = new Subject<void>();
 
+  churchs = signal<Church[]>([]);
   supplierForm!: FormGroup;
   isEditMode = signal(false);
-  private destroy$ = new Subject<void>();
   searchControlChurch = new FormControl<string | Church>('');
   filteredChurch: Observable<Church[]> = new Observable<Church[]>();
-
-  type_suppliers: {
-    value: TypeSupplier;
-    label: string;
-  }[] = [
+  type_suppliers: TypeSupplierProps[] = [
     { value: TypeSupplier.PF, label: 'Pessoa Física' },
     { value: TypeSupplier.PJ, label: 'Pessoa Jurídica' },
   ];
-
-  type_services: {
-    value: TypeService;
-    label: string;
-  }[] = [
+  type_services: TypeSupplierProps[] = [
     { value: TypeService.PRODUTO, label: 'Produto' },
     { value: TypeService.SERVICO, label: 'Serviço' },
     { value: TypeService.AMBOS, label: 'Ambos' },
   ];
-
-  churchs: Church[] = [];
 
   ngOnInit() {
     this.supplierForm = this.createForm();
     this.checkEditMode();
     this.loadData();
     this.initialSearchCep();
+
+    if (this.data?.submitSubject) {
+      this.data.submitSubject.pipe(takeUntil(this.destroy$)).subscribe(() => {
+        this.handleSubmit();
+      });
+    }
   }
 
   ngOnDestroy(): void {
@@ -126,12 +148,15 @@ export class SupplierFormComponent implements OnInit, OnDestroy {
       phone_two: [pat?.phone_two ?? '', [Validators.maxLength(11), phoneValidator()]],
       phone_three: [pat?.phone_three ?? '', [Validators.maxLength(11), phoneValidator()]],
       email: [pat?.email ?? '', [Validators.email, Validators.maxLength(100)]],
-      contact_name: [pat?.contact_name ?? '', [Validators.maxLength(100), Validators.pattern('^[a-zA-Z0-9]*$')]],
+      contact_name: [
+        pat?.contact_name ?? '',
+        [Validators.maxLength(100), Validators.pattern('^[a-zA-Z0-9]*$')],
+      ],
       obs: [pat?.obs ?? '', [Validators.maxLength(255), Validators.pattern('^[a-zA-Z0-9]*$')]],
     });
   }
 
-  initialSearchCep() {
+  private initialSearchCep() {
     let previousCepValue = this.supplierForm.get('cep')?.value;
 
     this.supplierForm
@@ -145,7 +170,7 @@ export class SupplierFormComponent implements OnInit, OnDestroy {
       });
   }
 
-  searchCep(cep: string): void {
+  private searchCep(cep: string): void {
     if (this.supplierForm.get('cep')?.value?.length === '') {
       return;
     }
@@ -161,8 +186,8 @@ export class SupplierFormComponent implements OnInit, OnDestroy {
           });
         }
       },
-      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
-      complete: () => this.toast.openSuccess(MESSAGES.LOADING_SUCCESS),
+      error: () => this.toastService.openError(MESSAGES.LOADING_ERROR),
+      complete: () => this.toastService.openSuccess(MESSAGES.LOADING_SUCCESS),
     });
   }
 
@@ -175,18 +200,18 @@ export class SupplierFormComponent implements OnInit, OnDestroy {
       churchs: this.churchesService.getChurches(),
     }).subscribe({
       next: ({ churchs }) => {
-        this.churchs = churchs;
+        this.churchs.set(churchs);
         this.setupAutocomplete();
 
         const selectedChurchId = localStorage.getItem('selectedChurch');
 
         if (this.isEditMode() && this.data.suppliers) {
           const pat = this.data.suppliers as Suppliers;
-          const church = this.churchs.find((c) => c.id === pat.church?.id);
+          const church = this.churchs().find((c) => c.id === pat.church?.id);
 
           if (church) this.searchControlChurch.setValue(church);
         } else if (selectedChurchId) {
-          const church = this.churchs.find((c) => c.id === selectedChurchId);
+          const church = this.churchs().find((c) => c.id === selectedChurchId);
 
           if (church) {
             this.searchControlChurch.setValue(church);
@@ -195,8 +220,8 @@ export class SupplierFormComponent implements OnInit, OnDestroy {
           }
         }
       },
-      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
-      complete: () => this.setupAutocomplete(),
+      error: () => this.toastService.openError(MESSAGES.LOADING_ERROR),
+      complete: () => {},
     });
   }
 
@@ -205,13 +230,15 @@ export class SupplierFormComponent implements OnInit, OnDestroy {
       startWith(''),
       map((value) => {
         const name = typeof value === 'string' ? value : (value?.name ?? '');
-        return name ? this.filterChurch(name) : this.churchs.slice();
+        return name ? this.filterChurch(name) : this.churchs().slice();
       }),
     );
   }
 
   private filterChurch(name: string): Church[] {
-    return this.churchs.filter((church) => church.name.toLowerCase().includes(name.toLowerCase()));
+    return this.churchs().filter((church) =>
+      church.name.toLowerCase().includes(name.toLowerCase()),
+    );
   }
 
   onChurchSelected(event: MatAutocompleteSelectedEvent) {
@@ -224,7 +251,7 @@ export class SupplierFormComponent implements OnInit, OnDestroy {
   }
 
   private checkEditMode() {
-    if (this.data?.suppliers?.id) {
+    if (this.data?.suppliers && this.data?.suppliers?.id) {
       this.isEditMode.set(true);
     }
   }
@@ -234,62 +261,40 @@ export class SupplierFormComponent implements OnInit, OnDestroy {
     return control?.errors ? this.validationService.getErrorMessage(control) : null;
   }
 
-  handleCancel() {
-    this.dialogRef?.close();
-  }
-
   handleSubmit() {
-    if (this.supplierForm.invalid) {
-      this.supplierForm.markAllAsTouched();
-      this.toast.openError('Verifique os dados informados.');
-      return;
-    }
+    this.supplierForm.markAllAsTouched();
+    this.handleSave();
+  }
 
-    if (this.isEditMode()) {
-      this.handleUpdate(this.data?.suppliers?.id, this.supplierForm.getRawValue());
+  private handleSave() {
+    if (this.supplierForm.valid) {
+      this.checkDuplicateAndSave(this.supplierForm.getRawValue());
     } else {
-      this.checkDuplicateAndCreate(this.supplierForm.getRawValue());
+      this.toastService.openWarning(MESSAGES.FORM_VALUES_NOT_FOUND);
     }
   }
 
-  private checkDuplicateAndCreate(data: Suppliers) {
+  private checkDuplicateAndSave(data: Suppliers) {
     this.suppliersService.findAllSuppliers().subscribe({
       next: (suppliers) => {
         const cpfCnpjOnlyNumbers = data.cpf_cnpj.replace(/\D/g, '');
         const duplicate = suppliers.find(
-          (s) => s.church_id === data.church_id && s.cpf_cnpj.replace(/\D/g, '') === cpfCnpjOnlyNumbers,
+          (s) =>
+            (s.church_id === data.church_id || s.church?.id === data.church_id) &&
+            s.cpf_cnpj.replace(/\D/g, '') === cpfCnpjOnlyNumbers &&
+            s.id !== data.id,
         );
 
         if (duplicate) {
           const typeLabel = data.type_supplier === TypeSupplier.PF ? 'CPF' : 'CNPJ';
-          this.toast.openError(`Já existe um fornecedor cadastrado com o mesmo ${typeLabel}.`);
+          this.toastService.openError(
+            `Já existe um fornecedor cadastrado com o mesmo ${typeLabel}.`,
+          );
         } else {
-          this.handleCreate(data);
+          this.dialogRef.close(data);
         }
       },
-      error: () => {
-        this.toast.openError('Erro ao verificar fornecedores existentes.');
-      },
-    });
-  }
-
-  private handleCreate(data: Suppliers) {
-    this.suppliersService.createSuppliers(data).subscribe({
-      next: (suppliers) => {
-        this.toast.openSuccess(MESSAGES.CREATE_SUCCESS);
-        this.dialogRef?.close(suppliers);
-      },
-      error: (err) => this.toast.openError(err.error?.message || 'Erro ao salvar o fornecedor.'),
-    });
-  }
-
-  private handleUpdate(id: string, data: Suppliers) {
-    this.suppliersService.updateSuppliers(id, data).subscribe({
-      next: (suppliers) => {
-        this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS);
-        this.dialogRef?.close(suppliers);
-      },
-      error: (err) => this.toast.openError(err.error?.message || 'Erro ao atualizar o fornecedor.'),
+      error: () => this.toastService.openError(MESSAGES.LOADING_ERROR),
     });
   }
 }

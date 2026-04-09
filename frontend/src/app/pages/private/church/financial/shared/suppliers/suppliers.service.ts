@@ -10,8 +10,8 @@ import { Suppliers } from 'app/model/Suppliers';
   providedIn: 'root',
 })
 export class SuppliersService {
-  private readonly baseUrl = `${environment.apiUrl}/church/suppliers`;
   private http = inject(HttpClient);
+  private readonly baseUrl = `${environment.apiUrl}/church/suppliers`;
 
   findAllSuppliers(): Observable<Suppliers[]> {
     return this.http.get<Suppliers[]>(this.baseUrl);
@@ -25,13 +25,13 @@ export class SuppliersService {
     return this.http.post<Suppliers>(this.baseUrl, suppliers);
   }
 
-  updateSuppliers(id: string, suppliers: Partial<Suppliers>): Observable<Suppliers> {
-    return this.http.put<Suppliers>(`${this.baseUrl}/${id}`, suppliers);
+  updateSuppliers(suppliers: Suppliers): Observable<Suppliers> {
+    return this.http.put<Suppliers>(`${this.baseUrl}/${suppliers.id}`, suppliers);
   }
 
-  updatedStatus(id: string, status: boolean): Observable<Suppliers> {
-    const statusData = { status };
-    return this.http.put<Suppliers>(`${this.baseUrl}/${id}`, statusData);
+  updatedStatus(suppliers: Suppliers): Observable<Suppliers> {
+    const statusData = { status: !suppliers.status };
+    return this.http.put<Suppliers>(`${this.baseUrl}/${suppliers.id}`, statusData);
   }
 
   deleteSuppliers(suppliers: Suppliers): Observable<Suppliers> {

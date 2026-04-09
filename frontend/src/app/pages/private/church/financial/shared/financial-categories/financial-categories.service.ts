@@ -11,7 +11,7 @@ export class FinancialCategoriesService {
   private readonly baseUrl = `${environment.apiUrl}/church/financial-categories`;
   private http = inject(HttpClient);
 
-  findAllFinancialCategories(): Observable<FinancialCategories[]> {
+  getAllFinancialCategories(): Observable<FinancialCategories[]> {
     return this.http.get<FinancialCategories[]>(this.baseUrl);
   }
 
@@ -19,20 +19,32 @@ export class FinancialCategoriesService {
     return this.http.get<FinancialCategories>(`${this.baseUrl}/${id}`);
   }
 
-  createFinancialCategories(financialCategories: FinancialCategories): Observable<FinancialCategories> {
+  createFinancialCategories(
+    financialCategories: FinancialCategories,
+  ): Observable<FinancialCategories> {
     return this.http.post<FinancialCategories>(this.baseUrl, financialCategories);
   }
 
-  updateFinancialCategories(financialCategories: Partial<FinancialCategories>): Observable<FinancialCategories> {
-    return this.http.put<FinancialCategories>(`${this.baseUrl}/${financialCategories.id}`, financialCategories);
+  updateFinancialCategories(
+    financialCategories: Partial<FinancialCategories>,
+  ): Observable<FinancialCategories> {
+    return this.http.put<FinancialCategories>(
+      `${this.baseUrl}/${financialCategories.id}`,
+      financialCategories,
+    );
   }
 
   updatedStatus(financialCategories: FinancialCategories): Observable<FinancialCategories> {
     const statusData = { status: !financialCategories.status };
-    return this.http.put<FinancialCategories>(`${this.baseUrl}/${financialCategories.id}`, statusData);
+    return this.http.put<FinancialCategories>(
+      `${this.baseUrl}/${financialCategories.id}`,
+      statusData,
+    );
   }
 
-  deleteFinancialCategories(financialCategories: FinancialCategories): Observable<FinancialCategories> {
+  deleteFinancialCategories(
+    financialCategories: FinancialCategories,
+  ): Observable<FinancialCategories> {
     return this.http.delete<FinancialCategories>(`${this.baseUrl}/${financialCategories.id}`);
   }
 }
