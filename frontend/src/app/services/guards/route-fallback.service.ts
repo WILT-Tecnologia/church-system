@@ -16,9 +16,18 @@ export class RouteFallbackService {
     },
     { fullPath: '/administrative/persons', permissions: ['read_administrative_pessoas'] },
     { fullPath: '/administrative/churches', permissions: ['read_administrative_igrejas'] },
-    { fullPath: '/administrative/event-types', permissions: ['read_administrative_tipos_de_eventos'] },
-    { fullPath: '/administrative/occupations', permissions: ['read_administrative_cargos_ministeriais'] },
-    { fullPath: '/administrative/member-origins', permissions: ['read_administrative_origem_do_membro'] },
+    {
+      fullPath: '/administrative/event-types',
+      permissions: ['read_administrative_tipos_de_eventos'],
+    },
+    {
+      fullPath: '/administrative/occupations',
+      permissions: ['read_administrative_cargos_ministeriais'],
+    },
+    {
+      fullPath: '/administrative/member-origins',
+      permissions: ['read_administrative_origem_do_membro'],
+    },
     { fullPath: '/administrative/users', permissions: ['read_administrative_usuarios'] },
     { fullPath: '/administrative/profiles', permissions: ['read_administrative_perfis'] },
     { fullPath: '/administrative/modules', permissions: ['read_administrative_modulos'] },

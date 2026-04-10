@@ -1,15 +1,15 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { CrudComponent } from 'app/components/crud/crud.component';
-import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { ModalAction } from 'app/components/modal/modal.component';
-import { ModalService } from 'app/components/modal/modal.service';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { MemberOrigin } from 'app/model/MemberOrigins';
-import { AuthService } from 'app/services/auth/auth.service';
+import { ConfirmService } from '@app/components/confirm/confirm.service';
+import { CrudComponent } from '@app/components/crud/crud.component';
+import { ActionsProps, ColumnDefinitionsProps } from '@app/components/crud/types';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { ModalAction } from '@app/components/modal/modal.component';
+import { ModalService } from '@app/components/modal/modal.service';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { MemberOrigin } from '@app/model/MemberOrigins';
+import { AuthService } from '@app/services/auth/auth.service';
 import { Subject } from 'rxjs';
 import { MemberOriginFormComponent } from './member-origin-form/member-origin-form.component';
 import { MemberOriginService } from './member-origin.service';
@@ -28,7 +28,9 @@ export class MemberOriginComponent implements OnInit {
   private memberOriginService = inject(MemberOriginService);
   private authService = inject(AuthService);
   private writePermission = this.authService.hasPermission('write_administrative_origem_do_membro');
-  private deletePermission = this.authService.hasPermission('delete_administrative_origem_do_membro');
+  private deletePermission = this.authService.hasPermission(
+    'delete_administrative_origem_do_membro',
+  );
 
   memberOrigins = signal<MemberOrigin[]>([]);
   dataSourceMat = new MatTableDataSource<MemberOrigin>([]);
@@ -187,7 +189,9 @@ export class MemberOriginComponent implements OnInit {
 
     this.memberOriginService.updatedStatus(memberOrigin).subscribe({
       next: () =>
-        this.toastService.openSuccess(`Origem do membro ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`),
+        this.toastService.openSuccess(
+          `Origem do membro ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`,
+        ),
       error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
       complete: () => this.loadMemberOrigins(),
     });

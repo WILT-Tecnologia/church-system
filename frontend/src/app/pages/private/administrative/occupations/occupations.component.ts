@@ -1,16 +1,15 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-
-import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { CrudComponent } from 'app/components/crud/crud.component';
-import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { ModalAction } from 'app/components/modal/modal.component';
-import { ModalService } from 'app/components/modal/modal.service';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { Occupation } from 'app/model/Occupation';
-import { AuthService } from 'app/services/auth/auth.service';
+import { ConfirmService } from '@app/components/confirm/confirm.service';
+import { CrudComponent } from '@app/components/crud/crud.component';
+import { ActionsProps, ColumnDefinitionsProps } from '@app/components/crud/types';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { ModalAction } from '@app/components/modal/modal.component';
+import { ModalService } from '@app/components/modal/modal.service';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { Occupation } from '@app/model/Occupation';
+import { AuthService } from '@app/services/auth/auth.service';
 import { Subject } from 'rxjs';
 import { OccupationComponent } from './occupation/occupation.component';
 import { OccupationsService } from './occupations.service';
@@ -28,8 +27,12 @@ export class OccupationsComponent implements OnInit {
   private modalService = inject(ModalService);
   private occupationsService = inject(OccupationsService);
   private authService = inject(AuthService);
-  private writePermission = this.authService.hasPermission('write_administrative_cargos_ministeriais');
-  private deletePermission = this.authService.hasPermission('delete_administrative_cargos_ministeriais');
+  private writePermission = this.authService.hasPermission(
+    'write_administrative_cargos_ministeriais',
+  );
+  private deletePermission = this.authService.hasPermission(
+    'delete_administrative_cargos_ministeriais',
+  );
 
   occupations = signal<Occupation[]>([]);
   dataSourceMat = new MatTableDataSource<Occupation>([]);

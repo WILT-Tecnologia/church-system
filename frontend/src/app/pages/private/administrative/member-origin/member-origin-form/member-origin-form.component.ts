@@ -6,11 +6,11 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { ColumnComponent } from 'app/components/column/column.component';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { MemberOrigin } from 'app/model/MemberOrigins';
-import { ValidationService } from 'app/services/validation/validation.service';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { MemberOrigin } from '@app/model/MemberOrigins';
+import { ValidationService } from '@app/services/validation/validation.service';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -32,7 +32,8 @@ export class MemberOriginFormComponent implements OnInit {
   private toast = inject(ToastService);
   private validationService = inject(ValidationService);
   private dialogRef = inject(MatDialogRef<MemberOriginFormComponent>);
-  private data: { memberOrigin: MemberOrigin; submitSubject?: Subject<void> } = inject(MAT_DIALOG_DATA);
+  private data: { memberOrigin: MemberOrigin; submitSubject?: Subject<void> } =
+    inject(MAT_DIALOG_DATA);
 
   memberOriginForm!: FormGroup;
   isEditMode = signal(false);
@@ -56,7 +57,10 @@ export class MemberOriginFormComponent implements OnInit {
 
     return this.fb.group({
       id: [memberOrigin?.id ?? ''],
-      name: [memberOrigin?.name ?? '', [Validators.required, Validators.maxLength(255), Validators.minLength(3)]],
+      name: [
+        memberOrigin?.name ?? '',
+        [Validators.required, Validators.maxLength(255), Validators.minLength(3)],
+      ],
       description: [memberOrigin?.description ?? '', [Validators.maxLength(255)]],
       status: [memberOrigin?.status ?? true],
     });

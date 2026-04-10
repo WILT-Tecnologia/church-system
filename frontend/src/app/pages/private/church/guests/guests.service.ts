@@ -1,10 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { Guest } from '@app/model/Guest';
+import { environment } from '@environments/environment';
 import { Observable } from 'rxjs';
-
-import { environment } from 'environments/environment';
-
-import { Guest } from 'app/model/Guest';
 
 @Injectable({
   providedIn: 'root',
@@ -13,20 +11,16 @@ export class GuestsService {
   private http = inject(HttpClient);
   private api = `${environment.apiUrl}/admin/persons`;
 
-  findAll(): Observable<Guest[]> {
+  getGuestsAll(): Observable<Guest[]> {
     return this.http.get<Guest[]>(this.api);
   }
 
-  // getGuestById(id: string): Observable<Guest> {
-  //   return this.http.get<Guest>(`${this.api}/${id}`);
-  // }
-
-  create(guest: Guest): Observable<Guest> {
+  createGuest(guest: Guest): Observable<Guest> {
     return this.http.post<Guest>(this.api, guest);
   }
 
-  update(id: string, guest: Partial<Guest>): Observable<Guest> {
-    return this.http.put<Guest>(`${this.api}/${id}`, guest);
+  updateGuest(guest: Partial<Guest>): Observable<Guest> {
+    return this.http.put<Guest>(`${this.api}/${guest.id}`, guest);
   }
 
   deleteGuest(guest: Guest): Observable<Guest> {

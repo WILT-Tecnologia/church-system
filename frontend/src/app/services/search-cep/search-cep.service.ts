@@ -1,9 +1,8 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { ToastService } from '@app/components/toast/toast.service';
 import { catchError, finalize, Observable, of, throwError, timeout } from 'rxjs';
-
-import { LoadingService } from 'app/components/loading/loading.service';
-import { ToastService } from 'app/components/toast/toast.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +10,7 @@ import { ToastService } from 'app/components/toast/toast.service';
 export class CepService {
   private readonly brasilApiV1Url = 'https://brasilapi.com.br/api/cep/v1';
   private readonly brasilApiV2Url = 'https://brasilapi.com.br/api/cep/v2';
-  private readonly requestTimeout = 10000; // 10 segundos em milissegundos
+  private readonly requestTimeout = 10000;
 
   constructor(
     private http: HttpClient,
@@ -34,7 +33,7 @@ export class CepService {
 
   private fetchFromApi(baseUrl: string, cep: string): Observable<any> {
     return this.http.get(`${baseUrl}/${cep}`).pipe(
-      timeout(this.requestTimeout), // Define o tempo limite de 10 segundos
+      timeout(this.requestTimeout),
       catchError((error: HttpErrorResponse | Error) => {
         if (error instanceof HttpErrorResponse && error.status === 404) {
           return throwError(() => error);

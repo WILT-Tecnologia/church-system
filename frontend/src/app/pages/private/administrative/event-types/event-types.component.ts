@@ -1,15 +1,15 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { CrudComponent } from 'app/components/crud/crud.component';
-import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { ModalAction } from 'app/components/modal/modal.component';
-import { ModalService } from 'app/components/modal/modal.service';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { EventTypes } from 'app/model/EventTypes';
-import { AuthService } from 'app/services/auth/auth.service';
+import { ConfirmService } from '@app/components/confirm/confirm.service';
+import { CrudComponent } from '@app/components/crud/crud.component';
+import { ActionsProps, ColumnDefinitionsProps } from '@app/components/crud/types';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { ModalAction } from '@app/components/modal/modal.component';
+import { ModalService } from '@app/components/modal/modal.service';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { EventTypes } from '@app/model/EventTypes';
+import { AuthService } from '@app/services/auth/auth.service';
 import { Subject } from 'rxjs';
 import { EventTypeComponent } from './event-type/event-type.component';
 import { EventTypesService } from './eventTypes.service';
@@ -28,7 +28,9 @@ export class EventTypesComponent implements OnInit {
   private eventTypesService = inject(EventTypesService);
   private authService = inject(AuthService);
   private writePermission = this.authService.hasPermission('write_administrative_tipos_de_eventos');
-  private deletePermission = this.authService.hasPermission('delete_administrative_tipos_de_eventos');
+  private deletePermission = this.authService.hasPermission(
+    'delete_administrative_tipos_de_eventos',
+  );
 
   eventTypes = signal<EventTypes[]>([]);
   dataSourceMat = new MatTableDataSource<EventTypes>([]);
@@ -188,7 +190,9 @@ export class EventTypesComponent implements OnInit {
 
     this.eventTypesService.updatedStatus(eventType).subscribe({
       next: () =>
-        this.toastService.openSuccess(`Tipo de evento ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`),
+        this.toastService.openSuccess(
+          `Tipo de evento ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`,
+        ),
       error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
       complete: () => this.loadEventTypes(),
     });

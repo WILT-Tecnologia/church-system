@@ -1,18 +1,26 @@
 import { registerLocaleData } from '@angular/common';
-import { HTTP_INTERCEPTORS, provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
+import {
+  HTTP_INTERCEPTORS,
+  provideHttpClient,
+  withFetch,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 import localePt from '@angular/common/locales/pt';
-import { ApplicationConfig, DEFAULT_CURRENCY_CODE, LOCALE_ID, provideZoneChangeDetection } from '@angular/core';
+import {
+  ApplicationConfig,
+  DEFAULT_CURRENCY_CODE,
+  LOCALE_ID,
+  provideZoneChangeDetection,
+} from '@angular/core';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { provideClientHydration } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
-
+import { routes } from '@app/app.routes';
+import { getPtBrPaginatorIntl } from '@components/crud/paginator-pt-br';
+import { LoadingInterceptor } from '@components/loading/loading.interceptor';
+import { AuthInterceptor } from '@services/auth/auth.interceptor';
 import { NgxMaskConfig, provideEnvironmentNgxMask } from 'ngx-mask';
-
-import { routes } from './app.routes';
-import { getPtBrPaginatorIntl } from './components/crud/paginator-pt-br';
-import { LoadingInterceptor } from './components/loading/loading.interceptor';
-import { AuthInterceptor } from './services/auth/auth.interceptor';
 
 const maskConfigFunction: () => Partial<NgxMaskConfig> = () => {
   return {

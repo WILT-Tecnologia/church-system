@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
-
 import { FinancialCategoriesComponent } from './shared/financial-categories/financial-categories.component';
 import { FinancialTransactionsComponent } from './shared/financial-transactions/financial-transactions.component';
 import { PatrimoniesComponent } from './shared/patrimonies/patrimonies.component';

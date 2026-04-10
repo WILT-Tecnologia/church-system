@@ -9,8 +9,17 @@ import {
   Optional,
   ViewChild,
 } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker';
@@ -21,19 +30,17 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltip } from '@angular/material/tooltip';
-import { forkJoin, map, Observable, startWith, Subject } from 'rxjs';
-
-import { ActionsComponent } from 'app/components/actions/actions.component';
-import { ColumnComponent } from 'app/components/column/column.component';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { MemberSituations } from 'app/model/Auxiliaries';
-import { StatusMember } from 'app/model/Members';
-import { ValidationService } from 'app/services/validation/validation.service';
+import { ActionsComponent } from '@app/components/actions/actions.component';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { MemberSituations } from '@app/model/Auxiliaries';
+import { StatusMember } from '@app/model/Members';
+import { ValidationService } from '@app/services/validation/validation.service';
 import dayjs from 'dayjs';
 import { provideNgxMask } from 'ngx-mask';
-
+import { forkJoin, map, Observable, startWith, Subject } from 'rxjs';
 import { StatusMemberService } from '../status-member.service';
 
 @Component({
@@ -56,15 +63,17 @@ import { StatusMemberService } from '../status-member.service';
     ActionsComponent,
     MatTooltip,
   ],
-  providers: [provideNgxMask(), provideNativeDateAdapter(), { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' }],
+  providers: [
+    provideNgxMask(),
+    provideNativeDateAdapter(),
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+  ],
 })
 export class StatusMemberFormComponent implements OnInit, OnDestroy {
   statusMemberForm: FormGroup;
   membersSituations: MemberSituations[] = [];
   isEditMode: boolean = false;
-
   searchMemberSituationControl = new FormControl();
-
   filterMemberSituation: Observable<MemberSituations[]> = new Observable<MemberSituations[]>();
 
   readonly minDate = new Date(1900, 0, 1);
@@ -109,7 +118,10 @@ export class StatusMemberFormComponent implements OnInit, OnDestroy {
     return this.fb.group({
       id: [this.data?.status_member?.id ?? ''],
       member_id: [this.data?.status_member?.member ?? '', [Validators.required]],
-      member_situation_id: [this.data?.status_member?.member_situation?.id ?? '', [Validators.required]],
+      member_situation_id: [
+        this.data?.status_member?.member_situation?.id ?? '',
+        [Validators.required],
+      ],
       initial_period: [this.data?.status_member?.initial_period ?? '', [Validators.required]],
       final_period: [this.data?.status_member?.final_period ?? '', [Validators.required]],
     });
@@ -162,7 +174,9 @@ export class StatusMemberFormComponent implements OnInit, OnDestroy {
           return value ? value.name : '';
         }
       }),
-      map((name) => (name.length >= 1 ? this._filterMembersSituations(name) : this.membersSituations)),
+      map((name) =>
+        name.length >= 1 ? this._filterMembersSituations(name) : this.membersSituations,
+      ),
     );
   }
 
@@ -217,12 +231,18 @@ export class StatusMemberFormComponent implements OnInit, OnDestroy {
 
     if (statusMember?.member_situation?.id) {
       this.searchMemberSituationControl.setValue(statusMember?.member_situation?.name);
-      this.statusMemberForm.get('member_situation_id')?.setValue(statusMember?.member_situation?.id);
+      this.statusMemberForm
+        .get('member_situation_id')
+        ?.setValue(statusMember?.member_situation?.id);
     }
 
-    const initialPeriod = this.data.status_member.initial_period ? dayjs(statusMember?.initial_period).toDate() : null;
+    const initialPeriod = this.data.status_member.initial_period
+      ? dayjs(statusMember?.initial_period).toDate()
+      : null;
 
-    const finalPeriod = this.data.status_member.final_period ? dayjs(statusMember?.final_period).toDate() : null;
+    const finalPeriod = this.data.status_member.final_period
+      ? dayjs(statusMember?.final_period).toDate()
+      : null;
 
     this.statusMemberForm.patchValue({
       member_id: statusMember?.member,

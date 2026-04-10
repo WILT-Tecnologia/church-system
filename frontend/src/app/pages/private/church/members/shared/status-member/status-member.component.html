@@ -6,6 +6,6 @@
   [enableAddButtonAdd]="!isValidStatusMember()"
   (add)="onCreate()"
   [actions]="actions"
-  writePermission="write_church_membros"
-  deletePermission="delete_church_membros"
+  [writePermission]="'write_church_membros'"
+  [deletePermission]="'delete_church_membros'"
 ></app-crud>

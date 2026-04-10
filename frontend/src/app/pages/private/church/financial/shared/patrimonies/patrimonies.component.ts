@@ -1,16 +1,15 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-
-import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { CrudComponent } from 'app/components/crud/crud.component';
-import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { ModalAction } from 'app/components/modal/modal.component';
-import { ModalService } from 'app/components/modal/modal.service';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { Patrimonies } from 'app/model/Patrimonies';
-import { AuthService } from 'app/services/auth/auth.service';
+import { ConfirmService } from '@app/components/confirm/confirm.service';
+import { CrudComponent } from '@app/components/crud/crud.component';
+import { ActionsProps, ColumnDefinitionsProps } from '@app/components/crud/types';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { ModalAction } from '@app/components/modal/modal.component';
+import { ModalService } from '@app/components/modal/modal.service';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { Patrimonies } from '@app/model/Patrimonies';
+import { AuthService } from '@app/services/auth/auth.service';
 import { Subject } from 'rxjs';
 import { PatrimoniesFormComponent } from './patrimonies-form/patrimonies-form.component';
 import { PatrimoniesService } from './patrimonies.service';

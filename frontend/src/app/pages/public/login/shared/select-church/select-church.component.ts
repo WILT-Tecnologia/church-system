@@ -4,11 +4,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 import { Router } from '@angular/router';
-
-import { Church } from 'app/model/Church';
-import { ChurchesService } from 'app/pages/private/administrative/churches/churches.service';
-import { AuthService } from 'app/services/auth/auth.service';
-import { RouteFallbackService } from 'app/services/guards/route-fallback.service';
+import { Church } from '@app/model/Church';
+import { ChurchesService } from '@app/pages/private/administrative/churches/churches.service';
+import { AuthService } from '@app/services/auth/auth.service';
+import { RouteFallbackService } from '@app/services/guards/route-fallback.service';
 
 @Component({
   selector: 'app-select-church',

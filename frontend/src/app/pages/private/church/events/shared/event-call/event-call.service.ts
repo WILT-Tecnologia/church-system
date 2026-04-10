@@ -1,15 +1,14 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { EventCall } from '@app/model/Events';
+import { environment } from '@env/environment';
 import { Observable } from 'rxjs';
-
-import { EventCall } from 'app/model/Events';
-import { environment } from 'environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class EventCallService {
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
 
   private apiUrl = `${environment.apiUrl}/church/eventos`;
 

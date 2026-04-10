@@ -7,14 +7,12 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { EventCall, Frequency } from '@app/model/Events';
+import { FrequenciesService } from '@app/pages/private/church/events/shared/frequencies/frequencies.service';
 import { firstValueFrom } from 'rxjs';
-
-import { LoadingService } from 'app/components/loading/loading.service';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { EventCall, Frequency } from 'app/model/Events';
-
-import { FrequenciesService } from '../../../../frequencies.service';
 
 interface Attendance {
   id: string;
@@ -41,18 +39,19 @@ interface Attendance {
   ],
 })
 export class DetailsEventComponent implements OnInit {
+  private readonly frequencyService = inject(FrequenciesService);
+  private readonly toast = inject(ToastService);
+  private readonly loading = inject(LoadingService);
   eventCall = input<EventCall>();
   selectedEventCall: EventCall = {} as EventCall;
   isEditing = signal(false);
   participants = signal<Attendance[]>([]);
-  membersDataSource = signal<MatTableDataSource<Attendance>>(new MatTableDataSource<Attendance>([]));
+  membersDataSource = signal<MatTableDataSource<Attendance>>(
+    new MatTableDataSource<Attendance>([]),
+  );
   guestsDataSource = signal<MatTableDataSource<Attendance>>(new MatTableDataSource<Attendance>([]));
   displayedColumns: string[] = ['start_datetime', 'end_datetime', 'theme', 'eventTypeName'];
   frequencyColumns: string[] = ['name', 'present'];
-
-  private readonly frequencyService = inject(FrequenciesService);
-  private readonly toast = inject(ToastService);
-  private readonly loading = inject(LoadingService);
 
   ngOnInit() {
     if (this.eventCall()) {
@@ -93,8 +92,12 @@ export class DetailsEventComponent implements OnInit {
           };
         }),
       ]);
-      this.membersDataSource.set(new MatTableDataSource(this.participants().filter((p) => p.type === 'participants')));
-      this.guestsDataSource.set(new MatTableDataSource(this.participants().filter((p) => p.type === 'guests')));
+      this.membersDataSource.set(
+        new MatTableDataSource(this.participants().filter((p) => p.type === 'participants')),
+      );
+      this.guestsDataSource.set(
+        new MatTableDataSource(this.participants().filter((p) => p.type === 'guests')),
+      );
     } catch (error) {
       this.toast.openError(MESSAGES.LOADING_ERROR);
       console.error(error);
@@ -113,15 +116,23 @@ export class DetailsEventComponent implements OnInit {
       return;
     }
     this.participants.update((participants) =>
-      participants.map((p) => (p.id === participant.id && p.type === participant.type ? { ...p, present } : p)),
+      participants.map((p) =>
+        p.id === participant.id && p.type === participant.type ? { ...p, present } : p,
+      ),
     );
-    this.membersDataSource.set(new MatTableDataSource(this.participants().filter((p) => p.type === 'participants')));
-    this.guestsDataSource.set(new MatTableDataSource(this.participants().filter((p) => p.type === 'guests')));
+    this.membersDataSource.set(
+      new MatTableDataSource(this.participants().filter((p) => p.type === 'participants')),
+    );
+    this.guestsDataSource.set(
+      new MatTableDataSource(this.participants().filter((p) => p.type === 'guests')),
+    );
 
     const payload: Partial<Frequency> = {
       event_call_id: this.selectedEventCall.id,
       present,
-      ...(participant.type === 'participants' ? { member_id: participant.id } : { guest_id: participant.id }),
+      ...(participant.type === 'participants'
+        ? { member_id: participant.id }
+        : { guest_id: participant.id }),
     };
 
     try {
@@ -137,17 +148,25 @@ export class DetailsEventComponent implements OnInit {
         this.toast.openSuccess('Frequência atualizada com sucesso!');
       } else {
         const newFrequency = await firstValueFrom(
-          this.frequencyService.create(this.selectedEventCall.event.id, this.selectedEventCall.id, payload),
+          this.frequencyService.create(
+            this.selectedEventCall.event.id,
+            this.selectedEventCall.id,
+            payload,
+          ),
         );
         this.participants.update((participants) =>
           participants.map((p) =>
-            p.id === participant.id && p.type === participant.type ? { ...p, frequencyId: newFrequency.id } : p,
+            p.id === participant.id && p.type === participant.type
+              ? { ...p, frequencyId: newFrequency.id }
+              : p,
           ),
         );
         this.membersDataSource.set(
           new MatTableDataSource(this.participants().filter((p) => p.type === 'participants')),
         );
-        this.guestsDataSource.set(new MatTableDataSource(this.participants().filter((p) => p.type === 'guests')));
+        this.guestsDataSource.set(
+          new MatTableDataSource(this.participants().filter((p) => p.type === 'guests')),
+        );
         this.toast.openSuccess('Frequência criada com sucesso!');
       }
     } catch (error) {

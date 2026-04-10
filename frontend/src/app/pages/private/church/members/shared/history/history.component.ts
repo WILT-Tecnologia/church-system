@@ -4,13 +4,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { NoRowComponent } from 'app/components/no-row/no-row.component';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { History } from 'app/model/Members';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { NoRowComponent } from '@app/components/no-row/no-row.component';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { History } from '@app/model/Members';
 import { MembersService } from '../../members.service';
-import { HistoryService } from './history.service';
 
 @Component({
   selector: 'app-history',
@@ -22,7 +21,6 @@ export class HistoryComponent implements OnInit {
   @Input() history_member: History[] = [];
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
-  private historyService = inject(HistoryService);
   private membersService = inject(MembersService);
   public data = inject<{ history_member: History }>(MAT_DIALOG_DATA);
 

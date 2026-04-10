@@ -34,7 +34,9 @@
   <app-actions>
     @if (!isEditMode || isEditMode) {
       @if (currentStep === 0) {
-        <button mat-stroked-button color="warn" type="button" (click)="handleBack()">Cancelar</button>
+        <button mat-stroked-button color="warn" type="button" (click)="handleBack()">
+          Cancelar
+        </button>
       }
       @if (currentStep > 0) {
         <button mat-stroked-button color="warn" type="button" (click)="onBackStep()">Voltar</button>

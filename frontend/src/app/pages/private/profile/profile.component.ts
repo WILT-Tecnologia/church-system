@@ -10,19 +10,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
-import { ActionsComponent } from 'app/components/actions/actions.component';
-import { ColumnComponent } from 'app/components/column/column.component';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { ToastService } from 'app/components/toast/toast.service';
-import { User } from 'app/model/User';
-import { AuthService } from 'app/services/auth/auth.service';
-import { ValidationService } from 'app/services/validation/validation.service';
+import { ActionsComponent } from '@app/components/actions/actions.component';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { ToastService } from '@app/components/toast/toast.service';
+import { User } from '@app/model/User';
+import { AuthService } from '@app/services/auth/auth.service';
+import { ValidationService } from '@app/services/validation/validation.service';
 import { Subject, takeUntil } from 'rxjs';
 import { UsersService } from '../administrative/users/users.service';
 
 @Component({
   selector: 'app-profile',
-  standalone: true,
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
   imports: [
@@ -99,7 +98,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private initForm() {
     return this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
-      email: ['', [Validators.required, Validators.email, Validators.minLength(3), Validators.maxLength(255)]],
+      email: [
+        '',
+        [Validators.required, Validators.email, Validators.minLength(3), Validators.maxLength(255)],
+      ],
       password: [''],
     });
   }

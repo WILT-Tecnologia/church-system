@@ -1,17 +1,18 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { DashboardStatsService } from '@app/pages/private/administrative/app-admin-dashboard/dashboard-stats.service';
+import { ChurchListStatsComponent } from '@app/pages/private/administrative/app-admin-dashboard/shared/church-list-stats/church-list-stats.component';
+import { ChurchStatsComponent } from '@app/pages/private/administrative/app-admin-dashboard/shared/church-stats/church-stats.component';
+import { DashboardHeaderComponent } from '@app/pages/private/administrative/app-admin-dashboard/shared/dashboard-header/dashboard-header.component';
+import {
+  ChurchStats,
+  DashboardStats,
+} from '@app/pages/private/administrative/app-admin-dashboard/shared/types';
+import { UserStatsComponent } from '@app/pages/private/administrative/app-admin-dashboard/shared/user-stats/user-stats.component';
+import { ChurchesService } from '@app/pages/private/administrative/churches/churches.service';
+import { UsersService } from '@app/pages/private/administrative/users/users.service';
 import { forkJoin } from 'rxjs';
-
-import { ColumnComponent } from 'app/components/column/column.component';
-
-import { ChurchesService } from '../churches/churches.service';
-import { UsersService } from '../users/users.service';
-import { DashboardStatsService } from './dashboard-stats.service';
-import { ChurchListStatsComponent } from './shared/church-list-stats/church-list-stats.component';
-import { ChurchStatsComponent } from './shared/church-stats/church-stats.component';
-import { DashboardHeaderComponent } from './shared/dashboard-header/dashboard-header.component';
-import { ChurchStats, DashboardStats } from './shared/types';
-import { UserStatsComponent } from './shared/user-stats/user-stats.component';
 
 @Component({
   selector: 'app-admin-dashboard',

@@ -12,13 +12,13 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { ColumnComponent } from 'app/components/column/column.component';
-import { TabDirective } from 'app/components/tabs/tab.directive';
-import { TabsComponent } from 'app/components/tabs/tabs.component';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { FinancialCategories } from 'app/model/FinancialCategories';
-import { ValidationService } from 'app/services/validation/validation.service';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { TabDirective } from '@app/components/tabs/tab.directive';
+import { TabsComponent } from '@app/components/tabs/tabs.component';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { FinancialCategories } from '@app/model/FinancialCategories';
+import { ValidationService } from '@app/services/validation/validation.service';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({

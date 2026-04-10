@@ -9,11 +9,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { ColumnComponent } from 'app/components/column/column.component';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { Occupation } from 'app/model/Occupation';
-import { ValidationService } from 'app/services/validation/validation.service';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { Occupation } from '@app/model/Occupation';
+import { ValidationService } from '@app/services/validation/validation.service';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -63,7 +63,10 @@ export class OccupationComponent implements OnInit {
 
     return this.fb.group({
       id: [occupation?.id ?? ''],
-      name: [occupation?.name ?? '', [Validators.required, Validators.minLength(1), Validators.maxLength(255)]],
+      name: [
+        occupation?.name ?? '',
+        [Validators.required, Validators.minLength(1), Validators.maxLength(255)],
+      ],
       description: [occupation?.description ?? '', [Validators.maxLength(255)]],
       status: [occupation?.status ?? true],
       updated_at: [occupation?.updated_at ?? ''],

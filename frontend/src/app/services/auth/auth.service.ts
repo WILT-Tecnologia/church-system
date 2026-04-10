@@ -2,14 +2,11 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable, NgZone, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
+import { Church } from '@app/model/Church';
+import { User } from '@app/model/User';
+import { RouteFallbackService } from '@app/services/guards/route-fallback.service';
+import { environment } from '@environments/environment';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-
-import { environment } from 'environments/environment';
-
-import { Church } from 'app/model/Church';
-import { User } from 'app/model/User';
-
-import { RouteFallbackService } from '../guards/route-fallback.service';
 
 interface LoginResponse {
   status: boolean;
@@ -75,9 +72,13 @@ export class AuthService {
             this.router.navigate(['/select-church']);
           } else if (response.churches?.length === 1) {
             localStorage.setItem('selectedChurch', response.churches[0].id);
-            this.router.navigateByUrl(this.routeFallback.getFirstAllowedRoute(response.permissions));
+            this.router.navigateByUrl(
+              this.routeFallback.getFirstAllowedRoute(response.permissions),
+            );
           } else {
-            this.router.navigateByUrl(this.routeFallback.getFirstAllowedRoute(response.permissions));
+            this.router.navigateByUrl(
+              this.routeFallback.getFirstAllowedRoute(response.permissions),
+            );
           }
         }
       }),

@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
-import { Person } from 'app/model/Person';
-import { environment } from 'environments/environment';
+import { FormatsPipe } from '@app/components/crud/pipes/formats.pipe';
+import { Person } from '@app/model/Person';
+import { environment } from '@environments/environment';
 import { Observable } from 'rxjs';
 
 @Injectable({

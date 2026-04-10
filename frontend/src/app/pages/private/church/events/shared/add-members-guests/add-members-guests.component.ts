@@ -10,19 +10,18 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { ActionsComponent } from '@app/components/actions/actions.component';
+import { ChipComponent } from '@app/components/chip/chip.component';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { PaginatorComponent } from '@app/components/paginator/paginator.component';
+import { SearchComponent } from '@app/components/search/search.component';
+import { ToastService } from '@app/components/toast/toast.service';
+import { Events, ParticipantAndGuest } from '@app/model/Events';
+import { EventsService } from '@app/pages/private/church/events/events.service';
+import { GuestsService } from '@app/pages/private/church/guests/guests.service';
+import { MembersService } from '@app/pages/private/church/members/members.service';
 import { forkJoin } from 'rxjs';
-
-import { ActionsComponent } from 'app/components/actions/actions.component';
-import { ChipComponent } from 'app/components/chip/chip.component';
-import { ColumnComponent } from 'app/components/column/column.component';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { PaginatorComponent } from 'app/components/paginator/paginator.component';
-import { SearchComponent } from 'app/components/search/search.component';
-import { ToastService } from 'app/components/toast/toast.service';
-import { Events, ParticipantAndGuest } from 'app/model/Events';
-import { GuestsService } from '../../../guests/guests.service';
-import { MembersService } from '../../../members/members.service';
-import { EventsService } from '../../events.service';
 
 @Component({
   selector: 'app-add-members-guests',
@@ -77,7 +76,10 @@ export class AddMembersGuestsComponent implements OnInit {
   pageSize: number = 6;
   pageSizeOptions: number[] = [6, 12, 24, 48];
   @Input() isDisabled: boolean = false;
-  @Output() selectionChange = new EventEmitter<{ participant: ParticipantAndGuest; present: boolean }>();
+  @Output() selectionChange = new EventEmitter<{
+    participant: ParticipantAndGuest;
+    present: boolean;
+  }>();
 
   ngOnInit() {
     this.findAll();
@@ -111,7 +113,7 @@ export class AddMembersGuestsComponent implements OnInit {
           ],
         };
 
-        forkJoin([this.membersService.findAll(), this.guestsService.findAll()]).subscribe({
+        forkJoin([this.membersService.findAll(), this.guestsService.getGuestsAll()]).subscribe({
           next: ([members, guests]) => {
             this.allMembers = members.map((member) => ({
               id: member.id,
@@ -126,9 +128,15 @@ export class AddMembersGuestsComponent implements OnInit {
               isGuest: true,
             }));
 
-            const existingParticipantIds = (this.data.event.participantAndGuests ?? []).map((p) => p.id);
-            this.members = this.allMembers.filter((member) => !existingParticipantIds.includes(member.id));
-            this.guests = this.allGuests.filter((guest) => !existingParticipantIds.includes(guest.id));
+            const existingParticipantIds = (this.data.event.participantAndGuests ?? []).map(
+              (p) => p.id,
+            );
+            this.members = this.allMembers.filter(
+              (member) => !existingParticipantIds.includes(member.id),
+            );
+            this.guests = this.allGuests.filter(
+              (guest) => !existingParticipantIds.includes(guest.id),
+            );
 
             this.filteredMembers = [...this.members];
             this.filteredGuests = [...this.guests];
@@ -208,7 +216,9 @@ export class AddMembersGuestsComponent implements OnInit {
   }
 
   onGuestSelectionChange(event: ParticipantAndGuest) {
-    this.guests = this.guests.map((guest) => (guest.id === event.id ? { ...guest, selected: event.selected } : guest));
+    this.guests = this.guests.map((guest) =>
+      guest.id === event.id ? { ...guest, selected: event.selected } : guest,
+    );
     this.filteredGuests = this.filteredGuests.map((guest) =>
       guest.id === event.id ? { ...guest, selected: event.selected } : guest,
     );
@@ -306,14 +316,20 @@ export class AddMembersGuestsComponent implements OnInit {
           const member = this.allMembers.find((m) => m.id === participant.id);
           if (member) {
             this.members = [...this.members, { ...member, selected: false, isGuest: false }];
-            this.filteredMembers = [...this.filteredMembers, { ...member, selected: false, isGuest: false }];
+            this.filteredMembers = [
+              ...this.filteredMembers,
+              { ...member, selected: false, isGuest: false },
+            ];
             this.updatePaginatedMembers();
           }
         } else {
           const guest = this.allGuests.find((g) => g.id === participant.id);
           if (guest) {
             this.guests = [...this.guests, { ...guest, selected: false, isGuest: true }];
-            this.filteredGuests = [...this.filteredGuests, { ...guest, selected: false, isGuest: true }];
+            this.filteredGuests = [
+              ...this.filteredGuests,
+              { ...guest, selected: false, isGuest: true },
+            ];
             this.updatePaginatedGuests();
           }
         }

@@ -1,17 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { Modules } from '@app/model/Modules';
+import { environment } from '@environments/environment';
 import { Observable } from 'rxjs';
-
-import { environment } from 'environments/environment';
-
-import { Modules } from 'app/model/Modules';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ModuleService {
-  private apiUrl = `${environment.apiUrl}/admin/modules`;
   private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/admin/modules`;
 
   findAll(): Observable<Modules[]> {
     return this.http.get<Modules[]>(this.apiUrl);

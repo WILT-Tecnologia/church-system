@@ -11,7 +11,10 @@
         (focus)="showAllMembersSituations()"
         required
       />
-      <mat-autocomplete #member_situation_id="matAutocomplete" (optionSelected)="onSelectedMemberSituations($event)">
+      <mat-autocomplete
+        #member_situation_id="matAutocomplete"
+        (optionSelected)="onSelectedMemberSituations($event)"
+      >
         @for (memberSituations of filterMemberSituation | async; track $index) {
           <mat-option [value]="memberSituations">
             {{ memberSituations.name }}
@@ -19,7 +22,8 @@
         }
       </mat-autocomplete>
       @if (
-        statusMemberForm.get('member_situation_id')?.invalid && statusMemberForm.get('member_situation_id')?.touched
+        statusMemberForm.get('member_situation_id')?.invalid &&
+        statusMemberForm.get('member_situation_id')?.touched
       ) {
         <mat-error>{{ getErrorMessage('member_situation_id') }}</mat-error>
       }

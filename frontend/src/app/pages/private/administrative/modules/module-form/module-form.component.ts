@@ -8,13 +8,12 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-
-import { ColumnComponent } from 'app/components/column/column.component';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { Modules } from 'app/model/Modules';
-import { ValidationService } from 'app/services/validation/validation.service';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { Modules } from '@app/model/Modules';
+import { ValidationService } from '@app/services/validation/validation.service';
 import { Subject, takeUntil } from 'rxjs';
 import { ModuleService } from '../modules.service';
 
@@ -79,7 +78,10 @@ export class ModuleFormComponent implements OnInit {
 
     return this.fb.group({
       id: [module?.id ?? ''],
-      name: [module?.name ?? '', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
+      name: [
+        module?.name ?? '',
+        [Validators.required, Validators.minLength(3), Validators.maxLength(255)],
+      ],
       context: [module?.context ?? '', [Validators.required]],
     });
   }

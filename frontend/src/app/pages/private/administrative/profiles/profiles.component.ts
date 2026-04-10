@@ -1,15 +1,15 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { CrudComponent } from 'app/components/crud/crud.component';
-import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { ModalAction } from 'app/components/modal/modal.component';
-import { ModalService } from 'app/components/modal/modal.service';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { Profile } from 'app/model/Profile';
-import { AuthService } from 'app/services/auth/auth.service';
+import { ConfirmService } from '@app/components/confirm/confirm.service';
+import { CrudComponent } from '@app/components/crud/crud.component';
+import { ActionsProps, ColumnDefinitionsProps } from '@app/components/crud/types';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { ModalAction } from '@app/components/modal/modal.component';
+import { ModalService } from '@app/components/modal/modal.service';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { Profile } from '@app/model/Profile';
+import { AuthService } from '@app/services/auth/auth.service';
 import { Subject } from 'rxjs';
 import { ProfileComponent } from './profile/profile.component';
 import { ProfilesService } from './profiles.service';
@@ -182,7 +182,10 @@ export class ProfilesComponent implements OnInit {
     profile.status = updatedStatus;
 
     this.profilesService.updatedStatus(profile).subscribe({
-      next: () => this.toastService.openSuccess(`Perfil ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`),
+      next: () =>
+        this.toastService.openSuccess(
+          `Perfil ${updatedStatus ? 'ativado' : 'desativado'} com sucesso!`,
+        ),
       error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
       complete: () => this.loadProfiles(),
     });

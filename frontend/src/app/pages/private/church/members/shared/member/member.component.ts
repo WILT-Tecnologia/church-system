@@ -1,6 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Inject,
+  OnDestroy,
+  OnInit,
+  signal,
+} from '@angular/core';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -9,22 +22,19 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTabsModule } from '@angular/material/tabs';
-import { forkJoin, Subject } from 'rxjs';
-
+import { ActionsComponent } from '@app/components/actions/actions.component';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { CivilStatus, ColorRace, Formations } from '@app/model/Auxiliaries';
+import { Church } from '@app/model/Church';
+import { MemberOrigin } from '@app/model/MemberOrigins';
+import { History, Members } from '@app/model/Members';
+import { Person } from '@app/model/Person';
+import { NavigationService } from '@app/services/navigation/navigation.service';
 import dayjs from 'dayjs';
 import { provideNgxMask } from 'ngx-mask';
-
-import { ActionsComponent } from 'app/components/actions/actions.component';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { CivilStatus, ColorRace, Formations } from 'app/model/Auxiliaries';
-import { Church } from 'app/model/Church';
-import { MemberOrigin } from 'app/model/MemberOrigins';
-import { History, Members } from 'app/model/Members';
-import { Person } from 'app/model/Person';
-import { NavigationService } from 'app/services/navigation/navigation.service';
-import { NotificationService } from 'app/services/notification/notification.service';
+import { forkJoin, Subject } from 'rxjs';
 import { MembersService } from '../../members.service';
 import { HistoryService } from '../history/history.service';
 import { AdditionalInformationComponent } from './shared/additional-information/additional-information.component';
@@ -36,7 +46,11 @@ import { SpiritualInformationComponent } from './shared/spiritual-information/sp
   templateUrl: './member.component.html',
   styleUrls: ['./member.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [provideNativeDateAdapter(), provideNgxMask(), { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' }],
+  providers: [
+    provideNativeDateAdapter(),
+    provideNgxMask(),
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+  ],
   imports: [
     MatTabsModule,
     MatCardModule,
@@ -84,7 +98,6 @@ export class MemberComponent implements OnInit, OnDestroy {
     private toast: ToastService,
     private historyService: HistoryService,
     private membersService: MembersService,
-    private notification: NotificationService,
     private loading: LoadingService,
     public navigationService: NavigationService,
     private dialogRef: MatDialogRef<MemberComponent>,
@@ -255,13 +268,14 @@ export class MemberComponent implements OnInit, OnDestroy {
               console.error('Error saving history:', error);
               console.error('Error response:', error?.error);
               const errorMessage = error?.error?.message || error?.message || 'Unknown error';
-              this.notification.onError(`Member updated, but failed to save history: ${errorMessage}`);
+              this.toast.openError(`Member updated, but failed to save history: ${errorMessage}`);
               // Proceed with update to avoid blocking the user
               this.membersService.updateMember(memberId, memberData).subscribe({
                 next: () => this.onSuccessUpdate(MESSAGES.UPDATE_SUCCESS, true),
                 error: (error) => {
                   console.error('Error updating member after history failure:', error);
-                  const updateErrorMessage = error?.error?.message || error?.message || 'Unknown error';
+                  const updateErrorMessage =
+                    error?.error?.message || error?.message || 'Unknown error';
                   this.onError(MESSAGES.UPDATE_ERROR + `: ${updateErrorMessage}`);
                   this.hideLoading();
                 },
@@ -298,7 +312,10 @@ export class MemberComponent implements OnInit, OnDestroy {
         person_id: [this.data?.members?.person?.id || '', [Validators.required]],
         church_id: [this.data?.members?.church?.id || '', [Validators.required]],
         rg: [this.data?.members?.rg || '', [Validators.required, Validators.maxLength(15)]],
-        issuing_body: [this.data?.members?.issuing_body || '', [Validators.required, Validators.maxLength(255)]],
+        issuing_body: [
+          this.data?.members?.issuing_body || '',
+          [Validators.required, Validators.maxLength(255)],
+        ],
         civil_status_id: [this.data?.members?.civil_status?.id || '', [Validators.required]],
         color_race_id: [this.data?.members?.color_race?.id || '', [Validators.required]],
         nationality: [this.data?.members?.nationality || '', [Validators.required]],
@@ -317,7 +334,10 @@ export class MemberComponent implements OnInit, OnDestroy {
         def_mental: [this.data?.members?.def_mental || false],
         def_multiple: [this.data?.members?.def_multiple || false],
         def_other: [this.data?.members?.def_other || false],
-        def_other_description: [this.data?.members?.def_other_description || '', [Validators.maxLength(255)]],
+        def_other_description: [
+          this.data?.members?.def_other_description || '',
+          [Validators.maxLength(255)],
+        ],
       }),
 
       stepThree: this.fb.group({
@@ -366,7 +386,7 @@ export class MemberComponent implements OnInit, OnDestroy {
         }
       },
       error: () => {
-        this.notification.onError(MESSAGES.LOADING_ERROR);
+        this.toast.openError(MESSAGES.LOADING_ERROR);
         this.hideLoading();
       },
       complete: () => this.hideLoading(),
@@ -393,11 +413,15 @@ export class MemberComponent implements OnInit, OnDestroy {
 
     const formattedStepThreeData = {
       ...stepThreeData,
-      baptism_date: stepThreeData.baptism_date ? dayjs(stepThreeData.baptism_date).format('YYYY-MM-DD') : null,
+      baptism_date: stepThreeData.baptism_date
+        ? dayjs(stepThreeData.baptism_date).format('YYYY-MM-DD')
+        : null,
       baptism_holy_spirit_date: stepThreeData.baptism_holy_spirit_date
         ? dayjs(stepThreeData.baptism_holy_spirit_date).format('YYYY-MM-DD')
         : null,
-      receipt_date: stepThreeData.receipt_date ? dayjs(stepThreeData.receipt_date).format('YYYY-MM-DD') : null,
+      receipt_date: stepThreeData.receipt_date
+        ? dayjs(stepThreeData.receipt_date).format('YYYY-MM-DD')
+        : null,
     };
 
     return {
@@ -511,7 +535,9 @@ export class MemberComponent implements OnInit, OnDestroy {
           def_other_description: this.data.members.def_other_description || '',
         },
         stepThree: {
-          baptism_date: this.data.members.baptism_date ? dayjs(this.data.members.baptism_date).toDate() : null,
+          baptism_date: this.data.members.baptism_date
+            ? dayjs(this.data.members.baptism_date).toDate()
+            : null,
           baptism_locale: this.data.members.baptism_locale || '',
           baptism_official: this.data.members.baptism_official || '',
           baptism_holy_spirit: this.data.members.baptism_holy_spirit || false,
@@ -519,7 +545,9 @@ export class MemberComponent implements OnInit, OnDestroy {
             ? dayjs(this.data.members.baptism_holy_spirit_date).toDate()
             : null,
           member_origin_id: this.data.members.member_origin?.id || '',
-          receipt_date: this.data.members.receipt_date ? dayjs(this.data.members.receipt_date).toDate() : null,
+          receipt_date: this.data.members.receipt_date
+            ? dayjs(this.data.members.receipt_date).toDate()
+            : null,
         },
       });
 

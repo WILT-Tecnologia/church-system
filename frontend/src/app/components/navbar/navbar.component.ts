@@ -1,5 +1,13 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, HostListener, Inject, OnInit, PLATFORM_ID, signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  Inject,
+  OnInit,
+  PLATFORM_ID,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -9,9 +17,9 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenav, MatSidenavContainer, MatSidenavContent } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { routes } from 'app/app.routes';
-import { ChurchesService } from 'app/pages/private/administrative/churches/churches.service';
-import { AuthService } from 'app/services/auth/auth.service';
+import { routes } from '@app/app.routes';
+import { ChurchesService } from '@app/pages/private/administrative/churches/churches.service';
+import { AuthService } from '@app/services/auth/auth.service';
 import { filter } from 'rxjs/operators';
 import { LoadingService } from '../loading/loading.service';
 import { USER } from './routes';
@@ -60,7 +68,6 @@ const ROUTE_PERMISSIONS: { [key: string]: string } = {
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
-  standalone: true,
   imports: [
     MatToolbarModule,
     MatButtonModule,
@@ -148,7 +155,8 @@ export class NavbarComponent implements OnInit {
     this.allRoutes = routes
       .filter((route) => mainSections.includes(route.path || ''))
       .map((route) => {
-        const sectionLabel = typeof route.title === 'string' ? route.title.split(' - ')[0] : route.path || '';
+        const sectionLabel =
+          typeof route.title === 'string' ? route.title.split(' - ')[0] : route.path || '';
         const sectionIcon = iconMap[route.path || ''] || 'settings';
 
         const items = (route.children || [])

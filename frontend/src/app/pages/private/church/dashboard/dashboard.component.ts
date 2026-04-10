@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-
 import { Color, PieChartModule, ScaleType } from '@swimlane/ngx-charts';
 
 type SimpleProps = {

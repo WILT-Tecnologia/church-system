@@ -3,11 +3,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
-
-import { ColumnComponent } from 'app/components/column/column.component';
-
-import { PercentageMessageComponent } from '../percentage-message/percentage-message.component';
-import { ChurchStats } from '../types';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { PercentageMessageComponent } from '@app/pages/private/administrative/app-admin-dashboard/shared/percentage-message/percentage-message.component';
+import { ChurchStats } from '@app/pages/private/administrative/app-admin-dashboard/shared/types';
 
 @Component({
   selector: 'app-church-stats',

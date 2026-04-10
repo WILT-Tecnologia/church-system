@@ -1,17 +1,16 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 
-import { Events } from 'app/model/Events';
-import { EventTypes } from 'app/model/EventTypes';
-import { environment } from 'environments/environment';
+import { Events } from '@app/model/Events';
+import { EventTypes } from '@app/model/EventTypes';
+import { environment } from '@environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class EventsService {
-  constructor(private http: HttpClient) {}
-
+  private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/church/eventos`;
 
   findByEventType(eventType: EventTypes): Observable<Events[]> {
@@ -41,7 +40,10 @@ export class EventsService {
     return this.http.delete<Events>(`${this.apiUrl}/${event.id}`);
   }
 
-  addMembersEvent(eventId: string, payload: { member_id: string }): Observable<{ message: string }> {
+  addMembersEvent(
+    eventId: string,
+    payload: { member_id: string },
+  ): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.apiUrl}/${eventId}/participants`, payload);
   }
 
@@ -52,10 +54,14 @@ export class EventsService {
   }
 
   addGuestsEvent(eventId: string, data: { person_id: string }): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.apiUrl}/${eventId}/guests`, { person_id: data.person_id });
+    return this.http.post<{ message: string }>(`${this.apiUrl}/${eventId}/guests`, {
+      person_id: data.person_id,
+    });
   }
 
   removeGuestEvent(eventId: string, person_id: string): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.apiUrl}/${eventId}/guests?person_id=${person_id}`);
+    return this.http.delete<{ message: string }>(
+      `${this.apiUrl}/${eventId}/guests?person_id=${person_id}`,
+    );
   }
 }

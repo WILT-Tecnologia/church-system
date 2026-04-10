@@ -1,23 +1,20 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { CivilStatus, ColorRace, Formations } from '@app/model/Auxiliaries';
+import { Church } from '@app/model/Church';
+import { Families } from '@app/model/Families';
+import { MemberOrigin } from '@app/model/MemberOrigins';
+import { History, Members, StatusMember } from '@app/model/Members';
+import { Ordination } from '@app/model/Ordination';
+import { Person } from '@app/model/Person';
+import { environment } from '@environments/environment';
 import { map, Observable } from 'rxjs';
-
-import { environment } from 'environments/environment';
-
-import { CivilStatus, ColorRace, Formations } from 'app/model/Auxiliaries';
-import { Church } from 'app/model/Church';
-import { Families } from 'app/model/Families';
-import { MemberOrigin } from 'app/model/MemberOrigins';
-import { History, Members, StatusMember } from 'app/model/Members';
-import { Ordination } from 'app/model/Ordination';
-import { Person } from 'app/model/Person';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MembersService {
-  constructor(private http: HttpClient) {}
-
+  private http = inject(HttpClient);
   private api = `${environment.apiUrl}/church/members`;
   private apiAdmin = `${environment.apiUrl}/admin`;
   private apiAux = `${environment.apiUrl}/aux`;
@@ -36,15 +33,21 @@ export class MembersService {
   }
 
   getOrdinationsOfMemberId(memberId: string): Observable<Ordination[]> {
-    return this.http.get<Members>(`${this.api}/${memberId}`).pipe(map((member) => member.ordination));
+    return this.http
+      .get<Members>(`${this.api}/${memberId}`)
+      .pipe(map((member) => member.ordination));
   }
 
   getStatusMemberId(memberId: string): Observable<StatusMember> {
-    return this.http.get<Members>(`${this.api}/${memberId}`).pipe(map((member) => member.status_member));
+    return this.http
+      .get<Members>(`${this.api}/${memberId}`)
+      .pipe(map((member) => member.status_member));
   }
 
   getHistMember(memberId: string): Observable<History[]> {
-    return this.http.get<Members>(`${this.api}/${memberId}`).pipe(map((member) => member.history_member || []));
+    return this.http
+      .get<Members>(`${this.api}/${memberId}`)
+      .pipe(map((member) => member.history_member || []));
   }
 
   getCivilStatus(): Observable<CivilStatus[]> {

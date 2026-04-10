@@ -1,15 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { MemberOrigin } from 'app/model/MemberOrigins';
-import { environment } from 'environments/environment';
+import { MemberOrigin } from '@app/model/MemberOrigins';
+import { environment } from '@environments/environment';
 import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MemberOriginService {
-  private api = `${environment.apiUrl}/admin/member-origins`;
   private http = inject(HttpClient);
+  private api = `${environment.apiUrl}/admin/member-origins`;
 
   findAll(): Observable<MemberOrigin[]> {
     return this.http.get<MemberOrigin[]>(this.api);

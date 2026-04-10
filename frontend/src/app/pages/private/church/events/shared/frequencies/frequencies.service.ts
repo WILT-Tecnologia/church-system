@@ -1,16 +1,14 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { Frequency } from '@app/model/Events';
+import { environment } from '@environments/environment';
 import { Observable } from 'rxjs';
-
-import { Frequency } from 'app/model/Events';
-import { environment } from 'environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FrequenciesService {
-  constructor(private http: HttpClient) {}
-
+  private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/church/eventos`;
 
   findAll(eventId: string, eventCallId: string): Observable<Frequency[]> {
@@ -18,11 +16,16 @@ export class FrequenciesService {
   }
 
   findById(eventId: string, eventCallId: string, frequencyId: string): Observable<Frequency> {
-    return this.http.get<Frequency>(`${this.apiUrl}/${eventId}/calls/${eventCallId}/frequencies/${frequencyId}`);
+    return this.http.get<Frequency>(
+      `${this.apiUrl}/${eventId}/calls/${eventCallId}/frequencies/${frequencyId}`,
+    );
   }
 
   create(eventId: string, eventCallId: string, payload: Partial<Frequency>): Observable<Frequency> {
-    return this.http.post<Frequency>(`${this.apiUrl}/${eventId}/calls/${eventCallId}/frequencies`, payload);
+    return this.http.post<Frequency>(
+      `${this.apiUrl}/${eventId}/calls/${eventCallId}/frequencies`,
+      payload,
+    );
   }
 
   update(
@@ -38,6 +41,8 @@ export class FrequenciesService {
   }
 
   delete(eventId: string, eventCallId: string, frequencyId: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${eventId}/calls/${eventCallId}/frequencies/${frequencyId}`);
+    return this.http.delete<void>(
+      `${this.apiUrl}/${eventId}/calls/${eventCallId}/frequencies/${frequencyId}`,
+    );
   }
 }

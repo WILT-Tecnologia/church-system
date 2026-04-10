@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { FinancialCategories } from 'app/model/FinancialCategories';
-import { environment } from 'environments/environment';
+import { FinancialCategories } from '@app/model/FinancialCategories';
+import { environment } from '@environments/environment';
 import { Observable } from 'rxjs';
 
 @Injectable({

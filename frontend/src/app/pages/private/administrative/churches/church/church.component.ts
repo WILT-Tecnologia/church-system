@@ -29,16 +29,17 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
-import { ColumnComponent } from 'app/components/column/column.component';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { Address } from 'app/model/Address';
-import { Church } from 'app/model/Church';
-import { Person } from 'app/model/Person';
-import { CepService } from 'app/services/search-cep/search-cep.service';
-import { ValidationService } from 'app/services/validation/validation.service';
-import { cnpjValidator } from 'app/services/validators/cnpj-validator';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { Address } from '@app/model/Address';
+import { Church } from '@app/model/Church';
+import { Person } from '@app/model/Person';
+import { PersonsService } from '@app/pages/private/administrative/persons/persons.service';
+import { CepService } from '@app/services/search-cep/search-cep.service';
+import { ValidationService } from '@app/services/validation/validation.service';
+import { cnpjValidator } from '@app/services/validators/cnpj-validator';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import {
   debounceTime,
@@ -49,7 +50,6 @@ import {
   Subject,
   takeUntil,
 } from 'rxjs';
-import { PersonsService } from '../../persons/persons.service';
 
 @Component({
   selector: 'app-church',

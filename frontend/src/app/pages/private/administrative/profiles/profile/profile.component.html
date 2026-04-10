@@ -49,14 +49,19 @@
         <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
           <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
             <button type="button" mat-icon-button disabled></button>
-            <mat-checkbox [formControl]="node.parentFormGroup.get(node.controlName)" color="primary">
+            <mat-checkbox
+              [formControl]="node.parentFormGroup.get(node.controlName)"
+              color="primary"
+            >
               {{ node.name }}
             </mat-checkbox>
           </mat-tree-node>
 
           <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
             <button type="button" mat-icon-button matTreeNodeToggle>
-              <mat-icon>{{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+              <mat-icon>{{
+                treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'
+              }}</mat-icon>
             </button>
             <mat-checkbox
               [checked]="isParentSelected(node)"

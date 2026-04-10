@@ -1,7 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker';
@@ -12,17 +22,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { map, Observable, startWith, Subject, takeUntil } from 'rxjs';
-
+import { ActionsComponent } from '@app/components/actions/actions.component';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { FormatsPipe } from '@app/components/crud/pipes/formats.pipe';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { EventCall, Events } from '@app/model/Events';
+import { ValidationService } from '@app/services/validation/validation.service';
 import { provideNgxMask } from 'ngx-mask';
-
-import { ActionsComponent } from 'app/components/actions/actions.component';
-import { ColumnComponent } from 'app/components/column/column.component';
-import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
-import { MESSAGES } from 'app/components/toast/messages';
-import { EventCall, Events } from 'app/model/Events';
-import { NotificationService } from 'app/services/notification/notification.service';
-import { ValidationService } from 'app/services/validation/validation.service';
+import { map, Observable, startWith, Subject, takeUntil } from 'rxjs';
 import { EventCallService } from '../../event-call.service';
 
 @Component({
@@ -56,13 +64,12 @@ export class CreateEventCallComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private validationService: ValidationService,
-    private notification: NotificationService,
     private dialogRef: MatDialogRef<CreateEventCallComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { eventCall?: EventCall; event?: Events },
   ) {
     this.eventCallForm = this.onForm();
   }
-
+  private toastService = inject(ToastService);
   @ViewChild('endDatePicker') endDatePicker!: MatDatepicker<Date>;
   @ViewChild('startDatePicker') startDatePicker!: MatDatepicker<Date>;
   eventCallForm: FormGroup;
@@ -96,10 +103,16 @@ export class CreateEventCallComponent implements OnInit, OnDestroy {
       {
         id: [this.data?.eventCall?.id || ''],
         event_id: [this.data?.eventCall?.event_id || '', [Validators.required]],
-        theme: [this.data?.eventCall?.theme || '', [Validators.minLength(3), Validators.maxLength(255)]],
+        theme: [
+          this.data?.eventCall?.theme || '',
+          [Validators.minLength(3), Validators.maxLength(255)],
+        ],
         start_date: [this.initializeDate(this.data?.eventCall?.start_date), [Validators.required]],
         end_date: [this.initializeDate(this.data?.eventCall?.end_date), [Validators.required]],
-        start_time: [this.formatTime(this.data?.eventCall?.start_time) || '', [Validators.required]],
+        start_time: [
+          this.formatTime(this.data?.eventCall?.start_time) || '',
+          [Validators.required],
+        ],
         end_time: [this.formatTime(this.data?.eventCall?.end_time) || '', [Validators.required]],
         location: [this.data?.eventCall?.location || '', [Validators.maxLength(255)]],
       },
@@ -137,19 +150,23 @@ export class CreateEventCallComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            const selectedEvent = this.events.find((event) => event.id === this.data?.event?.id) as Events;
+            const selectedEvent = this.events.find(
+              (event) => event.id === this.data?.event?.id,
+            ) as Events;
 
             this.events = [selectedEvent];
             this.setupForm();
           },
-          error: () => this.notification.onError(MESSAGES.LOADING_ERROR),
+          error: () => this.toastService.openError(MESSAGES.LOADING_ERROR),
         });
     }
   }
 
   private setupForm() {
     if (this.data?.eventCall || this.data?.event) {
-      const selectedEvent = this.events.find((event) => event.id === this.data?.event?.id) as Events;
+      const selectedEvent = this.events.find(
+        (event) => event.id === this.data?.event?.id,
+      ) as Events;
 
       if (selectedEvent) {
         this.searchEventControl.setValue(selectedEvent.name);
@@ -163,7 +180,7 @@ export class CreateEventCallComponent implements OnInit, OnDestroy {
   private createEventCall(data: EventCall) {
     const eventId = this.data?.event?.id;
     if (!eventId) {
-      this.notification.onError('Evento não encontrato!');
+      this.toastService.openError('Evento não encontrato!');
       return;
     }
     this.eventCallService
@@ -171,10 +188,10 @@ export class CreateEventCallComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.notification.onSuccess(MESSAGES.CREATE_SUCCESS);
+          this.toastService.openSuccess(MESSAGES.CREATE_SUCCESS);
           this.dialogRef.close(true);
         },
-        error: () => this.notification.onError(MESSAGES.CREATE_ERROR),
+        error: () => this.toastService.openError(MESSAGES.CREATE_ERROR),
       });
   }
 
@@ -182,7 +199,7 @@ export class CreateEventCallComponent implements OnInit, OnDestroy {
     const eventId = this.data?.event?.id;
     const callId = this.data?.eventCall?.id;
     if (!eventId || !callId) {
-      this.notification.onError('Evento ou chamada não encontrada!');
+      this.toastService.openError('Evento ou chamada não encontrada!');
       return;
     }
     this.eventCallService
@@ -190,11 +207,11 @@ export class CreateEventCallComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.notification.onSuccess(MESSAGES.UPDATE_SUCCESS);
+          this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS);
           this.dialogRef.close(true);
         },
         error: (error) => {
-          this.notification.onError(error?.error?.error || MESSAGES.UPDATE_ERROR);
+          this.toastService.openError(error?.error?.error || MESSAGES.UPDATE_ERROR);
         },
       });
   }
@@ -206,7 +223,7 @@ export class CreateEventCallComponent implements OnInit, OnDestroy {
       const userTimezoneOffset = dateWithoutTimezone.getTimezoneOffset() * 60000;
       return new Date(dateWithoutTimezone.getTime() + userTimezoneOffset);
     } catch (e) {
-      this.notification.onError(`Error initializing date:${e}`);
+      this.toastService.openError(`Error initializing date:${e}`);
       return null;
     }
   }

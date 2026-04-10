@@ -1,11 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { DestroyRef, inject, Injectable } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormatsPipe } from '@app/components/crud/pipes/formats.pipe';
+import { Church } from '@app/model/Church';
+import { environment } from '@environments/environment';
 import { BehaviorSubject, map, Observable } from 'rxjs';
-
-import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
-import { Church } from 'app/model/Church';
-import { environment } from 'environments/environment';
 
 @Injectable({
   providedIn: 'root',

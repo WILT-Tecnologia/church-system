@@ -22,7 +22,9 @@
         }
       </mat-form-field>
 
-      <mat-checkbox color="primary" (change)="togglePasswordField($event.checked)"> Alterar Senha </mat-checkbox>
+      <mat-checkbox color="primary" (change)="togglePasswordField($event.checked)">
+        Alterar Senha
+      </mat-checkbox>
 
       @if (change_password()) {
         <mat-form-field appearance="fill">
@@ -46,13 +48,27 @@
     </app-column>
 
     <app-actions>
-      <button mat-stroked-button color="warn" type="button" (click)="handleCancel()" [disabled]="isLoading()">
+      <button
+        mat-stroked-button
+        color="warn"
+        type="button"
+        (click)="handleCancel()"
+        [disabled]="isLoading()"
+      >
         Cancelar
       </button>
-      <button mat-flat-button color="primary" type="submit" [disabled]="profileForm.invalid || isLoading()">
+      <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        [disabled]="profileForm.invalid || isLoading()"
+      >
         <span>{{ isLoading() ? 'Atualizando...' : 'Atualizar' }}</span>
         @if (isLoading()) {
-          <mat-spinner diameter="20" style="display: inline-block; margin-left: 8px"></mat-spinner>
+          <mat-spinner
+            diameter="20"
+            style="display: inline-block; margin-left: 0.5rem"
+          ></mat-spinner>
         }
       </button>
     </app-actions>

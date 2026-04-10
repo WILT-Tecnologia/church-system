@@ -1,15 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Occupation } from 'app/model/Occupation';
-import { environment } from 'environments/environment';
+import { Occupation } from '@app/model/Occupation';
+import { environment } from '@environments/environment';
 import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class OccupationsService {
-  private api = `${environment.apiUrl}/admin/occupations`;
   private http = inject(HttpClient);
+  private api = `${environment.apiUrl}/admin/occupations`;
 
   getOccupations(): Observable<Occupation[]> {
     return this.http.get<Occupation[]>(this.api);

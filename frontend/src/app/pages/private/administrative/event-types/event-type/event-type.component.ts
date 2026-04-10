@@ -9,13 +9,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { ColorPickerComponent } from '@app/components/color-picker/color-picker.component';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { EventTypes } from '@app/model/EventTypes';
+import { ValidationService } from '@app/services/validation/validation.service';
 import { ColorPickerControl } from '@iplab/ngx-color-picker';
-import { ColorPickerComponent } from 'app/components/color-picker/color-picker.component';
-import { ColumnComponent } from 'app/components/column/column.component';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { EventTypes } from 'app/model/EventTypes';
-import { ValidationService } from 'app/services/validation/validation.service';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -70,7 +70,10 @@ export class EventTypeComponent implements OnInit {
 
     return this.fb.group({
       id: [eventType?.id ?? ''],
-      name: [eventType?.name ?? '', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
+      name: [
+        eventType?.name ?? '',
+        [Validators.required, Validators.minLength(3), Validators.maxLength(255)],
+      ],
       description: [eventType?.description ?? '', [Validators.maxLength(255)]],
       status: [eventType?.status ?? true],
       color: [eventType?.color ?? '#ffffff'],

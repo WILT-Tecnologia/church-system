@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Observable } from 'rxjs';
-
 import { LoadingComponent } from './components/loading/loading.component';
 import { LoadingService } from './components/loading/loading.service';
 import { NavbarComponent } from './components/navbar/navbar.component';
@@ -15,7 +14,6 @@ import { AuthService } from './services/auth/auth.service';
   imports: [RouterOutlet, NavbarComponent, LoadingComponent, CommonModule],
 })
 export class AppComponent implements OnInit {
-  title = 'church-system';
   isLoggedIn$!: Observable<boolean>;
 
   constructor(

@@ -67,7 +67,9 @@
 
       @if (financialTransactionsForm.get('customer_supplier')?.value) {
         <app-column [columns]="1">
-          @if (financialTransactionsForm.get('customer_supplier')?.value === customerSupplier.MEMBRO) {
+          @if (
+            financialTransactionsForm.get('customer_supplier')?.value === customerSupplier.MEMBRO
+          ) {
             <mat-form-field>
               <mat-label>Membro</mat-label>
               <mat-select formControlName="member_id" required>
@@ -81,7 +83,10 @@
             </mat-form-field>
           }
 
-          @if (financialTransactionsForm.get('customer_supplier')?.value === customerSupplier.FORNECEDOR) {
+          @if (
+            financialTransactionsForm.get('customer_supplier')?.value ===
+            customerSupplier.FORNECEDOR
+          ) {
             <mat-form-field>
               <mat-label>Fornecedor</mat-label>
               <mat-select formControlName="supplier_id" required>
@@ -95,7 +100,9 @@
             </mat-form-field>
           }
 
-          @if (financialTransactionsForm.get('customer_supplier')?.value === customerSupplier.PESSOA) {
+          @if (
+            financialTransactionsForm.get('customer_supplier')?.value === customerSupplier.PESSOA
+          ) {
             <mat-form-field>
               <mat-label>Nome da Pessoa</mat-label>
               <input matInput formControlName="person_name" required />
@@ -223,7 +230,13 @@
               <mat-icon>attach_file</mat-icon>
               Anexar Recibo
             </button>
-            <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" style="display: none" />
+            <input
+              #fileInput
+              type="file"
+              accept="image/*"
+              (change)="onFileSelected($event)"
+              style="display: none"
+            />
           </div>
         }
 

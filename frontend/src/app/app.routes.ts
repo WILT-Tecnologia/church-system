@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-
+import { selectChurchGuard } from '@app/services/guards/select-church.guard';
 import { CardComponent } from './components/card/card.component';
 import { AdminSettingsComponent } from './pages/private/administrative/admin-settings/admin-settings.component';
 import { AdminDashboardComponent } from './pages/private/administrative/app-admin-dashboard/app-admin-dashboard.component';
@@ -29,7 +29,6 @@ import { SelectChurchComponent } from './pages/public/login/shared/select-church
 import { PageNotFoundComponent } from './pages/public/page-not-found/page-not-found.component';
 import { AuthGuard } from './services/auth/auth.guard';
 import { permissionGuard } from './services/guards/permission.guard';
-import { selectChurchGuard } from './services/guards/select-church.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/church/dashboard-church', pathMatch: 'full' },

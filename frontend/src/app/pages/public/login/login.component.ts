@@ -8,15 +8,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { Church } from '@app/model/Church';
+import { AuthService } from '@app/services/auth/auth.service';
+import { ValidationService } from '@app/services/validation/validation.service';
 import { Subject } from 'rxjs';
-
-import { ColumnComponent } from 'app/components/column/column.component';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { Church } from 'app/model/Church';
-import { AuthService } from 'app/services/auth/auth.service';
-import { ValidationService } from 'app/services/validation/validation.service';
 
 @Component({
   selector: 'app-login',
@@ -66,7 +65,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   createForm() {
     return (this.loginForm = this.fb.group({
       email: ['administrador@gmail.com', [Validators.required, Validators.email]],
-      password: ['@mpresaPC10', [Validators.required, Validators.minLength(8), Validators.maxLength(30)]],
+      password: [
+        '@mpresaPC10',
+        [Validators.required, Validators.minLength(8), Validators.maxLength(30)],
+      ],
     }));
   }
 

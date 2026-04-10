@@ -1,10 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { Patrimonies } from '@app/model/Patrimonies';
+import { environment } from '@environments/environment';
 import { Observable } from 'rxjs';
-
-import { environment } from 'environments/environment';
-
-import { Patrimonies } from 'app/model/Patrimonies';
 
 @Injectable({
   providedIn: 'root',

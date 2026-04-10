@@ -1,7 +1,24 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+  viewChild,
+} from '@angular/core';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker';
@@ -13,21 +30,29 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ColumnComponent } from 'app/components/column/column.component';
-import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { Address } from 'app/model/Address';
-import { Person } from 'app/model/Person';
-import { User } from 'app/model/User';
-import { CepService } from 'app/services/search-cep/search-cep.service';
-import { ValidationService } from 'app/services/validation/validation.service';
-import { cpfValidator } from 'app/services/validators/cpf-validator';
-import { phoneValidator } from 'app/services/validators/phone-validator';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { FormatsPipe } from '@app/components/crud/pipes/formats.pipe';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { Address } from '@app/model/Address';
+import { Person } from '@app/model/Person';
+import { User } from '@app/model/User';
+import { UsersService } from '@app/pages/private/administrative/users/users.service';
+import { CepService } from '@app/services/search-cep/search-cep.service';
+import { ValidationService } from '@app/services/validation/validation.service';
+import { cpfValidator } from '@app/services/validators/cpf-validator';
+import { phoneValidator } from '@app/services/validators/phone-validator';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
-import { debounceTime, distinctUntilChanged, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
-import { UsersService } from '../../users/users.service';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  map,
+  Observable,
+  startWith,
+  Subject,
+  takeUntil,
+} from 'rxjs';
 
 type Sex = {
   value: string;
@@ -71,21 +96,21 @@ export class PersonComponent implements OnInit, OnDestroy {
     this.currentDate.getDate(),
   );
   public readonly maxDate = this.currentDate;
-  private destroy$ = new Subject<void>();
-  private fb = inject(FormBuilder);
-  private usersService = inject(UsersService);
-  private validationService = inject(ValidationService);
-  private toastService = inject(ToastService);
-  private cepService = inject(CepService);
-  private loading = inject(LoadingService);
-  private formatsPipe = inject(FormatsPipe);
-  private dialogRef = inject(MatDialogRef<PersonComponent>);
-  private data: { person: Person; submitSubject: Subject<void> } = inject(MAT_DIALOG_DATA);
+  private readonly destroy$ = new Subject<void>();
+  private readonly fb = inject(FormBuilder);
+  private readonly usersService = inject(UsersService);
+  private readonly validationService = inject(ValidationService);
+  private readonly toastService = inject(ToastService);
+  private readonly cepService = inject(CepService);
+  private readonly loading = inject(LoadingService);
+  private readonly formatsPipe = inject(FormatsPipe);
+  private readonly dialogRef = inject(MatDialogRef<PersonComponent>);
+  private readonly data: { person: Person; submitSubject: Subject<void> } = inject(MAT_DIALOG_DATA);
 
   personForm!: FormGroup;
   isEditMode = signal(false);
   searchUserControl = new FormControl<string>('', [Validators.required]);
-  filterUsers: Observable<User[]> = new Observable<User[]>();
+  filterUsers = new Observable<User[]>();
   picker = viewChild(MatDatepicker);
   tabGroup = viewChild(MatTabGroup);
   sexs: Sex[] = [
@@ -128,8 +153,14 @@ export class PersonComponent implements OnInit, OnDestroy {
       name: [person?.name ?? '', [Validators.required, Validators.maxLength(100)]],
       cpf: [person?.cpf ?? '', [Validators.required, cpfValidator(), Validators.maxLength(14)]],
       birth_date: [person?.birth_date ?? '', [Validators.required]],
-      email: [person?.email ?? '', [Validators.required, Validators.email, Validators.maxLength(100)]],
-      phone_one: [person?.phone_one ?? '', [Validators.required, phoneValidator(), Validators.maxLength(15)]],
+      email: [
+        person?.email ?? '',
+        [Validators.required, Validators.email, Validators.maxLength(100)],
+      ],
+      phone_one: [
+        person?.phone_one ?? '',
+        [Validators.required, phoneValidator(), Validators.maxLength(15)],
+      ],
       phone_two: [person?.phone_two ?? '', [phoneValidator(), Validators.maxLength(15)]],
       sex: [person?.sex ?? '', [Validators.required, Validators.maxLength(1)]],
       cep: [person?.cep ?? '', [Validators.required, Validators.maxLength(9)]],
@@ -264,7 +295,16 @@ export class PersonComponent implements OnInit, OnDestroy {
     const controls = this.personForm.controls;
     for (const name in controls) {
       if (controls[name].invalid) {
-        const addressFields = ['cep', 'street', 'number', 'complement', 'district', 'city', 'state', 'country'];
+        const addressFields = [
+          'cep',
+          'street',
+          'number',
+          'complement',
+          'district',
+          'city',
+          'state',
+          'country',
+        ];
         const targetTabIndex = addressFields.includes(name) ? 1 : 0;
 
         const tabGroup = this.tabGroup();

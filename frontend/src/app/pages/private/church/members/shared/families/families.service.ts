@@ -1,18 +1,16 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { Kinships } from '@app/model/Auxiliaries';
+import { Families } from '@app/model/Families';
+import { Person } from '@app/model/Person';
+import { environment } from '@environments/environment';
 import { Observable } from 'rxjs';
-
-import { Kinships } from 'app/model/Auxiliaries';
-import { Families } from 'app/model/Families';
-import { Person } from 'app/model/Person';
-import { environment } from 'environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FamiliesService {
-  constructor(private http: HttpClient) {}
-
+  private http = inject(HttpClient);
   private families = `${environment.apiUrl}/church/families`;
   private persons = `${environment.apiUrl}/admin/persons`;
   private kinships = `${environment.apiUrl}/aux/kinships`;

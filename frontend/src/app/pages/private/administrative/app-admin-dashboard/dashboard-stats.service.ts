@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
-
-import { User } from 'app/model/User';
-
+import { User } from '@app/model/User';
 import { ChurchStats, DashboardStats } from './shared/types';
 
 @Injectable({
@@ -14,10 +12,10 @@ export class DashboardStatsService {
     const endOfCurrentMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
     const startOfPreviousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0, 0);
     const endOfPreviousMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
-
     const totalUsers = users.length;
     const totalUsersActive = users.filter((user) => user.status).length;
-    const totalUsersActiviedPercentage = parseFloat(((totalUsersActive / totalUsers) * 100).toFixed(2)) || 0;
+    const totalUsersActiviedPercentage =
+      parseFloat(((totalUsersActive / totalUsers) * 100).toFixed(2)) || 0;
 
     const totalNewUsers = users.filter((user) => {
       const createdAt = new Date(user.created_at);
@@ -75,7 +73,9 @@ export class DashboardStatsService {
 
     const totalNewChurchPercentage =
       previousMonthChurches > 0
-        ? parseFloat((((totalNewChurches - previousMonthChurches) / previousMonthChurches) * 100).toFixed(2))
+        ? parseFloat(
+            (((totalNewChurches - previousMonthChurches) / previousMonthChurches) * 100).toFixed(2),
+          )
         : 0;
 
     const previousTotalChurches = churches.filter((church) => {
@@ -85,7 +85,9 @@ export class DashboardStatsService {
 
     const totalChurchPercentage =
       previousTotalChurches > 0
-        ? parseFloat((((totalChurches - previousTotalChurches) / previousTotalChurches) * 100).toFixed(2))
+        ? parseFloat(
+            (((totalChurches - previousTotalChurches) / previousTotalChurches) * 100).toFixed(2),
+          )
         : 0;
 
     return {

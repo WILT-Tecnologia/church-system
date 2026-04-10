@@ -20,7 +20,10 @@
               </mat-option>
             }
           </mat-autocomplete>
-          @if ((searchUserControl.invalid || personForm.get('user_id')?.invalid) && searchUserControl.touched) {
+          @if (
+            (searchUserControl.invalid || personForm.get('user_id')?.invalid) &&
+            searchUserControl.touched
+          ) {
             <mat-error>{{ getErrorMessage('user_id') }}</mat-error>
           }
         </mat-form-field>
@@ -36,7 +39,13 @@
       <app-column [columns]="2">
         <mat-form-field appearance="fill">
           <mat-label>CPF</mat-label>
-          <input type="text" matInput formControlName="cpf" mask="000.000.000-00" [showMaskTyped]="true" />
+          <input
+            type="text"
+            matInput
+            formControlName="cpf"
+            mask="000.000.000-00"
+            [showMaskTyped]="true"
+          />
           @if (personForm.get('cpf')?.invalid) {
             <mat-error>{{ getErrorMessage('cpf') }}</mat-error>
           }
@@ -83,7 +92,9 @@
                 </button>
               } @else {
                 <button type="button" color="warn" mat-button matDatepickerCancel>Cancelar</button>
-                <button type="button" color="primary" mat-flat-button matDatepickerApply>Concluir</button>
+                <button type="button" color="primary" mat-flat-button matDatepickerApply>
+                  Concluir
+                </button>
               }
             </mat-datepicker-actions>
           </mat-datepicker>
@@ -109,14 +120,26 @@
       <app-column [columns]="2">
         <mat-form-field appearance="fill">
           <mat-label>Celular</mat-label>
-          <input type="text" matInput formControlName="phone_one" mask="(00) 00000-0000" [showMaskTyped]="true" />
+          <input
+            type="text"
+            matInput
+            formControlName="phone_one"
+            mask="(00) 00000-0000"
+            [showMaskTyped]="true"
+          />
           @if (personForm.get('phone_one')?.invalid) {
             <mat-error>{{ getErrorMessage('phone_one') }}</mat-error>
           }
         </mat-form-field>
         <mat-form-field appearance="fill">
           <mat-label>Telefone II</mat-label>
-          <input type="text" matInput formControlName="phone_two" mask="(00) 00000-0000" [showMaskTyped]="true" />
+          <input
+            type="text"
+            matInput
+            formControlName="phone_two"
+            mask="(00) 00000-0000"
+            [showMaskTyped]="true"
+          />
           @if (personForm.get('phone_two')?.invalid) {
             <mat-error>{{ getErrorMessage('phone_two') }}</mat-error>
           }
@@ -128,7 +151,13 @@
       <app-column [columns]="2">
         <mat-form-field appearance="fill" class="cep-field">
           <mat-label>CEP</mat-label>
-          <input type="text" matInput formControlName="cep" mask="00000-000" [showMaskTyped]="true" />
+          <input
+            type="text"
+            matInput
+            formControlName="cep"
+            mask="00000-000"
+            [showMaskTyped]="true"
+          />
           @if (personForm.get('cep')?.invalid) {
             <mat-error>{{ getErrorMessage('cep') }}</mat-error>
           }

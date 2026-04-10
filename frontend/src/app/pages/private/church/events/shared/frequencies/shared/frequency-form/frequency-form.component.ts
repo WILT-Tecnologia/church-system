@@ -1,7 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  computed,
+  effect,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -14,19 +25,17 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltip } from '@angular/material/tooltip';
-import { firstValueFrom, Observable } from 'rxjs';
-
-import { ColumnComponent } from 'app/components/column/column.component';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { EventCall, Events, Frequency, ParticipantAndGuest } from 'app/model/Events';
-import { ValidationService } from 'app/services/validation/validation.service';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { EventCall, Events, Frequency, ParticipantAndGuest } from '@app/model/Events';
+import { EventsService } from '@app/pages/private/church/events/events.service';
+import { EventCallService } from '@app/pages/private/church/events/shared/event-call/event-call.service';
+import { FrequenciesService } from '@app/pages/private/church/events/shared/frequencies/frequencies.service';
+import { ValidationService } from '@app/services/validation/validation.service';
 import { provideNgxMask } from 'ngx-mask';
-
-import { EventsService } from '../../../../events.service';
-import { EventCallService } from '../../../event-call/event-call.service';
-import { FrequenciesService } from '../../frequencies.service';
+import { firstValueFrom, Observable } from 'rxjs';
 
 interface Attendance {
   id: string;
@@ -72,8 +81,8 @@ interface Attendance {
 export class FrequencyFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly validationService = inject(ValidationService);
-  private readonly toast = inject(ToastService);
-  private readonly loading = inject(LoadingService);
+  private readonly toastService = inject(ToastService);
+  private readonly loadingService = inject(LoadingService);
   private readonly eventsService = inject(EventsService);
   private readonly frequencyService = inject(FrequenciesService);
   private readonly callToDayService = inject(EventCallService);
@@ -93,7 +102,10 @@ export class FrequencyFormComponent implements OnInit {
 
   // controls/signals
   eventCallControl = new FormControl<EventCall | string | null>({ value: null, disabled: false });
-  participantControl = new FormControl<string | ParticipantAndGuest | null>({ value: null, disabled: false });
+  participantControl = new FormControl<string | ParticipantAndGuest | null>({
+    value: null,
+    disabled: false,
+  });
 
   event = signal<Events | null>(null);
   eventCall = signal<EventCall[]>([]);
@@ -104,7 +116,9 @@ export class FrequencyFormComponent implements OnInit {
   // data slices
   members = computed(() => this.participants().filter((p) => p.type === 'participants'));
   guests = computed(() => this.participants().filter((p) => p.type === 'guests'));
-  membersDataSource = signal<MatTableDataSource<Attendance>>(new MatTableDataSource<Attendance>([]));
+  membersDataSource = signal<MatTableDataSource<Attendance>>(
+    new MatTableDataSource<Attendance>([]),
+  );
   guestsDataSource = signal<MatTableDataSource<Attendance>>(new MatTableDataSource<Attendance>([]));
 
   // ui state
@@ -141,15 +155,25 @@ export class FrequencyFormComponent implements OnInit {
   filteredParticipants = computed(() => {
     const term = this.participantSearchTerm().toLowerCase();
     return this.availableParticipants().filter(
-      (p) => p.name.toLowerCase().includes(term) && !this.participants().some((existing) => existing.id === p.id),
+      (p) =>
+        p.name.toLowerCase().includes(term) &&
+        !this.participants().some((existing) => existing.id === p.id),
     );
   });
 
   // estados "selecionar todos"
-  membersAllSelected = computed(() => this.members().length > 0 && this.members().every((m) => m.present));
-  membersSomeSelected = computed(() => !this.membersAllSelected() && this.members().some((m) => m.present));
-  guestsAllSelected = computed(() => this.guests().length > 0 && this.guests().every((g) => g.present));
-  guestsSomeSelected = computed(() => !this.guestsAllSelected() && this.guests().some((g) => g.present));
+  membersAllSelected = computed(
+    () => this.members().length > 0 && this.members().every((m) => m.present),
+  );
+  membersSomeSelected = computed(
+    () => !this.membersAllSelected() && this.members().some((m) => m.present),
+  );
+  guestsAllSelected = computed(
+    () => this.guests().length > 0 && this.guests().every((g) => g.present),
+  );
+  guestsSomeSelected = computed(
+    () => !this.guestsAllSelected() && this.guests().some((g) => g.present),
+  );
 
   constructor() {
     effect(() => {
@@ -174,7 +198,7 @@ export class FrequencyFormComponent implements OnInit {
 
   ngOnInit() {
     if (!this.data.event?.id) {
-      this.toast.openError('Evento não fornecido.');
+      this.toastService.openError('Evento não fornecido.');
       this.dialogRef.close();
       return;
     }
@@ -241,12 +265,14 @@ export class FrequencyFormComponent implements OnInit {
   }
 
   private async loadData() {
-    this.loading.show();
+    this.loadingService.show();
     try {
       const [event, callToDays, frequencies] = await Promise.all([
         firstValueFrom(this.eventsService.findById(this.data.event.id)),
         firstValueFrom(this.callToDayService.findAll(this.data.event.id)),
-        this.data.call ? firstValueFrom(this.frequencyService.findAll(this.data.event.id, this.data.call.id)) : [],
+        this.data.call
+          ? firstValueFrom(this.frequencyService.findAll(this.data.event.id, this.data.call.id))
+          : [],
       ]);
       this.event.set(event);
       this.eventCall.set(callToDays);
@@ -296,16 +322,22 @@ export class FrequencyFormComponent implements OnInit {
       ]);
 
       if (!this.participants().length) {
-        setTimeout(() => this.toast.openWarning('Nenhum participante ou convidado encontrado para este evento.'), 0);
+        setTimeout(
+          () =>
+            this.toastService.openWarning(
+              'Nenhum participante ou convidado encontrado para este evento.',
+            ),
+          0,
+        );
       }
     } catch (error) {
       console.error('Error in loadData:', error);
       setTimeout(() => {
-        this.toast.openError(MESSAGES.LOADING_ERROR);
+        this.toastService.openError(MESSAGES.LOADING_ERROR);
         this.dialogRef.close();
       }, 0);
     } finally {
-      this.loading.hide();
+      this.loadingService.hide();
       this.cdr.detectChanges();
     }
   }
@@ -356,7 +388,9 @@ export class FrequencyFormComponent implements OnInit {
 
   async onPresenceChange(participant: Attendance, present: boolean) {
     this.participants.update((ps) =>
-      ps.map((p) => (p.id === participant.id && p.type === participant.type ? { ...p, present } : p)),
+      ps.map((p) =>
+        p.id === participant.id && p.type === participant.type ? { ...p, present } : p,
+      ),
     );
     this.cdr.detectChanges();
 
@@ -364,26 +398,35 @@ export class FrequencyFormComponent implements OnInit {
       const callId = this.data.call.id;
       if (!callId || !participant.id) {
         console.warn('Event Call ID or Participant ID is missing. Cannot update frequency.');
-        this.toast.openError('Não foi possível atualizar a frequência. Dados incompletos.');
+        this.toastService.openError('Não foi possível atualizar a frequência. Dados incompletos.');
         return;
       }
 
       this.setSaving(participant, true);
-      this.loading.show();
+      this.loadingService.show();
       try {
         const payload: Partial<Frequency> = {
           event_call_id: callId,
           present: present,
-          ...(participant.type === 'participants' ? { member_id: participant.id } : { guest_id: participant.id }),
+          ...(participant.type === 'participants'
+            ? { member_id: participant.id }
+            : { guest_id: participant.id }),
         };
 
         let updatedFrequency: Frequency;
         if (participant.frequencyId) {
           updatedFrequency = await firstValueFrom(
-            this.frequencyService.update(this.data.event.id, callId, participant.frequencyId, payload),
+            this.frequencyService.update(
+              this.data.event.id,
+              callId,
+              participant.frequencyId,
+              payload,
+            ),
           );
         } else {
-          updatedFrequency = await firstValueFrom(this.frequencyService.create(this.data.event.id, callId, payload));
+          updatedFrequency = await firstValueFrom(
+            this.frequencyService.create(this.data.event.id, callId, payload),
+          );
         }
 
         this.participants.update((ps) =>
@@ -399,12 +442,16 @@ export class FrequencyFormComponent implements OnInit {
         console.error('Error updating frequency:', error);
         // rollback
         this.participants.update((ps) =>
-          ps.map((p) => (p.id === participant.id && p.type === participant.type ? { ...p, present: !present } : p)),
+          ps.map((p) =>
+            p.id === participant.id && p.type === participant.type
+              ? { ...p, present: !present }
+              : p,
+          ),
         );
-        this.toast.openError('Erro ao atualizar a frequência. Tente novamente.');
+        this.toastService.openError('Erro ao atualizar a frequência. Tente novamente.');
       } finally {
         this.setSaving(participant, false);
-        this.loading.hide();
+        this.loadingService.hide();
         this.cdr.detectChanges();
       }
     }
@@ -456,7 +503,11 @@ export class FrequencyFormComponent implements OnInit {
       month: '2-digit',
       year: 'numeric',
     });
-    const formattedEndDate = endDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const formattedEndDate = endDate.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
     const startTime = callToDay.start_time;
     const endTime = callToDay.end_time;
 
@@ -467,7 +518,11 @@ export class FrequencyFormComponent implements OnInit {
     const start = new Date(`${call.start_date}T${call.start_time}:00`);
     const end = new Date(`${call.end_date}T${call.end_time}:00`);
     const weekday = start.toLocaleDateString('pt-BR', { weekday: 'long' });
-    const startDate = start.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+    const startDate = start.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
     const startTime = start.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     const endTime = end.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     return `${weekday}, ${startDate} — ${startTime} às ${endTime}`;
@@ -487,19 +542,19 @@ export class FrequencyFormComponent implements OnInit {
 
   async save() {
     if (this.frequencyForm.invalid) {
-      this.toast.openError('Selecione uma chamada do dia');
+      this.toastService.openError('Selecione uma chamada do dia');
       return;
     }
     const callId = this.frequencyForm.get('event_call_id')?.value;
     if (!callId || typeof callId !== 'string') {
-      this.toast.openError('Chamada do dia inválida');
+      this.toastService.openError('Chamada do dia inválida');
       return;
     }
     if (!this.participants().length) {
-      this.toast.openError('Nenhum participante ou convidado encontrado');
+      this.toastService.openError('Nenhum participante ou convidado encontrado');
       return;
     }
-    this.loading.show();
+    this.loadingService.show();
     const requests: Observable<Frequency>[] = [];
     for (const p of this.participants()) {
       if (!p.id) continue;
@@ -509,7 +564,9 @@ export class FrequencyFormComponent implements OnInit {
         ...(p.type === 'participants' ? { member_id: p.id } : { guest_id: p.id }),
       };
       if (p.frequencyId) {
-        requests.push(this.frequencyService.update(this.data.event.id, callId, p.frequencyId, payload));
+        requests.push(
+          this.frequencyService.update(this.data.event.id, callId, p.frequencyId, payload),
+        );
       } else {
         requests.push(this.frequencyService.create(this.data.event.id, callId, payload));
       }
@@ -518,7 +575,7 @@ export class FrequencyFormComponent implements OnInit {
       await Promise.all(
         requests.map((req) =>
           firstValueFrom(req).catch((error) => {
-            this.toast.openError(
+            this.toastService.openError(
               'Não foi possível salvar as frequência por algum motivo desconhecido, tente novamente mais tarde.',
             );
             throw error;
@@ -526,19 +583,18 @@ export class FrequencyFormComponent implements OnInit {
         ),
       );
       setTimeout(() => {
-        this.toast.openSuccess('Frequências salvas com sucesso!');
+        this.toastService.openSuccess('Frequências salvas com sucesso!');
         this.dialogRef.close(true);
       }, 0);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error: any) {
       setTimeout(() => {
-        this.toast.openError(
+        this.toastService.openError(
           'Não foi possível salvar as frequência por algum motivo desconhecido, tente novamente mais tarde.',
         );
       }, 0);
       console.error('Server error');
     } finally {
-      this.loading.hide();
+      this.loadingService.hide();
       this.cdr.detectChanges();
     }
   }

@@ -1,17 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { CivilStatus, ColorRace } from '@app/model/Auxiliaries';
+import { Church } from '@app/model/Church';
+import { Person } from '@app/model/Person';
+import { ValidationService } from '@app/services/validation/validation.service';
 import { map, Observable, startWith } from 'rxjs';
-
-import { ColumnComponent } from 'app/components/column/column.component';
-import { CivilStatus, ColorRace } from 'app/model/Auxiliaries';
-import { Church } from 'app/model/Church';
-import { Person } from 'app/model/Person';
-import { ValidationService } from 'app/services/validation/validation.service';
 
 @Component({
   selector: 'app-identification',
@@ -101,11 +103,15 @@ export class IdentificationComponent implements OnInit {
   }
 
   filterCivilStatus(name: string): CivilStatus[] {
-    return this.civilStatus.filter((option) => option.name.toLowerCase().includes(name.toLowerCase()));
+    return this.civilStatus.filter((option) =>
+      option.name.toLowerCase().includes(name.toLowerCase()),
+    );
   }
 
   filterColorRace(name: string): ColorRace[] {
-    return this.colorRace.filter((colorRace) => colorRace.name.toLowerCase().includes(name.toLowerCase()));
+    return this.colorRace.filter((colorRace) =>
+      colorRace.name.toLowerCase().includes(name.toLowerCase()),
+    );
   }
 
   onPersonSelected(event: MatAutocompleteSelectedEvent) {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,23 +10,21 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
-import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
-
+import { MatTabGroup } from '@angular/material/tabs';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { FormatsPipe } from '@app/components/crud/pipes/formats.pipe';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { TabDirective } from '@app/components/tabs/tab.directive';
+import { TabsComponent } from '@app/components/tabs/tabs.component';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { Address } from '@app/model/Address';
+import { Guest } from '@app/model/Guest';
+import { CepService } from '@app/services/search-cep/search-cep.service';
+import { ValidationService } from '@app/services/validation/validation.service';
+import { phoneValidator } from '@app/services/validators/phone-validator';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
-
-import { ActionsComponent } from 'app/components/actions/actions.component';
-import { ColumnComponent } from 'app/components/column/column.component';
-import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { MESSAGES } from 'app/components/toast/messages';
-import { Address } from 'app/model/Address';
-import { Guest } from 'app/model/Guest';
-import { NotificationService } from 'app/services/notification/notification.service';
-import { CepService } from 'app/services/search-cep/search-cep.service';
-import { ValidationService } from 'app/services/validation/validation.service';
-import { phoneValidator } from 'app/services/validators/phone-validator';
-import { GuestsService } from '../guests.service';
+import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-guests-form',
@@ -37,7 +35,6 @@ import { GuestsService } from '../guests.service';
     MatInputModule,
     MatFormFieldModule,
     MatAutocompleteModule,
-    MatTabsModule,
     MatDatepickerModule,
     MatDividerModule,
     MatIconModule,
@@ -45,7 +42,8 @@ import { GuestsService } from '../guests.service';
     ReactiveFormsModule,
     CommonModule,
     ColumnComponent,
-    ActionsComponent,
+    TabsComponent,
+    TabDirective,
   ],
   providers: [
     provideNativeDateAdapter(),
@@ -55,25 +53,19 @@ import { GuestsService } from '../guests.service';
   ],
 })
 export class GuestsFormComponent implements OnInit, OnDestroy {
-  guestForm: FormGroup;
-  isEditMode: boolean = false;
+  private readonly fb = inject(FormBuilder);
+  private readonly cepService = inject(CepService);
+  private readonly loading = inject(LoadingService);
+  private readonly validationService = inject(ValidationService);
+  private readonly dialogRef = inject(MatDialogRef<GuestsFormComponent>);
+  private readonly toastService = inject(ToastService);
+  private readonly data: { guest: Guest; submitSubject: Subject<void> } = inject(MAT_DIALOG_DATA);
+  private readonly destroy$ = new Subject<void>();
 
-  private destroy$ = new Subject<void>();
-  @ViewChild(MatDatepicker) picker!: MatDatepicker<Date>;
-  @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;
-
-  constructor(
-    private fb: FormBuilder,
-    private guestsService: GuestsService,
-    private cepService: CepService,
-    private loading: LoadingService,
-    private validationService: ValidationService,
-    private notification: NotificationService,
-    private dialogRef: MatDialogRef<GuestsFormComponent>,
-    @Optional() @Inject(MAT_DIALOG_DATA) public data: { guest: Guest },
-  ) {
-    this.guestForm = this.createForm();
-  }
+  guestForm: FormGroup = this.createForm();
+  isEditMode = signal(false);
+  picker = viewChild(MatDatepicker);
+  tabGroup = viewChild(MatTabGroup);
 
   ngOnInit() {
     this.checkEditMode();
@@ -85,26 +77,34 @@ export class GuestsFormComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  createForm = (): FormGroup => {
-    return this.fb.group({
-      id: [this.data?.guest?.id ?? ''],
-      name: [this.data?.guest?.name ?? '', [Validators.required, Validators.maxLength(255)]],
-      phone_one: [this.data?.guest?.phone_one ?? '', [Validators.required, phoneValidator()]],
-      phone_two: [this.data?.guest?.phone_two ?? '', [phoneValidator()]],
-      cep: [this.data?.guest?.cep ?? '', [Validators.required]],
-      street: [this.data?.guest?.street ?? '', [Validators.required, Validators.maxLength(255)]],
-      number: [this.data?.guest?.number ?? '', [Validators.required, Validators.maxLength(10)]],
-      complement: [this.data?.guest?.complement ?? '', [Validators.maxLength(255)]],
-      district: [this.data?.guest?.district ?? '', [Validators.required, Validators.maxLength(255)]],
-      city: [this.data?.guest?.city ?? '', [Validators.required, Validators.maxLength(255)]],
-      state: [this.data?.guest?.state ?? '', [Validators.required, Validators.maxLength(255)]],
-      country: [this.data?.guest?.country ?? '', [Validators.required, Validators.maxLength(255)]],
-    });
-  };
+  createForm(): FormGroup {
+    const guest: Guest = this.data?.guest;
 
-  checkEditMode() {
-    if (this.data?.guest?.id) {
-      this.isEditMode = true;
+    return this.fb.group({
+      id: [guest?.id ?? ''],
+      name: [guest?.name ?? '', [Validators.required, Validators.maxLength(255)]],
+      phone_one: [guest?.phone_one ?? '', [Validators.required, phoneValidator()]],
+      phone_two: [guest?.phone_two ?? '', [phoneValidator()]],
+      cep: [guest?.cep ?? '', [Validators.required]],
+      street: [guest?.street ?? '', [Validators.required, Validators.maxLength(255)]],
+      number: [guest?.number ?? '', [Validators.required, Validators.maxLength(10)]],
+      complement: [guest?.complement ?? '', [Validators.maxLength(255)]],
+      district: [guest?.district ?? '', [Validators.required, Validators.maxLength(255)]],
+      city: [guest?.city ?? '', [Validators.required, Validators.maxLength(255)]],
+      state: [guest?.state ?? '', [Validators.required, Validators.maxLength(255)]],
+      country: [guest?.country ?? '', [Validators.required, Validators.maxLength(255)]],
+    });
+  }
+
+  private checkEditMode() {
+    if (this.data && this.data?.guest) {
+      this.isEditMode.set(true);
+    }
+
+    if (this.data?.submitSubject) {
+      this.data.submitSubject.pipe(takeUntil(this.destroy$)).subscribe(() => {
+        this.handleSubmit();
+      });
     }
   }
 
@@ -113,12 +113,12 @@ export class GuestsFormComponent implements OnInit, OnDestroy {
     return control?.errors ? this.validationService.getErrorMessage(control) : null;
   }
 
-  initialSearchCep() {
+  private initialSearchCep() {
     let previousCepValue = this.guestForm.get('cep')?.value;
+    const cep = this.guestForm.get('cep');
 
-    this.guestForm
-      .get('cep')
-      ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+    cep?.valueChanges
+      .pipe(debounceTime(100), distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe((cep: string) => {
         if (cep.length === 8 && cep !== previousCepValue) {
           this.searchCep(cep);
@@ -127,7 +127,7 @@ export class GuestsFormComponent implements OnInit, OnDestroy {
       });
   }
 
-  searchCep(cep: string): void {
+  private searchCep(cep: string): void {
     if (this.guestForm.get('cep')?.value?.length === '') {
       return;
     }
@@ -148,68 +148,17 @@ export class GuestsFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  handleNext = () => {
-    const identificationFields = ['name', 'email', 'phone_one', 'phone_two'];
-    identificationFields.forEach((field) => {
-      const control = this.guestForm.get(field);
-      control?.markAsTouched();
-    });
-
-    const isIdentificationValid = identificationFields.every((field) => this.guestForm.get(field)?.valid);
-
-    if (isIdentificationValid) {
-      this.tabGroup.selectedIndex = 1;
-    }
-  };
-
-  handleBack = () => {
-    this.tabGroup.selectedIndex = 0;
-  };
-
-  handleCancel() {
-    this.dialogRef.close();
-  }
-
   handleSubmit() {
-    if (this.guestForm.invalid) {
-      this.guestForm.markAllAsTouched();
-      this.notification.onError('Verifique os campos obrigatórios.');
-      return;
-    }
+    this.guestForm.markAllAsTouched();
 
-    const guest = this.guestForm;
+    if (this.guestForm.valid) {
+      const guest: Guest = this.guestForm.value;
+      guest.phone_one = guest.phone_one.replace(/\D/g, '');
+      guest.phone_two = guest.phone_two.replace(/\D/g, '');
 
-    if (!guest.value) return;
-
-    if (this.isEditMode && guest.valid) {
-      this.handleUpdate(this.data?.guest?.id, guest.value);
+      this.dialogRef?.close(guest);
     } else {
-      this.handleCreate(guest.value);
+      this.toastService.openWarning(MESSAGES.FORM_VALUES_NOT_FOUND);
     }
   }
-
-  handleCreate = (data: Guest) => {
-    this.loading.show();
-    this.guestsService.create(data).subscribe({
-      next: (guest) => {
-        this.notification.onSuccess(MESSAGES.CREATE_SUCCESS, this.dialogRef, this.guestForm.value);
-        this.dialogRef.close(guest);
-      },
-      error: (err) => this.notification.onError(err.error.message ?? MESSAGES.CREATE_ERROR),
-      complete: () => this.loading.hide(),
-    });
-  };
-
-  handleUpdate = (id: string, data: Guest) => {
-    this.loading.show();
-    this.guestsService.update(id, data).subscribe({
-      next: (guest) => {
-        this.loading.hide();
-        this.notification.onSuccess(MESSAGES.UPDATE_SUCCESS, this.dialogRef, this.guestForm.value);
-        this.dialogRef.close(guest);
-      },
-      error: (err) => this.notification.onError(err.error.message ?? MESSAGES.UPDATE_ERROR),
-      complete: () => this.loading.hide(),
-    });
-  };
 }

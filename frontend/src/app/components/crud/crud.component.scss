@@ -144,8 +144,6 @@
 .mat-cell,
 td,
 th {
-  // min-width: 80px;
-  // max-width: 260px;
   overflow: hidden;
   white-space: nowrap;
   padding: 0 1rem;
@@ -153,14 +151,11 @@ th {
   @media screen and (max-width: 1280px) {
     font-size: 0.75rem;
     padding: 0 0.75rem;
-    // max-width: 200px;
   }
 
   @media screen and (max-width: 768px) {
     font-size: 0.7rem;
     padding: 0 0.5rem;
-    // min-width: 90px;
-    // max-width: 140px;
   }
 }
 
@@ -228,8 +223,8 @@ th {
   z-index: 10 !important;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.05);
 
-  @media screen and (max-width: 1600px) {
-    background-color: var(--white-color) !important;
+  &:hover {
+    background-color: var(--hover-color) !important;
   }
 }
 

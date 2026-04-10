@@ -13,14 +13,18 @@
         <div class="header-right">
           @if (isPastDate()) {
             <div class="isPastDate">
-              <p>Período encerrado em {{ data.call.end_date | date: 'dd/MM/yyyy' }} às {{ data.call.end_time }}</p>
+              <p>
+                Período encerrado em {{ data.call.end_date | date: 'dd/MM/yyyy' }} às
+                {{ data.call.end_time }}
+              </p>
             </div>
             <p class="isPastDateDescription">
               Quando o período de chamada encerra, não é possível alterar a(s) presença(s).
             </p>
           } @else {
             <div class="isNotPastDate">
-              Período disponível até {{ data.call.end_date | date: 'dd/MM/yyyy' }} às {{ data.call.end_time }}
+              Período disponível até {{ data.call.end_date | date: 'dd/MM/yyyy' }} às
+              {{ data.call.end_time }}
             </div>
           }
         </div>
@@ -29,7 +33,9 @@
       <mat-accordion [multi]="false">
         <mat-expansion-panel [expanded]="detailsEvent()">
           <mat-expansion-panel-header>
-            <mat-panel-title>Selecione um evento, dia e horário para realizar a frequência</mat-panel-title>
+            <mat-panel-title
+              >Selecione um evento, dia e horário para realizar a frequência</mat-panel-title
+            >
           </mat-expansion-panel-header>
 
           <mat-form-field appearance="fill" class="w-full">
@@ -53,7 +59,13 @@
               }
             </mat-autocomplete>
             @if (eventCallControl.value) {
-              <button type="button" matSuffix mat-icon-button aria-label="Limpar" (click)="onClear()">
+              <button
+                type="button"
+                matSuffix
+                mat-icon-button
+                aria-label="Limpar"
+                (click)="onClear()"
+              >
                 <mat-icon>close</mat-icon>
               </button>
             }
@@ -75,7 +87,13 @@
           (input)="applyFilter($event)"
         />
         @if (filterValue()) {
-          <button type="button" matSuffix mat-icon-button (click)="clearFilter()" aria-label="Limpar filtro">
+          <button
+            type="button"
+            matSuffix
+            mat-icon-button
+            (click)="clearFilter()"
+            aria-label="Limpar filtro"
+          >
             <mat-icon>close</mat-icon>
           </button>
         }
@@ -131,7 +149,9 @@
                     class="presence-icon"
                     [class]="member.present ? 'ok' : 'off'"
                     aria-hidden="true"
-                    [matTooltip]="member.present ? 'Presença confirmada' : 'Presença não confirmada'"
+                    [matTooltip]="
+                      member.present ? 'Presença confirmada' : 'Presença não confirmada'
+                    "
                   >
                     {{ member.present ? 'check_circle' : 'radio_button_unchecked' }}
                   </mat-icon>
@@ -203,8 +223,16 @@
 
     @if (!data.call) {
       <app-column [columns]="2">
-        <button mat-stroked-button type="button" color="warn" (click)="closeDialog()">Cancelar</button>
-        <button mat-flat-button type="submit" color="primary" (click)="save()" [disabled]="isPastDate()">
+        <button mat-stroked-button type="button" color="warn" (click)="closeDialog()">
+          Cancelar
+        </button>
+        <button
+          mat-flat-button
+          type="submit"
+          color="primary"
+          (click)="save()"
+          [disabled]="isPastDate()"
+        >
           Concluir
         </button>
       </app-column>

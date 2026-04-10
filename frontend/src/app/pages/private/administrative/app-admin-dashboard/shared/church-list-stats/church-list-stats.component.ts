@@ -3,10 +3,9 @@ import { MatButton } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
-
-import { ColumnComponent } from 'app/components/column/column.component';
-import { Church } from 'app/model/Church';
-import { ChurchesService } from '../../../churches/churches.service';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { Church } from '@app/model/Church';
+import { ChurchesService } from '@app/pages/private/administrative/churches/churches.service';
 
 @Component({
   selector: 'app-church-list-stats',

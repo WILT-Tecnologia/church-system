@@ -2,17 +2,15 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@ang
 import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
-import { firstValueFrom } from 'rxjs';
-
-import { CrudComponent } from 'app/components/crud/crud.component';
-import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { ModalService } from 'app/components/modal/modal.service';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { EventCall, Events } from 'app/model/Events';
+import { CrudComponent } from '@app/components/crud/crud.component';
+import { ActionsProps, ColumnDefinitionsProps } from '@app/components/crud/types';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { ModalService } from '@app/components/modal/modal.service';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { EventCall, Events } from '@app/model/Events';
 import { provideNgxMask } from 'ngx-mask';
-
+import { firstValueFrom } from 'rxjs';
 import { EventsService } from '../../events.service';
 import { EventCallService } from '../event-call/event-call.service';
 import { FrequenciesService } from './frequencies.service';

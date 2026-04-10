@@ -1,7 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -9,21 +18,19 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { ActionsComponent } from '@app/components/actions/actions.component';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { ModalService } from '@app/components/modal/modal.service';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { Kinships } from '@app/model/Auxiliaries';
+import { Families } from '@app/model/Families';
+import { Members } from '@app/model/Members';
+import { Person } from '@app/model/Person';
+import { PersonComponent } from '@app/pages/private/administrative/persons/person/person.component';
+import { ValidationService } from '@app/services/validation/validation.service';
 import { forkJoin, map, Observable, startWith, Subject } from 'rxjs';
-
-import { ActionsComponent } from 'app/components/actions/actions.component';
-import { ColumnComponent } from 'app/components/column/column.component';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { ModalService } from 'app/components/modal/modal.service';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { Kinships } from 'app/model/Auxiliaries';
-import { Families } from 'app/model/Families';
-import { Members } from 'app/model/Members';
-import { Person } from 'app/model/Person';
-import { PersonComponent } from 'app/pages/private/administrative/persons/person/person.component';
-import { ValidationService } from 'app/services/validation/validation.service';
-
 import { FamiliesService } from '../families.service';
 
 @Component({
@@ -276,6 +283,12 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
   }
 
   openAddPersonDialog() {
-    this.modalService.openModal(`modal-${Math.random()}`, PersonComponent, 'Adicionando pessoa', true, true);
+    this.modalService.openModal(
+      `modal-${Math.random()}`,
+      PersonComponent,
+      'Adicionando pessoa',
+      true,
+      true,
+    );
   }
 }

@@ -1,12 +1,16 @@
-import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import {
+  HttpErrorResponse,
+  HttpEvent,
+  HttpHandler,
+  HttpInterceptor,
+  HttpRequest,
+} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { ToastService } from '@app/components/toast/toast.service';
+import { AuthService } from '@app/services/auth/auth.service';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-
-import { ToastService } from 'app/components/toast/toast.service';
-
-import { AuthService } from './auth.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -50,7 +54,7 @@ export class AuthInterceptor implements HttpInterceptor {
           return of();
         }
 
-        return throwError(() => this.toast.openError(error.error.message || 'Algo deu errado, tente novamente!'));
+        return throwError(() => this.toast.openError('Algo deu errado, tente novamente!'));
       }),
     );
   }

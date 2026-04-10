@@ -1,7 +1,25 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  Inject,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker';
@@ -13,29 +31,31 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { map, Observable, startWith, Subject } from 'rxjs';
-
-import { ActionsComponent } from 'app/components/actions/actions.component';
-import { ColumnComponent } from 'app/components/column/column.component';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { MESSAGES } from 'app/components/toast/messages';
-import { Church } from 'app/model/Church';
-import { Events } from 'app/model/Events';
-import { EventTypes } from 'app/model/EventTypes';
-import { EventTypesService } from 'app/pages/private/administrative/event-types/eventTypes.service';
-import { NotificationService } from 'app/services/notification/notification.service';
-import { ValidationService } from 'app/services/validation/validation.service';
+import { ActionsComponent } from '@app/components/actions/actions.component';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { Church } from '@app/model/Church';
+import { Events } from '@app/model/Events';
+import { EventTypes } from '@app/model/EventTypes';
+import { ChurchesService } from '@app/pages/private/administrative/churches/churches.service';
+import { EventTypesService } from '@app/pages/private/administrative/event-types/eventTypes.service';
+import { EventsService } from '@app/pages/private/church/events/events.service';
+import { ValidationService } from '@app/services/validation/validation.service';
 import { provideNgxMask } from 'ngx-mask';
-
-import { ChurchesService } from 'app/pages/private/administrative/churches/churches.service';
-import { EventsService } from '../../events.service';
+import { map, Observable, startWith, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-events-form',
   styleUrl: './events-form.component.scss',
   templateUrl: './events-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [provideNgxMask(), provideNativeDateAdapter(), { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' }],
+  providers: [
+    provideNgxMask(),
+    provideNativeDateAdapter(),
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+  ],
   imports: [
     MatButtonModule,
     MatInputModule,
@@ -55,12 +75,12 @@ import { EventsService } from '../../events.service';
   ],
 })
 export class EventsFormComponent implements OnInit, OnDestroy {
+  private toastService = inject(ToastService);
   eventForm: FormGroup;
   event: Events[] = [];
   church: Church[] = [];
   eventType: EventTypes[] = [];
   isEditMode: boolean = false;
-
   readonly minDate = new Date(1900, 0, 1);
   private destroy$ = new Subject<void>();
 
@@ -77,7 +97,6 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private loading: LoadingService,
     private validationService: ValidationService,
-    private notification: NotificationService,
     private churchesService: ChurchesService,
     private eventTypesService: EventTypesService,
     private eventsService: EventsService,
@@ -101,7 +120,10 @@ export class EventsFormComponent implements OnInit, OnDestroy {
   private createForm = (): FormGroup => {
     return this.fb.group({
       id: [this.data.event?.id ?? ''],
-      name: [this.data.event?.name ?? '', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
+      name: [
+        this.data.event?.name ?? '',
+        [Validators.required, Validators.minLength(3), Validators.maxLength(255)],
+      ],
       church_id: [this.data.event?.church?.id ?? '', [Validators.required]],
       event_type_id: [this.data.event?.eventType?.id ?? '', [Validators.required]],
       obs: [this.data.event?.obs ?? '', [Validators.maxLength(255)]],
@@ -159,7 +181,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
           }
         },
         error: (error) => {
-          this.notification.onError(error?.error?.message ?? MESSAGES.LOADING_ERROR);
+          this.toastService.openError(error?.error?.message ?? MESSAGES.LOADING_ERROR);
         },
       });
     }
@@ -171,14 +193,16 @@ export class EventsFormComponent implements OnInit, OnDestroy {
         this.eventType = data;
         this.showAllEventTypes();
         if (this.isEditMode && this.data?.event?.eventType) {
-          const currentEventType = this.eventType.find((et) => et.id === this.data.event?.eventType?.id);
+          const currentEventType = this.eventType.find(
+            (et) => et.id === this.data.event?.eventType?.id,
+          );
           if (currentEventType) {
             this.searchEventTypeControl.setValue(currentEventType.name);
           }
         }
       },
       error: (error) => {
-        this.notification.onError(error?.error?.message ?? MESSAGES.LOADING_ERROR);
+        this.toastService.openError(error?.error?.message ?? MESSAGES.LOADING_ERROR);
       },
       complete: () => this.hideLoading(),
     });
@@ -244,7 +268,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
   handleSubmit = () => {
     if (this.eventForm.invalid) {
       this.markFormGroupTouched(this.eventForm);
-      this.notification.onError(MESSAGES.FORM_INVALID);
+      this.toastService.openError(MESSAGES.FORM_INVALID);
       return;
     }
 
@@ -276,12 +300,12 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     this.eventsService.create(events).subscribe({
       next: () => {
         this.hideLoading();
-        this.notification.onSuccess(MESSAGES.CREATE_SUCCESS);
+        this.toastService.openSuccess(MESSAGES.CREATE_SUCCESS);
         this.dialogRef.close(true);
       },
       error: () => {
         this.hideLoading();
-        this.notification.onError(MESSAGES.CREATE_ERROR);
+        this.toastService.openError(MESSAGES.CREATE_ERROR);
       },
     });
   }
@@ -289,12 +313,12 @@ export class EventsFormComponent implements OnInit, OnDestroy {
   handleUpdate(events: Events) {
     this.eventsService.update(events).subscribe({
       next: () => {
-        this.notification.onSuccess(MESSAGES.UPDATE_SUCCESS);
+        this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS);
         this.dialogRef.close(this.eventForm.value);
       },
       error: () => {
         this.hideLoading();
-        this.notification.onError(MESSAGES.UPDATE_ERROR);
+        this.toastService.openError(MESSAGES.UPDATE_ERROR);
       },
       complete: () => this.hideLoading(),
     });

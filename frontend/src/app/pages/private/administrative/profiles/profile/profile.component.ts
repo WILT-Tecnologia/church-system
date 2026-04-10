@@ -1,6 +1,20 @@
 import { FlatTreeControl } from '@angular/cdk/tree';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnInit, signal } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
+import {
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -12,13 +26,13 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTreeFlatDataSource, MatTreeFlattener, MatTreeModule } from '@angular/material/tree';
-import { ColumnComponent } from 'app/components/column/column.component';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { Modules } from 'app/model/Modules';
-import { Profile, ProfileModule } from 'app/model/Profile';
-import { ValidationService } from 'app/services/validation/validation.service';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { Modules } from '@app/model/Modules';
+import { Profile, ProfileModule } from '@app/model/Profile';
+import { ValidationService } from '@app/services/validation/validation.service';
 import { Subject, takeUntil } from 'rxjs';
 import { ModuleService } from '../../modules/modules.service';
 import { ProfilesService } from '../profiles.service';
@@ -77,7 +91,8 @@ export class ProfileComponent implements OnInit {
   private readonly profilesService = inject(ProfilesService);
   private readonly moduleService = inject(ModuleService);
   private readonly dialogRef = inject(MatDialogRef<ProfileComponent>);
-  private readonly data: { profile: Profile; submitSubject?: Subject<void> } = inject(MAT_DIALOG_DATA);
+  private readonly data: { profile: Profile; submitSubject?: Subject<void> } =
+    inject(MAT_DIALOG_DATA);
 
   profileForm: FormGroup = this.createForm();
   profile: Profile[] = [];
@@ -278,7 +293,9 @@ export class ProfileComponent implements OnInit {
   }
 
   isParentIndeterminate(node: FlatNode): boolean {
-    const values = this.getChildControls(node).map((c) => c.parentFormGroup?.get(c.controlName!)?.value as boolean);
+    const values = this.getChildControls(node).map(
+      (c) => c.parentFormGroup?.get(c.controlName!)?.value as boolean,
+    );
     const selectedCount = values.filter((v) => v === true).length;
     return selectedCount > 0 && selectedCount < values.length;
   }
@@ -302,7 +319,9 @@ export class ProfileComponent implements OnInit {
 
     if (this.profileForm.valid) {
       const formValue = this.profileForm.getRawValue();
-      const selectedModules = formValue.modules.filter((m: any) => m.can_read || m.can_write || m.can_delete);
+      const selectedModules = formValue.modules.filter(
+        (m: any) => m.can_read || m.can_write || m.can_delete,
+      );
 
       if (selectedModules.length === 0) {
         this.toastService.openWarning('Por favor, selecione ao menos um módulo e uma permissão.');
@@ -317,7 +336,9 @@ export class ProfileComponent implements OnInit {
 
       request$.subscribe({
         next: () => {
-          this.toastService.openSuccess(this.isEditMode() ? MESSAGES.UPDATE_SUCCESS : MESSAGES.CREATE_SUCCESS);
+          this.toastService.openSuccess(
+            this.isEditMode() ? MESSAGES.UPDATE_SUCCESS : MESSAGES.CREATE_SUCCESS,
+          );
           this.dialogRef.close(true);
         },
         error: (err) => {
@@ -331,7 +352,9 @@ export class ProfileComponent implements OnInit {
               }
             });
           } else {
-            this.toastService.openError(this.isEditMode() ? MESSAGES.UPDATE_ERROR : MESSAGES.CREATE_ERROR);
+            this.toastService.openError(
+              this.isEditMode() ? MESSAGES.UPDATE_ERROR : MESSAGES.CREATE_ERROR,
+            );
           }
         },
         complete: () => this.loadingService.hide(),

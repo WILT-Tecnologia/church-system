@@ -1,15 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { EventTypes } from 'app/model/EventTypes';
-import { environment } from 'environments/environment';
+import { EventTypes } from '@app/model/EventTypes';
+import { environment } from '@environments/environment';
 import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class EventTypesService {
-  private api = `${environment.apiUrl}/admin/event-types`;
   private http = inject(HttpClient);
+  private api = `${environment.apiUrl}/admin/event-types`;
 
   findAll(): Observable<EventTypes[]> {
     return this.http.get<EventTypes[]>(this.api);

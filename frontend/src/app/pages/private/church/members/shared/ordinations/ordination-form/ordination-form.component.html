@@ -17,15 +17,23 @@
         (focus)="showAllOccupations()"
         required
       />
-      <mat-autocomplete #occupation_id="matAutocomplete" (optionSelected)="onSelectedOccupation($event)">
+      <mat-autocomplete
+        #occupation_id="matAutocomplete"
+        (optionSelected)="onSelectedOccupation($event)"
+      >
         @for (occupation of filterOccupations | async; track $index) {
           <mat-option [value]="occupation">
             {{ occupation.name }}
           </mat-option>
         } @empty {
-          <mat-option class="add-option" (click)="openAddOccupationForm()"> Adicionar nova ocupação </mat-option>
+          <mat-option class="add-option" (click)="openAddOccupationForm()">
+            Adicionar nova ocupação
+          </mat-option>
         }
-        @if (ordinationForm.get('occupation_id')?.invalid && ordinationForm.get('occupation_id')?.touched) {
+        @if (
+          ordinationForm.get('occupation_id')?.invalid &&
+          ordinationForm.get('occupation_id')?.touched
+        ) {
           <mat-error>
             {{ getErrorMessage('occupation_id') }}
           </mat-error>

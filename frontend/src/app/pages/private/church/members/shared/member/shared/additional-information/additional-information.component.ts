@@ -1,17 +1,25 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { Formations } from '@app/model/Auxiliaries';
+import { ValidationService } from '@app/services/validation/validation.service';
 import { map, Observable, startWith } from 'rxjs';
-
-import { ColumnComponent } from 'app/components/column/column.component';
-import { Formations } from 'app/model/Auxiliaries';
-import { ValidationService } from 'app/services/validation/validation.service';
 
 @Component({
   selector: 'app-additional-information',
@@ -78,7 +86,9 @@ export class AdditionalInformationComponent implements OnInit {
   }
 
   filterFormations(name: string): Formations[] {
-    return this.formations.filter((formation) => formation.name.toLowerCase().includes(name.toLowerCase()));
+    return this.formations.filter((formation) =>
+      formation.name.toLowerCase().includes(name.toLowerCase()),
+    );
   }
 
   onFormationsSelected(event: MatAutocompleteSelectedEvent) {

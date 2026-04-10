@@ -23,25 +23,25 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { ConfirmService } from '@app/components/confirm/confirm.service';
+import { FormatsPipe } from '@app/components/crud/pipes/formats.pipe';
+import { ActionsProps, ColumnDefinitionsProps } from '@app/components/crud/types';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { ModalService } from '@app/components/modal/modal.service';
+import { TabCrudComponent } from '@app/components/tab-crud/tab-crud.component';
+import { CrudConfig, TabConfig } from '@app/components/tab-crud/types';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { EventCall, Events } from '@app/model/Events';
+import { EventTypes } from '@app/model/EventTypes';
+import { AuthService } from '@app/services/auth/auth.service';
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, DateSelectArg, EventApi, EventClickArg } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import { ColumnComponent } from 'app/components/column/column.component';
-import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
-import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { ModalService } from 'app/components/modal/modal.service';
-import { TabCrudComponent } from 'app/components/tab-crud/tab-crud.component';
-import { CrudConfig, TabConfig } from 'app/components/tab-crud/types';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { EventCall, Events } from 'app/model/Events';
-import { EventTypes } from 'app/model/EventTypes';
-import { AuthService } from 'app/services/auth/auth.service';
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
@@ -257,7 +257,9 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       this.cdr.detectChanges();
     });
 
-    this.refreshSubject.pipe(debounceTime(300), takeUntil(this.destroy$)).subscribe(() => this.loadEvents());
+    this.refreshSubject
+      .pipe(debounceTime(300), takeUntil(this.destroy$))
+      .subscribe(() => this.loadEvents());
 
     this.initialTabLoadSubject
       .pipe(
@@ -313,7 +315,11 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
         return this.eventsService
           .findByEventType(eventType)
           .pipe(
-            mergeWith(this.refreshSubject.pipe(switchMap(() => this.eventsService.findByEventType(eventType)))),
+            mergeWith(
+              this.refreshSubject.pipe(
+                switchMap(() => this.eventsService.findByEventType(eventType)),
+              ),
+            ),
             takeUntil(this.destroy$),
           );
       }),
@@ -360,7 +366,13 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onCreateEvent() {
-    const modal = this.modal.openModal(`modal-${Math.random()}`, EventsFormComponent, 'Adicionar evento', true, true);
+    const modal = this.modal.openModal(
+      `modal-${Math.random()}`,
+      EventsFormComponent,
+      'Adicionar evento',
+      true,
+      true,
+    );
     modal
       .afterClosed()
       .pipe(takeUntil(this.destroy$))
@@ -404,12 +416,19 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private handleDateSelect(selectInfo: DateSelectArg) {
-    const modal = this.modal.openModal(`modal-${Math.random()}`, EventsFormComponent, 'Adicionar evento', true, true, {
-      event: {
-        start_date: dayjs(selectInfo.startStr).format('DD/MM/YYYY'),
-        end_date: dayjs(selectInfo.endStr).format('DD/MM/YYYY'),
+    const modal = this.modal.openModal(
+      `modal-${Math.random()}`,
+      EventsFormComponent,
+      'Adicionar evento',
+      true,
+      true,
+      {
+        event: {
+          start_date: dayjs(selectInfo.startStr).format('DD/MM/YYYY'),
+          end_date: dayjs(selectInfo.endStr).format('DD/MM/YYYY'),
+        },
       },
-    });
+    );
 
     modal
       .afterClosed()
@@ -493,8 +512,12 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       const mapped = {
         id: event.id ?? '',
         title: event.name,
-        start: eventCall?.start_date ? this.convertToISODate(eventCall.start_date, eventCall.start_time) : undefined,
-        end: eventCall?.end_date ? this.convertToISODate(eventCall.end_date, eventCall.end_time) : undefined,
+        start: eventCall?.start_date
+          ? this.convertToISODate(eventCall.start_date, eventCall.start_time)
+          : undefined,
+        end: eventCall?.end_date
+          ? this.convertToISODate(eventCall.end_date, eventCall.end_time)
+          : undefined,
         extendedProps: {
           eventType: event.eventType,
           eventCall: eventCall || null,
@@ -568,7 +591,12 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private onDeleteEvent(event: Events) {
     this.confirmService
-      .openConfirm('Excluir evento', `Tem certeza que deseja excluir o evento ${event.name}?`, 'Confirmar', 'Cancelar')
+      .openConfirm(
+        'Excluir evento',
+        `Tem certeza que deseja excluir o evento ${event.name}?`,
+        'Confirmar',
+        'Cancelar',
+      )
       .afterClosed()
       .pipe(takeUntil(this.destroy$))
       .subscribe((result) => {

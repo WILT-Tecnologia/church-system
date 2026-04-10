@@ -10,15 +10,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { ColumnComponent } from 'app/components/column/column.component';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { Profile } from 'app/model/Profile';
-import { User } from 'app/model/User';
-import { ValidationService } from 'app/services/validation/validation.service';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { Profile } from '@app/model/Profile';
+import { User } from '@app/model/User';
+import { ProfilesService } from '@app/pages/private/administrative/profiles/profiles.service';
+import { ValidationService } from '@app/services/validation/validation.service';
 import { Subject, takeUntil } from 'rxjs';
-import { ProfilesService } from '../../profiles/profiles.service';
 
 @Component({
   selector: 'app-user-form',
@@ -80,7 +80,10 @@ export class UserFormComponent implements OnInit {
 
     return this.fb.group({
       id: [user?.id ?? ''],
-      name: [user?.name ?? '', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
+      name: [
+        user?.name ?? '',
+        [Validators.required, Validators.minLength(3), Validators.maxLength(255)],
+      ],
       email: [
         user?.email ?? '',
         [Validators.required, Validators.email, Validators.minLength(3), Validators.maxLength(255)],
@@ -125,7 +128,11 @@ export class UserFormComponent implements OnInit {
     const passwordControl = this.userForm.get('password');
 
     if (this.change_password()) {
-      passwordControl?.setValidators([Validators.required, Validators.minLength(8), Validators.maxLength(30)]);
+      passwordControl?.setValidators([
+        Validators.required,
+        Validators.minLength(8),
+        Validators.maxLength(30),
+      ]);
     } else {
       passwordControl?.reset();
     }

@@ -13,7 +13,10 @@
             (focus)="showAllResponsibles()"
             required
           />
-          <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onResponsibleSelected($event)">
+          <mat-autocomplete
+            #auto="matAutocomplete"
+            (optionSelected)="onResponsibleSelected($event)"
+          >
             @for (responsible of filterResponsable() | async; track $index) {
               <mat-option [value]="responsible">
                 {{ responsible.name }}

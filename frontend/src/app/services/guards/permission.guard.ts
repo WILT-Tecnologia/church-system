@@ -1,8 +1,6 @@
 import { inject } from '@angular/core';
 import { CanMatchFn, Router } from '@angular/router';
-
-import { ToastService } from 'app/components/toast/toast.service';
-
+import { ToastService } from '@app/components/toast/toast.service';
 import { AbilityService } from '../ability/ability.service';
 import { RouteFallbackService } from './route-fallback.service';
 

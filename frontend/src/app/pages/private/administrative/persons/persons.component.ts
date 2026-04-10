@@ -1,16 +1,15 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-
-import { ConfirmService } from 'app/components/confirm/confirm.service';
-import { CrudComponent } from 'app/components/crud/crud.component';
-import { ActionsProps, ColumnDefinitionsProps } from 'app/components/crud/types';
-import { LoadingService } from 'app/components/loading/loading.service';
-import { ModalAction } from 'app/components/modal/modal.component';
-import { ModalService } from 'app/components/modal/modal.service';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { Person } from 'app/model/Person';
-import { AuthService } from 'app/services/auth/auth.service';
+import { ConfirmService } from '@app/components/confirm/confirm.service';
+import { CrudComponent } from '@app/components/crud/crud.component';
+import { ActionsProps, ColumnDefinitionsProps } from '@app/components/crud/types';
+import { LoadingService } from '@app/components/loading/loading.service';
+import { ModalAction } from '@app/components/modal/modal.component';
+import { ModalService } from '@app/components/modal/modal.service';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { Person } from '@app/model/Person';
+import { AuthService } from '@app/services/auth/auth.service';
 import { Subject } from 'rxjs';
 import { PersonComponent } from './person/person.component';
 import { PersonsService } from './persons.service';
@@ -28,8 +27,10 @@ export class PersonsComponent implements OnInit {
   private modalService = inject(ModalService);
   private personsService = inject(PersonsService);
   private authService = inject(AuthService);
-  private writePermission = this.authService.hasPermission('write_administrative_pessoas');
-  private deletePermission = this.authService.hasPermission('delete_administrative_pessoas');
+  public readonly permissionWrite = 'write_administrative_pessoas';
+  public readonly permissionDelete = 'delete_administrative_pessoas';
+  private writePermission = this.authService.hasPermission(this.permissionWrite);
+  private deletePermission = this.authService.hasPermission(this.permissionDelete);
 
   persons = signal<Person[]>([]);
   dataSourceMat = new MatTableDataSource<Person>([]);
@@ -66,7 +67,6 @@ export class PersonsComponent implements OnInit {
   }
 
   loadPersons() {
-    this.loading.show();
     this.personsService.getPersons().subscribe({
       next: (data) => {
         this.persons.set(data);
@@ -163,15 +163,14 @@ export class PersonsComponent implements OnInit {
 
   onDelete(person: Person) {
     const modal = this.confirmService.openConfirm(
-      'Atenção',
-      `Você tem certeza que deseja excluir o registro da pessoa ${person.name}?`,
+      'Exclusão de pessoa',
+      `Tem certeza que deseja excluir o registro da pessoa ${person.name}?`,
       'Confirmar',
       'Cancelar',
     );
 
     modal.afterClosed().subscribe((result: boolean) => {
       if (result) {
-        this.loading.show();
         this.personsService.deletePerson(person).subscribe({
           next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
           error: () => this.toast.openError(MESSAGES.DELETE_ERROR),

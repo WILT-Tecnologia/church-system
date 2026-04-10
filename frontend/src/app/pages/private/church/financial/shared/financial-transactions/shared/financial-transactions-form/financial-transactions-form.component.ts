@@ -22,24 +22,24 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ColumnComponent } from 'app/components/column/column.component';
-import { FormatsPipe } from 'app/components/crud/pipes/formats.pipe';
-import { TabDirective } from 'app/components/tabs/tab.directive';
-import { TabsComponent } from 'app/components/tabs/tabs.component';
-import { MESSAGES } from 'app/components/toast/messages';
-import { ToastService } from 'app/components/toast/toast.service';
-import { Church } from 'app/model/Church';
-import { FinancialCategories } from 'app/model/FinancialCategories';
+import { ColumnComponent } from '@app/components/column/column.component';
+import { FormatsPipe } from '@app/components/crud/pipes/formats.pipe';
+import { TabDirective } from '@app/components/tabs/tab.directive';
+import { TabsComponent } from '@app/components/tabs/tabs.component';
+import { MESSAGES } from '@app/components/toast/messages';
+import { ToastService } from '@app/components/toast/toast.service';
+import { Church } from '@app/model/Church';
+import { FinancialCategories } from '@app/model/FinancialCategories';
 import {
   CustomerSupplier,
   EntryExit,
   FinancialTransations,
   Payment,
-} from 'app/model/FinancialTransations';
-import { Members } from 'app/model/Members';
-import { Suppliers } from 'app/model/Suppliers';
-import { ChurchesService } from 'app/pages/private/administrative/churches/churches.service';
-import { ValidationService } from 'app/services/validation/validation.service';
+} from '@app/model/FinancialTransations';
+import { Members } from '@app/model/Members';
+import { Suppliers } from '@app/model/Suppliers';
+import { ChurchesService } from '@app/pages/private/administrative/churches/churches.service';
+import { ValidationService } from '@app/services/validation/validation.service';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { forkJoin, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
 import { MembersService } from '../../../../../members/members.service';
