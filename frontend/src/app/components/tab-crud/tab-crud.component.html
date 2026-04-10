@@ -11,7 +11,7 @@
           [fields]="dataSources()[tabs[selectedTabIndex()].id]"
           [columnDefinitions]="crudConfig.columnDefinitions"
           [actions]="crudConfig.actions"
-          (add)="addFn.emit()"
+          (add)="add.emit()"
           (editFn)="crudConfig.editFn($event)"
           (deleteFn)="crudConfig.deleteFn($event)"
           (toggleFn)="crudConfig.toggleFn!($event)"

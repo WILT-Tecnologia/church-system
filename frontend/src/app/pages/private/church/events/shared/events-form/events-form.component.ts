@@ -3,10 +3,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
-  Inject,
   OnDestroy,
   OnInit,
-  ViewChild,
+  signal,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -21,19 +20,13 @@ import {
   MatAutocompleteSelectedEvent,
 } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
-import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
-import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatGridListModule } from '@angular/material/grid-list';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatTimepickerModule } from '@angular/material/timepicker';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActionsComponent } from '@app/components/actions/actions.component';
 import { ColumnComponent } from '@app/components/column/column.component';
 import { LoadingService } from '@app/components/loading/loading.service';
+import { TabDirective } from '@app/components/tabs/tab.directive';
+import { TabsComponent } from '@app/components/tabs/tabs.component';
 import { MESSAGES } from '@app/components/toast/messages';
 import { ToastService } from '@app/components/toast/toast.service';
 import { Church } from '@app/model/Church';
@@ -41,75 +34,60 @@ import { Events } from '@app/model/Events';
 import { EventTypes } from '@app/model/EventTypes';
 import { ChurchesService } from '@app/pages/private/administrative/churches/churches.service';
 import { EventTypesService } from '@app/pages/private/administrative/event-types/eventTypes.service';
-import { EventsService } from '@app/pages/private/church/events/events.service';
 import { ValidationService } from '@app/services/validation/validation.service';
-import { provideNgxMask } from 'ngx-mask';
-import { map, Observable, startWith, Subject } from 'rxjs';
+import { map, Observable, startWith, Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-events-form',
   styleUrl: './events-form.component.scss',
   templateUrl: './events-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    provideNgxMask(),
-    provideNativeDateAdapter(),
-    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
-  ],
   imports: [
     MatButtonModule,
     MatInputModule,
     MatFormFieldModule,
     MatAutocompleteModule,
-    MatDividerModule,
-    MatDatepickerModule,
-    MatTooltipModule,
-    MatTimepickerModule,
     ReactiveFormsModule,
-    ActionsComponent,
-    MatGridListModule,
-    MatIconModule,
     FormsModule,
     CommonModule,
     ColumnComponent,
+    TabsComponent,
+    TabDirective,
   ],
 })
 export class EventsFormComponent implements OnInit, OnDestroy {
   private toastService = inject(ToastService);
-  eventForm: FormGroup;
-  event: Events[] = [];
-  church: Church[] = [];
-  eventType: EventTypes[] = [];
-  isEditMode: boolean = false;
-  readonly minDate = new Date(1900, 0, 1);
+  private fb = inject(FormBuilder);
+  private loadingService = inject(LoadingService);
+  private validationService = inject(ValidationService);
+  private churchesService = inject(ChurchesService);
+  private eventTypesService = inject(EventTypesService);
+  private dialogRef = inject(MatDialogRef<EventsFormComponent>);
+  private data: { event: Events; submitSubject: Subject<void> } = inject(MAT_DIALOG_DATA);
+
+  eventForm: FormGroup = this.createForm();
+  event = signal<Events[]>([]);
+  church = signal<Church[]>([]);
+  eventType = signal<EventTypes[]>([]);
+  isEditMode = signal(false);
   private destroy$ = new Subject<void>();
 
-  searchChurchControl = new FormControl('');
-  searchEventTypeControl = new FormControl('');
+  searchChurchControl = new FormControl('', [Validators.required]);
+  searchEventTypeControl = new FormControl('', [Validators.required]);
 
   filterChurch: Observable<Church[]> = new Observable<Church[]>();
   filterEventTypes: Observable<EventTypes[]> = new Observable<EventTypes[]>();
-
-  @ViewChild('startDatePicker') startDatePicker!: MatDatepicker<Date>;
-  @ViewChild('endDatePicker') endDatePicker!: MatDatepicker<Date>;
-
-  constructor(
-    private fb: FormBuilder,
-    private loading: LoadingService,
-    private validationService: ValidationService,
-    private churchesService: ChurchesService,
-    private eventTypesService: EventTypesService,
-    private eventsService: EventsService,
-    private dialogRef: MatDialogRef<EventsFormComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { event: Events },
-  ) {
-    this.eventForm = this.createForm();
-  }
 
   ngOnInit() {
     this.findAllEventTypes();
     this.checkEditMode();
     this.loadChurchFromLocalStorage();
+
+    if (this.data?.submitSubject) {
+      this.data.submitSubject.pipe(takeUntil(this.destroy$)).subscribe(() => {
+        this.handleSubmit();
+      });
+    }
   }
 
   ngOnDestroy() {
@@ -117,30 +95,24 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private createForm = (): FormGroup => {
+  private createForm(): FormGroup {
+    const event: Events = this.data?.event;
+
     return this.fb.group({
-      id: [this.data.event?.id ?? ''],
+      id: [event?.id ?? ''],
       name: [
-        this.data.event?.name ?? '',
+        event?.name ?? '',
         [Validators.required, Validators.minLength(3), Validators.maxLength(255)],
       ],
-      church_id: [this.data.event?.church?.id ?? '', [Validators.required]],
-      event_type_id: [this.data.event?.eventType?.id ?? '', [Validators.required]],
-      obs: [this.data.event?.obs ?? '', [Validators.maxLength(255)]],
+      church_id: [event?.church?.id ?? '', [Validators.required]],
+      event_type_id: [event?.eventType?.id ?? '', [Validators.required]],
+      obs: [event?.obs ?? '', [Validators.maxLength(255)]],
     });
-  };
+  }
 
-  private showLoading = () => {
-    this.loading.show();
-  };
-
-  private hideLoading = () => {
-    this.loading.hide();
-  };
-
-  private checkEditMode = () => {
+  private checkEditMode() {
     if (this.data?.event) {
-      this.isEditMode = true;
+      this.isEditMode.set(true);
 
       this.eventForm.patchValue({
         id: this.data.event.id,
@@ -158,12 +130,12 @@ export class EventsFormComponent implements OnInit, OnDestroy {
         this.searchEventTypeControl.setValue(this.data.event.eventType.name);
       }
     }
-  };
+  }
 
-  getErrorMessage = (controlName: string): string | null => {
+  getErrorMessage(controlName: string): string | null {
     const control = this.eventForm.get(controlName);
     return control?.errors ? this.validationService.getErrorMessage(control) : null;
-  };
+  }
 
   private loadChurchFromLocalStorage() {
     const selectedChurchId = localStorage.getItem('selectedChurch');
@@ -187,15 +159,17 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  private findAllEventTypes = () => {
+  private findAllEventTypes() {
     this.eventTypesService.findAll().subscribe({
       next: (data) => {
-        this.eventType = data;
+        this.eventType.set(data);
         this.showAllEventTypes();
-        if (this.isEditMode && this.data?.event?.eventType) {
-          const currentEventType = this.eventType.find(
+
+        if (this.isEditMode() && this.data?.event?.eventType) {
+          const currentEventType = this.eventType().find(
             (et) => et.id === this.data.event?.eventType?.id,
           );
+
           if (currentEventType) {
             this.searchEventTypeControl.setValue(currentEventType.name);
           }
@@ -204,15 +178,15 @@ export class EventsFormComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.toastService.openError(error?.error?.message ?? MESSAGES.LOADING_ERROR);
       },
-      complete: () => this.hideLoading(),
+      complete: () => this.loadingService.hide(),
     });
-  };
+  }
 
   showAllChurchs() {
     this.filterChurch = this.searchChurchControl.valueChanges.pipe(
       startWith(this.searchChurchControl.value || ''),
       map((value: any) => (typeof value === 'string' ? value : (value?.name ?? ''))),
-      map((name) => (name.length >= 1 ? this._filterChurch(name) : this.church.slice())),
+      map((name) => (name.length >= 1 ? this._filterChurch(name) : this.church().slice())),
     );
   }
 
@@ -223,104 +197,47 @@ export class EventsFormComponent implements OnInit, OnDestroy {
       map((name) =>
         name.length >= 1
           ? this._filterEventType(name).filter((et) => et.status)
-          : this.eventType.slice().filter((et) => et.status),
+          : this.eventType()
+              .slice()
+              .filter((et) => et.status),
       ),
     );
   }
 
-  private _filterChurch = (name: string): Church[] => {
+  private _filterChurch(name: string): Church[] {
     const filterValue = name.toLowerCase();
-    return this.church.filter((church) => church.name.toLowerCase().includes(filterValue));
-  };
+    return this.church().filter((church) => church.name.toLowerCase().includes(filterValue));
+  }
 
-  private _filterEventType = (name: string): EventTypes[] => {
+  private _filterEventType(name: string): EventTypes[] {
     const filterValue = name.toLowerCase();
-    return this.eventType.filter((eventType) => eventType.name.toLowerCase().includes(filterValue));
-  };
+    return this.eventType().filter((eventType) =>
+      eventType.name.toLowerCase().includes(filterValue),
+    );
+  }
 
-  onSelectedChurch = (event: MatAutocompleteSelectedEvent) => {
+  onSelectedChurch(event: MatAutocompleteSelectedEvent) {
     const church: Church = event.option.value;
     this.searchChurchControl.setValue(church.name);
     this.eventForm.get('church_id')?.setValue(church.id);
-  };
+  }
 
-  onSelectedEventType = (event: MatAutocompleteSelectedEvent) => {
+  onSelectedEventType(event: MatAutocompleteSelectedEvent) {
     const eventType: EventTypes = event.option.value;
     this.searchEventTypeControl.setValue(eventType.name);
     this.eventForm.get('event_type_id')?.setValue(eventType.id);
-  };
-
-  private markFormGroupTouched(formGroup: FormGroup) {
-    Object.values(formGroup.controls).forEach((control) => {
-      if (control instanceof FormControl) {
-        control.markAsTouched();
-        control.updateValueAndValidity({ onlySelf: true });
-      } else if (control instanceof FormGroup) {
-        this.markFormGroupTouched(control);
-      }
-    });
   }
 
-  handleCancel = () => {
-    this.dialogRef.close(false);
-  };
+  handleSubmit() {
+    this.eventForm.markAllAsTouched();
+    this.searchChurchControl.markAsTouched();
+    this.searchEventTypeControl.markAsTouched();
 
-  handleSubmit = () => {
-    if (this.eventForm.invalid) {
-      this.markFormGroupTouched(this.eventForm);
-      this.toastService.openError(MESSAGES.FORM_INVALID);
-      return;
-    }
-
-    const churchIdControl = this.eventForm.get('church_id');
-    const churchIdDisabled = churchIdControl?.disabled;
-
-    if (churchIdDisabled) {
-      churchIdControl?.enable();
-    }
-
-    const formValues = this.eventForm.value;
-
-    if (churchIdDisabled) {
-      churchIdControl?.disable();
-    }
-
-    const events: Events = {
-      ...formValues,
-    };
-
-    if (this.isEditMode) {
-      this.handleUpdate(events);
+    if (this.eventForm.valid) {
+      const event: Events = this.eventForm.value;
+      this.dialogRef?.close(event);
     } else {
-      this.handleCreate(events);
+      this.toastService.openWarning(MESSAGES.FORM_VALUES_NOT_FOUND);
     }
-  };
-
-  handleCreate(events: Events) {
-    this.eventsService.create(events).subscribe({
-      next: () => {
-        this.hideLoading();
-        this.toastService.openSuccess(MESSAGES.CREATE_SUCCESS);
-        this.dialogRef.close(true);
-      },
-      error: () => {
-        this.hideLoading();
-        this.toastService.openError(MESSAGES.CREATE_ERROR);
-      },
-    });
-  }
-
-  handleUpdate(events: Events) {
-    this.eventsService.update(events).subscribe({
-      next: () => {
-        this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS);
-        this.dialogRef.close(this.eventForm.value);
-      },
-      error: () => {
-        this.hideLoading();
-        this.toastService.openError(MESSAGES.UPDATE_ERROR);
-      },
-      complete: () => this.hideLoading(),
-    });
   }
 }

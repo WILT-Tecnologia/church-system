@@ -27,11 +27,11 @@ export class EventsService {
     return this.http.get<Events>(`${this.apiUrl}/${id}`);
   }
 
-  create(event: Partial<Events>): Observable<Events> {
+  createEvent(event: Partial<Events>): Observable<Events> {
     return this.http.post<Events>(this.apiUrl, event);
   }
 
-  update(event: Partial<Events>): Observable<Events> {
+  updateEvent(event: Partial<Events>): Observable<Events> {
     const route = event.id ? `${this.apiUrl}/${event.id}` : this.apiUrl;
     return this.http.put<Events>(route, event);
   }

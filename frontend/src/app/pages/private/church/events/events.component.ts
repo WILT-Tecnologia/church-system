@@ -1,47 +1,34 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { AsyncPipe, CommonModule, isPlatformBrowser } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  computed,
   inject,
   OnDestroy,
   OnInit,
   PLATFORM_ID,
   signal,
-  TemplateRef,
-  ViewChild,
+  viewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatRippleModule } from '@angular/material/core';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ColumnComponent } from '@app/components/column/column.component';
 import { ConfirmService } from '@app/components/confirm/confirm.service';
 import { FormatsPipe } from '@app/components/crud/pipes/formats.pipe';
 import { ActionsProps, ColumnDefinitionsProps } from '@app/components/crud/types';
 import { LoadingService } from '@app/components/loading/loading.service';
+import { ModalAction } from '@app/components/modal/modal.component';
 import { ModalService } from '@app/components/modal/modal.service';
-import { TabCrudComponent } from '@app/components/tab-crud/tab-crud.component';
 import { CrudConfig, TabConfig } from '@app/components/tab-crud/types';
 import { MESSAGES } from '@app/components/toast/messages';
 import { ToastService } from '@app/components/toast/toast.service';
 import { EventCall, Events } from '@app/model/Events';
 import { EventTypes } from '@app/model/EventTypes';
 import { AuthService } from '@app/services/auth/auth.service';
-import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
-import { CalendarOptions, DateSelectArg, EventApi, EventClickArg } from '@fullcalendar/core';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import interactionPlugin from '@fullcalendar/interaction';
-import listPlugin from '@fullcalendar/list';
-import timeGridPlugin from '@fullcalendar/timegrid';
+import { DateSelectArg, EventApi, EventClickArg } from '@fullcalendar/core';
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
@@ -50,7 +37,9 @@ import { debounceTime, mergeWith, switchMap, takeUntil } from 'rxjs/operators';
 import { EventTypesService } from '../../administrative/event-types/eventTypes.service';
 import { EventsService } from './events.service';
 import { AddMembersGuestsComponent } from './shared/add-members-guests/add-members-guests.component';
+import { EventCalendarComponent } from './shared/event-calendar/event-calendar.component';
 import { EventCallComponent } from './shared/event-call/event-call.component';
+import { EventListComponent } from './shared/event-list/event-list.component';
 import { EventsFormComponent } from './shared/events-form/events-form.component';
 import { FrequenciesComponent } from './shared/frequencies/frequencies.component';
 
@@ -64,20 +53,11 @@ dayjs.extend(isSameOrBefore);
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
-    MatPaginatorModule,
     ColumnComponent,
-    MatFormFieldModule,
     MatIconModule,
-    MatTableModule,
     MatButtonModule,
-    MatInputModule,
-    MatTooltipModule,
-    MatDividerModule,
-    MatRippleModule,
-    MatMenuModule,
-    FullCalendarModule,
-    TabCrudComponent,
-    AsyncPipe,
+    EventCalendarComponent,
+    EventListComponent,
   ],
   providers: [FormatsPipe],
 })
@@ -91,26 +71,52 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   private eventTypesService = inject(EventTypesService);
   private platformId = inject(PLATFORM_ID);
-
-  constructor() {
-    this.findEventsByTabIdAdapter = this.findEventsByTabIdAdapter.bind(this);
-  }
-
   private authService = inject(AuthService);
-
-  @ViewChild('calendar', { static: false }) calendarComponent!: FullCalendarComponent;
-  @ViewChild('eventContent') eventContent!: TemplateRef<any>;
-  breakpointObserver = inject(BreakpointObserver);
-  events: Events[] = [];
-  eventCall: EventCall[] = [];
+  private breakpointObserver = inject(BreakpointObserver);
+  private destroy$ = new Subject<void>();
+  private refreshSubject = new Subject<void>();
+  private initialTabLoadSubject = new Subject<string>();
+  events = signal<Events[]>([]);
   eventTypes = new BehaviorSubject<EventTypes[]>([]);
-  tabs: TabConfig[] = [];
+  tabs = signal<TabConfig[]>([]);
+  calendarVisible = signal(true);
+  isMobile = signal(false);
+  rendering = signal(true);
+  currentEvents = signal<EventApi[]>([]);
+  mappedEvents = computed(() => this.mapEventsToCalendar(this.events()));
+  calendarComponent = viewChild(EventCalendarComponent);
+  public readonly writePermission = signal<string>('write_church_eventos');
+  public readonly readPermission = signal<string>('read_church_eventos');
+  public readonly deletePermission = signal<string>('delete_church_eventos');
+  public readonly permissionAddMembersGuests = signal<string>('write_church_eventos');
+  public readonly permissionCreateCall = signal<string>('write_church_eventos');
+  public readonly permissionFrequency = signal<string>('write_church_eventos');
+  public readonly hasWritePermission = computed(() =>
+    this.authService.hasPermission(this.writePermission()),
+  );
+  public readonly hasReadPermission = computed(() =>
+    this.authService.hasPermission(this.readPermission()),
+  );
+  public readonly hasDeletePermission = computed(() =>
+    this.authService.hasPermission(this.deletePermission()),
+  );
+  public readonly hasPermissionAddMembersGuests = computed(() =>
+    this.authService.hasPermission(this.permissionAddMembersGuests()),
+  );
+  public readonly hasPermissionCreateCall = computed(() =>
+    this.authService.hasPermission(this.permissionCreateCall()),
+  );
+  public readonly hasPermissionFrequency = computed(() =>
+    this.authService.hasPermission(this.permissionFrequency()),
+  );
+
   columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'church.name', header: 'Igreja', type: 'string' },
     { key: 'eventType.name', header: 'Tipo do evento', type: 'string' },
     { key: 'name', header: 'Nome', type: 'string' },
     { key: 'obs', header: 'Observação', type: 'string' },
   ];
+
   actions: ActionsProps[] = [
     {
       type: 'edit',
@@ -118,7 +124,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       label: 'Editar',
       color: 'inherit',
       action: (events: Events) => this.onEditEvent(events),
-      visible: () => this.authService.hasPermission('write_church_eventos'),
+      visible: () => this.hasWritePermission(),
     },
     {
       type: 'person_add',
@@ -126,7 +132,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       label: 'Adicionar participantes',
       color: 'inherit',
       action: (events: Events) => this.onAddMembersGuests(events),
-      visible: () => this.authService.hasPermission('write_church_eventos'),
+      visible: () => this.hasPermissionAddMembersGuests(),
     },
     {
       type: 'add_circle',
@@ -134,7 +140,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       label: 'Chamadas do evento',
       color: 'inherit',
       action: (events: Events) => this.onCreateCall(events),
-      visible: () => this.authService.hasPermission('write_church_eventos'),
+      visible: () => this.hasPermissionCreateCall(),
     },
     {
       type: 'add_circle',
@@ -142,7 +148,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       label: 'Frequências',
       color: 'inherit',
       action: (events: Events) => this.onFrequency(events),
-      visible: () => this.authService.hasPermission('write_church_eventos'),
+      visible: () => this.hasPermissionFrequency(),
     },
     {
       type: 'delete',
@@ -150,112 +156,29 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       label: 'Excluir',
       color: 'warn',
       action: (events: Events) => this.onDeleteEvent(events),
-      visible: () => this.authService.hasPermission('write_church_eventos'),
+      visible: () => this.hasDeletePermission(),
     },
   ];
-  rendering = signal(true);
-  crudConfig!: CrudConfig;
-  isMobile: boolean = false;
-  private destroy$ = new Subject<void>();
-  private refreshSubject = new Subject<void>();
-  private calendarToggleSubject = new Subject<void>();
-  currentEvents = signal<EventApi[]>([]);
-  calendarVisible = signal(true);
-  calendarVisibleValue = this.calendarVisible.asReadonly();
-  hoveredEventId: string | null = null;
-  private eventCache = new Map<string, any>();
-  private initialTabLoadSubject = new Subject<string>();
-  private mobileCalendarOptions: CalendarOptions = {
-    initialView: 'listWeek',
-    height: 'auto',
+
+  crudConfig: CrudConfig = {
+    columnDefinitions: this.columnDefinitions,
+    actions: this.actions,
+    addFn: this.onCreateEvent.bind(this),
+    editFn: this.onEditEvent.bind(this),
+    deleteFn: this.onDeleteEvent.bind(this),
+    enableToggleStatus: true,
+    readPermission: 'read_church_eventos',
+    writePermission: 'write_church_eventos',
+    deletePermission: 'write_church_eventos',
   };
-  private desktopCalendarOptions: CalendarOptions = {
-    initialView: 'dayGridMonth',
-    height: '70dvh',
-  };
-  calendarOptions = signal<CalendarOptions>({
-    plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
-    headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
-    },
-    buttonText: {
-      today: 'Ir para hoje',
-      month: 'Mês',
-      week: 'Semana',
-      day: 'Dia',
-      list: 'Lista',
-    },
-    buttonHints: {
-      next: 'Próximo',
-      prev: 'Anterior',
-      month: 'Mês',
-      day: 'Dia',
-      week: 'Semana',
-      today: 'Hoje',
-      prevYear: 'Ano Anterior',
-      nextYear: 'Próximo Ano',
-    },
-    initialDate: dayjs().format('YYYY-MM-DD'),
-    locale: 'pt-br',
-    weekends: true,
-    editable: false,
-    selectable: true,
-    selectMirror: true,
-    dayMaxEvents: true,
-    eventTimeFormat: {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    },
-    select: this.handleDateSelect.bind(this),
-    eventClick: this.handleRemoveEventCalendar.bind(this),
-    eventsSet: this.handleEvents.bind(this),
-    eventContent: this.eventContent,
-    events: (fetchInfo, successCallback, failureCallback) => {
-      this.eventsService
-        .findAll()
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (events: Events[]) => {
-            const calendarEvents = this.mapEvents(events).filter((event) => {
-              const eventCall = event.extendedProps.eventCall;
-              if (!eventCall || !eventCall.start_date) return false;
-              const start = dayjs(eventCall.start_date);
-              const end = eventCall.end_date ? dayjs(eventCall.end_date) : start;
-              const fetchStart = dayjs(fetchInfo.startStr);
-              const fetchEnd = dayjs(fetchInfo.endStr);
-              // Verifica se há sobreposição entre o evento e o período visível
-              return start.isBefore(fetchEnd) && end.isAfter(fetchStart);
-            });
-            successCallback(calendarEvents);
-          },
-          error: (err: Error) => failureCallback(err),
-        });
-    },
-  });
+
+  constructor() {
+    this.findEventsByTabIdAdapter = this.findEventsByTabIdAdapter.bind(this);
+  }
 
   ngOnInit() {
+    this.setupResponsiveness();
     this.loadEvents();
-
-    this.breakpointObserver
-      .observe([Breakpoints.Handset])
-      .pipe(debounceTime(100), takeUntil(this.destroy$))
-      .subscribe((result) => {
-        this.isMobile = result.matches;
-        this.updateCalendarOptions();
-        this.cdr.detectChanges();
-      });
-
-    this.calendarToggleSubject.pipe(debounceTime(100), takeUntil(this.destroy$)).subscribe(() => {
-      if (this.calendarVisible() && this.calendarComponent?.getApi()) {
-        const calendarApi = this.calendarComponent.getApi();
-        calendarApi.render();
-        calendarApi.updateSize();
-      }
-      this.cdr.detectChanges();
-    });
 
     this.refreshSubject
       .pipe(debounceTime(300), takeUntil(this.destroy$))
@@ -277,26 +200,11 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
           this.cdr.detectChanges();
         },
       });
-
-    this.crudConfig = {
-      columnDefinitions: this.columnDefinitions,
-      actions: this.actions,
-      addFn: this.onCreateEvent.bind(this),
-      editFn: this.onEditEvent.bind(this),
-      deleteFn: this.onDeleteEvent.bind(this),
-      enableToggleStatus: true,
-      readPermission: 'read_church_eventos',
-      writePermission: 'write_church_eventos',
-      deletePermission: 'write_church_eventos',
-    };
   }
 
   ngAfterViewInit() {
-    if (isPlatformBrowser(this.platformId) && this.calendarComponent?.getApi()) {
-      const calendarApi = this.calendarComponent.getApi();
-      calendarApi.render();
-      calendarApi.updateSize();
-      this.cdr.detectChanges();
+    if (isPlatformBrowser(this.platformId)) {
+      this.refreshCalendarSize();
     }
   }
 
@@ -305,117 +213,82 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  findEventsByTabIdAdapter = (tabId: string): Observable<Events[]> => {
-    return this.eventTypes.pipe(
-      switchMap((eventTypes) => {
-        const eventType = eventTypes.find((et) => et.id === tabId);
-        if (!eventType) {
-          return of([]);
-        }
-        return this.eventsService
-          .findByEventType(eventType)
-          .pipe(
-            mergeWith(
-              this.refreshSubject.pipe(
-                switchMap(() => this.eventsService.findByEventType(eventType)),
-              ),
-            ),
-            takeUntil(this.destroy$),
-          );
-      }),
-    );
-  };
-
-  formatTooltip(data: { event: Events; eventCall: EventCall | null }): string {
-    const { event, eventCall } = data;
-    if (!event || !eventCall) {
-      return 'Evento ou detalhes da chamada não encontrados';
-    }
-    if (!event.eventType) {
-      return 'Tipo de evento não especificado';
-    }
-    if (!eventCall.start_date && !eventCall.end_date) {
-      return 'Data de início e fim não especificadas';
-    }
-    const lines = [
-      `Tipo: ${event.eventType.name}`,
-      `Início: ${eventCall.start_date ? this.format.dateFormat(eventCall.start_date) : 'Não especificado'}${eventCall.start_time ? ' às ' + eventCall.start_time : ''}`,
-      `Fim: ${eventCall.end_date ? this.format.dateFormat(eventCall.end_date) : 'Não especificado'}${eventCall.end_time ? ' às ' + eventCall.end_time : ''}`,
-    ];
-    if (eventCall.location) {
-      lines.push(`Local: ${eventCall.location}`);
-    }
-    if (event.obs) {
-      lines.push(`Observação: ${event.obs}`);
-    }
-    return lines.join('\n');
-  }
-
-  handleEnableCalendar() {
-    this.calendarVisible.update((calendarVisible) => !calendarVisible);
-    this.calendarToggleSubject.next();
-    if (this.calendarVisible() && this.calendarComponent?.getApi()) {
-      const calendarApi = this.calendarComponent.getApi();
-      const existingEventIds = new Set(calendarApi.getEvents().map((e) => e.id));
-      const newEvents = this.mapEvents(this.events).filter((e) => !existingEventIds.has(e.id));
-      newEvents.forEach((event) => calendarApi.addEvent(event));
-      calendarApi.render();
-      calendarApi.updateSize();
-      this.cdr.detectChanges();
-    }
-  }
-
-  onCreateEvent() {
-    const modal = this.modal.openModal(
-      `modal-${Math.random()}`,
-      EventsFormComponent,
-      'Adicionar evento',
-      true,
-      true,
-    );
-    modal
-      .afterClosed()
-      .pipe(takeUntil(this.destroy$))
+  private setupResponsiveness() {
+    this.breakpointObserver
+      .observe([Breakpoints.Handset])
+      .pipe(debounceTime(100), takeUntil(this.destroy$))
       .subscribe((result) => {
-        if (result) {
-          this.loadEvents();
-          this.refreshData();
-        }
+        this.isMobile.set(result.matches);
+        this.cdr.detectChanges();
       });
   }
 
-  private updateCalendarOptions() {
-    this.calendarOptions.update((options) => ({
-      ...options,
-      ...(this.isMobile ? this.mobileCalendarOptions : this.desktopCalendarOptions),
-    }));
-  }
-
-  private refreshData() {
-    this.refreshSubject.next();
-  }
-
-  private showLoading() {
-    this.loading.show();
-  }
-
-  private hideLoading() {
-    this.loading.hide();
-  }
-
-  private handleWeekendsToggle() {
-    this.calendarOptions.update((options) => ({
-      ...options,
-      weekends: !options.weekends,
-    }));
-    if (this.calendarComponent?.getApi()) {
-      const calendarApi = this.calendarComponent.getApi();
-      calendarApi.render();
-      this.cdr.detectChanges();
+  handleToggleView() {
+    this.calendarVisible.update((v) => !v);
+    if (this.calendarVisible()) {
+      setTimeout(() => this.refreshCalendarSize(), 100);
     }
   }
 
-  private handleDateSelect(selectInfo: DateSelectArg) {
+  private refreshCalendarSize() {
+    this.calendarComponent()?.getApi()?.updateSize();
+  }
+
+  loadEvents() {
+    this.loading.show();
+    this.rendering.set(true);
+    forkJoin({
+      events: this.eventsService.findAll(),
+      eventTypes: this.eventTypesService.findAll(),
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: ({ events, eventTypes }) => {
+          const activeEventTypes = eventTypes.filter((et) => et.status);
+          this.eventTypes.next(activeEventTypes);
+          this.tabs.set(
+            activeEventTypes.map((et) => ({
+              id: et.id,
+              name: et.name,
+              color: et.color,
+            })),
+          );
+
+          this.events.set(events);
+
+          if (this.tabs().length > 0 && !this.calendarVisible()) {
+            this.initialTabLoadSubject.next(this.tabs()[0].id);
+          } else {
+            this.rendering.set(false);
+          }
+
+          this.loading.hide();
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.loading.hide();
+          this.rendering.set(false);
+          this.toast.openError(MESSAGES.LOADING_ERROR);
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  findEventsByTabIdAdapter(tabId: string): Observable<Events[]> {
+    const eventType = this.eventTypes.value.find((et) => et.id === tabId);
+    if (!eventType) return of([]);
+
+    return this.eventsService
+      .findByEventType(eventType)
+      .pipe(
+        mergeWith(
+          this.refreshSubject.pipe(switchMap(() => this.eventsService.findByEventType(eventType))),
+        ),
+        takeUntil(this.destroy$),
+      );
+  }
+
+  handleDateSelect(selectInfo: DateSelectArg) {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       EventsFormComponent,
@@ -434,82 +307,252 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       .afterClosed()
       .pipe(takeUntil(this.destroy$))
       .subscribe((result) => {
-        if (result) {
-          this.loadEvents();
-        }
+        if (result) this.loadEvents();
       });
   }
 
-  private handleRemoveEventCalendar(clickInfo: EventClickArg) {
-    const event = this.events.find((e) => e.id === clickInfo.event.id);
-    if (event) {
-      this.onDeleteEvent(event);
-    }
+  handleEventClick(clickInfo: EventClickArg) {
+    const event = this.events().find((e) => e.id === clickInfo.event.id);
+    if (event) this.onDeleteEvent(event);
   }
 
-  private handleEvents(events: EventApi[]) {
+  handleEventsSet(events: EventApi[]) {
     this.currentEvents.set(events);
-    this.cdr.detectChanges();
   }
 
-  private loadEvents() {
-    this.showLoading();
-    this.rendering.set(true);
-    forkJoin({
-      events: this.eventsService.findAll(),
-      eventTypes: this.eventTypesService.findAll(),
-    })
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: ({ events, eventTypes }) => {
-          this.eventTypes.next(eventTypes.filter((et) => et.status));
-          this.tabs = eventTypes
-            .filter((et) => et.status)
-            .map((et) => ({
-              id: et.id,
-              name: et.name,
-              color: et.color,
-            }));
+  onCreateEvent() {
+    const submitSubject = new Subject<void>();
+    const formAction: ModalAction[] = [
+      {
+        label: 'Cancelar',
+        type: 'stroked',
+        color: 'warn',
+        icon: 'close',
+        onClick: (ref) => ref.close(),
+      },
+      {
+        label: 'Salvar',
+        type: 'flat',
+        color: 'primary',
+        icon: 'save',
+        onClick: () => submitSubject.next(),
+      },
+    ];
 
-          this.events = events;
+    const modal = this.modal.openModal(
+      `modal-${Math.random()}`,
+      EventsFormComponent,
+      'Adicionar evento',
+      true,
+      true,
+      { submitSubject },
+      undefined,
+      false,
+      formAction,
+    );
 
-          if (this.tabs.length > 0 && !this.calendarVisible()) {
-            this.initialTabLoadSubject.next(this.tabs[0].id);
-          } else {
-            this.rendering.set(false);
-            this.cdr.detectChanges();
-          }
-
-          if (this.calendarVisible() && this.calendarComponent?.getApi()) {
-            const calendarApi = this.calendarComponent.getApi();
-            const existingEventIds = new Set(calendarApi.getEvents().map((e) => e.id));
-            const newEvents = this.mapEvents(events).filter((e) => !existingEventIds.has(e.id));
-            newEvents.forEach((event) => calendarApi.addEvent(event));
-            calendarApi.render();
-            calendarApi.updateSize();
-          }
-          this.cdr.detectChanges();
-        },
-        error: () => {
-          this.hideLoading();
-          this.rendering.set(false);
-          this.toast.openError(MESSAGES.LOADING_ERROR);
-          this.cdr.detectChanges();
-        },
-        complete: () => {
-          this.hideLoading();
-        },
-      });
-  }
-
-  private mapEvents(events: Events[]): any[] {
-    return events.map((event) => {
-      if (this.eventCache.has(event.id ?? '')) {
-        return this.eventCache.get(event.id ?? '');
+    modal.afterClosed().subscribe((result: Events) => {
+      if (result) {
+        this.eventsService.createEvent(result).subscribe({
+          next: () => this.toast.openSuccess(MESSAGES.CREATE_SUCCESS),
+          error: () => this.toast.openError(MESSAGES.CREATE_ERROR),
+          complete: () => this.loadEvents(),
+        });
       }
+    });
+  }
 
+  onEditEvent(event: Events) {
+    const submitSubject = new Subject<void>();
+    const formAction: ModalAction[] = [
+      {
+        label: 'Cancelar',
+        type: 'stroked',
+        color: 'warn',
+        icon: 'close',
+        onClick: (ref) => ref.close(),
+      },
+      {
+        label: 'Salvar',
+        type: 'flat',
+        color: 'primary',
+        icon: 'save',
+        onClick: () => submitSubject.next(),
+      },
+    ];
+
+    const modal = this.modal.openModal(
+      `modal-${Math.random()}`,
+      EventsFormComponent,
+      `Editando o evento ${event.name}`,
+      true,
+      true,
+      { event, submitSubject },
+      undefined,
+      false,
+      formAction,
+    );
+
+    modal.afterClosed().subscribe((data: Events) => {
+      if (data) {
+        this.eventsService.updateEvent(data).subscribe({
+          next: () => this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS),
+          error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
+          complete: () => this.loadEvents(),
+        });
+      }
+    });
+  }
+
+  onDeleteEvent(event: Events) {
+    const modal = this.confirmService.openConfirm(
+      'Excluir evento',
+      `Tem certeza que deseja excluir o evento ${event.name}?`,
+      'Confirmar',
+      'Cancelar',
+    );
+
+    modal.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        this.eventsService.delete(event).subscribe({
+          next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
+          error: () => this.toast.openError(MESSAGES.DELETE_ERROR),
+          complete: () => this.loadEvents(),
+        });
+      }
+    });
+  }
+
+  onAddMembersGuests(event: Events) {
+    const submitSubject = new Subject<void>();
+    const formAction: ModalAction[] = [
+      {
+        label: 'Cancelar',
+        type: 'stroked',
+        color: 'warn',
+        icon: 'close',
+        onClick: (ref) => ref.close(),
+      },
+      {
+        label: 'Salvar',
+        type: 'flat',
+        color: 'primary',
+        icon: 'save',
+        onClick: () => submitSubject.next(),
+      },
+    ];
+
+    const modal = this.modal.openModal(
+      `modal-${Math.random()}`,
+      AddMembersGuestsComponent,
+      `Adicionar participantes no evento ${event?.name}`,
+      true,
+      true,
+      { event, submitSubject },
+      undefined,
+      true,
+      formAction,
+    );
+
+    modal.afterClosed().subscribe((data: Events) => {
+      if (data) {
+        this.eventsService.updateEvent(data).subscribe({
+          next: () => this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS),
+          error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
+          complete: () => this.loadEvents(),
+        });
+      }
+    });
+  }
+
+  onCreateCall(event: Events) {
+    const submitSubject = new Subject<void>();
+    const formAction: ModalAction[] = [
+      {
+        label: 'Cancelar',
+        type: 'stroked',
+        color: 'warn',
+        icon: 'close',
+        onClick: (ref) => ref.close(),
+      },
+      {
+        label: 'Salvar',
+        type: 'flat',
+        color: 'primary',
+        icon: 'save',
+        onClick: () => submitSubject.next(),
+      },
+    ];
+
+    const modal = this.modal.openModal(
+      `modal-${Math.random()}`,
+      EventCallComponent,
+      `Chamadas do evento`,
+      true,
+      true,
+      { event, submitSubject },
+      undefined,
+      true,
+      formAction,
+    );
+
+    modal.afterClosed().subscribe((data: EventCall) => {
+      if (data) {
+        this.eventsService.updateEvent(data).subscribe({
+          next: () => this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS),
+          error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
+          complete: () => this.loadEvents(),
+        });
+      }
+    });
+  }
+
+  onFrequency(event: Events) {
+    const submitSubject = new Subject<void>();
+    const formAction: ModalAction[] = [
+      {
+        label: 'Cancelar',
+        type: 'stroked',
+        color: 'warn',
+        icon: 'close',
+        onClick: (ref) => ref.close(),
+      },
+      {
+        label: 'Salvar',
+        type: 'flat',
+        color: 'primary',
+        icon: 'save',
+        onClick: () => submitSubject.next(),
+      },
+    ];
+
+    const modal = this.modal.openModal(
+      `modal-${Math.random()}`,
+      FrequenciesComponent,
+      `Frequências para o evento ${event.name}`,
+      true,
+      true,
+      { event: event, call: event.eventCall, submitSubject },
+      undefined,
+      true,
+      formAction,
+    );
+
+    modal.afterClosed().subscribe((data: Events) => {
+      if (data) {
+        this.eventsService.updateEvent(data).subscribe({
+          next: () => this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS),
+          error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
+          complete: () => this.loadEvents(),
+        });
+      }
+    });
+  }
+
+  private mapEventsToCalendar(events: Events[]): any[] {
+    return events.map((event) => {
       const eventCall = event.eventCall || null;
-      const mapped = {
+      return {
         id: event.id ?? '',
         title: event.name,
         start: eventCall?.start_date
@@ -522,129 +565,33 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
           eventType: event.eventType,
           eventCall: eventCall || null,
           obs: event.obs,
-          tooltip: this.formatTooltip({ event, eventCall: eventCall }),
+          tooltip: this.formatTooltip({ event, eventCall }),
         },
       };
-      this.eventCache.set(event.id ?? '', mapped);
-      return mapped;
     });
   }
 
-  private onAddMembersGuests(event: Events) {
-    this.modal.openModal(
-      `modal-${Math.random()}`,
-      AddMembersGuestsComponent,
-      `Adicionar participantes no evento ${event?.name}`,
-      true,
-      true,
-      { event },
-      '',
-      true,
-    );
-  }
+  private formatTooltip(data: { event: Events; eventCall: EventCall | null }): string {
+    const { event, eventCall } = data;
+    if (!event || !eventCall) return 'Evento não encontrado';
 
-  private onCreateCall(event: Events) {
-    this.modal.openModal(
-      `modal-${Math.random()}`,
-      EventCallComponent,
-      `Chamadas do evento`,
-      true,
-      true,
-      { event },
-      '',
-      true,
-    );
-  }
-
-  private onFrequency(event: Events) {
-    this.modal.openModal(
-      `modal-${Math.random()}`,
-      FrequenciesComponent,
-      `Frequências para o evento ${event.name}`,
-      true,
-      true,
-      { event: event, call: event.eventCall },
-      '',
-      true,
-    );
-  }
-
-  private onEditEvent(event: Events) {
-    const modal = this.modal.openModal(
-      `modal-${Math.random()}`,
-      EventsFormComponent,
-      `Editando o evento ${event.name}`,
-      true,
-      true,
-      { event },
-    );
-    modal
-      .afterClosed()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((result) => {
-        if (result) {
-          this.loadEvents();
-          this.refreshData();
-        }
-      });
-  }
-
-  private onDeleteEvent(event: Events) {
-    this.confirmService
-      .openConfirm(
-        'Excluir evento',
-        `Tem certeza que deseja excluir o evento ${event.name}?`,
-        'Confirmar',
-        'Cancelar',
-      )
-      .afterClosed()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((result) => {
-        if (result) {
-          this.showLoading();
-          this.eventsService
-            .delete(event)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe({
-              next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
-              error: () => this.toast.openError(MESSAGES.DELETE_ERROR),
-              complete: () => {
-                this.loadEvents();
-                this.hideLoading();
-              },
-            });
-        }
-      });
-  }
-
-  private isHovered(eventId: string): boolean {
-    return this.hoveredEventId === eventId;
-  }
-
-  private onEventHover(eventId: string) {
-    this.hoveredEventId = eventId;
-    this.cdr.detectChanges();
-  }
-
-  private onEventLeave() {
-    this.hoveredEventId = null;
-    this.cdr.detectChanges();
+    const lines = [
+      `Tipo: ${event.eventType?.name ?? 'Não especificado'}`,
+      `Início: ${eventCall.start_date ? this.format.dateFormat(eventCall.start_date) : 'Não especificado'}${eventCall.start_time ? ' às ' + eventCall.start_time : ''}`,
+      `Fim: ${eventCall.end_date ? this.format.dateFormat(eventCall.end_date) : 'Não especificado'}${eventCall.end_time ? ' às ' + eventCall.end_time : ''}`,
+    ];
+    if (eventCall.location) lines.push(`Local: ${eventCall.location}`);
+    if (event.obs) lines.push(`Observação: ${event.obs}`);
+    return lines.join('\n');
   }
 
   private convertToISODate(dateInput: string | Date, timeInput?: string): string {
-    try {
-      const parsedDate = dayjs(dateInput);
-      if (!parsedDate.isValid()) {
-        return dayjs().toISOString();
-      }
-      if (timeInput) {
-        const timeFormatted = timeInput.includes(':') ? timeInput : `${timeInput}:00`;
-        return parsedDate.format('YYYY-MM-DD') + `T${timeFormatted}:00Z`;
-      }
-      return parsedDate.toISOString();
-    } catch (error: any) {
-      this.toast.openError(error);
-      return dayjs().toISOString();
+    const parsedDate = dayjs(dateInput);
+    if (!parsedDate.isValid()) return dayjs().toISOString();
+    if (timeInput) {
+      const timeFormatted = timeInput.includes(':') ? timeInput : `${timeInput}:00`;
+      return parsedDate.format('YYYY-MM-DD') + `T${timeFormatted}:00Z`;
     }
+    return parsedDate.toISOString();
   }
 }

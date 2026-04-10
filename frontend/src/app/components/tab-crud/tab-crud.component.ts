@@ -1,15 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  input,
-  Input,
-  OnInit,
-  output,
-  Output,
-  signal,
-} from '@angular/core';
+import { ChangeDetectorRef, Component, input, Input, OnInit, output, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -36,10 +26,9 @@ export class TabCrudComponent implements OnInit {
   @Input() tabs: TabConfig[] = [];
   @Input() crudConfig!: CrudConfig;
   @Input() dataService!: (tabId: string) => Observable<any[]>;
-  @Output() addFn = new EventEmitter<void>();
+  add = output<void>();
   enableAddButtonAdd = input<boolean>(true);
   ctaLabel = input<string>('Adicionar');
-  add = output<void>();
   selectedTabIndex = signal(0);
   dataSources = signal<{ [key: string]: any[] }>({});
   loading = signal(false);
