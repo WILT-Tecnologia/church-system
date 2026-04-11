@@ -11,7 +11,7 @@
           [fields]="dataSources()[tabs[selectedTabIndex()].id]"
           [columnDefinitions]="crudConfig.columnDefinitions"
           [actions]="crudConfig.actions"
-          (add)="add.emit()"
+          (add)="add.emit(tabs[selectedTabIndex()].id)"
           (editFn)="crudConfig.editFn($event)"
           (deleteFn)="crudConfig.deleteFn($event)"
           (toggleFn)="crudConfig.toggleFn!($event)"
@@ -26,7 +26,12 @@
           <span class="not-found-text">Nenhuma informação encontrada</span>
           @if (enableAddButtonAdd()) {
             <div class="margin-not-found">
-              <button mat-flat-button color="primary" type="button" (click)="add.emit()">
+              <button
+                mat-flat-button
+                color="primary"
+                type="button"
+                (click)="add.emit(tabs[selectedTabIndex()].id)"
+              >
                 {{ ctaLabel() || 'Adicionar' }}
               </button>
             </div>
@@ -40,11 +45,12 @@
       <span class="not-found-text">Nenhuma informação encontrada</span>
       @if (enableAddButtonAdd()) {
         <div class="margin-not-found">
-          <button mat-flat-button color="primary" type="button" (click)="add.emit()">
+          <button mat-flat-button color="primary" type="button" (click)="add.emit('')">
             {{ ctaLabel() || 'Adicionar' }}
           </button>
         </div>
       }
     </div>
   }
+
 </mat-tab-group>

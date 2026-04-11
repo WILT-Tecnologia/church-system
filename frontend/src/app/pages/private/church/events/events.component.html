@@ -34,7 +34,7 @@
         [tabs]="tabs()"
         [crudConfig]="crudConfig"
         [dataService]="findEventsByTabIdAdapter"
-        (add)="onCreateEvent()"
+        (add)="onCreateEvent($event)"
       />
     }
   </div>

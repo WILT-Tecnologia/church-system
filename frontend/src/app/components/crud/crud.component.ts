@@ -40,12 +40,12 @@ export interface TableField {
   [key: string]: any;
 }
 
-@Pipe({ name: 'hasNonToggleActions', standalone: true })
-export class HasNonToggleActionsPipe implements PipeTransform {
-  transform(actions: ActionsProps[]): boolean {
-    return actions.some((action) => action.type !== 'toggle');
-  }
-}
+// @Pipe({ name: 'hasNonToggleActions', standalone: true })
+// export class HasNonToggleActionsPipe implements PipeTransform {
+//   transform(actions: ActionsProps[]): boolean {
+//     return actions.some((action) => action.type !== 'toggle');
+//   }
+// }
 
 @Pipe({ name: 'isTruncated', standalone: true, pure: false })
 export class IsTruncatedPipe implements PipeTransform {
@@ -73,7 +73,7 @@ export class IsTruncatedPipe implements PipeTransform {
     MatMenuModule,
     CommonModule,
     FormatValuesPipe,
-    HasNonToggleActionsPipe,
+    //HasNonToggleActionsPipe,
     FilterButtonAdvancedComponent,
     StatusBadgeComponent,
     LoadingComponent,
@@ -347,6 +347,15 @@ export class CrudComponent implements OnInit, AfterViewInit {
   toggleFilter() {
     this.showFilter.update((value) => !value);
     this.buttonSelected.update((prev) => !prev);
+  }
+
+  getVisibleActions(row: any): ActionsProps[] {
+    return this.actions().filter((action) => {
+      return (
+        action.visible === undefined ||
+        (typeof action.visible === 'function' ? action.visible(row) : action.visible)
+      );
+    });
   }
 
   action(element: any) {

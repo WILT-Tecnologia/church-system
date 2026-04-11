@@ -1,4 +1,3 @@
-// @use deve ser a primeira instrução — obrigatório pelo SASS
 @use 'app/styles/theme' as theme;
 @use '@angular/material' as mat;
 @use 'app/styles/autocomplete-theme' as autocomplete;
@@ -7,16 +6,6 @@
 @include mat.core();
 
 :root {
-  @include mat.core-theme(theme.$light-theme);
-  @include mat.core-color(theme.$light-theme);
-  @include mat.button-theme(theme.$light-theme);
-  @include mat.all-component-themes(theme.$light-theme);
-  @include mat.system-level-colors(theme.$light-theme);
-  @include mat.system-level-typography(theme.$light-theme);
-  @include mat.all-component-typographies(theme.$light-theme);
-  @include mat.color-variants-backwards-compatibility(theme.$light-theme);
-  @include autocomplete.autocomplete-theme();
-
   --primary-color: #{mat.get-theme-color(theme.$light-theme, primary, 50)};
   --primary-color-light: #{mat.get-theme-color(theme.$light-theme, primary, 90)};
   --primary-color-light-2: #{mat.get-theme-color(theme.$light-theme, primary, 95)};
@@ -44,6 +33,16 @@
   --no-color: #{mat.get-theme-color(theme.$light-theme, error, 50)};
   --info-color: #{mat.get-theme-color(theme.$light-theme, tertiary, 50)};
   --transparent-color: transparent;
+
+  @include mat.core-theme(theme.$light-theme);
+  @include mat.core-color(theme.$light-theme);
+  @include mat.button-theme(theme.$light-theme);
+  @include mat.all-component-themes(theme.$light-theme);
+  @include mat.system-level-colors(theme.$light-theme);
+  @include mat.system-level-typography(theme.$light-theme);
+  @include mat.all-component-typographies(theme.$light-theme);
+  @include mat.color-variants-backwards-compatibility(theme.$light-theme);
+  @include autocomplete.autocomplete-theme();
 }
 
 *:not(mat-icon) {

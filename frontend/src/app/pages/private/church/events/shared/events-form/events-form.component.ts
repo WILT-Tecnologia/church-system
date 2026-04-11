@@ -63,7 +63,8 @@ export class EventsFormComponent implements OnInit, OnDestroy {
   private churchesService = inject(ChurchesService);
   private eventTypesService = inject(EventTypesService);
   private dialogRef = inject(MatDialogRef<EventsFormComponent>);
-  private data: { event: Events; submitSubject: Subject<void> } = inject(MAT_DIALOG_DATA);
+  private data: { event: Events; submitSubject: Subject<void>; eventTypeID?: string } =
+    inject(MAT_DIALOG_DATA);
 
   eventForm: FormGroup = this.createForm();
   event = signal<Events[]>([]);
@@ -81,7 +82,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.findAllEventTypes();
     this.checkEditMode();
-    this.loadChurchFromLocalStorage();
+    this.loadChurches();
 
     if (this.data?.submitSubject) {
       this.data.submitSubject.pipe(takeUntil(this.destroy$)).subscribe(() => {
@@ -137,26 +138,29 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     return control?.errors ? this.validationService.getErrorMessage(control) : null;
   }
 
-  private loadChurchFromLocalStorage() {
-    const selectedChurchId = localStorage.getItem('selectedChurch');
+  private loadChurches() {
+    this.churchesService.getChurches().subscribe({
+      next: (churches) => {
+        this.church.set(churches);
+        this.showAllChurchs();
 
-    if (selectedChurchId) {
-      this.eventForm.get('church_id')?.setValue(selectedChurchId);
-      this.eventForm.get('church_id')?.disable();
+        const selectedChurchId = localStorage.getItem('selectedChurch');
 
-      this.churchesService.getChurches().subscribe({
-        next: (churches) => {
+        if (selectedChurchId) {
+          this.eventForm.get('church_id')?.setValue(selectedChurchId);
+          this.eventForm.get('church_id')?.disable();
+
           const selectedChurch = churches.find((church) => church.id === selectedChurchId);
           if (selectedChurch) {
             this.searchChurchControl.setValue(selectedChurch.name);
             this.searchChurchControl.disable();
           }
-        },
-        error: (error) => {
-          this.toastService.openError(error?.error?.message ?? MESSAGES.LOADING_ERROR);
-        },
-      });
-    }
+        }
+      },
+      error: (error) => {
+        this.toastService.openError(error?.error?.message ?? MESSAGES.LOADING_ERROR);
+      },
+    });
   }
 
   private findAllEventTypes() {
@@ -174,6 +178,17 @@ export class EventsFormComponent implements OnInit, OnDestroy {
             this.searchEventTypeControl.setValue(currentEventType.name);
           }
         }
+
+        if (!this.isEditMode() && this.data?.eventTypeID) {
+          const typeID = this.data.eventTypeID;
+          const currentEventType = data.find((et) => et.id === typeID);
+          if (currentEventType) {
+            this.searchEventTypeControl.setValue(currentEventType.name);
+            this.eventForm.get('event_type_id')?.setValue(currentEventType.id);
+            this.searchEventTypeControl.disable();
+            this.eventForm.get('event_type_id')?.disable();
+          }
+        }
       },
       error: (error) => {
         this.toastService.openError(error?.error?.message ?? MESSAGES.LOADING_ERROR);
@@ -186,7 +201,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     this.filterChurch = this.searchChurchControl.valueChanges.pipe(
       startWith(this.searchChurchControl.value || ''),
       map((value: any) => (typeof value === 'string' ? value : (value?.name ?? ''))),
-      map((name) => (name.length >= 1 ? this._filterChurch(name) : this.church().slice())),
+      map((name) => (name.length >= 0 ? this._filterChurch(name) : this.church().slice())),
     );
   }
 
@@ -195,7 +210,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
       startWith(''),
       map((value: any) => (typeof value === 'string' ? value : (value?.name ?? ''))),
       map((name) =>
-        name.length >= 1
+        name.length >= 0
           ? this._filterEventType(name).filter((et) => et.status)
           : this.eventType()
               .slice()
@@ -234,7 +249,7 @@ export class EventsFormComponent implements OnInit, OnDestroy {
     this.searchEventTypeControl.markAsTouched();
 
     if (this.eventForm.valid) {
-      const event: Events = this.eventForm.value;
+      const event: Events = this.eventForm.getRawValue();
       this.dialogRef?.close(event);
     } else {
       this.toastService.openWarning(MESSAGES.FORM_VALUES_NOT_FOUND);

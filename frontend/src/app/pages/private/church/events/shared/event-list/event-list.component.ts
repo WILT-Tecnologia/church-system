@@ -12,7 +12,7 @@ import { Observable } from 'rxjs';
         [tabs]="tabs()"
         [crudConfig]="crudConfig()"
         [dataService]="dataService()"
-        (add)="add.emit()"
+        (add)="add.emit($event)"
         [ctaLabel]="'Novo Evento'"
       ></app-tab-crud>
     }
@@ -25,5 +25,5 @@ export class EventListComponent {
   tabs = input<TabConfig[]>([]);
   crudConfig = input.required<CrudConfig>();
   dataService = input.required<(tabId: string) => Observable<any[]>>();
-  add = output<void>();
+  add = output<string>();
 }

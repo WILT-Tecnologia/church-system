@@ -258,6 +258,37 @@ mat-cell.mat-column-actions {
   border-radius: 1rem;
 }
 
+.actions-container {
+  white-space: nowrap;
+
+  button[mat-icon-button] {
+    border-radius: 0.5rem !important;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    ::ng-deep .mat-mdc-button-persistent-ripple,
+    ::ng-deep .mdc-icon-button__ripple {
+      border-radius: 0.5rem !important;
+    }
+
+    &:hover,
+    &:active {
+      background-color: rgba(0, 0, 0, 0.06) !important;
+    }
+
+    ::ng-deep .mat-mdc-button-touch-target {
+      border-radius: 0.5rem !important;
+    }
+
+    ::ng-deep .mat-mdc-button-ripple {
+      border-radius: 0.5rem !important;
+    }
+  }
+}
+
 .paginator {
   padding: 1rem 0;
   background-color: var(--transparent-color);

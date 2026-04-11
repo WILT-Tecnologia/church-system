@@ -13,6 +13,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ColumnComponent } from '@app/components/column/column.component';
@@ -32,8 +33,8 @@ import { DateSelectArg, EventApi, EventClickArg } from '@fullcalendar/core';
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-import { BehaviorSubject, forkJoin, Observable, of, Subject } from 'rxjs';
-import { debounceTime, mergeWith, switchMap, takeUntil } from 'rxjs/operators';
+import { BehaviorSubject, forkJoin, map, Observable, Subject } from 'rxjs';
+import { debounceTime, switchMap, takeUntil } from 'rxjs/operators';
 import { EventTypesService } from '../../administrative/event-types/eventTypes.service';
 import { EventsService } from './events.service';
 import { AddMembersGuestsComponent } from './shared/add-members-guests/add-members-guests.component';
@@ -77,6 +78,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   private refreshSubject = new Subject<void>();
   private initialTabLoadSubject = new Subject<string>();
   events = signal<Events[]>([]);
+  private events$ = toObservable(this.events);
   eventTypes = new BehaviorSubject<EventTypes[]>([]);
   tabs = signal<TabConfig[]>([]);
   calendarVisible = signal(true);
@@ -275,138 +277,72 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   findEventsByTabIdAdapter(tabId: string): Observable<Events[]> {
-    const eventType = this.eventTypes.value.find((et) => et.id === tabId);
-    if (!eventType) return of([]);
-
-    return this.eventsService
-      .findByEventType(eventType)
-      .pipe(
-        mergeWith(
-          this.refreshSubject.pipe(switchMap(() => this.eventsService.findByEventType(eventType))),
-        ),
-        takeUntil(this.destroy$),
-      );
+    return this.events$.pipe(map((events) => events.filter((e) => e.eventType?.id === tabId)));
   }
 
   handleDateSelect(selectInfo: DateSelectArg) {
-    const modal = this.modal.openModal(
-      `modal-${Math.random()}`,
-      EventsFormComponent,
-      'Adicionar evento',
-      true,
-      true,
-      {
-        event: {
-          start_date: dayjs(selectInfo.startStr).format('DD/MM/YYYY'),
-          end_date: dayjs(selectInfo.endStr).format('DD/MM/YYYY'),
-        },
+    this.openEventsFormModal('Adicionar evento', {
+      event: {
+        start_date: dayjs(selectInfo.startStr).format('DD/MM/YYYY'),
+        end_date: dayjs(selectInfo.endStr).format('DD/MM/YYYY'),
       },
-    );
-
-    modal
-      .afterClosed()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((result) => {
-        if (result) this.loadEvents();
-      });
+    }).subscribe((result: Events) => {
+      if (result) {
+        this.eventsService.createEvent(result).subscribe({
+          next: (newEvent) => {
+            this.toast.openSuccess(MESSAGES.CREATE_SUCCESS);
+            this.events.update((current) => [newEvent, ...current]);
+          },
+          error: () => this.toast.openError(MESSAGES.CREATE_ERROR),
+        });
+      }
+    });
   }
 
   handleEventClick(clickInfo: EventClickArg) {
     const event = this.events().find((e) => e.id === clickInfo.event.id);
-    if (event) this.onDeleteEvent(event);
+    if (event) this.onEditEvent(event);
   }
 
   handleEventsSet(events: EventApi[]) {
     this.currentEvents.set(events);
   }
 
-  onCreateEvent() {
-    const submitSubject = new Subject<void>();
-    const formAction: ModalAction[] = [
-      {
-        label: 'Cancelar',
-        type: 'stroked',
-        color: 'warn',
-        icon: 'close',
-        onClick: (ref) => ref.close(),
-      },
-      {
-        label: 'Salvar',
-        type: 'flat',
-        color: 'primary',
-        icon: 'save',
-        onClick: () => submitSubject.next(),
-      },
-    ];
-
-    const modal = this.modal.openModal(
-      `modal-${Math.random()}`,
-      EventsFormComponent,
-      'Adicionar evento',
-      true,
-      true,
-      { submitSubject },
-      undefined,
-      false,
-      formAction,
-    );
-
-    modal.afterClosed().subscribe((result: Events) => {
+  onCreateEvent(eventTypeID?: string) {
+    this.openEventsFormModal('Adicionar evento', { eventTypeID }).subscribe((result: Events) => {
       if (result) {
         this.eventsService.createEvent(result).subscribe({
-          next: () => this.toast.openSuccess(MESSAGES.CREATE_SUCCESS),
+          next: (newEvent) => {
+            this.toast.openSuccess(MESSAGES.CREATE_SUCCESS);
+            this.events.update((current) => [newEvent, ...current]);
+          },
           error: () => this.toast.openError(MESSAGES.CREATE_ERROR),
-          complete: () => this.loadEvents(),
         });
       }
     });
   }
 
   onEditEvent(event: Events) {
-    const submitSubject = new Subject<void>();
-    const formAction: ModalAction[] = [
-      {
-        label: 'Cancelar',
-        type: 'stroked',
-        color: 'warn',
-        icon: 'close',
-        onClick: (ref) => ref.close(),
+    this.openEventsFormModal(`Editando o evento ${event.name}`, { event }).subscribe(
+      (data: Events) => {
+        if (data) {
+          this.eventsService.updateEvent(data).subscribe({
+            next: (updatedEvent) => {
+              this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS);
+              this.events.update((current) =>
+                current.map((e) => (e.id === updatedEvent.id ? updatedEvent : e)),
+              );
+            },
+            error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
+          });
+        }
       },
-      {
-        label: 'Salvar',
-        type: 'flat',
-        color: 'primary',
-        icon: 'save',
-        onClick: () => submitSubject.next(),
-      },
-    ];
-
-    const modal = this.modal.openModal(
-      `modal-${Math.random()}`,
-      EventsFormComponent,
-      `Editando o evento ${event.name}`,
-      true,
-      true,
-      { event, submitSubject },
-      undefined,
-      false,
-      formAction,
     );
-
-    modal.afterClosed().subscribe((data: Events) => {
-      if (data) {
-        this.eventsService.updateEvent(data).subscribe({
-          next: () => this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS),
-          error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
-          complete: () => this.loadEvents(),
-        });
-      }
-    });
   }
 
   onDeleteEvent(event: Events) {
     const modal = this.confirmService.openConfirm(
-      'Excluir evento',
+      'Exclusão de evento',
       `Tem certeza que deseja excluir o evento ${event.name}?`,
       'Confirmar',
       'Cancelar',
@@ -415,99 +351,101 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     modal.afterClosed().subscribe((result: boolean) => {
       if (result) {
         this.eventsService.delete(event).subscribe({
-          next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
+          next: () => {
+            this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
+            this.events.update((current) => current.filter((e) => e.id !== event.id));
+          },
           error: () => this.toast.openError(MESSAGES.DELETE_ERROR),
-          complete: () => this.loadEvents(),
         });
       }
     });
   }
 
   onAddMembersGuests(event: Events) {
-    const submitSubject = new Subject<void>();
-    const formAction: ModalAction[] = [
-      {
-        label: 'Cancelar',
-        type: 'stroked',
-        color: 'warn',
-        icon: 'close',
-        onClick: (ref) => ref.close(),
-      },
-      {
-        label: 'Salvar',
-        type: 'flat',
-        color: 'primary',
-        icon: 'save',
-        onClick: () => submitSubject.next(),
-      },
-    ];
-
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       AddMembersGuestsComponent,
       `Adicionar participantes no evento ${event?.name}`,
       true,
       true,
-      { event, submitSubject },
+      { event },
       undefined,
       true,
-      formAction,
+      [],
     );
 
     modal.afterClosed().subscribe((data: Events) => {
       if (data) {
         this.eventsService.updateEvent(data).subscribe({
-          next: () => this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS),
+          next: (updatedEvent) => {
+            this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS);
+            this.events.update((current) =>
+              current.map((e) => (e.id === updatedEvent.id ? updatedEvent : e)),
+            );
+          },
           error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
-          complete: () => this.loadEvents(),
         });
       }
     });
   }
 
   onCreateCall(event: Events) {
-    const submitSubject = new Subject<void>();
-    const formAction: ModalAction[] = [
-      {
-        label: 'Cancelar',
-        type: 'stroked',
-        color: 'warn',
-        icon: 'close',
-        onClick: (ref) => ref.close(),
-      },
-      {
-        label: 'Salvar',
-        type: 'flat',
-        color: 'primary',
-        icon: 'save',
-        onClick: () => submitSubject.next(),
-      },
-    ];
-
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       EventCallComponent,
       `Chamadas do evento`,
       true,
       true,
-      { event, submitSubject },
+      { event },
       undefined,
       true,
-      formAction,
+      [],
     );
 
     modal.afterClosed().subscribe((data: EventCall) => {
       if (data) {
         this.eventsService.updateEvent(data).subscribe({
-          next: () => this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS),
+          next: (updatedEvent) => {
+            this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS);
+            this.events.update((current) =>
+              current.map((e) => (e.id === updatedEvent.id ? updatedEvent : e)),
+            );
+          },
           error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
-          complete: () => this.loadEvents(),
         });
       }
     });
   }
 
   onFrequency(event: Events) {
+    const modal = this.modal.openModal(
+      `modal-${Math.random()}`,
+      FrequenciesComponent,
+      `Frequências para o evento ${event.name}`,
+      true,
+      true,
+      { event: event, call: event.eventCall },
+      undefined,
+      true,
+      [],
+    );
+
+    modal.afterClosed().subscribe((data: Events) => {
+      if (data) {
+        this.eventsService.updateEvent(data).subscribe({
+          next: (updatedEvent) => {
+            this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS);
+            this.events.update((current) =>
+              current.map((e) => (e.id === updatedEvent.id ? updatedEvent : e)),
+            );
+          },
+          error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
+        });
+      }
+    });
+  }
+
+  private openEventsFormModal(title: string, data?: any): Observable<Events> {
     const submitSubject = new Subject<void>();
     const formAction: ModalAction[] = [
       {
@@ -526,27 +464,19 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
       },
     ];
 
-    const modal = this.modal.openModal(
-      `modal-${Math.random()}`,
-      FrequenciesComponent,
-      `Frequências para o evento ${event.name}`,
-      true,
-      true,
-      { event: event, call: event.eventCall, submitSubject },
-      undefined,
-      true,
-      formAction,
-    );
-
-    modal.afterClosed().subscribe((data: Events) => {
-      if (data) {
-        this.eventsService.updateEvent(data).subscribe({
-          next: () => this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS),
-          error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
-          complete: () => this.loadEvents(),
-        });
-      }
-    });
+    return this.modal
+      .openModal(
+        `modal-${Math.random()}`,
+        EventsFormComponent,
+        title,
+        true,
+        true,
+        { ...data, submitSubject },
+        undefined,
+        false,
+        formAction,
+      )
+      .afterClosed();
   }
 
   private mapEventsToCalendar(events: Events[]): any[] {

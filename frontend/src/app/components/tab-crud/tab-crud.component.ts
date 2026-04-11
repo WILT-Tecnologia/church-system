@@ -26,7 +26,7 @@ export class TabCrudComponent implements OnInit {
   @Input() tabs: TabConfig[] = [];
   @Input() crudConfig!: CrudConfig;
   @Input() dataService!: (tabId: string) => Observable<any[]>;
-  add = output<void>();
+  add = output<string>();
   enableAddButtonAdd = input<boolean>(true);
   ctaLabel = input<string>('Adicionar');
   selectedTabIndex = signal(0);

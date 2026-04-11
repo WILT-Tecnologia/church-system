@@ -2,7 +2,7 @@
   <app-tabs>
     <ng-template appTab label="Identificação">
       <app-column [columns]="2">
-        <mat-form-field appearance="fill" class="reduction">
+        <mat-form-field appearance="fill">
           <mat-label>Igreja</mat-label>
           <input
             type="text"
@@ -31,9 +31,7 @@
             <mat-error>{{ getErrorMessage('church_id') }}</mat-error>
           }
         </mat-form-field>
-      </app-column>
 
-      <app-column [columns]="1">
         <mat-form-field appearance="fill">
           <mat-label>Tipo do evento</mat-label>
           <input
@@ -61,7 +59,9 @@
             <mat-error>{{ getErrorMessage('event_type_id') }}</mat-error>
           }
         </mat-form-field>
+      </app-column>
 
+      <app-column [columns]="1">
         <mat-form-field appearance="fill">
           <mat-label>Nome</mat-label>
           <input matInput formControlName="name" maxlength="255" required />
