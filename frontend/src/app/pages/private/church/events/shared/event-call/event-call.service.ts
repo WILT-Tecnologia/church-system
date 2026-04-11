@@ -9,26 +9,25 @@ import { Observable } from 'rxjs';
 })
 export class EventCallService {
   private http = inject(HttpClient);
-
   private apiUrl = `${environment.apiUrl}/church/eventos`;
 
-  findAll(eventId: string): Observable<EventCall[]> {
+  getAllEventCalls(eventId: string): Observable<EventCall[]> {
     return this.http.get<EventCall[]>(`${this.apiUrl}/${eventId}/calls`);
   }
 
-  findById(eventId: string, callId: string): Observable<EventCall[]> {
-    return this.http.get<EventCall[]>(`${this.apiUrl}/${eventId}/calls/${callId}`);
-  }
-
-  create(eventId: string, eventCall: Partial<EventCall>): Observable<EventCall> {
+  createEventCall(eventId: string, eventCall: Partial<EventCall>): Observable<EventCall> {
     return this.http.post<EventCall>(`${this.apiUrl}/${eventId}/calls`, eventCall);
   }
 
-  update(eventId: string, callId: string, eventCall: Partial<EventCall>): Observable<EventCall> {
+  updateEventCall(
+    eventId: string,
+    callId: string,
+    eventCall: Partial<EventCall>,
+  ): Observable<EventCall> {
     return this.http.put<EventCall>(`${this.apiUrl}/${eventId}/calls/${callId}`, eventCall);
   }
 
-  delete(eventId: string, callId: string): Observable<void> {
+  deleteEventCall(eventId: string, callId: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${eventId}/calls/${callId}`);
   }
 }

@@ -77,6 +77,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private refreshSubject = new Subject<void>();
   private initialTabLoadSubject = new Subject<string>();
+
   events = signal<Events[]>([]);
   private events$ = toObservable(this.events);
   eventTypes = new BehaviorSubject<EventTypes[]>([]);

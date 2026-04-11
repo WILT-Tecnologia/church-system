@@ -74,7 +74,7 @@ export class FrequenciesComponent implements OnInit {
     try {
       const [event, callToDays] = await Promise.all([
         firstValueFrom(this.eventsService.findById(this.data.event.id)),
-        firstValueFrom(this.callToDayService.findAll(this.data.event.id)),
+        firstValueFrom(this.callToDayService.getAllEventCalls(this.data.event.id)),
       ]);
 
       this.event.set(event);

@@ -56,8 +56,8 @@ import { map, Observable, startWith, Subject, takeUntil } from 'rxjs';
   ],
 })
 export class EventsFormComponent implements OnInit, OnDestroy {
-  private toastService = inject(ToastService);
   private fb = inject(FormBuilder);
+  private toastService = inject(ToastService);
   private loadingService = inject(LoadingService);
   private validationService = inject(ValidationService);
   private churchesService = inject(ChurchesService);
@@ -65,13 +65,13 @@ export class EventsFormComponent implements OnInit, OnDestroy {
   private dialogRef = inject(MatDialogRef<EventsFormComponent>);
   private data: { event: Events; submitSubject: Subject<void>; eventTypeID?: string } =
     inject(MAT_DIALOG_DATA);
+  private destroy$ = new Subject<void>();
 
   eventForm: FormGroup = this.createForm();
   event = signal<Events[]>([]);
   church = signal<Church[]>([]);
   eventType = signal<EventTypes[]>([]);
   isEditMode = signal(false);
-  private destroy$ = new Subject<void>();
 
   searchChurchControl = new FormControl('', [Validators.required]);
   searchEventTypeControl = new FormControl('', [Validators.required]);

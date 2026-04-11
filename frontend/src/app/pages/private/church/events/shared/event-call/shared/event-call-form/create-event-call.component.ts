@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -22,16 +22,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActionsComponent } from '@app/components/actions/actions.component';
 import { ColumnComponent } from '@app/components/column/column.component';
 import { FormatsPipe } from '@app/components/crud/pipes/formats.pipe';
 import { MESSAGES } from '@app/components/toast/messages';
 import { ToastService } from '@app/components/toast/toast.service';
 import { EventCall, Events } from '@app/model/Events';
+import { EventCallService } from '@app/pages/private/church/events/shared/event-call/event-call.service';
 import { ValidationService } from '@app/services/validation/validation.service';
 import { provideNgxMask } from 'ngx-mask';
 import { map, Observable, startWith, Subject, takeUntil } from 'rxjs';
-import { EventCallService } from '../../event-call.service';
 
 @Component({
   selector: 'app-create-event-call',
@@ -47,7 +46,6 @@ import { EventCallService } from '../../event-call.service';
     MatTooltipModule,
     MatTimepickerModule,
     ReactiveFormsModule,
-    ActionsComponent,
     MatIconModule,
     FormsModule,
     CommonModule,
@@ -61,35 +59,41 @@ import { EventCallService } from '../../event-call.service';
   ],
 })
 export class CreateEventCallComponent implements OnInit, OnDestroy {
-  constructor(
-    private fb: FormBuilder,
-    private validationService: ValidationService,
-    private dialogRef: MatDialogRef<CreateEventCallComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { eventCall?: EventCall; event?: Events },
-  ) {
-    this.eventCallForm = this.onForm();
-  }
-  private toastService = inject(ToastService);
-  @ViewChild('endDatePicker') endDatePicker!: MatDatepicker<Date>;
-  @ViewChild('startDatePicker') startDatePicker!: MatDatepicker<Date>;
-  eventCallForm: FormGroup;
-  readonly minDate = new Date(1900, 0, 1);
+  private readonly fb = inject(FormBuilder);
+  private readonly validationService = inject(ValidationService);
+  private readonly toastService = inject(ToastService);
+  private readonly eventCallService = inject(EventCallService);
+  private readonly dialogRef = inject(MatDialogRef<CreateEventCallComponent>);
+  private readonly data: { eventCall?: EventCall; event?: Events; submitSubject: Subject<void> } =
+    inject(MAT_DIALOG_DATA);
   private destroy$ = new Subject<void>();
-  private eventCallService = inject(EventCallService);
-  searchEventControl = new FormControl('');
-  filterEvents: Observable<Events[]> = new Observable<Events[]>();
+
+  eventCallForm: FormGroup = this.createForm();
+  events = signal<Events[]>([]);
   isEditMode = signal(false);
-  events: Events[] = [];
+  minDate = new Date(1900, 0, 1);
+  startDatePicker = viewChild(MatDatepicker);
+  endDatePicker = viewChild(MatDatepicker);
+  searchEventControl = new FormControl('', [Validators.required]);
+
+  filterEvents: Observable<Events[]> = new Observable<Events[]>();
 
   ngOnInit() {
     if (this.data?.eventCall) {
       this.isEditMode.set(true);
     }
+
     if (this.data?.event) {
-      this.events = [this.data.event];
+      this.events.set([this.data.event]);
       this.setupForm();
     } else {
       this.loadEvents();
+    }
+
+    if (this.data?.submitSubject) {
+      this.data.submitSubject.pipe(takeUntil(this.destroy$)).subscribe(() => {
+        this.handleSubmit();
+      });
     }
   }
 
@@ -98,23 +102,19 @@ export class CreateEventCallComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private onForm(): FormGroup {
+  private createForm(): FormGroup {
+    const eventCall = this.data?.eventCall;
+
     return this.fb.group(
       {
-        id: [this.data?.eventCall?.id || ''],
-        event_id: [this.data?.eventCall?.event_id || '', [Validators.required]],
-        theme: [
-          this.data?.eventCall?.theme || '',
-          [Validators.minLength(3), Validators.maxLength(255)],
-        ],
-        start_date: [this.initializeDate(this.data?.eventCall?.start_date), [Validators.required]],
-        end_date: [this.initializeDate(this.data?.eventCall?.end_date), [Validators.required]],
-        start_time: [
-          this.formatTime(this.data?.eventCall?.start_time) || '',
-          [Validators.required],
-        ],
-        end_time: [this.formatTime(this.data?.eventCall?.end_time) || '', [Validators.required]],
-        location: [this.data?.eventCall?.location || '', [Validators.maxLength(255)]],
+        id: [eventCall?.id ?? ''],
+        event_id: [eventCall?.event_id ?? '', [Validators.required]],
+        theme: [eventCall?.theme ?? '', [Validators.minLength(3), Validators.maxLength(255)]],
+        start_date: [this.initializeDate(eventCall?.start_date), [Validators.required]],
+        end_date: [this.initializeDate(eventCall?.end_date), [Validators.required]],
+        start_time: [this.formatTime(eventCall?.start_time) ?? '', [Validators.required]],
+        end_time: [this.formatTime(eventCall?.end_time) ?? '', [Validators.required]],
+        location: [eventCall?.location ?? '', [Validators.maxLength(255)]],
       },
       { validators: this.dateRangeValidator },
     );
@@ -146,15 +146,15 @@ export class CreateEventCallComponent implements OnInit, OnDestroy {
 
     if (this.data?.event) {
       this.eventCallService
-        .findAll(this.data?.event?.id)
+        .getAllEventCalls(this.data?.event?.id)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            const selectedEvent = this.events.find(
+            const selectedEvent = this.events().find(
               (event) => event.id === this.data?.event?.id,
             ) as Events;
 
-            this.events = [selectedEvent];
+            this.events.set([selectedEvent]);
             this.setupForm();
           },
           error: () => this.toastService.openError(MESSAGES.LOADING_ERROR),
@@ -164,7 +164,7 @@ export class CreateEventCallComponent implements OnInit, OnDestroy {
 
   private setupForm() {
     if (this.data?.eventCall || this.data?.event) {
-      const selectedEvent = this.events.find(
+      const selectedEvent = this.events().find(
         (event) => event.id === this.data?.event?.id,
       ) as Events;
 
@@ -175,45 +175,6 @@ export class CreateEventCallComponent implements OnInit, OnDestroy {
         this.searchEventControl.disable();
       }
     }
-  }
-
-  private createEventCall(data: EventCall) {
-    const eventId = this.data?.event?.id;
-    if (!eventId) {
-      this.toastService.openError('Evento não encontrato!');
-      return;
-    }
-    this.eventCallService
-      .create(eventId, data)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          this.toastService.openSuccess(MESSAGES.CREATE_SUCCESS);
-          this.dialogRef.close(true);
-        },
-        error: () => this.toastService.openError(MESSAGES.CREATE_ERROR),
-      });
-  }
-
-  private updatedEventCall(data: EventCall) {
-    const eventId = this.data?.event?.id;
-    const callId = this.data?.eventCall?.id;
-    if (!eventId || !callId) {
-      this.toastService.openError('Evento ou chamada não encontrada!');
-      return;
-    }
-    this.eventCallService
-      .update(eventId, callId, data)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS);
-          this.dialogRef.close(true);
-        },
-        error: (error) => {
-          this.toastService.openError(error?.error?.error || MESSAGES.UPDATE_ERROR);
-        },
-      });
   }
 
   private initializeDate(dateStr: string | undefined | null): Date | null {
@@ -228,13 +189,6 @@ export class CreateEventCallComponent implements OnInit, OnDestroy {
     }
   }
 
-  /* private formatDate(date: Date | string | null | undefined): string | null {
-    if (!date) return null;
-    const d = new Date(date);
-    if (isNaN(d.getTime())) return null;
-    return d.toISOString().split('T')[0];
-  } */
-
   private formatDate(date: Date | string | null | undefined): string | null {
     if (!date) return null;
 
@@ -248,18 +202,6 @@ export class CreateEventCallComponent implements OnInit, OnDestroy {
 
     return `${year}-${month}-${day}`;
   }
-
-  /* private formatTime(time: string | Date | null | undefined): string | null {
-    if (!time) return null;
-    if (time instanceof Date) {
-      return `${time.getHours().toString().padStart(2, '0')}:${time.getMinutes().toString().padStart(2, '0')}`;
-    }
-    const timeMatch = time.match(/^(\d{1,2}):(\d{2})(:\d{2})?$/);
-    if (timeMatch) {
-      return `${timeMatch[1].padStart(2, '0')}:${timeMatch[2]}`;
-    }
-    return null;
-  } */
 
   private formatTime(time: string | Date | null | undefined): string | null {
     if (!time) return null;
@@ -290,32 +232,27 @@ export class CreateEventCallComponent implements OnInit, OnDestroy {
 
   private filterEvent(name: string): Events[] {
     const filterValue = name.toLowerCase();
-    return this.events.filter((event) => event.name.toLowerCase().includes(filterValue));
+    return this.events().filter((event) => event.name.toLowerCase().includes(filterValue));
   }
 
-  onCancel() {
-    this.dialogRef.close(false);
-  }
+  handleSubmit() {
+    this.eventCallForm.markAllAsTouched();
 
-  onSubmit() {
-    if (this.eventCallForm.invalid) {
-      this.eventCallForm.markAllAsTouched();
-      return;
-    }
+    if (this.eventCallForm.valid) {
+      const rawValues = this.eventCallForm.getRawValue();
 
-    const formValues = {
-      ...this.eventCallForm.value,
-      event_id: this.data?.event?.id,
-      start_date: this.formatDate(this.eventCallForm.value.start_date),
-      end_date: this.formatDate(this.eventCallForm.value.end_date),
-      start_time: this.formatTime(this.eventCallForm.value.start_time),
-      end_time: this.formatTime(this.eventCallForm.value.end_time),
-    };
+      const formValues = {
+        ...rawValues,
+        event_id: this.data?.event?.id,
+        start_date: this.formatDate(rawValues.start_date),
+        end_date: this.formatDate(rawValues.end_date),
+        start_time: this.formatTime(rawValues.start_time),
+        end_time: this.formatTime(rawValues.end_time),
+      };
 
-    if (this.data?.eventCall?.id) {
-      this.updatedEventCall(formValues);
+      this.dialogRef?.close(formValues);
     } else {
-      this.createEventCall(formValues);
+      this.toastService.openWarning(MESSAGES.FORM_VALUES_NOT_FOUND);
     }
   }
 
@@ -345,7 +282,7 @@ export class CreateEventCallComponent implements OnInit, OnDestroy {
     this.filterEvents = this.searchEventControl.valueChanges.pipe(
       startWith(''),
       map((value: any) => (typeof value === 'string' ? value : (value?.name ?? ''))),
-      map((name) => (name.length >= 1 ? this.filterEvent(name) : this.events.slice())),
+      map((name) => (name.length >= 1 ? this.filterEvent(name) : this.events().slice())),
       takeUntil(this.destroy$),
     );
   }
@@ -358,17 +295,5 @@ export class CreateEventCallComponent implements OnInit, OnDestroy {
 
   clearDate(fieldName: string) {
     this.eventCallForm.get(fieldName)?.reset();
-  }
-
-  openCalendarStartDate(): void {
-    if (this.startDatePicker) {
-      this.startDatePicker.open();
-    }
-  }
-
-  openCalendarEndDate(): void {
-    if (this.endDatePicker) {
-      this.endDatePicker.open();
-    }
   }
 }

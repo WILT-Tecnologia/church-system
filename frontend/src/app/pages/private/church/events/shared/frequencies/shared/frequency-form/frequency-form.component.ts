@@ -269,7 +269,7 @@ export class FrequencyFormComponent implements OnInit {
     try {
       const [event, callToDays, frequencies] = await Promise.all([
         firstValueFrom(this.eventsService.findById(this.data.event.id)),
-        firstValueFrom(this.callToDayService.findAll(this.data.event.id)),
+        firstValueFrom(this.callToDayService.getAllEventCalls(this.data.event.id)),
         this.data.call
           ? firstValueFrom(this.frequencyService.findAll(this.data.event.id, this.data.call.id))
           : [],

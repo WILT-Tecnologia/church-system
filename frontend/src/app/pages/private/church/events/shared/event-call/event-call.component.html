@@ -1,9 +1,9 @@
 <app-crud
-  [fields]="eventCall"
+  [fields]="eventCall()"
   [dataSourceMat]="dataSourceMat"
   [columnDefinitions]="columnDefinitions"
-  (add)="createEventCall()"
+  (add)="onCreate()"
   [actions]="actions"
-  readPermission="write_church_eventos"
-  writePermission="write_church_eventos"
+  [writePermission]="writePermission()"
+  [deletePermission]="deletePermission()"
 ></app-crud>
