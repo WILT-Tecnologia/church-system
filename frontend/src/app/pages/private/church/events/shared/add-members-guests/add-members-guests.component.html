@@ -48,7 +48,7 @@
           ></app-paginator>
         </div>
         <mat-divider class="divider"></mat-divider>
-        <app-column [columns]="3">
+        <app-column [columns]="6">
           @for (member of paginatedMembers; track $index) {
             <app-chip
               [chip]="member"
@@ -68,7 +68,7 @@
           color="primary"
           type="button"
           (click)="submitMember()"
-          [disabled]="isDisabled"
+          [disabled]="isDisabled()"
         >
           Adicionar Membro
         </button>
@@ -100,7 +100,7 @@
           ></app-paginator>
         </div>
         <mat-divider class="divider"></mat-divider>
-        <app-column [columns]="3">
+        <app-column [columns]="6">
           @for (guest of paginatedGuests; track guest.id) {
             <app-chip
               [chip]="guest"
@@ -115,7 +115,7 @@
         </app-column>
       </mat-card-content>
       <app-actions class="actions">
-        <button mat-flat-button color="primary" (click)="submitGuest()" [disabled]="isDisabled">
+        <button mat-flat-button color="primary" (click)="submitGuest()" [disabled]="isDisabled()">
           Adicionar Convidado
         </button>
       </app-actions>
