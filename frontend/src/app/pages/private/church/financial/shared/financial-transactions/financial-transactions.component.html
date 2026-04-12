@@ -4,6 +4,6 @@
   [columnDefinitions]="columnDefinitions"
   (add)="onCreate()"
   [actions]="actions"
-  [writePermission]="'write_church_lancamentos_financeiros'"
-  [deletePermission]="'delete_church_lancamentos_financeiros'"
+  [writePermission]="permissionWrite()"
+  [deletePermission]="permissionDelete()"
 ></app-crud>

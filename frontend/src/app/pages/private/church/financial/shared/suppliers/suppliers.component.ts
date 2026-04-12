@@ -4,13 +4,12 @@ import { ConfirmService } from '@app/components/confirm/confirm.service';
 import { CrudComponent } from '@app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from '@app/components/crud/types';
 import { LoadingService } from '@app/components/loading/loading.service';
-import { ModalAction } from '@app/components/modal/modal.component';
 import { ModalService } from '@app/components/modal/modal.service';
 import { MESSAGES } from '@app/components/toast/messages';
 import { ToastService } from '@app/components/toast/toast.service';
 import { Suppliers } from '@app/model/Suppliers';
 import { AuthService } from '@app/services/auth/auth.service';
-import { Subject } from 'rxjs';
+import { FormService } from '@app/services/form-service.service';
 import { SupplierFormComponent } from './supplier-form/supplier-form.component';
 import { SuppliersService } from './suppliers.service';
 
@@ -27,11 +26,12 @@ export class SuppliersComponent implements OnInit {
   private readonly confirmService = inject(ConfirmService);
   private readonly toastService = inject(ToastService);
   private readonly loadingService = inject(LoadingService);
-  private readonly writeChurchFornecedores = this.authService.hasPermission(
-    'write_church_fornecedores',
-  );
+  private readonly formService = inject(FormService);
+  readonly writePermission = signal<string>('write_church_fornecedores');
+  readonly deletePermission = signal<string>('delete_church_fornecedores');
+  private readonly writeChurchFornecedores = this.authService.hasPermission(this.writePermission());
   private readonly deleteChurchFornecedores = this.authService.hasPermission(
-    'delete_church_fornecedores',
+    this.deletePermission(),
   );
   public readonly suppliers = signal<Suppliers[]>([]);
   public readonly dataSourceMat = new MatTableDataSource<Suppliers>();
@@ -88,37 +88,15 @@ export class SuppliersComponent implements OnInit {
   }
 
   onCreate() {
-    const submitSubject = new Subject<void>();
-    const formAction: ModalAction[] = [
-      {
-        label: 'Cancelar',
-        type: 'stroked',
-        color: 'warn',
-        icon: 'close',
-        onClick: (ref) => ref.close(),
-      },
-      {
-        label: 'Salvar',
-        type: 'flat',
-        color: 'primary',
-        icon: 'save',
-        onClick: () => submitSubject.next(),
-      },
-    ];
-
-    const modal = this.dialogService.openModal(
-      `modal-${Math.random()}`,
-      SupplierFormComponent,
+    const modal = this.formService.openFormModal(
       'Adicionando novo fornecedor',
-      true,
-      true,
-      { submitSubject },
-      undefined,
+      SupplierFormComponent,
+      {},
+      ['cancel', 'save'],
       false,
-      formAction,
     );
 
-    modal.afterClosed().subscribe((result: Suppliers) => {
+    modal.subscribe((result: Suppliers) => {
       if (result) {
         this.suppliersService.createSuppliers(result).subscribe({
           next: () => this.toastService.openSuccess(MESSAGES.CREATE_SUCCESS),
@@ -130,37 +108,15 @@ export class SuppliersComponent implements OnInit {
   }
 
   private onEdit(suppliers: Suppliers) {
-    const submitSubject = new Subject<void>();
-    const formAction: ModalAction[] = [
-      {
-        label: 'Cancelar',
-        type: 'stroked',
-        color: 'warn',
-        icon: 'close',
-        onClick: (ref) => ref.close(),
-      },
-      {
-        label: 'Atualizar',
-        type: 'flat',
-        color: 'primary',
-        icon: 'save',
-        onClick: () => submitSubject.next(),
-      },
-    ];
-
-    const modal = this.dialogService.openModal(
-      `modal-${Math.random()}`,
-      SupplierFormComponent,
+    const modal = this.formService.openFormModal(
       `Editando o fornecedor ${suppliers.name}`,
-      true,
-      true,
-      { suppliers, submitSubject },
-      undefined,
+      SupplierFormComponent,
+      { suppliers },
+      ['cancel', 'save'],
       false,
-      formAction,
     );
 
-    modal.afterClosed().subscribe((result: Suppliers) => {
+    modal.subscribe((result: Suppliers) => {
       if (result) {
         this.suppliersService.updateSuppliers(result).subscribe({
           next: () => this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS),
@@ -194,9 +150,10 @@ export class SuppliersComponent implements OnInit {
   }
 
   private onUpdatedStatus(suppliers: Suppliers) {
+    const status = suppliers.status ? 'desativar' : 'ativar';
     const modal = this.confirmService.openConfirm(
       'Atenção',
-      `Você tem certeza que deseja ${suppliers.status ? 'desativar' : 'ativar'} o fornecedor: ${suppliers.name}?`,
+      `Você tem certeza que deseja ${status} o fornecedor: ${suppliers.name}?`,
       'Confirmar',
       'Cancelar',
     );

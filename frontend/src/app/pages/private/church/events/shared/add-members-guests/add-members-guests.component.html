@@ -53,7 +53,7 @@
             <app-chip
               [chip]="member"
               (selectionChange)="onMemberSelectionChange($event)"
-              [disabled]="isDisabled"
+              [disabled]="isDisabled()"
             ></app-chip>
           } @empty {
             <mat-chip-listbox hideSingleSelectionIndicator="true" class="chip-list">
@@ -105,7 +105,7 @@
             <app-chip
               [chip]="guest"
               (selectionChange)="onGuestSelectionChange($event)"
-              [disabled]="isDisabled"
+              [disabled]="isDisabled()"
             ></app-chip>
           } @empty {
             <mat-chip-listbox hideSingleSelectionIndicator="true" class="chip-list">

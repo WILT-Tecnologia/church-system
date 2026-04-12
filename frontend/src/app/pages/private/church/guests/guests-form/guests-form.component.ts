@@ -143,7 +143,10 @@ export class GuestsFormComponent implements OnInit, OnDestroy {
           });
         }
       },
-      error: () => this.loading.hide(),
+      error: () => {
+        this.loading.hide();
+        this.toastService.openError(MESSAGES.ERROR_SEARCH_CEP);
+      },
       complete: () => this.loading.hide(),
     });
   }

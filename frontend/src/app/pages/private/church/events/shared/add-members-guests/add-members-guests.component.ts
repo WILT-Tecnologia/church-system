@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Inject, Input, input, OnInit, Output } from '@angular/core';
+import { Component, inject, input, OnInit, output } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -48,21 +48,17 @@ import { forkJoin } from 'rxjs';
   ],
 })
 export class AddMembersGuestsComponent implements OnInit {
-  constructor(
-    private fb: FormBuilder,
-    private membersService: MembersService,
-    private guestsService: GuestsService,
-    private eventsService: EventsService,
-    private toast: ToastService,
-    private loading: LoadingService,
-    private dialogRef: MatDialogRef<AddMembersGuestsComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { event: Events },
-  ) {
-    this.participantAndGuestForm = this.createForm();
-  }
+  private readonly fb = inject(FormBuilder);
+  private readonly membersService = inject(MembersService);
+  private readonly guestsService = inject(GuestsService);
+  private readonly eventsService = inject(EventsService);
+  private readonly toast = inject(ToastService);
+  private readonly loading = inject(LoadingService);
+  private readonly dialogRef = inject(MatDialogRef<AddMembersGuestsComponent>);
+  public readonly data = inject(MAT_DIALOG_DATA);
 
   event = input<Events | null>();
-  participantAndGuestForm: FormGroup;
+  participantAndGuestForm: FormGroup = this.createForm();
   members: ParticipantAndGuest[] = [];
   guests: ParticipantAndGuest[] = [];
   allMembers: ParticipantAndGuest[] = [];
@@ -73,25 +69,26 @@ export class AddMembersGuestsComponent implements OnInit {
   paginatedGuests: ParticipantAndGuest[] = [];
   memberPageIndex: number = 0;
   guestPageIndex: number = 0;
-  pageSize: number = 6;
-  pageSizeOptions: number[] = [6, 12, 24, 48];
-  @Input() isDisabled: boolean = false;
-  @Output() selectionChange = new EventEmitter<{
+  pageSize: number = 10;
+  pageSizeOptions: number[] = [10, 20, 50, 100];
+
+  isDisabled = input(false);
+  selectionChange = output<{
     participant: ParticipantAndGuest;
     present: boolean;
   }>();
 
   ngOnInit() {
-    this.findAll();
+    this.onGetAllMembersAndGuests();
   }
 
-  private createForm = (): FormGroup => {
+  private createForm(): FormGroup {
     return this.fb.group({
       member_id: [''],
     });
-  };
+  }
 
-  findAll() {
+  onGetAllMembersAndGuests() {
     this.loading.show();
     this.eventsService.findById(this.data.event.id).subscribe({
       next: (event) => {
@@ -129,7 +126,7 @@ export class AddMembersGuestsComponent implements OnInit {
             }));
 
             const existingParticipantIds = (this.data.event.participantAndGuests ?? []).map(
-              (p) => p.id,
+              (p: { id: string }) => p.id,
             );
             this.members = this.allMembers.filter(
               (member) => !existingParticipantIds.includes(member.id),
@@ -227,7 +224,7 @@ export class AddMembersGuestsComponent implements OnInit {
   }
 
   submitMember() {
-    if (this.isDisabled) return;
+    if (this.isDisabled()) return;
 
     const selectedMembers = this.members.filter((member) => member.selected);
     if (selectedMembers.length === 0) {
@@ -238,6 +235,7 @@ export class AddMembersGuestsComponent implements OnInit {
     const requests = selectedMembers.map((member) =>
       this.eventsService.addMembersEvent(this.data.event.id, { member_id: member.id }),
     );
+
     forkJoin(requests).subscribe({
       next: () => {
         this.toast.openSuccess(`${selectedMembers.length} membro(s) adicionado(s) com sucesso`);
@@ -258,7 +256,7 @@ export class AddMembersGuestsComponent implements OnInit {
   }
 
   submitGuest() {
-    if (this.isDisabled) return;
+    if (this.isDisabled()) return;
 
     const selectedGuests = this.guests.filter((guest) => guest.selected);
     if (selectedGuests.length === 0) {
@@ -269,6 +267,7 @@ export class AddMembersGuestsComponent implements OnInit {
     const requests = selectedGuests.map((guest) =>
       this.eventsService.addGuestsEvent(this.data.event.id, { person_id: guest.id }),
     );
+
     forkJoin(requests).subscribe({
       next: () => {
         this.toast.openSuccess(`${selectedGuests.length} convidado(s) adicionado(s) com sucesso`);
@@ -294,7 +293,7 @@ export class AddMembersGuestsComponent implements OnInit {
   }
 
   removeParticipant(participant: ParticipantAndGuest) {
-    if (this.isDisabled) return;
+    if (this.isDisabled()) return;
 
     this.loading.show();
     const isGuest = participant.isGuest ?? false;
@@ -310,7 +309,7 @@ export class AddMembersGuestsComponent implements OnInit {
       next: () => {
         this.toast.openSuccess(`${isGuest ? 'Convidado' : 'Membro'} removido com sucesso`);
         this.data.event.participantAndGuests = (this.data.event.participantAndGuests ?? []).filter(
-          (p) => p.id !== participant.id,
+          (p: { id: string }) => p.id !== participant.id,
         );
         if (!isGuest) {
           const member = this.allMembers.find((m) => m.id === participant.id);
@@ -344,9 +343,5 @@ export class AddMembersGuestsComponent implements OnInit {
 
   isParticipantMember(participant: ParticipantAndGuest): boolean {
     return this.allMembers.some((member) => member.id === participant.id);
-  }
-
-  closeDialog() {
-    this.dialogRef.close();
   }
 }

@@ -4,8 +4,6 @@ import { ConfirmService } from '@app/components/confirm/confirm.service';
 import { CrudComponent } from '@app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from '@app/components/crud/types';
 import { LoadingService } from '@app/components/loading/loading.service';
-import { ModalAction } from '@app/components/modal/modal.component';
-import { ModalService } from '@app/components/modal/modal.service';
 import { MESSAGES } from '@app/components/toast/messages';
 import { ToastService } from '@app/components/toast/toast.service';
 import {
@@ -15,7 +13,7 @@ import {
   Payment,
 } from '@app/model/FinancialTransations';
 import { AuthService } from '@app/services/auth/auth.service';
-import { Subject } from 'rxjs';
+import { FormService } from '@app/services/form-service.service';
 import { FinancialTransactionsService } from './financial-transactions.service';
 import { FinancialTransactionsFormComponent } from './shared/financial-transactions-form/financial-transactions-form.component';
 
@@ -28,20 +26,18 @@ import { FinancialTransactionsFormComponent } from './shared/financial-transacti
 export class FinancialTransactionsComponent implements OnInit {
   private readonly financialTransactionsService = inject(FinancialTransactionsService);
   private readonly authService = inject(AuthService);
-  private readonly dialog = inject(ModalService);
   private readonly confirmService = inject(ConfirmService);
-  private readonly toast = inject(ToastService);
-  private readonly loading = inject(LoadingService);
-  private readonly writePermission = this.authService.hasPermission(
-    'write_church_lancamentos_financeiros',
-  );
-  private readonly deletePermission = this.authService.hasPermission(
-    'delete_church_lancamentos_financeiros',
-  );
+  private readonly toastService = inject(ToastService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly formService = inject(FormService);
+  readonly permissionWrite = signal('write_church_lancamentos_financeiros');
+  readonly permissionDelete = signal('delete_church_lancamentos_financeiros');
+  private readonly writePermission = this.authService.hasPermission(this.permissionWrite());
+  private readonly deletePermission = this.authService.hasPermission(this.permissionDelete());
 
-  public financialTransactions = signal<FinancialTransations[]>([]);
-  public dataSourceMat = new MatTableDataSource<FinancialTransations>();
-  public columnDefinitions: ColumnDefinitionsProps[] = [
+  financialTransactions = signal<FinancialTransations[]>([]);
+  dataSourceMat = new MatTableDataSource<FinancialTransations>();
+  columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'church.name', header: 'Igreja', type: 'string' },
     { key: 'category.name', header: 'Categoria', type: 'string' },
     { key: 'customer_supplier_label', header: 'Tipo', type: 'customerSupplier' },
@@ -53,7 +49,7 @@ export class FinancialTransactionsComponent implements OnInit {
     { key: 'amount_discount', header: 'Valor com desconto', type: 'currency' },
     { key: 'payment_date', header: 'Data de pagamento', type: 'date' },
   ];
-  public actions: ActionsProps[] = [
+  actions: ActionsProps[] = [
     {
       type: 'edit',
       label: 'Editar',
@@ -72,11 +68,11 @@ export class FinancialTransactionsComponent implements OnInit {
     },
   ];
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.loadFinancialTransactions();
   }
 
-  private loadFinancialTransactions(): void {
+  private loadFinancialTransactions() {
     this.financialTransactionsService.findAllFinancialTransactions().subscribe({
       next: (data) => {
         const mapped = data.map((ft) => {
@@ -156,98 +152,56 @@ export class FinancialTransactionsComponent implements OnInit {
         this.financialTransactions.set(mapped);
         this.dataSourceMat.data = mapped;
       },
-      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
-      complete: () => this.loading.hide(),
+      error: () => this.toastService.openError(MESSAGES.LOADING_ERROR),
+      complete: () => this.loadingService.hide(),
     });
   }
 
-  onCreate(): void {
-    const submitSubject = new Subject<void>();
-    const formAction: ModalAction[] = [
-      {
-        label: 'Cancelar',
-        type: 'stroked',
-        color: 'warn',
-        icon: 'close',
-        onClick: (ref) => ref.close(),
-      },
-      {
-        label: 'Salvar',
-        type: 'flat',
-        color: 'primary',
-        icon: 'save',
-        onClick: () => submitSubject.next(),
-      },
-    ];
-
-    const modal = this.dialog.openModal(
-      `modal-${Math.random()}`,
+  onCreate() {
+    const modal = this.formService.openFormModal(
+      'Adicionar lançamento',
       FinancialTransactionsFormComponent,
-      'Adicionando novo lançamento',
+      {},
+      ['cancel', 'save'],
       true,
-      true,
-      { submitSubject },
-      undefined,
-      false,
-      formAction,
     );
 
-    modal.afterClosed().subscribe((formData: FormData) => {
+    modal.subscribe((formData: FormData) => {
       if (formData) {
         this.financialTransactionsService.createWithFormData(formData).subscribe({
-          next: () => this.toast.openSuccess(MESSAGES.CREATE_SUCCESS),
-          error: () => this.toast.openError(MESSAGES.CREATE_ERROR),
+          next: () => this.toastService.openSuccess(MESSAGES.CREATE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.CREATE_ERROR),
           complete: () => this.loadFinancialTransactions(),
         });
       }
     });
   }
 
-  private onEdit(financialTransactions: FinancialTransations): void {
-    const submitSubject = new Subject<void>();
-    const formAction: ModalAction[] = [
-      {
-        label: 'Cancelar',
-        type: 'stroked',
-        color: 'warn',
-        icon: 'close',
-        onClick: (ref) => ref.close(),
-      },
-      {
-        label: 'Atualizar',
-        type: 'flat',
-        color: 'primary',
-        icon: 'save',
-        onClick: () => submitSubject.next(),
-      },
-    ];
-
-    const modal = this.dialog.openModal(
-      `modal-${Math.random()}`,
+  private onEdit(financialTransactions: FinancialTransations) {
+    const name = `Editando o lançamento ${financialTransactions.category?.name} - ${financialTransactions.entry_exit_label} - ${financialTransactions.payment_label}`;
+    const modal = this.formService.openFormModal(
+      name,
       FinancialTransactionsFormComponent,
-      `Editando o lançamento ${financialTransactions.category?.name} - ${financialTransactions.entry_exit_label} - ${financialTransactions.payment_label}`,
+      { financialTransactions },
+      ['cancel', 'save'],
       true,
-      true,
-      { financialTransactions, submitSubject },
-      undefined,
-      false,
-      formAction,
     );
 
-    modal.afterClosed().subscribe((formData: FormData) => {
+    modal.subscribe((formData: FormData) => {
       if (formData) {
         this.financialTransactionsService.updateWithFormData(formData).subscribe({
-          next: () => this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS),
-          error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
+          next: () => this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
           complete: () => this.loadFinancialTransactions(),
         });
       }
     });
   }
 
-  private onDelete(financialTransactions: FinancialTransations): void {
+  private onDelete(financialTransactions: FinancialTransations) {
+    const name = `Excluindo o lançamento ${financialTransactions.category?.name} - ${financialTransactions.entry_exit_label} - ${financialTransactions.payment_label}`;
     const modal = this.confirmService.openConfirm(
-      'Excluindo lançamento',
+      name,
       `Você tem certeza que deseja excluir o lançamento?`,
       'Confirmar',
       'Cancelar',
@@ -258,8 +212,8 @@ export class FinancialTransactionsComponent implements OnInit {
         this.financialTransactionsService
           .deleteFinancialTransactions(financialTransactions)
           .subscribe({
-            next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
-            error: () => this.toast.openError(MESSAGES.DELETE_ERROR),
+            next: () => this.toastService.openSuccess(MESSAGES.DELETE_SUCCESS),
+            error: () => this.toastService.openError(MESSAGES.DELETE_ERROR),
             complete: () => this.loadFinancialTransactions(),
           });
       }

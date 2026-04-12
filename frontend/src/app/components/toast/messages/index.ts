@@ -13,4 +13,7 @@ export const MESSAGES = {
   WARNING: 'Atenção!',
   FORM_INVALID: 'Verifique os dados informados.',
   FORM_VALUES_NOT_FOUND: 'Preencha todos os campos obrigatórios para continuar!',
+  ERROR_SEARCH_CEP: 'Não foi possível buscar o CEP!',
+  ERROR_SEARCH_CEP_NOT_FOUND: 'CEP não encontrado!',
+  ERROR_SEARCH_CEP_INVALID: 'CEP inválido!',
 };

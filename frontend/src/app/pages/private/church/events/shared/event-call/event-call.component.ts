@@ -5,13 +5,12 @@ import { ConfirmService } from '@app/components/confirm/confirm.service';
 import { CrudComponent } from '@app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from '@app/components/crud/types';
 import { LoadingService } from '@app/components/loading/loading.service';
-import { ModalAction } from '@app/components/modal/modal.component';
 import { ModalService } from '@app/components/modal/modal.service';
 import { MESSAGES } from '@app/components/toast/messages';
 import { ToastService } from '@app/components/toast/toast.service';
 import { EventCall, Events } from '@app/model/Events';
 import { AuthService } from '@app/services/auth/auth.service';
-import { Observable, Subject } from 'rxjs';
+import { FormService } from '@app/services/form-service.service';
 import { EventCallService } from './event-call.service';
 import { CreateEventCallComponent } from './shared/event-call-form/create-event-call.component';
 
@@ -28,18 +27,21 @@ export class EventCallComponent implements OnInit {
   private readonly confirmService = inject(ConfirmService);
   private readonly modalService = inject(ModalService);
   private readonly eventCallService = inject(EventCallService);
+  private readonly formService = inject(FormService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly dialogRef = inject(MatDialogRef<EventCallComponent>);
   private readonly data: { event: Events } = inject(MAT_DIALOG_DATA);
-  private destroy$ = new Subject<void>();
+
   readonly writePermission = signal<string>('write_church_eventos');
   readonly deletePermission = signal<string>('delete_church_eventos');
+
   private readonly hasWritePermission = computed(() =>
     this.authService.hasPermission(this.writePermission()),
   );
   private readonly hasDeletePermission = computed(() =>
     this.authService.hasPermission(this.deletePermission()),
   );
+
   readonly eventCall = signal<EventCall[]>([]);
   dataSourceMat = new MatTableDataSource<EventCall>(this.eventCall());
   readonly columnDefinitions: ColumnDefinitionsProps[] = [
@@ -87,62 +89,39 @@ export class EventCallComponent implements OnInit {
     });
   }
 
-  private openEventsFormModal(title: string, data?: any): Observable<Events> {
-    const submitSubject = new Subject<void>();
-    const formAction: ModalAction[] = [
-      {
-        label: 'Cancelar',
-        type: 'stroked',
-        color: 'warn',
-        icon: 'close',
-        onClick: (ref) => ref.close(),
-      },
-      {
-        label: 'Salvar',
-        type: 'flat',
-        color: 'primary',
-        icon: 'save',
-        onClick: () => submitSubject.next(),
-      },
-    ];
-
-    return this.modalService
-      .openModal(
-        `modal-${Math.random()}`,
-        CreateEventCallComponent,
-        title,
-        true,
-        true,
-        { ...data, submitSubject },
-        undefined,
-        false,
-        formAction,
-      )
-      .afterClosed();
-  }
-
   onCreate() {
-    this.openEventsFormModal('Criar chamada do evento', { event: this.data.event }).subscribe(
-      (result) => {
-        if (result) {
-          this.eventCallService.createEventCall(this.data.event.id, result).subscribe({
-            next: () => {
-              this.toastService.openSuccess(MESSAGES.CREATE_SUCCESS);
-              this.loadEventCall();
-            },
-            error: () => this.toastService.openError(MESSAGES.CREATE_ERROR),
-            complete: () => this.loadingService.hide(),
-          });
-        }
-      },
+    const modal = this.formService.openFormModal(
+      'Criar chamada do evento',
+      CreateEventCallComponent,
+      { event: this.data.event },
+      ['cancel', 'save'],
+      true,
     );
+
+    modal.subscribe((result) => {
+      if (result) {
+        this.eventCallService.createEventCall(this.data.event.id, result).subscribe({
+          next: () => {
+            this.toastService.openSuccess(MESSAGES.CREATE_SUCCESS);
+            this.loadEventCall();
+          },
+          error: () => this.toastService.openError(MESSAGES.CREATE_ERROR),
+          complete: () => this.loadingService.hide(),
+        });
+      }
+    });
   }
 
   private onEdit(eventCall: EventCall) {
-    this.openEventsFormModal('Editar chamada do dia', {
-      eventCall,
-      event: this.data.event,
-    }).subscribe((result) => {
+    const modal = this.formService.openFormModal(
+      'Editar chamada do dia',
+      CreateEventCallComponent,
+      { eventCall, event: this.data.event },
+      ['cancel', 'save'],
+      true,
+    );
+
+    modal.subscribe((result) => {
       if (result) {
         this.eventCallService.updateEventCall(this.data.event.id, eventCall.id, result).subscribe({
           next: () => {

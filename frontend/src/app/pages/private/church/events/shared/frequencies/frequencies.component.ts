@@ -24,8 +24,9 @@ export class FrequenciesComponent implements OnInit {
   private readonly callToDayService = inject(EventCallService);
   private readonly formService = inject(FormService);
   private readonly data: { event: Events; call: EventCall } = inject(MAT_DIALOG_DATA);
-  public readonly writePermission = signal<string>('write_church_eventos');
-  public readonly readPermission = signal<string>('read_church_eventos');
+
+  readonly readPermission = signal<string>('read_church_eventos');
+  readonly writePermission = signal<string>('write_church_eventos');
 
   event = signal<Events[]>([]);
   callToDays = signal<EventCall[]>([]);

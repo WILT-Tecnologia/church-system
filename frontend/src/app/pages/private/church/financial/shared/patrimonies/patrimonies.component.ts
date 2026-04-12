@@ -4,13 +4,11 @@ import { ConfirmService } from '@app/components/confirm/confirm.service';
 import { CrudComponent } from '@app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from '@app/components/crud/types';
 import { LoadingService } from '@app/components/loading/loading.service';
-import { ModalAction } from '@app/components/modal/modal.component';
-import { ModalService } from '@app/components/modal/modal.service';
 import { MESSAGES } from '@app/components/toast/messages';
 import { ToastService } from '@app/components/toast/toast.service';
 import { Patrimonies } from '@app/model/Patrimonies';
 import { AuthService } from '@app/services/auth/auth.service';
-import { Subject } from 'rxjs';
+import { FormService } from '@app/services/form-service.service';
 import { PatrimoniesFormComponent } from './patrimonies-form/patrimonies-form.component';
 import { PatrimoniesService } from './patrimonies.service';
 
@@ -24,14 +22,14 @@ export class PatrimoniesComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   private readonly loadingService = inject(LoadingService);
   private readonly confirmService = inject(ConfirmService);
-  private readonly modalService = inject(ModalService);
   private readonly patrimoniesService = inject(PatrimoniesService);
   private readonly authService = inject(AuthService);
-  private readonly writeChurchPatrimonios = this.authService.hasPermission(
-    'write_church_patrimonios',
-  );
+  private readonly formService = inject(FormService);
+  readonly writePermission = signal<string>('write_church_patrimonios');
+  readonly deletePermission = signal<string>('delete_church_patrimonios');
+  private readonly writeChurchPatrimonios = this.authService.hasPermission(this.writePermission());
   private readonly deleteChurchPatrimonios = this.authService.hasPermission(
-    'delete_church_patrimonios',
+    this.deletePermission(),
   );
 
   patrimonies = signal<Patrimonies[]>([]);
@@ -87,37 +85,15 @@ export class PatrimoniesComponent implements OnInit {
   }
 
   onCreate() {
-    const submitSubject = new Subject<void>();
-    const formAction: ModalAction[] = [
-      {
-        label: 'Cancelar',
-        type: 'stroked',
-        color: 'warn',
-        icon: 'close',
-        onClick: (ref) => ref.close(),
-      },
-      {
-        label: 'Salvar',
-        type: 'flat',
-        color: 'primary',
-        icon: 'save',
-        onClick: () => submitSubject.next(),
-      },
-    ];
-
-    const modal = this.modalService.openModal(
-      `modal-${Math.random()}`,
-      PatrimoniesFormComponent,
+    const modal = this.formService.openFormModal(
       'Adicionando novo patrimônio',
-      true,
-      true,
-      { submitSubject },
-      undefined,
+      PatrimoniesFormComponent,
+      {},
+      ['cancel', 'save'],
       false,
-      formAction,
     );
 
-    modal.afterClosed().subscribe((data: FormData) => {
+    modal.subscribe((data: FormData) => {
       if (data) {
         this.patrimoniesService.createPatrimonies(data).subscribe({
           next: () => this.toastService.openSuccess(MESSAGES.CREATE_SUCCESS),
@@ -129,37 +105,15 @@ export class PatrimoniesComponent implements OnInit {
   }
 
   private editPatrimonies(patrimonies: Patrimonies) {
-    const submitSubject = new Subject<void>();
-    const formAction: ModalAction[] = [
-      {
-        label: 'Cancelar',
-        type: 'stroked',
-        color: 'warn',
-        icon: 'close',
-        onClick: (ref) => ref.close(),
-      },
-      {
-        label: 'Atualizar',
-        type: 'flat',
-        color: 'primary',
-        icon: 'save',
-        onClick: () => submitSubject.next(),
-      },
-    ];
-
-    const modal = this.modalService.openModal(
-      `modal-${Math.random()}`,
-      PatrimoniesFormComponent,
+    const modal = this.formService.openFormModal(
       `Editando o patrimonio ${patrimonies.number} - ${patrimonies.name}`,
-      true,
-      true,
-      { patrimonies, submitSubject },
-      undefined,
+      PatrimoniesFormComponent,
+      { patrimonies },
+      ['cancel', 'save'],
       false,
-      formAction,
     );
 
-    modal.afterClosed().subscribe((data: FormData) => {
+    modal.subscribe((data: FormData) => {
       if (data) {
         this.patrimoniesService.updatePatrimonies(data).subscribe({
           next: () => this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS),
@@ -172,7 +126,7 @@ export class PatrimoniesComponent implements OnInit {
 
   private deletePatrimonies(patrimonies: Patrimonies) {
     const modal = this.confirmService.openConfirm(
-      'Excluir patrimônio',
+      'Exclusão de patrimônio',
       `Tem certeza que deseja excluir o patrimônio ${patrimonies.number} - ${patrimonies.name}?`,
       'Confirmar',
       'Cancelar',

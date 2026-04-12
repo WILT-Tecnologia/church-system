@@ -4,7 +4,6 @@ import { ConfirmService } from '@app/components/confirm/confirm.service';
 import { CrudComponent } from '@app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from '@app/components/crud/types';
 import { LoadingService } from '@app/components/loading/loading.service';
-import { ModalService } from '@app/components/modal/modal.service';
 import { MESSAGES } from '@app/components/toast/messages';
 import { ToastService } from '@app/components/toast/toast.service';
 import { Guest } from '@app/model/Guest';
@@ -23,7 +22,6 @@ export class GuestsComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   private readonly loadingService = inject(LoadingService);
   private readonly confirmService = inject(ConfirmService);
-  private readonly modalService = inject(ModalService);
   private readonly formService = inject(FormService);
   private readonly guestsService = inject(GuestsService);
   private readonly authService = inject(AuthService);
@@ -57,7 +55,7 @@ export class GuestsComponent implements OnInit {
       icon: 'edit',
       label: 'Editar',
       color: 'inherit',
-      action: (guest: Guest) => this.handleEdit(guest),
+      action: (guest: Guest) => this.onEdit(guest),
       visible: () => this.permissionHasWrite,
     },
     {
@@ -65,7 +63,7 @@ export class GuestsComponent implements OnInit {
       icon: 'delete',
       label: 'Excluir',
       color: 'warn',
-      action: (guest: Guest) => this.handleDelete(guest),
+      action: (guest: Guest) => this.onDelete(guest),
       visible: () => this.permissionHasDelete,
     },
   ];
@@ -74,7 +72,7 @@ export class GuestsComponent implements OnInit {
     this.loadGuests();
   }
 
-  loadGuests() {
+  private loadGuests() {
     this.guestsService.getGuestsAll().subscribe({
       next: (data) => {
         this.guest.set(data);
@@ -105,7 +103,7 @@ export class GuestsComponent implements OnInit {
     });
   }
 
-  handleEdit(guest: Guest) {
+  private onEdit(guest: Guest) {
     const modal = this.formService.openFormModal(
       `Editando o convidado ${guest.name}`,
       GuestsFormComponent,
@@ -125,7 +123,7 @@ export class GuestsComponent implements OnInit {
     });
   }
 
-  handleDelete(guest: Guest) {
+  private onDelete(guest: Guest) {
     const modal = this.confirmService.openConfirm(
       'Exclusão de convidado',
       `Tem certeza que deseja excluir o registro do convidado ${guest.name}?`,

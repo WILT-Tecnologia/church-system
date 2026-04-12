@@ -4,13 +4,12 @@ import { ConfirmService } from '@app/components/confirm/confirm.service';
 import { CrudComponent } from '@app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from '@app/components/crud/types';
 import { LoadingService } from '@app/components/loading/loading.service';
-import { ModalAction } from '@app/components/modal/modal.component';
 import { ModalService } from '@app/components/modal/modal.service';
 import { MESSAGES } from '@app/components/toast/messages';
 import { ToastService } from '@app/components/toast/toast.service';
 import { FinancialCategories } from '@app/model/FinancialCategories';
 import { AuthService } from '@app/services/auth/auth.service';
-import { Subject } from 'rxjs';
+import { FormService } from '@app/services/form-service.service';
 import { FinancialCategoriesService } from './financial-categories.service';
 import { FinancialCategoriesFormComponent } from './shared/financial-categories-form/financial-categories-form.component';
 
@@ -27,11 +26,14 @@ export class FinancialCategoriesComponent implements OnInit {
   private readonly confirmService = inject(ConfirmService);
   private readonly toastService = inject(ToastService);
   private readonly loadingService = inject(LoadingService);
+  private readonly formService = inject(FormService);
+  readonly writePermission = signal<string>('write_church_categorias_financeiras');
+  readonly deletePermission = signal<string>('delete_church_categorias_financeiras');
   private readonly writeChurchCategoriesFinancial = this.authService.hasPermission(
-    'write_church_categorias_financeiras',
+    this.writePermission(),
   );
   private readonly deleteChurchCategoriesFinancial = this.authService.hasPermission(
-    'delete_church_categorias_financeiras',
+    this.deletePermission(),
   );
 
   public readonly financialCategories = signal<FinancialCategories[]>([]);
@@ -89,37 +91,15 @@ export class FinancialCategoriesComponent implements OnInit {
   }
 
   onCreate() {
-    const submitSubject = new Subject<void>();
-    const formAction: ModalAction[] = [
-      {
-        label: 'Cancelar',
-        type: 'stroked',
-        color: 'warn',
-        icon: 'close',
-        onClick: (ref) => ref.close(),
-      },
-      {
-        label: 'Salvar',
-        type: 'flat',
-        color: 'primary',
-        icon: 'save',
-        onClick: () => submitSubject.next(),
-      },
-    ];
-
-    const modal = this.dialogService.openModal(
-      `modal-${Math.random()}`,
-      FinancialCategoriesFormComponent,
+    const modal = this.formService.openFormModal(
       'Adicionar nova categoria de lançamento',
-      true,
-      true,
-      { submitSubject },
-      undefined,
+      FinancialCategoriesFormComponent,
+      {},
+      ['cancel', 'save'],
       false,
-      formAction,
     );
 
-    modal.afterClosed().subscribe((result: FinancialCategories) => {
+    modal.subscribe((result: FinancialCategories) => {
       if (result) {
         this.financialCategoriesService.createFinancialCategories(result).subscribe({
           next: () => this.toastService.openSuccess(MESSAGES.CREATE_SUCCESS),
@@ -131,37 +111,15 @@ export class FinancialCategoriesComponent implements OnInit {
   }
 
   private editFinancialCategories(financialCategories: FinancialCategories) {
-    const submitSubject = new Subject<void>();
-    const formAction: ModalAction[] = [
-      {
-        label: 'Cancelar',
-        type: 'stroked',
-        color: 'warn',
-        icon: 'close',
-        onClick: (ref) => ref.close(),
-      },
-      {
-        label: 'Atualizar',
-        type: 'flat',
-        color: 'primary',
-        icon: 'save',
-        onClick: () => submitSubject.next(),
-      },
-    ];
-
-    const modal = this.dialogService.openModal(
-      `modal-${Math.random()}`,
-      FinancialCategoriesFormComponent,
+    const modal = this.formService.openFormModal(
       `Editando a categoria de lançamento "${financialCategories.name.toUpperCase()}"`,
-      true,
-      true,
-      { financialCategories, submitSubject },
-      undefined,
+      FinancialCategoriesFormComponent,
+      { financialCategories },
+      ['cancel', 'save'],
       false,
-      formAction,
     );
 
-    modal.afterClosed().subscribe((result) => {
+    modal.subscribe((result: FinancialCategories) => {
       if (result) {
         this.financialCategoriesService.updateFinancialCategories(result).subscribe({
           next: () => this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS),

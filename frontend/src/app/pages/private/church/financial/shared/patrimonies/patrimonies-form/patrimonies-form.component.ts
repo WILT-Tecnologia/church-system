@@ -245,6 +245,8 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
         this.members = members;
         this.setupAutocomplete();
 
+        const selectedChurchId = localStorage.getItem('selectedChurch');
+
         if (this.isEditMode() && this.data.patrimonies) {
           const pat = this.data.patrimonies as Patrimonies;
           const church = this.churchs.find((c) => c.id === pat.church?.id);
@@ -252,6 +254,14 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
 
           if (church) this.searchControlChurch.setValue(church);
           if (member) this.searchControlMember.setValue(member);
+        } else if (selectedChurchId) {
+          const church = this.churchs.find((c) => c.id === selectedChurchId);
+
+          if (church) {
+            this.searchControlChurch.setValue(church);
+            this.searchControlChurch.disable();
+            this.patrimoniesForm.get('church_id')?.setValue(church.id);
+          }
         }
       },
       error: () => this.toastService.openError(MESSAGES.LOADING_ERROR),

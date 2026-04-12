@@ -68,7 +68,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly toastService = inject(ToastService);
   private readonly loadingService = inject(LoadingService);
   private readonly confirmService = inject(ConfirmService);
-  private readonly openEventsFormModal = inject(FormService);
+  private readonly formService = inject(FormService);
   private readonly eventsService = inject(EventsService);
   private readonly format = inject(FormatsPipe);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -91,6 +91,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   currentEvents = signal<EventApi[]>([]);
   mappedEvents = computed(() => this.mapEventsToCalendar(this.events()));
   calendarComponent = viewChild(EventCalendarComponent);
+
   public readonly writePermission = signal<string>('write_church_eventos');
   public readonly readPermission = signal<string>('read_church_eventos');
   public readonly deletePermission = signal<string>('delete_church_eventos');
@@ -122,7 +123,6 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     { key: 'name', header: 'Nome', type: 'string' },
     { key: 'obs', header: 'Observação', type: 'string' },
   ];
-
   actions: ActionsProps[] = [
     {
       type: 'edit',
@@ -173,9 +173,9 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     editFn: this.onEditEvent.bind(this),
     deleteFn: this.onDeleteEvent.bind(this),
     enableToggleStatus: true,
-    readPermission: 'read_church_eventos',
-    writePermission: 'write_church_eventos',
-    deletePermission: 'write_church_eventos',
+    readPermission: this.readPermission(),
+    writePermission: this.writePermission(),
+    deletePermission: this.deletePermission(),
   };
 
   constructor() {
@@ -224,7 +224,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   handleDateSelect(selectInfo: DateSelectArg) {
-    this.openEventsFormModal
+    this.formService
       .openFormModal('Adicionar evento', EventsFormComponent, {
         event: {
           start_date: dayjs(selectInfo.startStr).format('DD/MM/YYYY'),
@@ -254,7 +254,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onCreateEvent(eventTypeID?: string) {
-    this.openEventsFormModal
+    this.formService
       .openFormModal('Adicionar evento', EventsFormComponent, { eventTypeID })
       .subscribe((result: Events) => {
         if (result) {
@@ -344,21 +344,25 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private onEditEvent(event: Events) {
-    this.openEventsFormModal
-      .openFormModal(`Editando o evento ${event.name}`, EventsFormComponent, { event })
-      .subscribe((data: Events) => {
-        if (data) {
-          this.eventsService.updateEvent(data).subscribe({
-            next: (updatedEvent) => {
-              this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS);
-              this.events.update((current) =>
-                current.map((e) => (e.id === updatedEvent.id ? updatedEvent : e)),
-              );
-            },
-            error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
-          });
-        }
-      });
+    const modal = this.formService.openFormModal(
+      `Editando o evento ${event.name}`,
+      EventsFormComponent,
+      { event },
+    );
+
+    modal.subscribe((data: Events) => {
+      if (data) {
+        this.eventsService.updateEvent(data).subscribe({
+          next: (updatedEvent) => {
+            this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS);
+            this.events.update((current) =>
+              current.map((e) => (e.id === updatedEvent.id ? updatedEvent : e)),
+            );
+          },
+          error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
+        });
+      }
+    });
   }
 
   private onDeleteEvent(event: Events) {
@@ -383,74 +387,80 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private onAddMembersGuests(event: Events) {
-    this.openEventsFormModal
-      .openFormModal(
-        `Adicionar participantes no evento ${event?.name}`,
-        AddMembersGuestsComponent,
-        {
-          event,
-        },
-        [],
-        true,
-      )
-      .subscribe((data: Events) => {
-        if (data) {
-          this.eventsService.updateEvent(data).subscribe({
-            next: (updatedEvent) => {
-              this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS);
-              this.events.update((current) =>
-                current.map((e) => (e.id === updatedEvent.id ? updatedEvent : e)),
-              );
-            },
-            error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
-          });
-        }
-      });
+    const modal = this.formService.openFormModal(
+      `Adicionar participantes no evento ${event?.name}`,
+      AddMembersGuestsComponent,
+      { event },
+      [],
+      true,
+    );
+
+    modal.subscribe((data: Events) => {
+      if (data) {
+        this.eventsService.updateEvent(data).subscribe({
+          next: (updatedEvent) => {
+            this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS);
+            this.events.update((current) =>
+              current.map((e) => (e.id === updatedEvent.id ? updatedEvent : e)),
+            );
+          },
+          error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
+        });
+      }
+    });
   }
 
   private onCreateCall(event: Events) {
-    this.openEventsFormModal
-      .openFormModal(`Chamadas do evento`, EventCallComponent, { event }, ['cancel'], true)
-      .subscribe((data: EventCall) => {
-        if (data) {
-          this.eventsService.updateEvent(data).subscribe({
-            next: (updatedEvent) => {
-              this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS);
-              this.events.update((current) =>
-                current.map((e) => (e.id === updatedEvent.id ? updatedEvent : e)),
-              );
-            },
-            error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
-          });
-        }
-      });
+    const modal = this.formService.openFormModal(
+      `Chamadas do evento`,
+      EventCallComponent,
+      { event },
+      ['cancel'],
+      true,
+    );
+
+    modal.subscribe((data: EventCall) => {
+      if (data) {
+        this.eventsService.updateEvent(data).subscribe({
+          next: (updatedEvent) => {
+            this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS);
+            this.events.update((current) =>
+              current.map((e) => (e.id === updatedEvent.id ? updatedEvent : e)),
+            );
+          },
+          error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
+        });
+      }
+    });
   }
 
   private onFrequency(event: Events) {
-    this.openEventsFormModal
-      .openFormModal(`Frequências do evento ${event.name}`, FrequenciesComponent, { event }, [
-        'cancel',
-      ])
-      .subscribe((data: Events) => {
-        if (data) {
-          this.eventsService.updateEvent(data).subscribe({
-            next: (updatedEvent) => {
-              this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS);
-              this.events.update((current) =>
-                current.map((e) => (e.id === updatedEvent.id ? updatedEvent : e)),
-              );
-            },
-            error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
-          });
-        }
-      });
+    const modal = this.formService.openFormModal(
+      `Frequências do evento ${event.name}`,
+      FrequenciesComponent,
+      { event },
+      ['cancel'],
+    );
+
+    modal.subscribe((data: Events) => {
+      if (data) {
+        this.eventsService.updateEvent(data).subscribe({
+          next: (updatedEvent) => {
+            this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS);
+            this.events.update((current) =>
+              current.map((e) => (e.id === updatedEvent.id ? updatedEvent : e)),
+            );
+          },
+          error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
+        });
+      }
+    });
   }
 
   private mapEventsToCalendar(events: Events[]): any[] {
     const calendarEvents: any[] = [];
 
     events.forEach((event) => {
-      // O campo eventCall pode vir como um objeto único ou como um array do backend
       const callsRaw = (event as any).eventCall || (event as any).calls || [];
       const calls: EventCall[] = Array.isArray(callsRaw) ? callsRaw : callsRaw ? [callsRaw] : [];
 
