@@ -147,7 +147,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 
         .event-card {
           background: white;
-          border-left: 4px solid var(--indio-color);
+          border-left: 4px solid var(--indigo-color);
           border-radius: 4px;
           padding: 6px 10px;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
