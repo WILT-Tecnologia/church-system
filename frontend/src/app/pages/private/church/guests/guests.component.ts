@@ -4,13 +4,12 @@ import { ConfirmService } from '@app/components/confirm/confirm.service';
 import { CrudComponent } from '@app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from '@app/components/crud/types';
 import { LoadingService } from '@app/components/loading/loading.service';
-import { ModalAction } from '@app/components/modal/modal.component';
 import { ModalService } from '@app/components/modal/modal.service';
 import { MESSAGES } from '@app/components/toast/messages';
 import { ToastService } from '@app/components/toast/toast.service';
 import { Guest } from '@app/model/Guest';
 import { AuthService } from '@app/services/auth/auth.service';
-import { Subject } from 'rxjs';
+import { FormService } from '@app/services/form-service.service';
 import { GuestsFormComponent } from './guests-form/guests-form.component';
 import { GuestsService } from './guests.service';
 
@@ -21,10 +20,11 @@ import { GuestsService } from './guests.service';
   imports: [CrudComponent],
 })
 export class GuestsComponent implements OnInit {
-  private readonly toast = inject(ToastService);
-  private readonly loading = inject(LoadingService);
+  private readonly toastService = inject(ToastService);
+  private readonly loadingService = inject(LoadingService);
   private readonly confirmService = inject(ConfirmService);
-  private readonly modal = inject(ModalService);
+  private readonly modalService = inject(ModalService);
+  private readonly formService = inject(FormService);
   private readonly guestsService = inject(GuestsService);
   private readonly authService = inject(AuthService);
   public readonly permissionWrite = 'write_church_convidados_e_visitantes';
@@ -80,47 +80,25 @@ export class GuestsComponent implements OnInit {
         this.guest.set(data);
         this.dataSourceMat.data = data;
       },
-      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
-      complete: () => this.loading.hide(),
+      error: () => this.toastService.openError(MESSAGES.LOADING_ERROR),
+      complete: () => this.loadingService.hide(),
     });
   }
 
   onCreate() {
-    const submitSubject = new Subject<void>();
-    const formAction: ModalAction[] = [
-      {
-        label: 'Cancelar',
-        type: 'stroked',
-        color: 'warn',
-        icon: 'close',
-        onClick: (ref) => ref.close(),
-      },
-      {
-        label: 'Salvar',
-        type: 'flat',
-        color: 'primary',
-        icon: 'save',
-        onClick: () => submitSubject.next(),
-      },
-    ];
-
-    const modal = this.modal.openModal(
-      `modal-${Math.random()}`,
-      GuestsFormComponent,
+    const modal = this.formService.openFormModal(
       'Adicionar convidado',
-      true,
-      true,
-      { submitSubject },
-      undefined,
+      GuestsFormComponent,
+      {},
+      ['cancel', 'save'],
       false,
-      formAction,
     );
 
-    modal.afterClosed().subscribe((data: Guest) => {
+    modal.subscribe((data: Guest) => {
       if (data) {
         this.guestsService.createGuest(data).subscribe({
-          next: () => this.toast.openSuccess(MESSAGES.CREATE_SUCCESS),
-          error: () => this.toast.openError(MESSAGES.CREATE_ERROR),
+          next: () => this.toastService.openSuccess(MESSAGES.CREATE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.CREATE_ERROR),
           complete: () => this.loadGuests(),
         });
       }
@@ -128,41 +106,19 @@ export class GuestsComponent implements OnInit {
   }
 
   handleEdit(guest: Guest) {
-    const submitSubject = new Subject<void>();
-    const formAction: ModalAction[] = [
-      {
-        label: 'Cancelar',
-        type: 'stroked',
-        color: 'warn',
-        icon: 'close',
-        onClick: (ref) => ref.close(),
-      },
-      {
-        label: 'Atualizar',
-        type: 'flat',
-        color: 'primary',
-        icon: 'save',
-        onClick: () => submitSubject.next(),
-      },
-    ];
-
-    const modal = this.modal.openModal(
-      `modal-${Math.random()}`,
+    const modal = this.formService.openFormModal(
+      `Editando o convidado ${guest.name}`,
       GuestsFormComponent,
-      `Editando o convidado`,
-      true,
-      true,
-      { guest, submitSubject },
-      undefined,
+      { guest },
+      ['cancel', 'save'],
       false,
-      formAction,
     );
 
-    modal.afterClosed().subscribe((data: Guest) => {
+    modal.subscribe((data: Guest) => {
       if (data) {
         this.guestsService.updateGuest(data).subscribe({
-          next: () => this.toast.openSuccess(MESSAGES.UPDATE_SUCCESS),
-          error: () => this.toast.openError(MESSAGES.UPDATE_ERROR),
+          next: () => this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
           complete: () => this.loadGuests(),
         });
       }
@@ -180,8 +136,8 @@ export class GuestsComponent implements OnInit {
     modal.afterClosed().subscribe((result: boolean) => {
       if (result) {
         this.guestsService.deleteGuest(guest).subscribe({
-          next: () => this.toast.openSuccess(MESSAGES.DELETE_SUCCESS),
-          error: () => this.toast.openError(MESSAGES.DELETE_ERROR),
+          next: () => this.toastService.openSuccess(MESSAGES.DELETE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.DELETE_ERROR),
           complete: () => this.loadGuests(),
         });
       }

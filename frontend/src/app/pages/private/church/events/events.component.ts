@@ -21,7 +21,6 @@ import { ConfirmService } from '@app/components/confirm/confirm.service';
 import { FormatsPipe } from '@app/components/crud/pipes/formats.pipe';
 import { ActionsProps, ColumnDefinitionsProps } from '@app/components/crud/types';
 import { LoadingService } from '@app/components/loading/loading.service';
-import { ModalService } from '@app/components/modal/modal.service';
 import { CrudConfig, TabConfig } from '@app/components/tab-crud/types';
 import { MESSAGES } from '@app/components/toast/messages';
 import { ToastService } from '@app/components/toast/toast.service';
@@ -31,7 +30,7 @@ import { AddMembersGuestsComponent } from '@app/pages/private/church/events/shar
 import { EventCallComponent } from '@app/pages/private/church/events/shared/event-call/event-call.component';
 import { EventsFormComponent } from '@app/pages/private/church/events/shared/events-form/events-form.component';
 import { AuthService } from '@app/services/auth/auth.service';
-import { FormServiceService } from '@app/services/form-service.service';
+import { FormService } from '@app/services/form-service.service';
 import { DateSelectArg, EventApi, EventClickArg } from '@fullcalendar/core';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -69,8 +68,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly toastService = inject(ToastService);
   private readonly loadingService = inject(LoadingService);
   private readonly confirmService = inject(ConfirmService);
-  private readonly modalService = inject(ModalService);
-  private readonly openEventsFormModal = inject(FormServiceService);
+  private readonly openEventsFormModal = inject(FormService);
   private readonly eventsService = inject(EventsService);
   private readonly format = inject(FormatsPipe);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -294,8 +292,6 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private loadEvents() {
-    this.loadingService.show();
-    this.rendering.set(true);
     forkJoin({
       events: this.eventsService.findAll(),
       eventTypes: this.eventTypesService.findAll(),
@@ -334,8 +330,6 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
 
           if (this.tabs().length > 0 && !this.calendarVisible()) {
             this.initialTabLoadSubject.next(this.tabs()[0].id);
-          } else {
-            this.rendering.set(false);
           }
 
           this.loadingService.hide();
@@ -343,7 +337,6 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
         },
         error: () => {
           this.loadingService.hide();
-          this.rendering.set(false);
           this.toastService.openError(MESSAGES.LOADING_ERROR);
           this.cdr.detectChanges();
         },

@@ -8,7 +8,7 @@ export type FormAction = 'cancel' | 'save' | 'ok' | ModalAction;
 @Injectable({
   providedIn: 'root',
 })
-export class FormServiceService {
+export class FormService {
   private modalService = inject(ModalService);
 
   public openFormModal(

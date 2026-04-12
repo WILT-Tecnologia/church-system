@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { CrudComponent } from '@app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from '@app/components/crud/types';
@@ -7,7 +7,7 @@ import { LoadingService } from '@app/components/loading/loading.service';
 import { MESSAGES } from '@app/components/toast/messages';
 import { ToastService } from '@app/components/toast/toast.service';
 import { EventCall, Events } from '@app/model/Events';
-import { FormServiceService } from '@app/services/form-service.service';
+import { FormService } from '@app/services/form-service.service';
 import { EventCallService } from '../event-call/event-call.service';
 import { FrequencyFormComponent } from './shared/frequency-form/frequency-form.component';
 
@@ -22,8 +22,7 @@ export class FrequenciesComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   private readonly loadingService = inject(LoadingService);
   private readonly callToDayService = inject(EventCallService);
-  private readonly formService = inject(FormServiceService);
-  private readonly dialogRef = inject(MatDialogRef);
+  private readonly formService = inject(FormService);
   private readonly data: { event: Events; call: EventCall } = inject(MAT_DIALOG_DATA);
   public readonly writePermission = signal<string>('write_church_eventos');
   public readonly readPermission = signal<string>('read_church_eventos');
