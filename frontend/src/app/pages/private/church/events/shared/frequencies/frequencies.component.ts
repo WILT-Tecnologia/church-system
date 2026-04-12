@@ -39,7 +39,6 @@ export class FrequenciesComponent implements OnInit {
     { key: 'start_time', header: 'Hora inicial', type: 'time' },
     { key: 'end_time', header: 'Hora final', type: 'time' },
     { key: 'theme', header: 'Tema', type: 'string' },
-    { key: 'location', header: 'Local', type: 'string' },
     { key: 'status', header: 'Status', type: 'eventStatus' },
   ];
   actions: ActionsProps[] = [

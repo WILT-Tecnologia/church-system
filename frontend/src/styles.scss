@@ -131,41 +131,63 @@ body {
   color: var(--primary-color-dark) !important;
 }
 
-@layer components {
-  .spacer {
-    flex: 1 1 auto !important;
-  }
+.spacer {
+  flex: 1 1 auto !important;
+}
 
-  .p-1 {
-    padding: 1rem !important;
-  }
+.m-1 {
+  margin: 1rem !important;
+}
 
-  .p-2 {
-    padding: 2rem !important;
-  }
+.m-2 {
+  margin: 2rem !important;
+}
 
-  .w-full {
-    width: 100% !important;
-  }
+.m-3 {
+  margin: 3rem !important;
+}
 
-  .bold {
-    font-weight: bold !important;
-  }
+.m-4 {
+  margin: 4rem !important;
+}
 
-  .black {
-    font-weight: 800 !important;
-  }
+.p-1 {
+  padding: 1rem !important;
+}
 
-  .extra-black {
-    font-weight: 900 !important;
-  }
+.p-2 {
+  padding: 2rem !important;
+}
 
-  .cep-field {
-    max-width: 10dvw;
+.p-3 {
+  padding: 3rem !important;
+}
 
-    @media screen and (max-width: 768px) {
-      max-width: 100%;
-    }
+.p-4 {
+  padding: 4rem !important;
+}
+
+.w-full {
+  width: 100% !important;
+}
+
+.bold {
+  font-weight: bold !important;
+}
+
+.black {
+  font-weight: 800 !important;
+}
+
+.extra-black {
+  font-weight: 900 !important;
+}
+
+.cep-field {
+  max-width: 10dvw;
+
+  @media screen and (max-width: 768px) {
+    max-width: 100%;
   }
 }
 

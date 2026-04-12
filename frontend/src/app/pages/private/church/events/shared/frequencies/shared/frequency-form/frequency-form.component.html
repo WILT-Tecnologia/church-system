@@ -19,9 +19,13 @@
             <span class="label">Tema</span>
             <span class="value">{{ data.call.theme || '--' }}</span>
           </div>
-          <div class="info-item full-width">
+          <div class="info-item">
             <span class="label">Dia e horário</span>
             <span class="value">{{ headerDateRange() }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Local</span>
+            <span class="value">{{ data.call.location }}</span>
           </div>
         </div>
 
@@ -30,7 +34,7 @@
             <div class="status-badge expired">
               <mat-icon>history</mat-icon>
               <div class="status-content">
-                <span class="status-title">Período Encerrado</span>
+                <span class="status-title">Período fechado</span>
                 <span class="status-date"
                   >{{ data.call.end_date | date: 'dd/MM/yyyy' }} às {{ data.call.end_time }}</span
                 >
@@ -38,7 +42,7 @@
             </div>
             <p class="status-description">
               <mat-icon>info</mat-icon>
-              Não é possível alterar as presenças após o encerramento.
+              Não é possível alterar as presenças quando estiver com o período fechado.
             </p>
           } @else {
             <div class="status-badge available">
@@ -102,7 +106,8 @@
 
     <!-- Filtro global para participantes -->
     <div class="filter-container" aria-label="Filtrar participantes e convidados">
-      <mat-form-field appearance="fill" class="w-full">
+      <mat-form-field appearance="fill" class="w-full p-1">
+        <mat-icon matPrefix>search</mat-icon>
         <mat-label>Filtrar pelo nome</mat-label>
         <input
           matInput

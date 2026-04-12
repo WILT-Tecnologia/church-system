@@ -398,6 +398,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
           event,
         },
         [],
+        true,
       )
       .subscribe((data: Events) => {
         if (data) {
@@ -416,7 +417,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private onCreateCall(event: Events) {
     this.openEventsFormModal
-      .openFormModal(`Chamadas do evento`, EventCallComponent, { event }, ['cancel'])
+      .openFormModal(`Chamadas do evento`, EventCallComponent, { event }, ['cancel'], true)
       .subscribe((data: EventCall) => {
         if (data) {
           this.eventsService.updateEvent(data).subscribe({

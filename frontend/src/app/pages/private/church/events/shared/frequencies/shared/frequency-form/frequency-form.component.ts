@@ -134,7 +134,6 @@ export class FrequencyFormComponent implements OnInit {
     );
   });
 
-  // estados "selecionar todos"
   membersAllSelected = computed(
     () => this.members().length > 0 && this.members().every((m) => m.present),
   );
@@ -183,7 +182,6 @@ export class FrequencyFormComponent implements OnInit {
       } else if (value) {
         this.frequencyForm.get('event_call_id')?.setValue(value.id, { emitEvent: false });
 
-        // define janela ativa/encerrada
         const isPast = value.status === 'fechado';
         this.isPastDate.set(isPast);
 
@@ -195,7 +193,6 @@ export class FrequencyFormComponent implements OnInit {
           this.eventCallControl.enable({ emitEvent: false });
         }
 
-        // header amigável
         this.headerDateRange.set(this.humanizeDateRange(value));
       } else {
         this.frequencyForm.get('event_call_id')?.setValue('', { emitEvent: false });
@@ -242,7 +239,6 @@ export class FrequencyFormComponent implements OnInit {
       this.eventCall.set(callToDays);
       this.frequencies.set(frequencies || []);
 
-      // lista base
       const participantsBase: Attendance[] = [
         ...(event.participants?.length ? event.participants : []).map((m) => {
           const frequency = frequencies.find((f) => f.member && f.member.id === m.id);
@@ -264,9 +260,7 @@ export class FrequencyFormComponent implements OnInit {
             frequencyId: frequency?.id,
           };
         }),
-      ]
-        // ordena por nome
-        .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+      ].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
 
       this.participants.set(participantsBase);
 
@@ -314,6 +308,7 @@ export class FrequencyFormComponent implements OnInit {
     gds.filter = value;
     this.cdr.detectChanges();
   }
+
   clearFilter() {
     this.filterValue.set('');
     const mds = this.membersDataSource();
@@ -323,7 +318,6 @@ export class FrequencyFormComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // ----- UX: selecionar todos
   toggleAllMembers(checked: boolean) {
     if (this.isPastDate()) return;
     this.members().forEach((m) => this.onPresenceChange(m, checked));
@@ -411,24 +405,6 @@ export class FrequencyFormComponent implements OnInit {
       }
     }
   }
-
-  // private onParticipantSelected(event: MatAutocompleteSelectedEvent) {
-  //   const selectedParticipant = event.option.value as ParticipantAndGuest;
-  //   if (!this.participants().some((p) => p.id === selectedParticipant.id)) {
-  //     this.participants.update((participants) => [
-  //       ...participants,
-  //       {
-  //         id: selectedParticipant.id,
-  //         name: selectedParticipant.name,
-  //         type: selectedParticipant.isGuest ? ('guests' as const) : ('participants' as const),
-  //         present: false,
-  //       },
-  //     ]);
-  //     this.participantControl.setValue(null, { emitEvent: true });
-  //     this.participantSearchTerm.set('');
-  //     this.cdr.detectChanges();
-  //   }
-  // }
 
   displayParticipant(participant: ParticipantAndGuest | null): string {
     return participant ? participant.name : '';

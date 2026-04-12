@@ -232,7 +232,8 @@ export class CrudComponent implements OnInit, AfterViewInit {
   }
 
   applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    const input = event.target as HTMLInputElement;
+    const filterValue = input.value.trim().toLowerCase();
     this.dataSourceMat().filterPredicate = this.createFilter();
     this.dataSourceMat().filter = filterValue;
 

@@ -2,13 +2,16 @@
   <div class="wrapper">
     <mat-card appearance="outlined" class="participants-list">
       <mat-card-header>
-        <mat-card-title class="title">Adicionados</mat-card-title>
+        <mat-card-title class="title">Participantes</mat-card-title>
       </mat-card-header>
       <mat-card-content>
         <mat-chip-listbox>
           @for (participant of data.event.participantAndGuests; track $index) {
-            <mat-chip class="p-4">
-              {{ participant.name }} ({{ isParticipantMember(participant) ? 'Membro' : 'Convidado' }})
+            <mat-chip>
+              <span [class]="isParticipantMember(participant) ? 'type-member' : 'type-guest'">
+                {{ participant.name }}
+                ({{ isParticipantMember(participant) ? 'Membro' : 'Convidado' }})
+              </span>
               <button matChipRemove (click)="removeParticipant(participant)">
                 <mat-icon>cancel</mat-icon>
               </button>
@@ -30,7 +33,10 @@
       <mat-card-content>
         <div class="search-paginator">
           <div class="search">
-            <app-search placeholder="Pesquisar membros..." (searchChange)="applyMemberFilter($event)"></app-search>
+            <app-search
+              placeholder="Pesquisar membros..."
+              (searchChange)="applyMemberFilter($event)"
+            ></app-search>
           </div>
           <app-paginator
             [totalItems]="filteredMembers.length"
@@ -57,7 +63,13 @@
         </app-column>
       </mat-card-content>
       <app-actions class="actions">
-        <button mat-flat-button color="primary" type="button" (click)="submitMember()" [disabled]="isDisabled">
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          (click)="submitMember()"
+          [disabled]="isDisabled"
+        >
           Adicionar Membro
         </button>
       </app-actions>
@@ -73,7 +85,10 @@
       <mat-card-content>
         <div class="search-paginator">
           <div class="search">
-            <app-search placeholder="Pesquisar convidados..." (searchChange)="applyGuestFilter($event)"></app-search>
+            <app-search
+              placeholder="Pesquisar convidados..."
+              (searchChange)="applyGuestFilter($event)"
+            ></app-search>
           </div>
           <app-paginator
             [totalItems]="filteredGuests.length"

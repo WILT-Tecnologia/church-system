@@ -1,3 +1,10 @@
+::ng-deep .mdc-evolution-chip-set__chips {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
 .wrapper {
   display: flex;
   flex-direction: column;
@@ -66,13 +73,19 @@
   }
 }
 
-.p-4 {
-  margin: 0.1rem !important;
-}
-
 app-chip {
   width: 100% !important;
   max-width: 100% !important;
+}
+
+.type-member {
+  font-weight: 600;
+  color: var(--success-color);
+}
+
+.type-guest {
+  font-weight: 600;
+  color: var(--indigo-color);
 }
 
 .actions {
