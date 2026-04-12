@@ -62,14 +62,7 @@
 </div>
 
 <div class="mat-table-responsive">
-  @if (isLoading()) {
-    <div class="loading-container">
-      <div class="loading-container-spacings">
-        <mat-icon class="loading-container-icon"> refresh </mat-icon>
-        <app-loading></app-loading>
-      </div>
-    </div>
-  }
+  <app-loading [manualLoading]="isLoading()"></app-loading>
 
   <table [dataSource]="dataSourceMat()" mat-table matSort>
     <ng-container *ngFor="let column of columnDefinitions()" [matColumnDef]="column.key">
@@ -412,7 +405,7 @@
 
     <tr class="no-data-row" *matNoDataRow>
       <td [attr.colspan]="displayedColumns().length" class="no-data-cell">
-        @if (!isLoading()) {
+        @if (!showLoadingSignal()) {
           <div class="not-found-container">
             <mat-icon class="not-found-icon">inbox</mat-icon>
             <span class="not-found-text">Nenhuma informação encontrada</span>

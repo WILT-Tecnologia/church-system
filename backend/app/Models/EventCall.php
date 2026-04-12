@@ -42,21 +42,20 @@ class EventCall extends Model
     }
 
     public function getIsOpenAttribute(): bool {
-        if (!$this->end_date) {
+        if (!$this->start_date || !$this->end_date) {
             return true;
         }
 
-        $endDate = $this->end_date instanceof \Carbon\Carbon
-            ? $this->end_date
-            : \Carbon\Carbon::parse($this->end_date);
+        // Criamos objetos Carbon combinando data e hora do banco
+        $startDateTime = \Carbon\Carbon::parse($this->start_date->format('Y-m-d') . ' ' . ($this->start_time ?: '00:00:00'));
+        $endDateTime = \Carbon\Carbon::parse($this->end_date->format('Y-m-d') . ' ' . ($this->end_time ?: '23:59:59'));
 
-        if ($this->end_time) {
-            $endDateTime = \Carbon\Carbon::parse($endDate->format('Y-m-d') . ' ' . $this->end_time);
-        } else {
-            $endDateTime = $endDate->copy()->endOfDay();
-        }
+        // O status "disponível" agora valida se o momento atual está EXATAMENTE dentro do intervalo
+        return now()->between($startDateTime, $endDateTime);
+    }
 
-        return now()->lessThanOrEqualTo($endDateTime);
+    public function getStatusAttribute(): string {
+        return $this->getIsOpenAttribute() ? 'disponível' : 'fechado';
     }
 
     public function frequencies(): HasMany {

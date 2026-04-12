@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   effect,
+  inject,
   input,
   OnInit,
   output,
@@ -13,6 +14,7 @@ import {
   Type,
   viewChild,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
@@ -28,6 +30,7 @@ import { FormatValuesPipe } from '@app/components/crud/pipes/format-values.pipe'
 import { FormatsPipe } from '@app/components/crud/pipes/formats.pipe';
 import { AuthService } from '@app/services/auth/auth.service';
 import { LoadingComponent } from '../loading/loading.component';
+import { LoadingService } from '../loading/loading.service';
 import { ModalService } from '../modal/modal.service';
 import { StatusBadgeComponent } from '../status-badge/status-badge.component';
 import {
@@ -123,6 +126,11 @@ export class CrudComponent implements OnInit, AfterViewInit {
   currentPageIndex: number = 0;
   showFilter = signal(false);
   buttonSelected = signal(false);
+
+  private loadingService = inject(LoadingService);
+  private globalLoading = toSignal(this.loadingService.isLoading(), { initialValue: false });
+
+  showLoadingSignal = computed(() => this.isLoading() || this.globalLoading());
 
   displayedColumns = computed(() => {
     const cols = this.columnDefinitions().map((col) => col.key);

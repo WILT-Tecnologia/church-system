@@ -1,21 +1,19 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Observable } from 'rxjs';
 
 import { LoadingService } from './loading.service';
 @Component({
   selector: 'app-loading',
   templateUrl: './loading.component.html',
   styleUrls: ['./loading.component.scss'],
-  imports: [MatProgressSpinnerModule, CommonModule],
+  imports: [MatProgressSpinnerModule],
 })
-export class LoadingComponent implements OnInit {
-  loading$!: Observable<boolean>;
+export class LoadingComponent {
+  manualLoading = input<boolean>(false);
+  private loadingService = inject(LoadingService);
 
-  constructor(private loadingService: LoadingService) {}
+  private globalLoading = toSignal(this.loadingService.isLoading(), { initialValue: false });
 
-  ngOnInit(): void {
-    this.loading$ = this.loadingService.isLoading();
-  }
+  showLoading = computed(() => this.globalLoading() || this.manualLoading());
 }

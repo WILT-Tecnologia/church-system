@@ -50,6 +50,7 @@ export class EventCallComponent implements OnInit {
     { key: 'start_time', header: 'Hora inicial', type: 'time' },
     { key: 'end_date', header: 'Data final', type: 'date' },
     { key: 'end_time', header: 'Hora final', type: 'time' },
+    { key: 'status', header: 'Status', type: 'eventStatus' },
   ];
   actions: ActionsProps[] = [
     {

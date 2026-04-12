@@ -22,7 +22,7 @@ class FrequencyResource extends JsonResource
                 'start_time' => $this->eventCall->start_time ?? null,
                 'end_date' => $this->eventCall->end_date ?? null,
                 'end_time' => $this->eventCall->end_time ?? null,
-                'status' => $this->eventCall && $this->eventCall->is_open ? 'disponível' : 'fechado',
+                'status' => $this->eventCall->status ?? 'fechado',
                 'evento' => [
                     'id' => $this->eventCall->evento->id ?? null,
                     'name' => $this->eventCall->evento->name ?? null,
@@ -37,12 +37,7 @@ class FrequencyResource extends JsonResource
             'guest' => $this->guest ? [
                 'id' => $this->guest->id,
                 'name' => $this->guest->name ?? null,
-            ] : null,
-            /* 'id' => $this->id,
-            'event_call' => $this->event_call_id,
-            'member_id' => $this->member_id,
-            'guest_id' => $this->guest_id,
-            'present' => $this->present */
+            ] : null
         ];
     }
 }

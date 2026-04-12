@@ -119,10 +119,7 @@ export class FrequencyFormComponent implements OnInit {
     const term = this.searchTerm().trim().toUpperCase();
 
     return this.eventCall().filter((ctd) => {
-      const [endYear, endMonth, endDay] = ctd.end_date.split('-').map(Number);
-      const [endHour, endMinute] = ctd.end_time.split(':').map(Number);
-      const endDateTime = new Date(endYear, endMonth - 1, endDay, endHour, endMinute);
-      const isFutureOrNow = endDateTime >= now;
+      const isFutureOrNow = ctd.status !== 'fechado';
       const matchesTerm = !term || this.displayEventCall(ctd).toLowerCase().includes(term);
       return isFutureOrNow && matchesTerm;
     });
@@ -187,11 +184,7 @@ export class FrequencyFormComponent implements OnInit {
         this.frequencyForm.get('event_call_id')?.setValue(value.id, { emitEvent: false });
 
         // define janela ativa/encerrada
-        const [endY, endM, endD] = value.end_date.split('-').map(Number);
-        const [endH, endMin] = value.end_time.split(':').map(Number);
-        const endDateTime = new Date(endY, endM - 1, endD, endH, endMin);
-        const now = new Date();
-        const isPast = endDateTime < now;
+        const isPast = value.status === 'fechado';
         this.isPastDate.set(isPast);
 
         if (isPast) {
@@ -222,11 +215,7 @@ export class FrequencyFormComponent implements OnInit {
       this.eventCallControl.setValue(this.data.call, { emitEvent: false });
       this.frequencyForm.get('event_call_id')?.setValue(this.data.call.id, { emitEvent: false });
 
-      const [endY, endM, endD] = this.data.call.end_date.split('-').map(Number);
-      const [endH, endMin] = this.data.call.end_time.split(':').map(Number);
-      const endDateTime = new Date(endY, endM - 1, endD, endH, endMin);
-      const now = new Date();
-      const isPast = endDateTime < now;
+      const isPast = this.data.call.status === 'fechado';
       this.isPastDate.set(isPast);
       this.headerDateRange.set(this.humanizeDateRange(this.data.call));
 
