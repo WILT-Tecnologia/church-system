@@ -288,9 +288,13 @@ export class EventCalendarComponent {
     locale: 'pt-br',
     weekends: true,
     editable: false,
-    selectable: true,
+    selectable: false,
     selectMirror: true,
     dayMaxEvents: 2,
+    moreLinkText: 'Ver mais',
+    moreLinkHint(num) {
+      return `Ver mais ${num} eventos`;
+    },
     eventTimeFormat: {
       hour: '2-digit',
       minute: '2-digit',
