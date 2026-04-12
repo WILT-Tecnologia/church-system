@@ -10,6 +10,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, DateSelectArg, EventApi, EventClickArg } from '@fullcalendar/core';
@@ -24,41 +25,227 @@ import timeGridPlugin from '@fullcalendar/timegrid';
     <div class="full-calendar-container mat-elevation-z3">
       <full-calendar #calendar [options]="calendarOptions()">
         <ng-template #eventContent let-arg>
-          <button
-            class="full-calendar-event"
-            mat-flat-button
-            type="button"
-            color="primary"
+          <div
+            class="event-card"
+            [matTooltip]="arg.event.extendedProps['tooltip']"
             matTooltipClass="event-tooltip"
             matTooltipPosition="above"
-            [matTooltip]="arg.event.extendedProps['tooltip']"
+            [style.borderLeftColor]="arg.event.extendedProps['eventType']?.color || '#3f51b5'"
           >
-            {{ arg.event.title }}
-          </button>
+            <div class="event-header">
+              <span class="event-title">{{ arg.event.title }}</span>
+            </div>
+            <div class="event-body">
+              <div class="event-info" *ngIf="arg.event.extendedProps['theme']">
+                <mat-icon>topic</mat-icon>
+                <span>{{ arg.event.extendedProps['theme'] }}</span>
+              </div>
+              <div class="event-info" *ngIf="arg.event.extendedProps['location']">
+                <mat-icon>place</mat-icon>
+                <span>{{ arg.event.extendedProps['location'] }}</span>
+              </div>
+              <div class="event-info">
+                <mat-icon>calendar_today</mat-icon>
+                <span>
+                  {{ arg.event.extendedProps['eventCall']?.start_date | date: 'dd/MM/yyyy' }} -
+                  {{ arg.event.extendedProps['eventCall']?.end_date | date: 'dd/MM/yyyy' }}
+                </span>
+              </div>
+              <div class="event-info time-info">
+                <mat-icon>schedule</mat-icon>
+                <span>
+                  {{ arg.event.extendedProps['eventCall']?.start_time }} -
+                  {{ arg.event.extendedProps['eventCall']?.end_time }}
+                </span>
+              </div>
+            </div>
+          </div>
         </ng-template>
       </full-calendar>
     </div>
   `,
   styles: [
     `
-      .full-calendar-container {
-        background: white;
-        padding: 1rem;
-        border-radius: 8px;
+      :host {
+        display: block;
+        --fc-border-color: #e0e0e0;
+        --fc-button-bg-color: #ffffff;
+        --fc-button-border-color: #e0e0e0;
+        --fc-button-hover-bg-color: #f5f5f5;
+        --fc-button-hover-border-color: #bdbdbd;
+        --fc-button-active-bg-color: #eeeeee;
+        --fc-button-active-border-color: #9e9e9e;
+        --fc-today-bg-color: rgba(63, 81, 181, 0.04);
       }
-      .full-calendar-event {
-        width: 100%;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        white-space: nowrap;
-        font-size: 0.8rem;
-        padding: 0 4px !important;
-        min-height: 24px !important;
-        line-height: 24px !important;
+      ::ng-deep {
+        .fc .fc-button {
+          text-transform: uppercase;
+          font-size: 0.875rem;
+          font-weight: 500;
+          letter-spacing: 0.025em;
+          border-radius: 4px;
+          padding: 8px 16px;
+          transition:
+            background-color 0.2s,
+            box-shadow 0.2s;
+        }
+
+        .fc .fc-button-primary:not(:disabled).fc-button-active,
+        .fc .fc-button-primary:not(:disabled):active {
+          background-color: #eeeeee;
+          color: #3f51b5;
+          border-color: #3f51b5;
+        }
+
+        .fc .fc-toolbar-title {
+          font-size: 1.25rem;
+          font-weight: 400;
+          color: #212121;
+        }
+
+        .fc-theme-standard td,
+        .fc-theme-standard th {
+          border: 1px solid #f0f0f0;
+        }
+
+        .fc-col-header-cell {
+          background-color: #fafafa;
+          padding: 12px 0 !important;
+        }
+
+        .fc-col-header-cell-cushion {
+          color: #757575;
+          text-transform: uppercase;
+          font-size: 0.75rem;
+          font-weight: 600;
+          text-decoration: none !important;
+        }
+
+        .fc-daygrid-day-number {
+          color: #757575;
+          font-size: 0.875rem;
+          padding: 8px !important;
+          text-decoration: none !important;
+        }
+
+        .fc-day-today {
+          background-color: rgba(63, 81, 181, 0.05) !important;
+        }
+
+        .fc-day-today .fc-daygrid-day-number {
+          color: #3f51b5;
+          font-weight: bold;
+        }
+
+        /* Event Card Styles */
+        .fc-event {
+          background: transparent !important;
+          border: none !important;
+          padding: 0 !important;
+          margin: 2px 4px !important;
+        }
+
+        .event-card {
+          background: white;
+          border-left: 4px solid var(--indio-color);
+          border-radius: 4px;
+          padding: 6px 10px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+          color: #333;
+          font-size: 0.75rem;
+          overflow: hidden;
+          transition:
+            transform 0.2s,
+            box-shadow 0.2s;
+          cursor: pointer;
+          width: 100%;
+          border-right: 1px solid #f0f0f0;
+          border-top: 1px solid #f0f0f0;
+          border-bottom: 1px solid #f0f0f0;
+
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+            z-index: 10;
+          }
+        }
+
+        .event-title {
+          display: block;
+          white-space: normal;
+          overflow: hidden;
+          letter-spacing: 0.09em;
+          text-transform: uppercase;
+          font-weight: 600;
+          line-height: 1.2;
+        }
+
+        .event-body {
+          margin-top: 6px;
+          border-top: 1px dashed #e0e0e0;
+          padding-top: 6px;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+
+          &:hover {
+            color: var(--neutral-40);
+          }
+        }
+
+        .event-info {
+          display: flex;
+          align-items: flex-start;
+          gap: 6px;
+          color: var(--neutral-50);
+          font-size: 0.7rem;
+          line-height: 1.2;
+
+          &:hover {
+            color: var(--text-color);
+          }
+        }
+
+        .event-info span {
+          white-space: normal;
+          word-break: break-word;
+        }
+
+        .event-info mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+          color: var(--neutral-50);
+
+          &:hover {
+            color: var(--text-color);
+          }
+        }
+
+        .time-info {
+          font-weight: 600;
+          color: var(--indigo-color);
+          background-color: rgba(63, 81, 181, 0.08);
+          padding: 0.4rem 0.6rem;
+          border-radius: 0.4rem;
+          margin-top: 0.4rem;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .event-tooltip {
+          text-align: justify !important;
+          background-color: rgba(33, 33, 33, 0.9) !important;
+          font-size: 12px !important;
+          white-space: pre-line !important;
+          padding: 0.2rem 0.2rem !important;
+          border-radius: 0.4rem !important;
+        }
       }
     `,
   ],
-  imports: [CommonModule, FullCalendarModule, MatButtonModule, MatTooltipModule],
+  imports: [CommonModule, FullCalendarModule, MatButtonModule, MatTooltipModule, MatIconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EventCalendarComponent {
@@ -97,13 +284,13 @@ export class EventCalendarComponent {
       nextYear: 'Próximo Ano',
     },
     initialView: this.isMobile() ? 'listWeek' : 'dayGridMonth',
-    height: this.isMobile() ? 'auto' : '70dvh',
+    height: this.isMobile() ? 'auto' : '75dvh',
     locale: 'pt-br',
     weekends: true,
     editable: false,
     selectable: true,
     selectMirror: true,
-    dayMaxEvents: true,
+    dayMaxEvents: 2,
     eventTimeFormat: {
       hour: '2-digit',
       minute: '2-digit',

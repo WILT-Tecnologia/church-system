@@ -3,7 +3,7 @@ import { ModalAction } from '@app/components/modal/modal.component';
 import { ModalService } from '@app/components/modal/modal.service';
 import { Observable, Subject } from 'rxjs';
 
-export type FormAction = 'cancel' | 'save' | ModalAction;
+export type FormAction = 'cancel' | 'save' | 'ok' | ModalAction;
 
 @Injectable({
   providedIn: 'root',
@@ -37,13 +37,6 @@ export class FormServiceService {
   }
 
   /**
-   * @returns Retorna os botões padrão de formulário (Cancelar e Salvar)
-   */
-  public getStandardActions(submitSubject: Subject<void>): ModalAction[] {
-    return [this.getCancelAction(), this.getSaveAction(submitSubject)];
-  }
-
-  /**
    * @returns Resolve quais ações exibir baseado no parâmetro informado
    */
   private resolveActions(
@@ -54,7 +47,7 @@ export class FormServiceService {
 
     if (typeof actions === 'function') {
       baseActions = actions(submitSubject);
-    } else if (actions && actions.length > 0) {
+    } else if (actions !== undefined) {
       baseActions = actions;
     } else {
       baseActions = ['cancel', 'save'];
@@ -63,6 +56,7 @@ export class FormServiceService {
     return baseActions.map((action) => {
       if (action === 'cancel') return this.getCancelAction();
       if (action === 'save') return this.getSaveAction(submitSubject);
+      if (action === 'ok') return this.getOkAction(submitSubject);
       return action;
     });
   }
@@ -89,6 +83,16 @@ export class FormServiceService {
       type: 'flat',
       color: 'primary',
       icon: 'save',
+      onClick: () => submitSubject.next(),
+    };
+  }
+
+  private getOkAction(submitSubject: Subject<void>): ModalAction {
+    return {
+      label: 'OK',
+      type: 'flat',
+      color: 'primary',
+      icon: 'check',
       onClick: () => submitSubject.next(),
     };
   }

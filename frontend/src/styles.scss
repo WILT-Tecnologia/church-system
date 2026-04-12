@@ -14,8 +14,10 @@
   --tertiary-color: #{mat.get-theme-color(theme.$light-theme, tertiary)};
   --neutral-40: #{mat.get-theme-color(theme.$light-theme, neutral, 40)};
   --neutral-50: #{mat.get-theme-color(theme.$light-theme, neutral, 50)};
+  --neutral-60: #{mat.get-theme-color(theme.$light-theme, neutral, 60)};
   --neutral-light: #{mat.get-theme-color(theme.$light-theme, neutral, 95)};
   --neutral-light-2: #{mat.get-theme-color(theme.$light-theme, neutral, 90)};
+  --indigo-color: #{theme.$indigo};
   --grey-very-light: #{theme.$greyVeryLight};
   --grey-light: #{theme.$greyLight};
   --grey-main: #{theme.$greyMain};
