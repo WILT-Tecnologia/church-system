@@ -1,30 +1,54 @@
 <div class="eventCall-container">
   <form [formGroup]="frequencyForm" class="eventCall-form">
     @if (data.call) {
-      <div class="form-header sticky">
-        <div class="header-left">
-          <p>Evento: {{ data.event.name || data.call.event.name }}</p>
-          <p>Tipo: {{ data.event.eventType?.name }}</p>
-          <p>Igreja: {{ data.event.church?.name }}</p>
-          <p>Tema: {{ data.call.theme || '--' }}</p>
-          <p>Dia e horário: {{ headerDateRange }}</p>
+      <div class="form-header">
+        <div class="header-info-grid">
+          <div class="info-item">
+            <span class="label">Evento</span>
+            <span class="value">{{ data.event.name || data.call.event.name }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Tipo</span>
+            <span class="value">{{ data.event.eventType?.name }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Igreja</span>
+            <span class="value">{{ data.event.church?.name }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Tema</span>
+            <span class="value">{{ data.call.theme || '--' }}</span>
+          </div>
+          <div class="info-item full-width">
+            <span class="label">Dia e horário</span>
+            <span class="value">{{ headerDateRange() }}</span>
+          </div>
         </div>
 
-        <div class="header-right">
+        <div class="header-status">
           @if (isPastDate()) {
-            <div class="isPastDate">
-              <p>
-                Período encerrado em {{ data.call.end_date | date: 'dd/MM/yyyy' }} às
-                {{ data.call.end_time }}
-              </p>
+            <div class="status-badge expired">
+              <mat-icon>history</mat-icon>
+              <div class="status-content">
+                <span class="status-title">Período Encerrado</span>
+                <span class="status-date"
+                  >{{ data.call.end_date | date: 'dd/MM/yyyy' }} às {{ data.call.end_time }}</span
+                >
+              </div>
             </div>
-            <p class="isPastDateDescription">
-              Quando o período de chamada encerra, não é possível alterar a(s) presença(s).
+            <p class="status-description">
+              <mat-icon>info</mat-icon>
+              Não é possível alterar as presenças após o encerramento.
             </p>
           } @else {
-            <div class="isNotPastDate">
-              Período disponível até {{ data.call.end_date | date: 'dd/MM/yyyy' }} às
-              {{ data.call.end_time }}
+            <div class="status-badge available">
+              <mat-icon>schedule</mat-icon>
+              <div class="status-content">
+                <span class="status-title">Disponível até</span>
+                <span class="status-date"
+                  >{{ data.call.end_date | date: 'dd/MM/yyyy' }} às {{ data.call.end_time }}</span
+                >
+              </div>
             </div>
           }
         </div>
@@ -108,22 +132,31 @@
         (closed)="participantsSignal.set(false)"
       >
         <mat-expansion-panel-header>
-          <mat-panel-title class="text-neutral black">Participantes</mat-panel-title>
-          <mat-panel-description class="panel-description warning-color"> </mat-panel-description>
+          <mat-panel-title class="panel-title-with-icon">
+            <mat-icon>group</mat-icon>
+            Participantes
+          </mat-panel-title>
+          <mat-panel-description class="panel-description">
+            {{ members().length + guests().length }} total
+          </mat-panel-description>
         </mat-expansion-panel-header>
 
         <!-- MEMBROS -->
         <div class="table-container">
           <div class="section-header">
-            <h3 class="title bold">Membros</h3>
-            <div>
+            <div class="section-title">
+              <mat-icon>person</mat-icon>
+              <h3>Membros</h3>
+            </div>
+            <div class="bulk-actions">
               <mat-checkbox
                 [checked]="membersAllSelected()"
                 [indeterminate]="membersSomeSelected()"
                 (change)="toggleAllMembers($event.checked!)"
                 [disabled]="isPastDate() || members().length === 0"
-                >Selecionar todos</mat-checkbox
               >
+                Selecionar todos
+              </mat-checkbox>
             </div>
           </div>
           <mat-divider />
@@ -169,15 +202,19 @@
         <!-- CONVIDADOS -->
         <div class="table-container">
           <div class="section-header">
-            <h3 class="title bold">Convidados</h3>
+            <div class="section-title">
+              <mat-icon>person_add</mat-icon>
+              <h3>Convidados</h3>
+            </div>
             <div class="bulk-actions">
               <mat-checkbox
                 [checked]="guestsAllSelected()"
                 [indeterminate]="guestsSomeSelected()"
                 (change)="toggleAllGuests($event.checked!)"
                 [disabled]="isPastDate() || guests().length === 0"
-                >Selecionar todos</mat-checkbox
               >
+                Selecionar todos
+              </mat-checkbox>
             </div>
           </div>
           <mat-divider />
@@ -220,22 +257,5 @@
         </div>
       </mat-expansion-panel>
     </mat-accordion>
-
-    @if (!data.call) {
-      <app-column [columns]="2">
-        <button mat-stroked-button type="button" color="warn" (click)="closeDialog()">
-          Cancelar
-        </button>
-        <button
-          mat-flat-button
-          type="submit"
-          color="primary"
-          (click)="save()"
-          [disabled]="isPastDate()"
-        >
-          Concluir
-        </button>
-      </app-column>
-    }
   </form>
 </div>

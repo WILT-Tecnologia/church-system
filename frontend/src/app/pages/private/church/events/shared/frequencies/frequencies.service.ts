@@ -21,7 +21,11 @@ export class FrequenciesService {
     );
   }
 
-  create(eventId: string, eventCallId: string, payload: Partial<Frequency>): Observable<Frequency> {
+  createFrequency(
+    eventId: string,
+    eventCallId: string,
+    payload: Partial<Frequency>,
+  ): Observable<Frequency> {
     return this.http.post<Frequency>(
       `${this.apiUrl}/${eventId}/calls/${eventCallId}/frequencies`,
       payload,

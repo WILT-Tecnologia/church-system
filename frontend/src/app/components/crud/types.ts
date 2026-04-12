@@ -39,5 +39,6 @@ export type ColumnDefinitionsProps = {
     | 'customerSupplier'
     | 'entryExit'
     | 'typeService'
-    | 'typeSupplier';
+    | 'typeSupplier'
+    | 'eventStatus';
 };

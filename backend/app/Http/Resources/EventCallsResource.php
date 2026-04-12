@@ -32,6 +32,7 @@ class EventCallsResource extends JsonResource
             'start_time' => $this->start_time ? Carbon::parse($this->start_time)->format('H:i') : null,
             'end_time' => $this->end_time ? Carbon::parse($this->end_time)->format('H:i') : null,
             'location' => $this->location,
+            'status' => $this->is_open ? 'disponível' : 'fechado',
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

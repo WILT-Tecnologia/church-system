@@ -36,6 +36,7 @@ export interface EventCall {
   start_time: string;
   end_time: string;
   location: string;
+  status?: string;
 }
 
 export interface ParticipantAndGuest {

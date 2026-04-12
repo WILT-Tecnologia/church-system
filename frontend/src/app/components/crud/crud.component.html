@@ -217,6 +217,15 @@
               ]"
             />
           }
+          @case ('eventStatus') {
+            <app-status-badge
+              [value]="rowFields[column.key]"
+              [configs]="[
+                { when: 'disponível', label: 'Disponível', variant: 'success' },
+                { when: 'fechado', label: 'Fechado', variant: 'danger' },
+              ]"
+            />
+          }
           @case ('currency') {
             {{ (rowFields | formatValues: column.key : column.type) ?? '--' }}
           }

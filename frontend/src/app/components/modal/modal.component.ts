@@ -7,7 +7,15 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-export type ModalActionType = 'basic' | 'raised' | 'stroked' | 'flat' | 'icon' | 'fab' | 'mini-fab' | 'extended-fab';
+export type ModalActionType =
+  | 'basic'
+  | 'raised'
+  | 'stroked'
+  | 'flat'
+  | 'icon'
+  | 'fab'
+  | 'mini-fab'
+  | 'extended-fab';
 export type ModalActionColor = 'primary' | 'accent' | 'warn';
 
 export interface ModalAction {

@@ -41,8 +41,25 @@ class EventCall extends Model
         return $this->belongsTo(Evento::class, 'event_id', 'id');
     }
 
-    public function frequencies(): HasMany
-    {
+    public function getIsOpenAttribute(): bool {
+        if (!$this->end_date) {
+            return true;
+        }
+
+        $endDate = $this->end_date instanceof \Carbon\Carbon
+            ? $this->end_date
+            : \Carbon\Carbon::parse($this->end_date);
+
+        if ($this->end_time) {
+            $endDateTime = \Carbon\Carbon::parse($endDate->format('Y-m-d') . ' ' . $this->end_time);
+        } else {
+            $endDateTime = $endDate->copy()->endOfDay();
+        }
+
+        return now()->lessThanOrEqualTo($endDateTime);
+    }
+
+    public function frequencies(): HasMany {
         return $this->hasMany(Frequency::class);
     }
 

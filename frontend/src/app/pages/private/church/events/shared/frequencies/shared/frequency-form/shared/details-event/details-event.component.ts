@@ -100,7 +100,6 @@ export class DetailsEventComponent implements OnInit {
       );
     } catch (error) {
       this.toast.openError(MESSAGES.LOADING_ERROR);
-      console.error(error);
     } finally {
       this.loading.hide();
     }
@@ -112,7 +111,7 @@ export class DetailsEventComponent implements OnInit {
 
   async onPresenceChange(participant: Attendance, present: boolean) {
     if (!participant.id || !this.selectedEventCall.id || !this.selectedEventCall.event?.id) {
-      console.warn('Invalid participant or event data');
+      this.toast.openError('Participante inválido ou dados do evento inválidos');
       return;
     }
     this.participants.update((participants) =>
@@ -148,7 +147,7 @@ export class DetailsEventComponent implements OnInit {
         this.toast.openSuccess('Frequência atualizada com sucesso!');
       } else {
         const newFrequency = await firstValueFrom(
-          this.frequencyService.create(
+          this.frequencyService.createFrequency(
             this.selectedEventCall.event.id,
             this.selectedEventCall.id,
             payload,
@@ -171,7 +170,6 @@ export class DetailsEventComponent implements OnInit {
       }
     } catch (error) {
       this.toast.openError('Erro ao atualizar frequência.');
-      console.error(error);
     }
   }
 }

@@ -422,7 +422,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
     const modal = this.modal.openModal(
       `modal-${Math.random()}`,
       FrequenciesComponent,
-      `Frequências para o evento ${event.name}`,
+      `Frequências do evento ${event.name}`,
       true,
       true,
       { event: event, call: event.eventCall },

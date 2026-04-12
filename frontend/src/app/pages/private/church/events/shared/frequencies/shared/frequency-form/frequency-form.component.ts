@@ -18,14 +18,13 @@ import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { MatDivider } from '@angular/material/divider';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatTooltip } from '@angular/material/tooltip';
-import { ColumnComponent } from '@app/components/column/column.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { LoadingService } from '@app/components/loading/loading.service';
 import { MESSAGES } from '@app/components/toast/messages';
 import { ToastService } from '@app/components/toast/toast.service';
@@ -34,7 +33,6 @@ import { EventsService } from '@app/pages/private/church/events/events.service';
 import { EventCallService } from '@app/pages/private/church/events/shared/event-call/event-call.service';
 import { FrequenciesService } from '@app/pages/private/church/events/shared/frequencies/frequencies.service';
 import { ValidationService } from '@app/services/validation/validation.service';
-import { provideNgxMask } from 'ngx-mask';
 import { firstValueFrom, Observable } from 'rxjs';
 
 interface Attendance {
@@ -55,7 +53,6 @@ interface Attendance {
     ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,
-    ColumnComponent,
     MatExpansionModule,
     MatFormFieldModule,
     MatAutocompleteModule,
@@ -63,20 +60,10 @@ interface Attendance {
     MatIconModule,
     MatTableModule,
     MatCheckboxModule,
-    MatDivider,
-    MatTooltip,
+    MatDividerModule,
+    MatTooltipModule,
   ],
-  providers: [
-    ToastService,
-    LoadingService,
-    EventsService,
-    FrequenciesService,
-    EventCallService,
-    ValidationService,
-    provideNgxMask(),
-    provideNativeDateAdapter(),
-    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
-  ],
+  providers: [provideNativeDateAdapter(), { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' }],
 })
 export class FrequencyFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
@@ -95,12 +82,10 @@ export class FrequencyFormComponent implements OnInit {
     participants?: Frequency[];
   }>(MAT_DIALOG_DATA);
 
-  // form
   frequencyForm = this.fb.group({
     event_call_id: [this.data.frequency?.event_call_id ?? '', Validators.required],
   });
 
-  // controls/signals
   eventCallControl = new FormControl<EventCall | string | null>({ value: null, disabled: false });
   participantControl = new FormControl<string | ParticipantAndGuest | null>({
     value: null,
@@ -113,7 +98,6 @@ export class FrequencyFormComponent implements OnInit {
   participants = signal<Attendance[]>([]);
   availableParticipants = signal<ParticipantAndGuest[]>([]);
 
-  // data slices
   members = computed(() => this.participants().filter((p) => p.type === 'participants'));
   guests = computed(() => this.participants().filter((p) => p.type === 'guests'));
   membersDataSource = signal<MatTableDataSource<Attendance>>(
@@ -121,26 +105,18 @@ export class FrequencyFormComponent implements OnInit {
   );
   guestsDataSource = signal<MatTableDataSource<Attendance>>(new MatTableDataSource<Attendance>([]));
 
-  // ui state
   isPastDate = signal(false);
   detailsEvent = signal(true);
   participantsSignal = signal(true);
   displayedColumns = ['name', 'present'];
-
-  // filtros/autocomplete
   searchTerm = signal<string>('');
   participantSearchTerm = signal<string>('');
   filterValue = signal<string>('');
-
-  // saving feedback por linha
+  headerDateRange = signal<string>('');
   private savingIds = signal<Set<string>>(new Set());
-
-  // cabeçalho legível
-  headerDateRange = '';
-
   filteredEventCall = computed(() => {
     const now = new Date();
-    const term = this.searchTerm().toLowerCase();
+    const term = this.searchTerm().trim().toUpperCase();
 
     return this.eventCall().filter((ctd) => {
       const [endYear, endMonth, endDay] = ctd.end_date.split('-').map(Number);
@@ -198,7 +174,7 @@ export class FrequencyFormComponent implements OnInit {
 
   ngOnInit() {
     if (!this.data.event?.id) {
-      this.toastService.openError('Evento não fornecido.');
+      this.toastService.openError('Evento não ofertado.');
       this.dialogRef.close();
       return;
     }
@@ -227,7 +203,7 @@ export class FrequencyFormComponent implements OnInit {
         }
 
         // header amigável
-        this.headerDateRange = this.humanizeDateRange(value);
+        this.headerDateRange.set(this.humanizeDateRange(value));
       } else {
         this.frequencyForm.get('event_call_id')?.setValue('', { emitEvent: false });
         this.isPastDate.set(false);
@@ -252,7 +228,7 @@ export class FrequencyFormComponent implements OnInit {
       const now = new Date();
       const isPast = endDateTime < now;
       this.isPastDate.set(isPast);
-      this.headerDateRange = this.humanizeDateRange(this.data.call);
+      this.headerDateRange.set(this.humanizeDateRange(this.data.call));
 
       if (isPast) {
         this.frequencyForm.disable({ emitEvent: false });
@@ -265,7 +241,6 @@ export class FrequencyFormComponent implements OnInit {
   }
 
   private async loadData() {
-    this.loadingService.show();
     try {
       const [event, callToDays, frequencies] = await Promise.all([
         firstValueFrom(this.eventsService.findById(this.data.event.id)),
@@ -331,7 +306,6 @@ export class FrequencyFormComponent implements OnInit {
         );
       }
     } catch (error) {
-      console.error('Error in loadData:', error);
       setTimeout(() => {
         this.toastService.openError(MESSAGES.LOADING_ERROR);
         this.dialogRef.close();
@@ -342,11 +316,9 @@ export class FrequencyFormComponent implements OnInit {
     }
   }
 
-  // ----- UX: filtro global
   applyFilter(ev: Event) {
     const value = (ev.target as HTMLInputElement).value ?? '';
     this.filterValue.set(value);
-    // reatribui para disparar predicate
     const mds = this.membersDataSource();
     const gds = this.guestsDataSource();
     mds.filter = value;
@@ -397,13 +369,11 @@ export class FrequencyFormComponent implements OnInit {
     if (this.data.call) {
       const callId = this.data.call.id;
       if (!callId || !participant.id) {
-        console.warn('Event Call ID or Participant ID is missing. Cannot update frequency.');
         this.toastService.openError('Não foi possível atualizar a frequência. Dados incompletos.');
         return;
       }
 
       this.setSaving(participant, true);
-      this.loadingService.show();
       try {
         const payload: Partial<Frequency> = {
           event_call_id: callId,
@@ -425,7 +395,7 @@ export class FrequencyFormComponent implements OnInit {
           );
         } else {
           updatedFrequency = await firstValueFrom(
-            this.frequencyService.create(this.data.event.id, callId, payload),
+            this.frequencyService.createFrequency(this.data.event.id, callId, payload),
           );
         }
 
@@ -436,11 +406,7 @@ export class FrequencyFormComponent implements OnInit {
               : p,
           ),
         );
-        // sucesso silencioso (toast já existia; mantive só um sucesso discreto)
-        // this.toast.openSuccess('Frequência atualizada com sucesso!');
       } catch (error) {
-        console.error('Error updating frequency:', error);
-        // rollback
         this.participants.update((ps) =>
           ps.map((p) =>
             p.id === participant.id && p.type === participant.type
@@ -457,23 +423,23 @@ export class FrequencyFormComponent implements OnInit {
     }
   }
 
-  private onParticipantSelected(event: MatAutocompleteSelectedEvent) {
-    const selectedParticipant = event.option.value as ParticipantAndGuest;
-    if (!this.participants().some((p) => p.id === selectedParticipant.id)) {
-      this.participants.update((participants) => [
-        ...participants,
-        {
-          id: selectedParticipant.id,
-          name: selectedParticipant.name,
-          type: selectedParticipant.isGuest ? ('guests' as const) : ('participants' as const),
-          present: false,
-        },
-      ]);
-      this.participantControl.setValue(null, { emitEvent: true });
-      this.participantSearchTerm.set('');
-      this.cdr.detectChanges();
-    }
-  }
+  // private onParticipantSelected(event: MatAutocompleteSelectedEvent) {
+  //   const selectedParticipant = event.option.value as ParticipantAndGuest;
+  //   if (!this.participants().some((p) => p.id === selectedParticipant.id)) {
+  //     this.participants.update((participants) => [
+  //       ...participants,
+  //       {
+  //         id: selectedParticipant.id,
+  //         name: selectedParticipant.name,
+  //         type: selectedParticipant.isGuest ? ('guests' as const) : ('participants' as const),
+  //         present: false,
+  //       },
+  //     ]);
+  //     this.participantControl.setValue(null, { emitEvent: true });
+  //     this.participantSearchTerm.set('');
+  //     this.cdr.detectChanges();
+  //   }
+  // }
 
   displayParticipant(participant: ParticipantAndGuest | null): string {
     return participant ? participant.name : '';
@@ -535,11 +501,6 @@ export class FrequencyFormComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  closeDialog() {
-    this.dialogRef.close();
-    this.cdr.detectChanges();
-  }
-
   async save() {
     if (this.frequencyForm.invalid) {
       this.toastService.openError('Selecione uma chamada do dia');
@@ -554,7 +515,6 @@ export class FrequencyFormComponent implements OnInit {
       this.toastService.openError('Nenhum participante ou convidado encontrado');
       return;
     }
-    this.loadingService.show();
     const requests: Observable<Frequency>[] = [];
     for (const p of this.participants()) {
       if (!p.id) continue;
@@ -568,7 +528,7 @@ export class FrequencyFormComponent implements OnInit {
           this.frequencyService.update(this.data.event.id, callId, p.frequencyId, payload),
         );
       } else {
-        requests.push(this.frequencyService.create(this.data.event.id, callId, payload));
+        requests.push(this.frequencyService.createFrequency(this.data.event.id, callId, payload));
       }
     }
     try {
@@ -592,7 +552,6 @@ export class FrequencyFormComponent implements OnInit {
           'Não foi possível salvar as frequência por algum motivo desconhecido, tente novamente mais tarde.',
         );
       }, 0);
-      console.error('Server error');
     } finally {
       this.loadingService.hide();
       this.cdr.detectChanges();

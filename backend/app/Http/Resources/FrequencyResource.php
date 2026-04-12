@@ -22,6 +22,7 @@ class FrequencyResource extends JsonResource
                 'start_time' => $this->eventCall->start_time ?? null,
                 'end_date' => $this->eventCall->end_date ?? null,
                 'end_time' => $this->eventCall->end_time ?? null,
+                'status' => $this->eventCall && $this->eventCall->is_open ? 'disponível' : 'fechado',
                 'evento' => [
                     'id' => $this->eventCall->evento->id ?? null,
                     'name' => $this->eventCall->evento->name ?? null,

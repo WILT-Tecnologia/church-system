@@ -1,19 +1,14 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
-import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { CrudComponent } from '@app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from '@app/components/crud/types';
 import { LoadingService } from '@app/components/loading/loading.service';
-import { ModalService } from '@app/components/modal/modal.service';
 import { MESSAGES } from '@app/components/toast/messages';
 import { ToastService } from '@app/components/toast/toast.service';
 import { EventCall, Events } from '@app/model/Events';
-import { provideNgxMask } from 'ngx-mask';
-import { firstValueFrom } from 'rxjs';
-import { EventsService } from '../../events.service';
+import { FormServiceService } from '@app/services/form-service.service';
 import { EventCallService } from '../event-call/event-call.service';
-import { FrequenciesService } from './frequencies.service';
 import { FrequencyFormComponent } from './shared/frequency-form/frequency-form.component';
 
 @Component({
@@ -22,28 +17,18 @@ import { FrequencyFormComponent } from './shared/frequency-form/frequency-form.c
   styleUrl: './frequencies.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CrudComponent],
-  providers: [
-    ToastService,
-    LoadingService,
-    ModalService,
-    EventsService,
-    FrequenciesService,
-    EventCallService,
-    provideNgxMask(),
-    provideNativeDateAdapter(),
-    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
-  ],
 })
 export class FrequenciesComponent implements OnInit {
-  private readonly toast = inject(ToastService);
-  private readonly loading = inject(LoadingService);
-  private readonly eventsService = inject(EventsService);
+  private readonly toastService = inject(ToastService);
+  private readonly loadingService = inject(LoadingService);
   private readonly callToDayService = inject(EventCallService);
-  private readonly modal = inject(ModalService);
+  private readonly formService = inject(FormServiceService);
   private readonly dialogRef = inject(MatDialogRef);
-  private readonly data = inject<{ event: Events; call: EventCall }>(MAT_DIALOG_DATA);
+  private readonly data: { event: Events; call: EventCall } = inject(MAT_DIALOG_DATA);
+  public readonly writePermission = signal<string>('write_church_eventos');
+  public readonly readPermission = signal<string>('read_church_eventos');
 
-  event = signal<Events | null>(null);
+  event = signal<Events[]>([]);
   callToDays = signal<EventCall[]>([]);
   dataSourceMat = new MatTableDataSource<EventCall>([]);
   columnDefinitions: ColumnDefinitionsProps[] = [
@@ -55,6 +40,7 @@ export class FrequenciesComponent implements OnInit {
     { key: 'end_time', header: 'Hora final', type: 'time' },
     { key: 'theme', header: 'Tema', type: 'string' },
     { key: 'location', header: 'Local', type: 'string' },
+    { key: 'status', header: 'Status', type: 'eventStatus' },
   ];
   actions: ActionsProps[] = [
     {
@@ -70,55 +56,33 @@ export class FrequenciesComponent implements OnInit {
     this.loadData();
   }
 
-  private async loadData() {
-    try {
-      const [event, callToDays] = await Promise.all([
-        firstValueFrom(this.eventsService.findById(this.data.event.id)),
-        firstValueFrom(this.callToDayService.getAllEventCalls(this.data.event.id)),
-      ]);
-
-      this.event.set(event);
-      this.callToDays.set(callToDays);
-      this.dataSourceMat.data = callToDays;
-    } catch (e) {
-      this.toast.openError(MESSAGES.LOADING_ERROR);
-      console.error(e);
-    } finally {
-      this.loading.hide();
-    }
+  private loadData() {
+    this.callToDayService.getAllEventCalls(this.data.event.id).subscribe({
+      next: (callToDays) => {
+        this.callToDays.set(callToDays);
+        this.dataSourceMat.data = callToDays;
+      },
+      error: () => this.toastService.openError(MESSAGES.LOADING_ERROR),
+      complete: () => this.loadingService.hide(),
+    });
   }
 
-  async onAddFrequency() {
-    const modal = this.modal.openModal(
-      `modal-${Math.random()}`,
+  onAddFrequency() {
+    this.formService.openFormModal(
+      `Adicionando nova frequência para o evento ${this.data.event.name}`,
       FrequencyFormComponent,
-      'Adicionar Frequência',
-      true,
-      true,
       { event: this.data.event, call: this.data.call },
-      '',
-      true,
+      ['cancel'],
     );
-    const result = await firstValueFrom(modal.afterClosed());
-    if (result) {
-      await this.loadData();
-    }
   }
 
-  async onMarkFrequency(row: EventCall) {
-    const modal = this.modal.openModal(
-      `modal-${Math.random()}`,
+  onMarkFrequency(eventCall: EventCall) {
+    this.formService.openFormModal(
+      `Editando frequência do evento ${this.data.event.name}`,
       FrequencyFormComponent,
-      'Editar frequência',
-      true,
-      true,
-      { event: this.data.event, call: row },
-      '',
+      { event: this.data.event, call: eventCall },
+      ['cancel'],
       true,
     );
-    const result = await firstValueFrom(modal.afterClosed());
-    if (result) {
-      await this.loadData();
-    }
   }
 }

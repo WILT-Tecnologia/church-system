@@ -144,18 +144,18 @@
 .mat-cell,
 td,
 th {
+  max-width: clamp(min(10vw, 20rem), 300px, max(90vw, 55rem));
   overflow: hidden;
   white-space: nowrap;
-  padding: 0 1rem;
 
   @media screen and (max-width: 1280px) {
     font-size: 0.75rem;
-    padding: 0 0.75rem;
+    min-width: clamp(1rem, 5vw, 2rem);
   }
 
   @media screen and (max-width: 768px) {
     font-size: 0.7rem;
-    padding: 0 0.5rem;
+    min-width: clamp(1rem, 5vw, 2rem);
   }
 }
 
@@ -226,14 +226,6 @@ th {
   &:hover {
     background-color: var(--hover-color) !important;
   }
-}
-
-mat-header-cell.mat-column-actions {
-  background-color: var(--hover-color) !important;
-}
-
-mat-cell.mat-column-actions {
-  background-color: var(--white-color) !important;
 }
 
 .rows.clickable {
