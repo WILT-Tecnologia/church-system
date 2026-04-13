@@ -4,6 +4,6 @@
   [columnDefinitions]="columnDefinitions"
   (add)="onCreate()"
   [actions]="actions"
-  [writePermission]="'write_church_membros'"
-  [deletePermission]="'delete_church_membros'"
+  [writePermission]="canWrite()"
+  [deletePermission]="canDelete()"
 ></app-crud>

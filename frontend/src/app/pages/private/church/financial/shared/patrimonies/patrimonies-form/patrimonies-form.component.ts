@@ -238,7 +238,7 @@ export class PatrimoniesFormComponent implements OnInit, OnDestroy {
   private loadData() {
     forkJoin({
       churchs: this.churchesService.getChurches(),
-      members: this.membersService.findAll(),
+      members: this.membersService.getMembersAll(),
     }).subscribe({
       next: ({ churchs, members }) => {
         this.churchs = churchs;

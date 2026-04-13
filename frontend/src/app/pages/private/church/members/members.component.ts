@@ -4,16 +4,16 @@ import { ConfirmService } from '@app/components/confirm/confirm.service';
 import { CrudComponent } from '@app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from '@app/components/crud/types';
 import { LoadingService } from '@app/components/loading/loading.service';
-import { ModalService } from '@app/components/modal/modal.service';
 import { MESSAGES } from '@app/components/toast/messages';
 import { ToastService } from '@app/components/toast/toast.service';
 import { Families } from '@app/model/Families';
 import { Members } from '@app/model/Members';
 import { AuthService } from '@app/services/auth/auth.service';
+import { FormService } from '@app/services/form-service.service';
 import { MembersService } from './members.service';
 import { FamiliesComponent } from './shared/families/families.component';
 import { HistoryComponent } from './shared/history/history.component';
-import { MemberComponent } from './shared/member/member.component';
+import { MemberFormComponent } from './shared/member-form/member-form.component';
 import { OrdinationsComponent } from './shared/ordinations/ordinations.component';
 import { StatusMemberComponent } from './shared/status-member/status-member.component';
 
@@ -24,12 +24,18 @@ import { StatusMemberComponent } from './shared/status-member/status-member.comp
   imports: [CrudComponent],
 })
 export class MembersComponent implements OnInit {
-  private confirmeService = inject(ConfirmService);
-  private loading = inject(LoadingService);
-  private toast = inject(ToastService);
-  private membersService = inject(MembersService);
-  private modalService = inject(ModalService);
-  private authService = inject(AuthService);
+  private readonly confirmeService = inject(ConfirmService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly toastService = inject(ToastService);
+  private readonly membersService = inject(MembersService);
+  private readonly authService = inject(AuthService);
+  private readonly formService = inject(FormService);
+
+  readonly canWrite = signal<string>('write_church_membros');
+  readonly canDelete = signal<string>('delete_church_membros');
+  private readonly hasCanWrite = this.authService.hasPermission(this.canWrite());
+  private readonly hasCanDelete = this.authService.hasPermission(this.canDelete());
+
   families!: Families[];
   member = signal<Members[]>([]);
   dataSourceMat = new MatTableDataSource<Members>([]);
@@ -53,104 +59,109 @@ export class MembersComponent implements OnInit {
       icon: 'edit',
       label: 'Editar',
       color: 'inherit',
-      action: (member: Members) => this.handleUpdate(member),
-      visible: () => this.authService.hasPermission('write_church_membros'),
+      action: (member: Members) => this.onEdit(member),
+      visible: () => this.hasCanWrite,
     },
     {
       type: 'filiation',
       icon: 'family_restroom',
       label: 'Filiação',
       color: 'inherit',
-      action: (member: Members) => this.handleFiliation(member),
-      visible: () => this.authService.hasPermission('write_church_membros'),
+      action: (member: Members) => this.onFiliation(member),
+      visible: () => this.hasCanWrite,
     },
     {
       type: 'ordination',
       icon: 'church',
       label: 'Ordenação',
       color: 'inherit',
-      action: (member: Members) => this.handleOrdination(member),
-      visible: () => this.authService.hasPermission('write_church_membros'),
+      action: (member: Members) => this.onOrdination(member),
+      visible: () => this.hasCanWrite,
     },
     {
       type: 'status',
       icon: 'sensor_occupied',
       label: 'Situação',
       color: 'inherit',
-      action: (member: Members) => this.handleStatusMember(member),
-      visible: () => this.authService.hasPermission('write_church_membros'),
+      action: (member: Members) => this.onStatusMember(member),
+      visible: () => this.hasCanWrite,
     },
     {
       type: 'history',
       icon: 'history',
       label: 'Log de mudanças',
       color: 'inherit',
-      action: (member: Members) => this.handleHistory(member),
-      visible: () => this.authService.hasPermission('write_church_membros'),
+      action: (member: Members) => this.onHistory(member),
+      visible: () => this.hasCanWrite,
     },
     {
       type: 'delete',
       icon: 'delete',
       label: 'Excluir',
       color: 'warn',
-      action: (member: Members) => this.handleDelete(member),
-      visible: () => this.authService.hasPermission('write_church_membros'),
+      action: (member: Members) => this.onDelete(member),
+      visible: () => this.hasCanDelete,
     },
   ];
 
   ngOnInit() {
-    this.findAll();
+    this.getMembersAll();
   }
 
-  private findAll = () => {
-    this.loading.show();
-    this.membersService.findAll().subscribe({
+  private getMembersAll() {
+    this.membersService.getMembersAll().subscribe({
       next: (membersResp) => {
         this.member.set(membersResp);
         this.dataSourceMat.data = membersResp;
       },
-      error: () => this.toast.openError(MESSAGES.LOADING_ERROR),
-      complete: () => this.loading.hide(),
+      error: () => this.toastService.openError(MESSAGES.LOADING_ERROR),
+      complete: () => this.loadingService.hide(),
     });
-  };
+  }
 
-  onCreate = () => {
-    const dialogRef = this.modalService.openModal(
-      `modal-${Math.random()}`,
-      MemberComponent,
+  onCreate() {
+    const modal = this.formService.openFormModal(
       'Adicionando novo membro',
-      true,
+      MemberFormComponent,
+      {},
+      ['cancel', 'save'],
       true,
     );
 
-    dialogRef.afterClosed().subscribe((result: Members) => {
+    modal.subscribe((result: Members) => {
       if (result) {
-        this.findAll();
+        this.membersService.createMember(result).subscribe({
+          next: () => this.toastService.openSuccess(MESSAGES.CREATE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.CREATE_ERROR),
+          complete: () => this.getMembersAll(),
+        });
       }
     });
-  };
+  }
 
-  handleUpdate = (member: Members) => {
-    this.membersService.setEditingMemberId(member.id);
-    const dialogRef = this.modalService.openModal(
-      `modal-${Math.random()}`,
-      MemberComponent,
+  private onEdit(member: Members) {
+    const modal = this.formService.openFormModal(
       `Editando o membro: ${member.person.name}`,
-      true,
-      true,
+      MemberFormComponent,
       { members: member, id: member.id },
+      ['cancel', 'save'],
+      true,
     );
 
-    dialogRef.afterClosed().subscribe((result: Members) => {
+    modal.subscribe((result: Members) => {
       if (result) {
-        this.findAll();
+        this.membersService.updateMember(result).subscribe({
+          next: () => this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
+          complete: () => this.getMembersAll(),
+        });
       }
     });
-  };
+  }
 
-  handleDelete = (members: Members) => {
+  private onDelete(members: Members) {
     const modal = this.confirmeService.openConfirm(
-      'Atenção!',
+      'Exclusão de membro',
       `Tem certeza que deseja excluir o membro ${members.person.name} ?`,
       'Confirmar',
       'Cancelar',
@@ -158,94 +169,52 @@ export class MembersComponent implements OnInit {
 
     modal.afterClosed().subscribe((result: Members) => {
       if (result) {
-        this.loading.show();
         this.membersService.delete(members.id).subscribe({
-          next: () => {
-            this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
-          },
-          error: () => {
-            this.loading.hide();
-            this.toast.openError(MESSAGES.DELETE_ERROR);
-          },
-          complete: () => {
-            this.findAll();
-            this.loading.hide();
-          },
+          next: () => this.toastService.openSuccess(MESSAGES.DELETE_SUCCESS),
+          error: () => this.toastService.openError(MESSAGES.DELETE_ERROR),
+          complete: () => this.getMembersAll(),
         });
       }
     });
-  };
+  }
 
-  handleHistory = (member: Members) => {
-    const memberId = this.membersService.setEditingMemberId(member.id);
-
-    const dialogRef = this.modalService.openModal(
-      `modal-${Math.random()}`,
-      HistoryComponent,
+  private onHistory(member: Members) {
+    this.formService.openFormModal(
       `Histórico do membro: ${member.person.name}`,
+      HistoryComponent,
+      { history_member: member, id: member.id },
+      ['cancel', 'save'],
       true,
-      true,
-      { history_member: member, id: memberId },
     );
+  }
 
-    dialogRef.afterClosed().subscribe((result: Members) => {
-      if (result) {
-        this.findAll();
-      }
-    });
-  };
-
-  handleFiliation = (member: Members) => {
-    this.membersService.setEditingMemberId(member.id);
-    const dialogRef = this.modalService.openModal(
-      `modal-${Math.random()}`,
-      FamiliesComponent,
+  private onFiliation(member: Members) {
+    this.formService.openFormModal(
       `Adicionando filiação ao membro: ${member.person.name}`,
-      true,
-      true,
+      FamiliesComponent,
       { families: member.families, id: member.id },
+      ['cancel', 'save'],
+      true,
     );
+  }
 
-    dialogRef.afterClosed().subscribe((result: Members) => {
-      if (result) {
-        this.findAll();
-      }
-    });
-  };
-
-  handleOrdination = (member: Members) => {
-    this.membersService.setEditingMemberId(member.id);
-    const dialogRef = this.modalService.openModal(
-      `modal-${Math.random()}`,
-      OrdinationsComponent,
+  private onOrdination(member: Members) {
+    this.formService.openFormModal(
       `Adicionando ordenação ao membro: ${member.person.name}`,
-      true,
-      true,
+      OrdinationsComponent,
       { ordinations: member.ordination, id: member.id },
+      ['cancel', 'save'],
+      true,
     );
+  }
 
-    dialogRef.afterClosed().subscribe((result: Members) => {
-      if (result) {
-        this.findAll();
-      }
-    });
-  };
-
-  handleStatusMember = (member: Members) => {
-    this.membersService.setEditingMemberId(member.id);
-    const dialogRef = this.modalService.openModal(
-      `modal-${Math.random()}`,
+  private onStatusMember(member: Members) {
+    this.formService.openFormModal(
+      `Alterando status do membro: ${member?.person?.name}`,
       StatusMemberComponent,
-      `Alterando status do membro: ${member.person.name}`,
-      true,
-      true,
       { status_member: member.status_member, id: member.id },
+      ['cancel', 'save'],
+      true,
     );
-
-    dialogRef.afterClosed().subscribe((result: Members) => {
-      if (result) {
-        this.findAll();
-      }
-    });
-  };
+  }
 }

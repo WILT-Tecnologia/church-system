@@ -110,7 +110,10 @@ export class AddMembersGuestsComponent implements OnInit {
           ],
         };
 
-        forkJoin([this.membersService.findAll(), this.guestsService.getGuestsAll()]).subscribe({
+        forkJoin([
+          this.membersService.getMembersAll(),
+          this.guestsService.getGuestsAll(),
+        ]).subscribe({
           next: ([members, guests]) => {
             this.allMembers = members.map((member) => ({
               id: member.id,

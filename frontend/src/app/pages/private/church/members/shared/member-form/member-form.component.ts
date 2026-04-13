@@ -22,7 +22,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTabsModule } from '@angular/material/tabs';
-import { ActionsComponent } from '@app/components/actions/actions.component';
 import { LoadingService } from '@app/components/loading/loading.service';
 import { MESSAGES } from '@app/components/toast/messages';
 import { ToastService } from '@app/components/toast/toast.service';
@@ -43,8 +42,8 @@ import { SpiritualInformationComponent } from './shared/spiritual-information/sp
 
 @Component({
   selector: 'app-member',
-  templateUrl: './member.component.html',
-  styleUrls: ['./member.component.scss'],
+  templateUrl: './member-form.component.html',
+  styleUrls: ['./member-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     provideNativeDateAdapter(),
@@ -61,13 +60,12 @@ import { SpiritualInformationComponent } from './shared/spiritual-information/sp
     CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
-    ActionsComponent,
     IdentificationComponent,
     AdditionalInformationComponent,
     SpiritualInformationComponent,
   ],
 })
-export class MemberComponent implements OnInit, OnDestroy {
+export class MemberFormComponent implements OnInit, OnDestroy {
   memberForm: FormGroup;
   isEditMode: boolean = false;
   isInitialStepCompleted = signal(false);
@@ -100,7 +98,7 @@ export class MemberComponent implements OnInit, OnDestroy {
     private membersService: MembersService,
     private loading: LoadingService,
     public navigationService: NavigationService,
-    private dialogRef: MatDialogRef<MemberComponent>,
+    private dialogRef: MatDialogRef<MemberFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { members: Members },
   ) {
     this.memberForm = this.createMemberForm();
@@ -253,7 +251,7 @@ export class MemberComponent implements OnInit, OnDestroy {
 
           Promise.all(historyPromises)
             .then(() => {
-              this.membersService.updateMember(memberId, memberData).subscribe({
+              this.membersService.updateMember(memberData).subscribe({
                 next: () => this.onSuccessUpdate(MESSAGES.UPDATE_SUCCESS, true),
                 error: (error) => {
                   console.error('Error updating member:', error);
@@ -269,8 +267,8 @@ export class MemberComponent implements OnInit, OnDestroy {
               console.error('Error response:', error?.error);
               const errorMessage = error?.error?.message || error?.message || 'Unknown error';
               this.toast.openError(`Member updated, but failed to save history: ${errorMessage}`);
-              // Proceed with update to avoid blocking the user
-              this.membersService.updateMember(memberId, memberData).subscribe({
+
+              this.membersService.updateMember(memberData).subscribe({
                 next: () => this.onSuccessUpdate(MESSAGES.UPDATE_SUCCESS, true),
                 error: (error) => {
                   console.error('Error updating member after history failure:', error);
@@ -284,7 +282,7 @@ export class MemberComponent implements OnInit, OnDestroy {
             });
         } else {
           // No changes detected, update member without saving history
-          this.membersService.updateMember(memberId, memberData).subscribe({
+          this.membersService.updateMember(memberData).subscribe({
             next: () => this.onSuccessUpdate(MESSAGES.UPDATE_SUCCESS, true),
             error: (error) => {
               console.error('Error updating member:', error);

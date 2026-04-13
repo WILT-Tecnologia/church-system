@@ -229,7 +229,7 @@ export class FinancialTransactionsFormComponent implements OnInit, OnDestroy {
   private loadInitialData() {
     forkJoin({
       churches: this.churchesService.getChurches(),
-      members: this.membersService.findAll(),
+      members: this.membersService.getMembersAll(),
       suppliers: this.suppliersService.findAllSuppliers(),
       categories: this.financialCategoriesService.getAllFinancialCategories(),
     }).subscribe({

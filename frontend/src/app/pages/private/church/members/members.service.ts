@@ -74,7 +74,7 @@ export class MembersService {
     return this.http.get<MemberOrigin[]>(`${this.apiAdmin}/member-origins`);
   }
 
-  findAll(): Observable<Members[]> {
+  getMembersAll(): Observable<Members[]> {
     return this.http.get<Members[]>(this.api);
   }
 
@@ -86,8 +86,8 @@ export class MembersService {
     return this.http.post<Members>(this.api, member);
   }
 
-  updateMember(memberId: string, memberData: Partial<Members>): Observable<Members> {
-    return this.http.put<Members>(`${this.api}/${memberId}`, memberData);
+  updateMember(member: Members): Observable<Members> {
+    return this.http.put<Members>(`${this.api}/${member.id}`, member);
   }
 
   delete(memberId: string): Observable<Members> {
