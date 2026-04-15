@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -18,6 +18,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { ColumnComponent } from '@app/components/column/column.component';
 import { Formations } from '@app/model/Auxiliaries';
+import { ErrorMessagePipe } from '@app/pipes/error-message.pipe';
 import { ValidationService } from '@app/services/validation/validation.service';
 import { map, Observable, startWith } from 'rxjs';
 
@@ -25,6 +26,7 @@ import { map, Observable, startWith } from 'rxjs';
   selector: 'app-additional-information',
   templateUrl: './additional-information.component.html',
   styleUrl: './additional-information.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -35,72 +37,52 @@ import { map, Observable, startWith } from 'rxjs';
     MatRadioModule,
     MatCheckboxModule,
     ColumnComponent,
+    ErrorMessagePipe,
   ],
 })
 export class AdditionalInformationComponent implements OnInit {
-  @Input() stepTwoForm!: FormGroup;
-  @Input() formations: Formations[] = [];
-  @Input() searchControlFormations!: FormControl;
-  isFormationCourseVisible: boolean = false;
-  formationsRequiringCourse: string[] = ['08', '09', '10', '11', '12'];
-  filteredFormations: Observable<Formations[]> = new Observable<Formations[]>();
+  private readonly fb = inject(FormBuilder);
+  private readonly validationService = inject(ValidationService);
 
-  constructor(
-    private fb: FormBuilder,
-    private validationService: ValidationService,
-  ) {}
+  public readonly stepTwoForm = input.required<FormGroup>();
+  public readonly formations = input<Formations[]>([]);
+  public readonly searchControlFormations = input.required<FormControl>();
+
+  public isFormationCourseVisible = false;
+  private readonly formationsRequiringCourse = ['08', '09', '10', '11', '12'];
+  public filteredFormations!: Observable<Formations[]>;
 
   ngOnInit() {
-    this.initializeForm();
     this.setupAutocomplete();
-    this.onFormationChange(this.stepTwoForm.get('formation_id')?.value, this.formations);
+    this.onFormationChange(this.stepTwoForm().get('formation_id')?.value, this.formations());
     this.setupDefOtherConditionalValidation();
     this.setupHasDisabilityListener();
   }
 
-  initializeForm = () => {
-    if (!this.stepTwoForm) {
-      this.stepTwoForm = this.fb.group({
-        formation_id: ['', [Validators.required]],
-        formation_course: ['', [Validators.maxLength(255)]],
-        profission: ['', [Validators.maxLength(255)]],
-        has_disability: [false],
-        def_physical: [false],
-        def_visual: [false],
-        def_hearing: [false],
-        def_intellectual: [false],
-        def_mental: [false],
-        def_multiple: [false],
-        def_other: [false],
-        def_other_description: ['', [Validators.maxLength(255)]],
-      });
-    }
-  };
-
   setupAutocomplete() {
-    this.filteredFormations = this.searchControlFormations.valueChanges.pipe(
+    this.filteredFormations = this.searchControlFormations().valueChanges.pipe(
       startWith(''),
       map((value: any) => (typeof value === 'string' ? value : value?.name || '')),
-      map((name) => (name.length >= 1 ? this.filterFormations(name) : this.formations)),
+      map((name) => (name.length >= 1 ? this.filterFormations(name) : this.formations())),
     );
   }
 
   filterFormations(name: string): Formations[] {
-    return this.formations.filter((formation) =>
+    return this.formations().filter((formation) =>
       formation.name.toLowerCase().includes(name.toLowerCase()),
     );
   }
 
   onFormationsSelected(event: MatAutocompleteSelectedEvent) {
     const selectedFormations = event.option.value;
-    this.searchControlFormations.setValue(selectedFormations.name);
-    this.stepTwoForm.get('formation_id')?.setValue(selectedFormations.id);
-    this.onFormationChange(selectedFormations.id, this.formations);
+    this.searchControlFormations().setValue(selectedFormations.name);
+    this.stepTwoForm().get('formation_id')?.setValue(selectedFormations.id);
+    this.onFormationChange(selectedFormations.id, this.formations());
   }
 
   onFormationChange(selectedFormationId: string, formations: Formations[]) {
     const selectedFormation = formations.find((f) => f.id === selectedFormationId);
-    const formationCourseControl = this.stepTwoForm.get('formation_course');
+    const formationCourseControl = this.stepTwoForm().get('formation_course');
 
     if (selectedFormation && this.formationsRequiringCourse.includes(selectedFormation.codigo)) {
       this.isFormationCourseVisible = true;
@@ -114,21 +96,21 @@ export class AdditionalInformationComponent implements OnInit {
   }
 
   getErrorMessage(controlName: string) {
-    const control = this.stepTwoForm.get(controlName);
+    const control = this.stepTwoForm().get(controlName);
     return control?.errors ? this.validationService.getErrorMessage(control) : null;
   }
 
   showAllFormations() {
-    this.filteredFormations = this.searchControlFormations.valueChanges.pipe(
+    this.filteredFormations = this.searchControlFormations().valueChanges.pipe(
       startWith(''),
       map((value: any) => (typeof value === 'string' ? value : value?.name || '')),
-      map((name) => (name.length >= 1 ? this.filterFormations(name) : this.formations)),
+      map((name) => (name.length >= 1 ? this.filterFormations(name) : this.formations())),
     );
   }
 
   private setupDefOtherConditionalValidation() {
-    const defOtherControl = this.stepTwoForm.get('def_other');
-    const defOtherDescControl = this.stepTwoForm.get('def_other_description');
+    const defOtherControl = this.stepTwoForm().get('def_other');
+    const defOtherDescControl = this.stepTwoForm().get('def_other_description');
 
     defOtherControl?.valueChanges.subscribe((value: boolean) => {
       if (value) {
@@ -140,7 +122,6 @@ export class AdditionalInformationComponent implements OnInit {
       defOtherDescControl?.updateValueAndValidity();
     });
 
-    // Também já aplica se vier com valor true (ex: modo edição)
     if (defOtherControl?.value) {
       defOtherDescControl?.setValidators([Validators.required, Validators.maxLength(255)]);
       defOtherDescControl?.updateValueAndValidity();
@@ -148,7 +129,7 @@ export class AdditionalInformationComponent implements OnInit {
   }
 
   private setupHasDisabilityListener() {
-    const hasDisabilityControl = this.stepTwoForm.get('has_disability');
+    const hasDisabilityControl = this.stepTwoForm().get('has_disability');
     const disabilityFields = [
       'def_physical',
       'def_visual',
@@ -163,7 +144,7 @@ export class AdditionalInformationComponent implements OnInit {
     hasDisabilityControl?.valueChanges.subscribe((hasDisability: boolean) => {
       if (!hasDisability) {
         disabilityFields.forEach((field) => {
-          const control = this.stepTwoForm.get(field);
+          const control = this.stepTwoForm().get(field);
           if (control) {
             const defaultValue = field === 'def_other_description' ? '' : false;
             control.setValue(defaultValue, { emitEvent: false });

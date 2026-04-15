@@ -1,6 +1,10 @@
 <form [formGroup]="familyForm" (ngSubmit)="handleSubmit()" class="form-field-group">
   <app-column>
-    <mat-checkbox formControlName="is_member" (change)="onCheckboxChange($event.checked)" color="primary">
+    <mat-checkbox
+      formControlName="is_member"
+      (change)="onCheckboxChange($event.checked)"
+      color="primary"
+    >
       A filiação é membro?
     </mat-checkbox>
   </app-column>
@@ -16,27 +20,31 @@
           [formControl]="searchControlPersons"
           placeholder="Selecione uma pessoa"
           (focus)="showAllPersons()"
-          required
         />
         <mat-autocomplete #person_id="matAutocomplete" (optionSelected)="onPersonSelected($event)">
           @for (persons of filterPersons | async; track $index) {
             <mat-option [value]="persons">
               {{ persons.name }}
             </mat-option>
-          } @empty {
-            <mat-option class="add-option" (click)="openAddPersonDialog()"> Adicionar nova pessoa </mat-option>
           }
         </mat-autocomplete>
-        @if (familyForm.get('person_id')?.invalid) {
+        @if (
+          (familyForm.get('person_id')?.invalid || searchControlPersons.invalid) &&
+          (searchControlPersons.touched || searchControlPersons.dirty || familyForm.get('person_id')?.touched)
+        ) {
           <mat-error>
-            {{ getErrorMessage('person_id') }}
+            @if (searchControlPersons.hasError('required')) {
+              Campo obrigatório
+            } @else {
+              Selecione uma opção válida na lista
+            }
           </mat-error>
         }
       </mat-form-field>
     } @else {
       <mat-form-field appearance="fill">
         <mat-label>Nome</mat-label>
-        <input matInput formControlName="name" required />
+        <input matInput formControlName="name" />
         @if (familyForm.get('name')?.invalid) {
           <mat-error>{{ getErrorMessage('name') }}</mat-error>
         }
@@ -51,7 +59,6 @@
         [formControl]="searchControlKinship"
         placeholder="Selecione um parentesco"
         (focus)="showAllKinships()"
-        required
       />
       <mat-autocomplete #kinship_id="matAutocomplete" (optionSelected)="onKinshipsSelected($event)">
         @for (kinships of filterKinships | async; track $index) {
@@ -60,18 +67,18 @@
           </mat-option>
         }
       </mat-autocomplete>
-      @if (familyForm.get('kinship_id')?.invalid) {
+      @if (
+        (familyForm.get('kinship_id')?.invalid || searchControlKinship.invalid) &&
+        (searchControlKinship.touched || searchControlKinship.dirty || familyForm.get('kinship_id')?.touched)
+      ) {
         <mat-error>
-          {{ getErrorMessage('kinship_id') }}
+          @if (searchControlKinship.hasError('required')) {
+            Campo obrigatório
+          } @else {
+            Selecione uma opção válida na lista
+          }
         </mat-error>
       }
     </mat-form-field>
   </app-column>
-
-  <app-actions>
-    <button mat-stroked-button color="warn" type="button" (click)="handleBack()">Cancelar</button>
-    <button mat-flat-button color="primary" type="submit">
-      {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
-    </button>
-  </app-actions>
 </form>

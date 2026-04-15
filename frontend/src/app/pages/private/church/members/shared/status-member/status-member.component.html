@@ -1,9 +1,9 @@
 <app-crud
   [enablePagination]="false"
-  [fields]="statusMemberFields"
+  [fields]="status_member_list()"
   [dataSourceMat]="dataSourceMat"
   [columnDefinitions]="columnDefinitions"
-  [enableAddButtonAdd]="!isValidStatusMember()"
+  [enableAddButtonAdd]="status_member_list().length === 0"
   (add)="onCreate()"
   [actions]="actions"
   [writePermission]="'write_church_membros'"

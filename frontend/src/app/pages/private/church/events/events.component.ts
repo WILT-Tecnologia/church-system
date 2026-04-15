@@ -264,6 +264,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
               this.events.update((current) => [newEvent, ...current]);
             },
             error: () => this.toastService.openError(MESSAGES.CREATE_ERROR),
+            complete: () => this.loadingService.hide(),
           });
         }
       });
@@ -360,6 +361,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
             );
           },
           error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
+          complete: () => this.loadingService.hide(),
         });
       }
     });
@@ -381,6 +383,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
             this.events.update((current) => current.filter((e) => e.id !== event.id));
           },
           error: () => this.toastService.openError(MESSAGES.DELETE_ERROR),
+          complete: () => this.loadingService.hide(),
         });
       }
     });
@@ -405,6 +408,7 @@ export class EventsComponent implements OnInit, AfterViewInit, OnDestroy {
             );
           },
           error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
+          complete: () => this.loadingService.hide(),
         });
       }
     });

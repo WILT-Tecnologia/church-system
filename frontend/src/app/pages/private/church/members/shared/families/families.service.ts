@@ -27,8 +27,8 @@ export class FamiliesService {
     return this.http.post<Families>(this.families, family);
   }
 
-  update(id: string, family: Partial<Families>): Observable<Families> {
-    return this.http.patch<Families>(`${this.families}/${id}`, family);
+  updateFamilies(family: Families): Observable<Families> {
+    return this.http.patch<Families>(`${this.families}/${family.id}`, family);
   }
 
   deleteFamily(data: Families): Observable<Families> {

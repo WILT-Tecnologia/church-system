@@ -1,6 +1,6 @@
 <app-crud
   [enablePagination]="true"
-  [fields]="familiesData"
+  [fields]="families()"
   [dataSourceMat]="dataSourceMat"
   [columnDefinitions]="columnDefinitions"
   (add)="onCreate()"

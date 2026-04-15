@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -27,7 +27,6 @@ import { LoadingService } from '@app/components/loading/loading.service';
 import { ModalService } from '@app/components/modal/modal.service';
 import { MESSAGES } from '@app/components/toast/messages';
 import { ToastService } from '@app/components/toast/toast.service';
-//import { Members } from 'app/model/Members';
 import { Occupation } from '@app/model/Occupation';
 import { Ordination } from '@app/model/Ordination';
 import { OccupationComponent } from '@app/pages/private/administrative/occupations/occupation/occupation.component';
@@ -41,6 +40,7 @@ import { OrdinationsService } from '../ordinations.service';
   selector: 'app-ordination-form',
   templateUrl: './ordination-form.component.html',
   styleUrls: ['./ordination-form.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     provideNativeDateAdapter(),
     { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
@@ -64,27 +64,24 @@ import { OrdinationsService } from '../ordinations.service';
   ],
 })
 export class OrdinationFormComponent implements OnInit {
-  ordinationForm: FormGroup;
-  occupation: Occupation[] = [];
-  isEditMode: boolean = false;
+  private readonly fb = inject(FormBuilder);
+  private readonly toast = inject(ToastService);
+  private readonly ordinationsService = inject(OrdinationsService);
+  private readonly occupationService = inject(OccupationsService);
+  private readonly loading = inject(LoadingService);
+  private readonly validationService = inject(ValidationService);
+  private readonly modalService = inject(ModalService);
+  private readonly dialogRef = inject(MatDialogRef<OrdinationFormComponent>);
+  public readonly data = inject<{ ordination: Ordination }>(MAT_DIALOG_DATA);
 
-  //searchControlMembers = new FormControl('');
-  searchControlOccupation = new FormControl('');
+  public readonly ordinationForm: FormGroup;
+  public readonly occupations = signal<Occupation[]>([]);
+  public readonly isEditMode = signal(false);
 
-  //filterMembers: Observable<Members[]> = new Observable<Members[]>();
-  filterOccupations: Observable<Occupation[]> = new Observable<Occupation[]>();
+  public readonly searchControlOccupation = new FormControl('');
+  public filterOccupations!: Observable<Occupation[]>;
 
-  constructor(
-    private fb: FormBuilder,
-    private toast: ToastService,
-    private ordinationsService: OrdinationsService,
-    private occupationService: OccupationsService,
-    private loading: LoadingService,
-    private validationService: ValidationService,
-    private modalService: ModalService,
-    private dialogRef: MatDialogRef<OrdinationFormComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { ordination: Ordination },
-  ) {
+  constructor() {
     this.ordinationForm = this.createForm();
   }
 
@@ -109,34 +106,27 @@ export class OrdinationFormComponent implements OnInit {
       occupations: this.occupationService.getOccupations(),
     }).subscribe({
       next: ({ occupations }) => {
-        this.occupation = occupations;
+        this.occupations.set(occupations);
       },
       error: (error) => {
-        this.onError(error ? error.error.message : MESSAGES.LOADING_ERROR);
+        this.onError(error ? error.error?.message || error.message : MESSAGES.LOADING_ERROR);
       },
-      complete: () => {},
     });
   }
 
   showAllOccupations() {
     this.filterOccupations = this.searchControlOccupation.valueChanges.pipe(
       startWith(''),
-      map((value: any) => {
-        if (typeof value === 'string') {
-          return value;
-        } else {
-          return value ? value.name : '';
-        }
-      }),
-      map((name: string) => (name.length >= 1 ? this._filterOccupations(name) : this.occupation)),
+      map((value: any) => (typeof value === 'string' ? value : value?.name || '')),
+      map((name: string) =>
+        name.length >= 1 ? this._filterOccupations(name) : this.occupations(),
+      ),
     );
   }
 
   private _filterOccupations(name: string): Occupation[] {
     const filterValue = name.toLowerCase();
-    return this.occupation.filter((occupation) =>
-      occupation.name.toLowerCase().includes(filterValue),
-    );
+    return this.occupations().filter((occ) => occ.name.toLowerCase().includes(filterValue));
   }
 
   onSelectedOccupation(event: MatAutocompleteSelectedEvent) {
@@ -148,7 +138,7 @@ export class OrdinationFormComponent implements OnInit {
 
   private checkEditMode() {
     if (this.data?.ordination?.id) {
-      this.isEditMode = true;
+      this.isEditMode.set(true);
       this.handleEdit();
     }
   }
@@ -161,7 +151,7 @@ export class OrdinationFormComponent implements OnInit {
   onSuccess(message: string): void {
     this.loading.hide();
     this.toast.openSuccess(message);
-    this.dialogRef.close(this.ordinationForm.value);
+    this.dialogRef.close(this.ordinationForm.getRawValue());
   }
 
   onError(message: string): void {
@@ -174,11 +164,17 @@ export class OrdinationFormComponent implements OnInit {
   }
 
   handleSubmit() {
-    const ordination = this.ordinationForm.value;
+    const ordination = this.ordinationForm.getRawValue();
+
+    if (this.ordinationForm.invalid) {
+      this.ordinationForm.markAllAsTouched();
+      this.searchControlOccupation.markAsTouched();
+      return;
+    }
 
     if (!ordination) return;
 
-    if (this.isEditMode) {
+    if (this.isEditMode()) {
       this.handleUpdate(ordination.id, ordination);
     } else {
       this.handleCreate(ordination);
@@ -215,10 +211,6 @@ export class OrdinationFormComponent implements OnInit {
       member_id: this.data?.ordination?.member?.id,
     });
   };
-
-  // clearDate(fieldName: string): void {
-  //   this.ordinationForm.get(fieldName)?.setValue(null);
-  // }
 
   openAddOccupationForm() {
     this.modalService.openModal(

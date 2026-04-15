@@ -1,7 +1,7 @@
 <section class="py-4">
   <mat-card appearance="outlined">
     <mat-card-content>
-      <div [formGroup]="stepThreeForm">
+      <div [formGroup]="stepThreeForm()">
         <app-column [columns]="2">
           <mat-form-field>
             <mat-label>Data do batismo</mat-label>
@@ -19,7 +19,7 @@
             <mat-datepicker-toggle matIconSuffix [for]="baptismPicker"></mat-datepicker-toggle>
             <mat-datepicker #baptismPicker>
               <mat-datepicker-actions>
-                @if (stepThreeForm.get('baptism_date')?.value) {
+                @if (stepThreeForm().get('baptism_date')?.value) {
                   <button
                     matTooltip="Limpar a data"
                     mat-flat-button
@@ -33,25 +33,25 @@
                     Limpar
                   </button>
                 }
-                @if (!stepThreeForm.get('baptism_date')?.value) {
-                  <button type="button" mat-button matDatepickerCancel>Cancelar</button>
-                }
-                @if (!stepThreeForm.get('baptism_date')?.value) {
-                  <button type="button" mat-flat-button matDatepickerApply>Concluir</button>
+                @if (!stepThreeForm().get('baptism_date')?.value) {
+                  <button type="button" mat-button color="warn" matDatepickerCancel>
+                    Cancelar
+                  </button>
+                  <button type="button" mat-flat-button color="primary" matDatepickerApply>
+                    Concluir
+                  </button>
                 }
               </mat-datepicker-actions>
             </mat-datepicker>
-            @if (stepThreeForm.get('baptism_date')?.invalid) {
-              <mat-error>{{ getErrorMessage('baptism_date') }}</mat-error>
-            }
+            <mat-error>{{ stepThreeForm().get('baptism_date')?.errors | errorMessage }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="fill">
             <mat-label>Oficial do batismo</mat-label>
             <input matInput formControlName="baptism_official" />
-            @if (stepThreeForm.get('baptism_official')?.invalid) {
-              <mat-error>{{ getErrorMessage('baptism_official') }}</mat-error>
-            }
+            <mat-error>
+              {{ stepThreeForm().get('baptism_official')?.errors | errorMessage }}
+            </mat-error>
           </mat-form-field>
         </app-column>
 
@@ -59,9 +59,9 @@
           <mat-form-field appearance="fill">
             <mat-label>Local do batismo</mat-label>
             <input matInput formControlName="baptism_locale" />
-            @if (stepThreeForm.get('baptism_locale')?.invalid) {
-              <mat-error>{{ getErrorMessage('baptism_locale') }}</mat-error>
-            }
+            <mat-error>
+              {{ stepThreeForm().get('baptism_locale')?.errors | errorMessage }}
+            </mat-error>
           </mat-form-field>
         </app-column>
 
@@ -74,7 +74,7 @@
             Batizado pelo Espírito Santo?
           </mat-checkbox>
 
-          @if (stepThreeForm.get('baptism_holy_spirit')?.value) {
+          @if (stepThreeForm().get('baptism_holy_spirit')?.value) {
             <mat-form-field>
               <mat-label>Data do batismo no Espírito Santo</mat-label>
               <input
@@ -88,10 +88,13 @@
                 [max]="maxDate"
                 readonly
               />
-              <mat-datepicker-toggle matIconSuffix [for]="baptismHolySpiritPicker"></mat-datepicker-toggle>
+              <mat-datepicker-toggle
+                matIconSuffix
+                [for]="baptismHolySpiritPicker"
+              ></mat-datepicker-toggle>
               <mat-datepicker #baptismHolySpiritPicker>
                 <mat-datepicker-actions>
-                  @if (stepThreeForm.get('baptism_holy_spirit_date')?.value) {
+                  @if (stepThreeForm().get('baptism_holy_spirit_date')?.value) {
                     <button
                       matTooltip="Limpar a data"
                       mat-flat-button
@@ -105,19 +108,19 @@
                       Limpar
                     </button>
                   }
-                  @if (!stepThreeForm.get('baptism_holy_spirit_date')?.value) {
-                    <button type="button" mat-button matDatepickerCancel>Cancelar</button>
-                  }
-                  @if (!stepThreeForm.get('baptism_holy_spirit_date')?.value) {
-                    <button type="button" mat-flat-button matDatepickerApply>Concluir</button>
+                  @if (!stepThreeForm().get('baptism_holy_spirit_date')?.value) {
+                    <button type="button" mat-button color="warn" matDatepickerCancel>
+                      Cancelar
+                    </button>
+                    <button type="button" mat-flat-button color="primary" matDatepickerApply>
+                      Concluir
+                    </button>
                   }
                 </mat-datepicker-actions>
               </mat-datepicker>
-              @if (stepThreeForm.get('baptism_holy_spirit_date')?.invalid) {
-                <mat-error>
-                  {{ getErrorMessage('baptism_holy_spirit_date') }}
-                </mat-error>
-              }
+              <mat-error>
+                {{ stepThreeForm().get('baptism_holy_spirit_date')?.errors | errorMessage }}
+              </mat-error>
             </mat-form-field>
           }
         </app-column>
@@ -133,13 +136,13 @@
               formControlName="receipt_date"
               (click)="openCalendarReceiptDate()"
               [min]="minDate"
-              [max]="maxDate"
+              [max]="this.maxDate"
               readonly
             />
             <mat-datepicker-toggle matIconSuffix [for]="receiptDatePicker"></mat-datepicker-toggle>
             <mat-datepicker #receiptDatePicker>
               <mat-datepicker-actions>
-                @if (stepThreeForm.get('receipt_date')?.value) {
+                @if (stepThreeForm().get('receipt_date')?.value) {
                   <button
                     matTooltip="Limpar a data"
                     mat-flat-button
@@ -153,19 +156,17 @@
                     Limpar
                   </button>
                 }
-                @if (!stepThreeForm.get('receipt_date')?.value) {
-                  <button type="button" mat-button matDatepickerCancel>Cancelar</button>
-                }
-                @if (!stepThreeForm.get('receipt_date')?.value) {
-                  <button type="button" mat-flat-button matDatepickerApply>Concluir</button>
+                @if (!stepThreeForm().get('receipt_date')?.value) {
+                  <button type="button" mat-button color="warn" matDatepickerCancel>
+                    Cancelar
+                  </button>
+                  <button type="button" mat-flat-button color="primary" matDatepickerApply>
+                    Concluir
+                  </button>
                 }
               </mat-datepicker-actions>
             </mat-datepicker>
-            @if (stepThreeForm.get('receipt_date')?.invalid) {
-              <mat-error>
-                {{ getErrorMessage('receipt_date') }}
-              </mat-error>
-            }
+            <mat-error>{{ stepThreeForm().get('receipt_date')?.errors | errorMessage }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="fill">
@@ -174,23 +175,24 @@
               type="text"
               matInput
               [matAutocomplete]="autoMemberOrigin"
-              [formControl]="searchControlMemberOrigins"
+              [formControl]="searchControlMemberOrigins()"
               placeholder="Selecione uma origem do membro"
               (focus)="showAllMemberOrigins()"
               required
             />
-            <mat-autocomplete #autoMemberOrigin="matAutocomplete" (optionSelected)="onMemberOriginSelected($event)">
+            <mat-autocomplete
+              #autoMemberOrigin="matAutocomplete"
+              (optionSelected)="onMemberOriginSelected($event)"
+            >
               @for (memberOrigin of filterMemberOrigins | async; track memberOrigin.id) {
                 <mat-option [value]="memberOrigin">
                   {{ memberOrigin.name }}
                 </mat-option>
               }
             </mat-autocomplete>
-            @if (stepThreeForm.get('member_origin_id')?.invalid) {
-              <mat-error>
-                {{ getErrorMessage('member_origin_id') }}
-              </mat-error>
-            }
+            <mat-error>
+              {{ stepThreeForm().get('member_origin_id')?.errors | errorMessage }}
+            </mat-error>
           </mat-form-field>
         </app-column>
       </div>

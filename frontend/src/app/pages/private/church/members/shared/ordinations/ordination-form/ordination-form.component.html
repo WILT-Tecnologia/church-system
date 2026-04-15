@@ -30,15 +30,16 @@
             Adicionar nova ocupação
           </mat-option>
         }
-        @if (
-          ordinationForm.get('occupation_id')?.invalid &&
-          ordinationForm.get('occupation_id')?.touched
-        ) {
-          <mat-error>
-            {{ getErrorMessage('occupation_id') }}
-          </mat-error>
-        }
       </mat-autocomplete>
+      @if (
+        ordinationForm.get('occupation_id')?.invalid &&
+        ordinationForm.get('occupation_id')?.touched
+      ) {
+        <mat-error>
+          {{ getErrorMessage('occupation_id') }}
+        </mat-error>
+      }
+
     </mat-form-field>
   </app-column>
 
@@ -70,7 +71,7 @@
   <app-actions>
     <button type="button" mat-stroked-button color="warn" (click)="onCancel()">Cancelar</button>
     <button type="submit" mat-flat-button color="primary" [disabled]="ordinationForm.invalid">
-      {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
+      {{ isEditMode() ? 'Atualizar' : 'Cadastrar' }}
     </button>
   </app-actions>
 </form>

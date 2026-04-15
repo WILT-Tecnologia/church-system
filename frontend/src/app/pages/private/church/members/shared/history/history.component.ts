@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
@@ -15,14 +15,15 @@ import { MembersService } from '../../members.service';
   selector: 'app-history',
   templateUrl: './history.component.html',
   styleUrl: './history.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, MatIconModule, MatDividerModule, MatButtonModule, NoRowComponent],
 })
 export class HistoryComponent implements OnInit {
-  @Input() history_member: History[] = [];
-  private loadingService = inject(LoadingService);
-  private toast = inject(ToastService);
-  private membersService = inject(MembersService);
-  public data = inject<{ history_member: History }>(MAT_DIALOG_DATA);
+  public readonly history_member = signal<History[]>([]);
+  private readonly loadingService = inject(LoadingService);
+  private readonly toast = inject(ToastService);
+  private readonly membersService = inject(MembersService);
+  public readonly data = inject<{ history_member: History }>(MAT_DIALOG_DATA);
 
   ngOnInit() {
     this.loadHistories();
@@ -39,15 +40,19 @@ export class HistoryComponent implements OnInit {
   loadHistories() {
     this.showLoading();
     const memberId = this.membersService.getEditingMemberId();
-    this.membersService.getHistMember(memberId!).subscribe({
-      next: (history_member) => {
-        this.history_member = history_member;
-      },
-      error: () => {
-        this.hideLoading();
-        this.toast.openError(MESSAGES.LOADING_ERROR);
-      },
-      complete: () => this.hideLoading(),
-    });
+    if (memberId) {
+      this.membersService.getHistMember(memberId).subscribe({
+        next: (history_member) => {
+          this.history_member.set(history_member);
+        },
+        error: () => {
+          this.hideLoading();
+          this.toast.openError(MESSAGES.LOADING_ERROR);
+        },
+        complete: () => this.hideLoading(),
+      });
+    } else {
+      this.hideLoading();
+    }
   }
 }

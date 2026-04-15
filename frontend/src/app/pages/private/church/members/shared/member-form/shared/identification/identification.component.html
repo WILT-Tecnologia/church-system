@@ -1,7 +1,7 @@
 <section class="py-4">
   <mat-card appearance="outlined">
     <mat-card-content>
-      <div [formGroup]="stepOneForm">
+      <div [formGroup]="stepOneForm()">
         <app-column [columns]="2">
           <mat-form-field appearance="fill">
             <mat-label>Pessoa</mat-label>
@@ -9,21 +9,22 @@
               type="text"
               matInput
               [matAutocomplete]="autoPerson"
-              [formControl]="searchControlPerson"
+              [formControl]="searchControlPerson()"
               placeholder="Selecione uma pessoa"
               (focus)="showAllPerson()"
               required
             />
-            <mat-autocomplete #autoPerson="matAutocomplete" (optionSelected)="onPersonSelected($event)">
+            <mat-autocomplete
+              #autoPerson="matAutocomplete"
+              (optionSelected)="onPersonSelected($event)"
+            >
               @for (person of filteredPerson | async; track person.id) {
                 <mat-option [value]="person">
                   {{ person.name }}
                 </mat-option>
               }
             </mat-autocomplete>
-            @if (stepOneForm.get('person_id')?.invalid) {
-              <mat-error>{{ getErrorMessage('person_id') }}</mat-error>
-            }
+            <mat-error>{{ stepOneForm().get('person_id')?.errors | errorMessage }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="fill">
@@ -32,21 +33,22 @@
               type="text"
               matInput
               [matAutocomplete]="autoChurch"
-              [formControl]="searchControlChurch"
+              [formControl]="searchControlChurch()"
               placeholder="Selecione uma igreja"
               (focus)="showAllChurch()"
               required
             />
-            <mat-autocomplete #autoChurch="matAutocomplete" (optionSelected)="onChurchSelected($event)">
+            <mat-autocomplete
+              #autoChurch="matAutocomplete"
+              (optionSelected)="onChurchSelected($event)"
+            >
               @for (church of filteredChurch | async; track church.id) {
                 <mat-option [value]="church">
                   {{ church.name }}
                 </mat-option>
               }
             </mat-autocomplete>
-            @if (stepOneForm.get('church_id')?.invalid) {
-              <mat-error>{{ getErrorMessage('church_id') }}</mat-error>
-            }
+            <mat-error>{{ stepOneForm().get('church_id')?.errors | errorMessage }}</mat-error>
           </mat-form-field>
         </app-column>
 
@@ -54,16 +56,13 @@
           <mat-form-field appearance="fill">
             <mat-label>RG</mat-label>
             <input matInput formControlName="rg" maxlength="15" />
-            @if (stepOneForm.get('rg')?.invalid) {
-              <mat-error>{{ getErrorMessage('rg') }}</mat-error>
-            }
+            <mat-error>{{ stepOneForm().get('rg')?.errors | errorMessage }}</mat-error>
           </mat-form-field>
+
           <mat-form-field appearance="fill">
             <mat-label>Orgão Expedidor</mat-label>
             <input matInput formControlName="issuing_body" maxlength="15" />
-            @if (stepOneForm.get('issuing_body')?.invalid) {
-              <mat-error>{{ getErrorMessage('issuing_body') }}</mat-error>
-            }
+            <mat-error>{{ stepOneForm().get('issuing_body')?.errors | errorMessage }}</mat-error>
           </mat-form-field>
         </app-column>
 
@@ -74,21 +73,22 @@
               type="text"
               matInput
               [matAutocomplete]="autoCivilStatus"
-              [formControl]="searchControlCivilStatus"
+              [formControl]="searchControlCivilStatus()"
               placeholder="Selecione um estado civil"
               (focus)="showAllCivilStatus()"
               required
             />
-            <mat-autocomplete #autoCivilStatus="matAutocomplete" (optionSelected)="onCivilStatusSelected($event)">
+            <mat-autocomplete
+              #autoCivilStatus="matAutocomplete"
+              (optionSelected)="onCivilStatusSelected($event)"
+            >
               @for (civilStatus of filteredCivilStatus | async; track civilStatus.id) {
                 <mat-option [value]="civilStatus">
                   {{ civilStatus.name }}
                 </mat-option>
               }
             </mat-autocomplete>
-            @if (stepOneForm.get('civil_status_id')?.invalid) {
-              <mat-error>{{ getErrorMessage('civil_status_id') }}</mat-error>
-            }
+            <mat-error>{{ stepOneForm().get('civil_status_id')?.errors | errorMessage }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="fill">
@@ -97,21 +97,22 @@
               type="text"
               matInput
               [matAutocomplete]="autoColorRace"
-              [formControl]="searchControlColorRace"
+              [formControl]="searchControlColorRace()"
               placeholder="Selecione um Cor/raça"
               (focus)="showAllColorRace()"
               required
             />
-            <mat-autocomplete #autoColorRace="matAutocomplete" (optionSelected)="onColorRaceSelected($event)">
+            <mat-autocomplete
+              #autoColorRace="matAutocomplete"
+              (optionSelected)="onColorRaceSelected($event)"
+            >
               @for (colorRace of filteredColorRace | async; track colorRace.id) {
                 <mat-option [value]="colorRace">
                   {{ colorRace.name }}
                 </mat-option>
               }
             </mat-autocomplete>
-            @if (stepOneForm.get('color_race_id')?.invalid) {
-              <mat-error>{{ getErrorMessage('color_race_id') }}</mat-error>
-            }
+            <mat-error>{{ stepOneForm().get('color_race_id')?.errors | errorMessage }}</mat-error>
           </mat-form-field>
         </app-column>
 
@@ -119,16 +120,12 @@
           <mat-form-field appearance="fill">
             <mat-label>Nacionalidade</mat-label>
             <input matInput formControlName="nationality" />
-            @if (stepOneForm.get('nationality')?.invalid) {
-              <mat-error>{{ getErrorMessage('nationality') }}</mat-error>
-            }
+            <mat-error>{{ stepOneForm().get('nationality')?.errors | errorMessage }}</mat-error>
           </mat-form-field>
           <mat-form-field appearance="fill">
             <mat-label>Naturalidade</mat-label>
             <input matInput formControlName="naturalness" />
-            @if (stepOneForm.get('naturalness')?.invalid) {
-              <mat-error>{{ getErrorMessage('naturalness') }}</mat-error>
-            }
+            <mat-error>{{ stepOneForm().get('naturalness')?.errors | errorMessage }}</mat-error>
           </mat-form-field>
         </app-column>
       </div>

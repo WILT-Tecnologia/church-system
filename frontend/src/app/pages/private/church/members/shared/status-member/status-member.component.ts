@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, OnInit, output, signal } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmService } from '@app/components/confirm/confirm.service';
@@ -17,23 +17,28 @@ import { StatusMemberService } from './status-member.service';
   selector: 'app-status-member',
   templateUrl: './status-member.component.html',
   styleUrl: './status-member.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CrudComponent],
 })
 export class StatusMemberComponent implements OnInit {
-  private _status_member: StatusMember[] = [];
-  @Input() set status_member(value: StatusMember | StatusMember[]) {
-    if (value) {
-      this._status_member = Array.isArray(value) ? value : [value];
-      this.dataSourceMat.data = this._status_member;
-    } else {
-      this._status_member = [];
-      this.dataSourceMat.data = [];
-    }
-  }
-  @Output() statusMemberUpdated = new EventEmitter<StatusMember[]>();
-  rendering: boolean = true;
-  dataSourceMat = new MatTableDataSource<StatusMember>(this._status_member);
-  columnDefinitions: ColumnDefinitionsProps[] = [
+  private readonly confirmeService = inject(ConfirmService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly toast = inject(ToastService);
+  private readonly modalService = inject(ModalService);
+  private readonly statusMemberService = inject(StatusMemberService);
+  private readonly membersService = inject(MembersService);
+  public readonly data = inject<{ status_member: StatusMember[]; id: number }>(MAT_DIALOG_DATA);
+
+  public readonly status_member_input = input<StatusMember | StatusMember[] | undefined>(undefined, {
+    alias: 'status_member',
+  });
+  public readonly statusMemberUpdated = output<StatusMember[]>();
+
+  public readonly status_member_list = signal<StatusMember[]>([]);
+  public readonly rendering = signal(true);
+  public readonly dataSourceMat = new MatTableDataSource<StatusMember>([]);
+
+  public readonly columnDefinitions: ColumnDefinitionsProps[] = [
     {
       key: 'member_situation.name',
       header: 'Situação do membro',
@@ -42,7 +47,8 @@ export class StatusMemberComponent implements OnInit {
     { key: 'initial_period', header: 'Data Inicial', type: 'date' },
     { key: 'final_period', header: 'Data Final', type: 'date' },
   ];
-  actions: ActionsProps[] = [
+
+  public readonly actions: ActionsProps[] = [
     {
       type: 'edit',
       icon: 'edit',
@@ -59,41 +65,31 @@ export class StatusMemberComponent implements OnInit {
     },
   ];
 
-  private confirmeService = inject(ConfirmService);
-  private loadingService = inject(LoadingService);
-  private toast = inject(ToastService);
-  private modalService = inject(ModalService);
-  private statusMemberService = inject(StatusMemberService);
-  private membersService = inject(MembersService);
-  public data = inject<{ status_member: StatusMember[]; id: number }>(MAT_DIALOG_DATA);
-
   ngOnInit() {
-    this.rendering = false;
+    this.rendering.set(false);
     this.loadStatusMember();
-  }
-
-  isValidStatusMember(): boolean {
-    return this._status_member.length > 0;
-  }
-
-  get statusMemberFields(): StatusMember[] {
-    return this._status_member;
   }
 
   loadStatusMember() {
     this.loadingService.show();
     const memberId = this.membersService.getEditingMemberId();
-    this.statusMemberService.getStatusMemberByMemberId(memberId!).subscribe({
-      next: (status_member) => {
-        this.status_member = status_member;
-        this.rendering = false;
-      },
-      error: () => {
-        this.loadingService.hide();
-        this.toast.openError(MESSAGES.LOADING_ERROR);
-      },
-      complete: () => this.loadingService.hide(),
-    });
+    if (memberId) {
+      this.statusMemberService.getStatusMemberByMemberId(memberId).subscribe({
+        next: (status_member) => {
+          const list = Array.isArray(status_member) ? status_member : [status_member];
+          this.status_member_list.set(list);
+          this.dataSourceMat.data = list;
+          this.rendering.set(false);
+        },
+        error: () => {
+          this.loadingService.hide();
+          this.toast.openError(MESSAGES.LOADING_ERROR);
+        },
+        complete: () => this.loadingService.hide(),
+      });
+    } else {
+      this.loadingService.hide();
+    }
   }
 
   onCreate = () => {
@@ -110,9 +106,9 @@ export class StatusMemberComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: StatusMember) => {
       if (result) {
-        this._status_member = [...this._status_member, result];
-        this.dataSourceMat.data = this._status_member;
-        this.statusMemberUpdated.emit(this._status_member);
+        this.status_member_list.update((list) => [...list, result]);
+        this.dataSourceMat.data = this.status_member_list();
+        this.statusMemberUpdated.emit(this.status_member_list());
       }
     });
   };
@@ -129,13 +125,17 @@ export class StatusMemberComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: StatusMember) => {
       if (result) {
-        // Atualizar o status_member editado no array
-        const index = this._status_member.findIndex((sm) => sm.id === result.id);
-        if (index !== -1) {
-          this._status_member[index] = result;
-          this.dataSourceMat.data = [...this._status_member];
-          this.statusMemberUpdated.emit(this._status_member);
-        }
+        this.status_member_list.update((list) => {
+          const index = list.findIndex((sm) => sm.id === result.id);
+          if (index !== -1) {
+            const newList = [...list];
+            newList[index] = result;
+            return newList;
+          }
+          return list;
+        });
+        this.dataSourceMat.data = this.status_member_list();
+        this.statusMemberUpdated.emit(this.status_member_list());
       }
     });
   };
@@ -153,9 +153,9 @@ export class StatusMemberComponent implements OnInit {
         this.loadingService.show();
         this.statusMemberService.delete(status_member.id).subscribe({
           next: () => {
-            this._status_member = this._status_member.filter((sm) => sm.id !== status_member.id);
-            this.dataSourceMat.data = this._status_member;
-            this.statusMemberUpdated.emit(this._status_member);
+            this.status_member_list.update((list) => list.filter((sm) => sm.id !== status_member.id));
+            this.dataSourceMat.data = this.status_member_list();
+            this.statusMemberUpdated.emit(this.status_member_list());
             this.toast.openSuccess(MESSAGES.DELETE_SUCCESS);
           },
           error: () => {
@@ -168,3 +168,4 @@ export class StatusMemberComponent implements OnInit {
     });
   };
 }
+

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -18,25 +18,22 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { ActionsComponent } from '@app/components/actions/actions.component';
 import { ColumnComponent } from '@app/components/column/column.component';
 import { LoadingService } from '@app/components/loading/loading.service';
-import { ModalService } from '@app/components/modal/modal.service';
 import { MESSAGES } from '@app/components/toast/messages';
 import { ToastService } from '@app/components/toast/toast.service';
 import { Kinships } from '@app/model/Auxiliaries';
 import { Families } from '@app/model/Families';
-import { Members } from '@app/model/Members';
 import { Person } from '@app/model/Person';
-import { PersonComponent } from '@app/pages/private/administrative/persons/person/person.component';
 import { ValidationService } from '@app/services/validation/validation.service';
-import { forkJoin, map, Observable, startWith, Subject } from 'rxjs';
+import { forkJoin, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
 import { FamiliesService } from '../families.service';
 
 @Component({
   selector: 'app-families-form',
   templateUrl: './families-form.component.html',
   styleUrl: './families-form.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatIconModule,
     MatButtonModule,
@@ -48,118 +45,107 @@ import { FamiliesService } from '../families.service';
     CommonModule,
     ReactiveFormsModule,
     ColumnComponent,
-    ActionsComponent,
   ],
 })
-export class FamiliesFormComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
-  familyForm: FormGroup;
-  isEditMode: boolean = false;
-  searchControlMembers = new FormControl('');
-  searchControlPersons = new FormControl('');
-  searchControlKinship = new FormControl('');
+export class FamiliesFormComponent implements OnInit {
+  private readonly familiesService = inject(FamiliesService);
+  private readonly fb = inject(FormBuilder);
+  private readonly toastService = inject(ToastService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly validationService = inject(ValidationService);
+  private readonly dialogRef = inject(MatDialogRef<FamiliesFormComponent>);
+  public readonly data: { families: Families; submitSubject: Subject<void> } =
+    inject(MAT_DIALOG_DATA);
+  private readonly destroy$ = new Subject<void>();
 
-  families: Families[] = [];
-  persons: Person[] = [];
-  kinships: Kinships[] = [];
+  public readonly familyForm: FormGroup = this.createForm();
+  public readonly isEditMode = signal(false);
 
-  filterMembers: Observable<Members[]> = new Observable<Members[]>();
-  filterPersons: Observable<Person[]> = new Observable<Person[]>();
-  filterKinships: Observable<Kinships[]> = new Observable<Kinships[]>();
+  public readonly searchControlMembers = new FormControl('');
+  public readonly searchControlPersons = new FormControl('');
+  public readonly searchControlKinship = new FormControl('', [Validators.required]);
 
-  constructor(
-    private familiesService: FamiliesService,
-    private fb: FormBuilder,
-    private toast: ToastService,
-    private loadingService: LoadingService,
-    private validationService: ValidationService,
-    private modalService: ModalService,
-    private dialogRef: MatDialogRef<FamiliesFormComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { families: Families },
-  ) {
-    this.familyForm = this.createForm();
+  public readonly persons = signal<Person[]>([]);
+  public readonly kinships = signal<Kinships[]>([]);
+
+  public filterPersons!: Observable<Person[]>;
+  public filterKinships!: Observable<Kinships[]>;
+
+  constructor() {
+    this.searchControlPersons.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
+      if (typeof value === 'string' && this.familyForm.get('is_member')?.value) {
+        this.familyForm.get('person_id')?.setValue('');
+      }
+    });
+
+    this.searchControlKinship.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
+      if (typeof value === 'string') {
+        this.familyForm.get('kinship_id')?.setValue('');
+      }
+    });
   }
 
   ngOnInit() {
     this.loadInitialData();
     this.checkEditMode();
+
+    if (this.data?.submitSubject) {
+      this.data.submitSubject.pipe(takeUntil(this.destroy$)).subscribe(() => {
+        this.handleSubmit();
+      });
+    }
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  createForm(): FormGroup {
+  private createForm(): FormGroup {
+    const families = this.data.families as Families;
     return this.fb.group({
-      id: [this.data?.families?.id ?? ''],
-      is_member: [this.data?.families?.is_member ?? false],
-      member_id: [this.data?.families?.member?.id ?? '', [Validators.required]],
-      name: [this.data?.families?.name ?? '', [Validators.required]],
-      person_id: [
-        {
-          value: this.data?.families?.person?.id ?? '',
-          disabled: true,
-        },
-      ],
-      kinship_id: [this.data?.families?.kinship?.id ?? '', [Validators.required]],
+      id: [families?.id ?? ''],
+      is_member: [families?.is_member ?? false],
+      member_id: [families?.member?.id ?? '', [Validators.required]],
+      name: [families?.name ?? ''],
+      person_id: [families?.person?.id ?? ''],
+      kinship_id: [families?.kinship?.id ?? '', [Validators.required]],
     });
   }
 
   showAllPersons() {
     this.filterPersons = this.searchControlPersons.valueChanges.pipe(
       startWith(''),
-      map((value: any) => {
-        if (typeof value === 'string') {
-          return value;
-        } else {
-          return value ? value.name : '';
-        }
-      }),
-      map((name) => (name?.length >= 1 ? this._filterPerson(name) : this.persons)),
+      map((value: any) => (typeof value === 'string' ? value : value?.name || '')),
+      map((name) => (name?.length >= 1 ? this._filterPerson(name) : this.persons())),
     );
   }
 
   showAllKinships() {
     this.filterKinships = this.searchControlKinship.valueChanges.pipe(
       startWith(''),
-      map((value: any) => {
-        if (typeof value === 'string') {
-          return value;
-        } else {
-          return value ? value.name : '';
-        }
-      }),
-      map((name) => (name?.length >= 1 ? this._filterKinships(name) : this.kinships)),
+      map((value: any) => (typeof value === 'string' ? value : value?.name || '')),
+      map((name) => (name?.length >= 1 ? this._filterKinships(name) : this.kinships())),
     );
   }
 
-  loadInitialData() {
-    this.loadingService.show();
+  private loadInitialData() {
     forkJoin({
       persons: this.familiesService.getPersons(),
       kinships: this.familiesService.getKinships(),
     }).subscribe({
       next: ({ persons, kinships }) => {
-        this.persons = persons;
-        this.kinships = kinships;
+        this.persons.set(persons);
+        this.kinships.set(kinships);
       },
-      error: () => {
-        this.loadingService.hide();
-        this.toast.openError(MESSAGES.LOADING_ERROR);
-      },
+      error: () => this.toastService.openError(MESSAGES.LOADING_ERROR),
       complete: () => this.loadingService.hide(),
     });
   }
 
   private _filterPerson(name: string): Person[] {
     const filterValue = name.toLowerCase();
-    return this.persons.filter((person) => person.name.toLowerCase().includes(filterValue));
+    return this.persons().filter((person) => person.name.toLowerCase().includes(filterValue));
   }
 
   private _filterKinships(name: string): Kinships[] {
     const filterValue = name.toLowerCase();
-    return this.kinships.filter((kinship) => kinship.name.toLowerCase().includes(filterValue));
+    return this.kinships().filter((kinship) => kinship.name.toLowerCase().includes(filterValue));
   }
 
   onPersonSelected(event: MatAutocompleteSelectedEvent) {
@@ -174,59 +160,58 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
     this.familyForm.get('kinship_id')?.setValue(kinship.id);
   }
 
-  handleCancel() {
-    this.dialogRef.close();
-  }
-
   private checkEditMode() {
     if (this.data?.families?.id) {
-      this.isEditMode = true;
-      this.onCheckboxChange(this.data.families?.is_member);
+      this.isEditMode.set(true);
     }
 
     if (this.data.families.person) {
       this.searchControlPersons.setValue(this.data?.families?.person?.name);
-      this.familyForm.get('person_id')?.setValue(this.data?.families?.person?.id);
     }
 
     if (this.data.families.kinship) {
       this.searchControlKinship.setValue(this.data?.families?.kinship?.name);
-      this.familyForm.get('kinship_id')?.setValue(this.data?.families?.kinship?.id);
     }
 
-    this.familyForm.patchValue({
-      member_id: this.data?.families?.member?.id,
-    });
+    this.toggleNameAndPersonFields();
   }
 
   onCheckboxChange(event: boolean) {
     this.familyForm.get('is_member')?.setValue(event);
-
     this.toggleNameAndPersonFields();
   }
 
   private toggleNameAndPersonFields() {
     const nameControl = this.familyForm.get('name');
     const personControl = this.familyForm.get('person_id');
-
     const isMember = this.familyForm.get('is_member')?.value;
 
     if (isMember) {
       nameControl?.clearValidators();
       nameControl?.disable();
       nameControl?.setValue('');
+
       personControl?.setValidators([Validators.required]);
       personControl?.enable();
+
+      this.searchControlPersons.setValidators([Validators.required]);
+      this.searchControlPersons.enable();
     } else {
       nameControl?.setValidators([Validators.required]);
       nameControl?.enable();
+
       personControl?.clearValidators();
       personControl?.disable();
       personControl?.setValue('');
+
+      this.searchControlPersons.clearValidators();
+      this.searchControlPersons.setValue('');
+      this.searchControlPersons.disable();
     }
 
     nameControl?.updateValueAndValidity();
     personControl?.updateValueAndValidity();
+    this.searchControlPersons.updateValueAndValidity();
   }
 
   handleIsMemberChange(): boolean {
@@ -238,57 +223,17 @@ export class FamiliesFormComponent implements OnInit, OnDestroy {
     return control?.errors ? this.validationService.getErrorMessage(control) : null;
   }
 
-  onSuccess(message: string) {
-    this.loadingService.hide();
-    this.toast.openSuccess(message);
-    this.dialogRef.close(true);
-  }
-
-  onError(message: string) {
-    this.loadingService.hide();
-    this.toast.openError(message);
-  }
-
-  handleBack() {
-    this.dialogRef.close();
-  }
-
   handleSubmit() {
-    const family = this.familyForm.value;
-    if (!family) return;
+    this.familyForm.markAllAsTouched();
+    this.searchControlPersons.markAsTouched();
+    this.searchControlKinship.markAsTouched();
 
-    if (this.isEditMode) {
-      this.handleUpdate(family.id, family);
+    if (this.familyForm.valid) {
+      const formValid = this.familyForm.getRawValue();
+      this.dialogRef.close(formValid);
     } else {
-      this.handleCreate(family);
+      this.toastService.openWarning(MESSAGES.FORM_VALUES_NOT_FOUND);
+      return;
     }
-  }
-
-  handleCreate(data: Families) {
-    this.loadingService.show();
-    this.familiesService.create(data).subscribe({
-      next: () => this.onSuccess(MESSAGES.CREATE_SUCCESS),
-      error: () => this.onError(MESSAGES.CREATE_ERROR),
-      complete: () => this.loadingService.hide(),
-    });
-  }
-
-  handleUpdate(familyId: string, familyData?: Families) {
-    this.loadingService.show();
-    this.familiesService.update(familyId, familyData!).subscribe({
-      next: () => this.onSuccess(MESSAGES.UPDATE_SUCCESS),
-      error: () => this.onError(MESSAGES.UPDATE_ERROR),
-      complete: () => this.loadingService.hide(),
-    });
-  }
-
-  openAddPersonDialog() {
-    this.modalService.openModal(
-      `modal-${Math.random()}`,
-      PersonComponent,
-      'Adicionando pessoa',
-      true,
-      true,
-    );
   }
 }

@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {
   MatAutocompleteModule,
   MatAutocompleteSelectedEvent,
@@ -21,6 +22,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { ColumnComponent } from '@app/components/column/column.component';
 import { MemberOrigin } from '@app/model/MemberOrigins';
+import { ErrorMessagePipe } from '@app/pipes/error-message.pipe';
 import { ValidationService } from '@app/services/validation/validation.service';
 import { map, Observable, startWith } from 'rxjs';
 
@@ -28,6 +30,7 @@ import { map, Observable, startWith } from 'rxjs';
   selector: 'app-spiritual-information',
   templateUrl: './spiritual-information.component.html',
   styleUrl: './spiritual-information.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -40,77 +43,63 @@ import { map, Observable, startWith } from 'rxjs';
     MatIconModule,
     ColumnComponent,
     MatButtonModule,
+    ErrorMessagePipe,
   ],
   providers: [provideNativeDateAdapter()],
 })
 export class SpiritualInformationComponent implements OnInit {
-  @Input() stepThreeForm!: FormGroup;
-  @Input() memberOrigins: MemberOrigin[] = [];
-  @Input() searchControlMemberOrigins!: FormControl; // Ensure this is passed
-  filterMemberOrigins: Observable<MemberOrigin[]> = new Observable<MemberOrigin[]>();
-  minDate = new Date(1900, 0, 1);
-  maxDate = new Date();
+  private readonly fb = inject(FormBuilder);
+  private readonly validationService = inject(ValidationService);
+
+  public readonly stepThreeForm = input.required<FormGroup>();
+  public readonly memberOrigins = input<MemberOrigin[]>([]);
+  public readonly searchControlMemberOrigins = input.required<FormControl>();
+
+  public filterMemberOrigins!: Observable<MemberOrigin[]>;
+  public readonly minDate = new Date(1900, 0, 1);
+  public readonly maxDate = new Date();
+
   @ViewChild('baptismPicker') baptismPicker!: MatDatepicker<Date>;
   @ViewChild('baptismHolySpiritPicker') baptismHolySpiritPicker!: MatDatepicker<Date>;
   @ViewChild('receiptDatePicker') receiptDatePicker!: MatDatepicker<Date>;
 
-  constructor(
-    private fb: FormBuilder,
-    private validationService: ValidationService,
-  ) {}
-
   ngOnInit() {
-    this.initializeForm();
     this.setupAutocomplete();
   }
 
-  initializeForm = () => {
-    if (!this.stepThreeForm) {
-      this.stepThreeForm = this.fb.group({
-        baptism_date: [''],
-        baptism_locale: ['', [Validators.maxLength(255)]],
-        baptism_official: ['', [Validators.maxLength(255)]],
-        baptism_holy_spirit: [false],
-        baptism_holy_spirit_date: [''],
-        member_origin_id: ['', [Validators.required]],
-        receipt_date: [''],
-      });
-    }
-  };
-
   setupAutocomplete() {
-    this.filterMemberOrigins = this.searchControlMemberOrigins.valueChanges.pipe(
+    this.filterMemberOrigins = this.searchControlMemberOrigins().valueChanges.pipe(
       startWith(''),
       map((value: any) => (typeof value === 'string' ? value : value?.name || '')),
-      map((name) => (name.length >= 1 ? this.filterMemberOrigin(name) : this.memberOrigins)),
+      map((name) => (name.length >= 1 ? this.filterMemberOrigin(name) : this.memberOrigins())),
     );
   }
 
   filterMemberOrigin(name: string): MemberOrigin[] {
-    return this.memberOrigins.filter((origin) =>
+    return this.memberOrigins().filter((origin) =>
       origin.name.toLowerCase().includes(name.toLowerCase()),
     );
   }
 
   onMemberOriginSelected(event: MatAutocompleteSelectedEvent) {
     const selectedMemberOrigin = event.option.value;
-    this.searchControlMemberOrigins.setValue(selectedMemberOrigin.name);
-    this.stepThreeForm.get('member_origin_id')?.setValue(selectedMemberOrigin.id);
+    this.searchControlMemberOrigins().setValue(selectedMemberOrigin.name);
+    this.stepThreeForm().get('member_origin_id')?.setValue(selectedMemberOrigin.id);
   }
 
   clearDate(fieldName: string) {
-    this.stepThreeForm.get(fieldName)?.reset();
+    this.stepThreeForm().get(fieldName)?.reset();
   }
 
   onCheckboxChange(fieldName: string, checkboxControlName: string) {
-    const isChecked = this.stepThreeForm.get(checkboxControlName)?.value;
+    const isChecked = this.stepThreeForm().get(checkboxControlName)?.value;
     if (!isChecked) {
-      this.stepThreeForm.get(fieldName)?.reset(null);
+      this.stepThreeForm().get(fieldName)?.reset(null);
     }
   }
 
   getErrorMessage(controlName: string) {
-    const control = this.stepThreeForm.get(controlName);
+    const control = this.stepThreeForm().get(controlName);
     return control?.errors ? this.validationService.getErrorMessage(control) : null;
   }
 
@@ -133,10 +122,10 @@ export class SpiritualInformationComponent implements OnInit {
   }
 
   showAllMemberOrigins() {
-    this.filterMemberOrigins = this.searchControlMemberOrigins.valueChanges.pipe(
+    this.filterMemberOrigins = this.searchControlMemberOrigins().valueChanges.pipe(
       startWith(''),
       map((value: any) => (typeof value === 'string' ? value : value?.name || '')),
-      map((name) => (name.length >= 1 ? this.filterMemberOrigin(name) : this.memberOrigins)),
+      map((name) => (name.length >= 1 ? this.filterMemberOrigin(name) : this.memberOrigins())),
     );
   }
 }

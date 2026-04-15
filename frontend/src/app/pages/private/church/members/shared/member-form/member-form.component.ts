@@ -1,12 +1,6 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Inject,
-  OnDestroy,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
   FormControl,
@@ -33,7 +27,7 @@ import { Person } from '@app/model/Person';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import dayjs from 'dayjs';
 import { provideNgxMask } from 'ngx-mask';
-import { forkJoin, Subject } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { MembersService } from '../../members.service';
 import { HistoryService } from '../history/history.service';
 import { AdditionalInformationComponent } from './shared/additional-information/additional-information.component';
@@ -45,11 +39,6 @@ import { SpiritualInformationComponent } from './shared/spiritual-information/sp
   templateUrl: './member-form.component.html',
   styleUrls: ['./member-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    provideNativeDateAdapter(),
-    provideNgxMask(),
-    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
-  ],
   imports: [
     MatTabsModule,
     MatCardModule,
@@ -64,58 +53,81 @@ import { SpiritualInformationComponent } from './shared/spiritual-information/sp
     AdditionalInformationComponent,
     SpiritualInformationComponent,
   ],
+  providers: [
+    provideNativeDateAdapter(),
+    provideNgxMask(),
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+  ],
 })
-export class MemberFormComponent implements OnInit, OnDestroy {
-  memberForm: FormGroup;
-  isEditMode: boolean = false;
-  isInitialStepCompleted = signal(false);
-  enableDefinitionForm = signal(false);
-  currentStep = 0;
-  memberId: string | null = null;
+export class MemberFormComponent implements OnInit {
+  private readonly fb = inject(FormBuilder);
+  private readonly toast = inject(ToastService);
+  private readonly historyService = inject(HistoryService);
+  private readonly membersService = inject(MembersService);
+  private readonly loading = inject(LoadingService);
+  public readonly navigationService = inject(NavigationService);
+  private readonly dialogRef = inject(MatDialogRef<MemberFormComponent>);
+  public readonly data = inject<{ members: Members }>(MAT_DIALOG_DATA);
+  private readonly submitSubject = (this.data as any)?.submitSubject;
 
-  members: Members[] = [];
-  persons: Person[] = [];
-  churchs: Church[] = [];
-  civilStatus: CivilStatus[] = [];
-  colorRace: ColorRace[] = [];
-  formations: Formations[] = [];
-  memberOrigins: MemberOrigin[] = [];
-  history: History[] = [];
+  public readonly memberForm: FormGroup = this.createMemberForm();
+  public readonly isEditMode = signal(false);
+  public readonly isInitialStepCompleted = signal(false);
+  public readonly enableDefinitionForm = signal(false);
+  public readonly currentStep = signal(0);
+  public readonly memberId = signal<string | null>(null);
 
-  searchControlPerson = new FormControl('');
-  searchControlChurch = new FormControl('');
-  searchControlCivilStatus = new FormControl('');
-  searchControlColorRace = new FormControl('');
-  searchControlFormations = new FormControl('');
-  searchControlMemberOrigins = new FormControl('');
+  public readonly members = signal<Members[]>([]);
+  public readonly persons = signal<Person[]>([]);
+  public readonly churchs = signal<Church[]>([]);
+  public readonly civilStatus = signal<CivilStatus[]>([]);
+  public readonly colorRace = signal<ColorRace[]>([]);
+  public readonly formations = signal<Formations[]>([]);
+  public readonly memberOrigins = signal<MemberOrigin[]>([]);
+  public readonly history = signal<History[]>([]);
 
-  private destroy$ = new Subject<void>();
+  public readonly searchControlPerson = new FormControl('');
+  public readonly searchControlChurch = new FormControl('');
+  public readonly searchControlCivilStatus = new FormControl('');
+  public readonly searchControlColorRace = new FormControl('');
+  public readonly searchControlFormations = new FormControl('');
+  public readonly searchControlMemberOrigins = new FormControl('');
 
-  constructor(
-    private fb: FormBuilder,
-    private toast: ToastService,
-    private historyService: HistoryService,
-    private membersService: MembersService,
-    private loading: LoadingService,
-    public navigationService: NavigationService,
-    private dialogRef: MatDialogRef<MemberFormComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { members: Members },
-  ) {
-    this.memberForm = this.createMemberForm();
-
-    this.navigationService.currentStep$.subscribe((index: number) => {
-      this.currentStep = index;
+  constructor() {
+    this.navigationService.currentStep$.pipe(takeUntilDestroyed()).subscribe((index: number) => {
+      this.currentStep.set(index);
     });
+
+    if (this.submitSubject) {
+      this.submitSubject.pipe(takeUntilDestroyed()).subscribe(() => {
+        this.handleSubmit();
+      });
+    }
   }
 
   ngOnInit() {
     this.loadInitialData();
-    this.handleEdit();
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+  private handleSubmit() {
+    if (this.memberForm.valid) {
+      const memberId = this.memberId();
+      if (this.isEditMode() && memberId) {
+        this.handleUpdate(memberId);
+      } else {
+        this.handleCreate();
+      }
+    } else {
+      this.memberForm.markAllAsTouched();
+      this.searchControlPerson.markAsTouched();
+      this.searchControlChurch.markAsTouched();
+      this.searchControlCivilStatus.markAsTouched();
+      this.searchControlColorRace.markAsTouched();
+      this.searchControlFormations.markAsTouched();
+      this.searchControlMemberOrigins.markAsTouched();
+
+      this.toast.openError('Por favor, preencha todos os campos obrigatórios em todas as abas.');
+    }
   }
 
   getStepFormGroup(step: string): FormGroup {
@@ -131,24 +143,24 @@ export class MemberFormComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    if (this.isEditMode) {
+    if (this.isEditMode()) {
       return false;
     }
 
-    return this.currentStep !== tabIndex;
+    return this.currentStep() !== tabIndex;
   }
 
   onBackStep() {
-    if (this.currentStep > 0) {
-      this.currentStep--;
+    if (this.currentStep() > 0) {
+      this.currentStep.update((s) => s - 1);
     }
   }
 
   onNext() {
-    const stepForm = this.getCurrentStepFormGroup(this.currentStep);
+    const stepForm = this.getCurrentStepFormGroup(this.currentStep());
 
     if (stepForm && stepForm.valid) {
-      this.currentStep++;
+      this.currentStep.update((s) => s + 1);
     } else {
       stepForm.markAllAsTouched();
       this.toast.openError('Por favor, preencha todos os campos obrigatórios.');
@@ -166,16 +178,14 @@ export class MemberFormComponent implements OnInit, OnDestroy {
 
   finalizeStepThree() {
     if (this.memberForm.get('stepThree')?.valid) {
-      this.showLoading();
       const memberData = this.combineStepData();
 
-      if (this.isEditMode && this.memberId) {
-        this.handleUpdate(this.memberId);
+      if (this.isEditMode() && this.memberId()) {
+        this.handleUpdate(this.memberId()!);
       } else {
         this.membersService.createMember(memberData).subscribe({
           next: (newMember) => {
-            this.memberId = newMember.id;
-            // Save creation history
+            this.memberId.set(newMember.id);
             const historyData: Partial<History> = {
               member_id: newMember.id,
               table_name: 'members',
@@ -189,12 +199,12 @@ export class MemberFormComponent implements OnInit, OnDestroy {
                 this.onSuccessUpdate('Membro criado com sucesso.', false);
               },
               error: () => this.onError('Erro ao salvar histórico de criação.'),
-              complete: () => this.hideLoading(),
+              complete: () => this.loading.hide(),
             });
           },
           error: () => {
             this.onError(MESSAGES.CREATE_ERROR);
-            this.hideLoading();
+            this.loading.hide();
           },
         });
       }
@@ -204,8 +214,8 @@ export class MemberFormComponent implements OnInit, OnDestroy {
   }
 
   handleCreate() {
-    this.showLoading();
     const memberData = this.combineStepData();
+
     this.membersService.createMember(memberData).subscribe({
       next: (newMember) => {
         const historyData: Partial<History> = {
@@ -218,18 +228,17 @@ export class MemberFormComponent implements OnInit, OnDestroy {
         this.historyService.saveHistory(historyData).subscribe({
           next: () => this.onSuccessUpdate(MESSAGES.CREATE_SUCCESS),
           error: () => this.onError('Erro ao salvar histórico de criação.'),
-          complete: () => this.hideLoading(),
+          complete: () => this.loading.hide(),
         });
       },
       error: () => {
         this.onError(MESSAGES.CREATE_ERROR);
-        this.hideLoading();
+        this.loading.hide();
       },
     });
   }
 
   handleUpdate(memberId: string) {
-    this.showLoading();
     const memberData = this.combineStepData();
 
     this.membersService.getMemberById(memberId).subscribe({
@@ -254,57 +263,46 @@ export class MemberFormComponent implements OnInit, OnDestroy {
               this.membersService.updateMember(memberData).subscribe({
                 next: () => this.onSuccessUpdate(MESSAGES.UPDATE_SUCCESS, true),
                 error: (error) => {
-                  console.error('Error updating member:', error);
                   const errorMessage = error?.error?.message || error?.message || 'Unknown error';
                   this.onError(MESSAGES.UPDATE_ERROR + `: ${errorMessage}`);
-                  this.hideLoading();
                 },
-                complete: () => this.hideLoading(),
+                complete: () => this.loading.hide(),
               });
             })
             .catch((error) => {
-              console.error('Error saving history:', error);
-              console.error('Error response:', error?.error);
               const errorMessage = error?.error?.message || error?.message || 'Unknown error';
               this.toast.openError(`Member updated, but failed to save history: ${errorMessage}`);
 
               this.membersService.updateMember(memberData).subscribe({
                 next: () => this.onSuccessUpdate(MESSAGES.UPDATE_SUCCESS, true),
                 error: (error) => {
-                  console.error('Error updating member after history failure:', error);
                   const updateErrorMessage =
                     error?.error?.message || error?.message || 'Unknown error';
                   this.onError(MESSAGES.UPDATE_ERROR + `: ${updateErrorMessage}`);
-                  this.hideLoading();
                 },
-                complete: () => this.hideLoading(),
+                complete: () => this.loading.hide(),
               });
             });
         } else {
-          // No changes detected, update member without saving history
           this.membersService.updateMember(memberData).subscribe({
             next: () => this.onSuccessUpdate(MESSAGES.UPDATE_SUCCESS, true),
             error: (error) => {
-              console.error('Error updating member:', error);
               const errorMessage = error?.error?.message || error?.message || 'Unknown error';
               this.onError(MESSAGES.UPDATE_ERROR + `: ${errorMessage}`);
-              this.hideLoading();
             },
-            complete: () => this.hideLoading(),
+            complete: () => this.loading.hide(),
           });
         }
       },
       error: (error) => {
-        console.error('Error fetching member data:', error);
         const errorMessage = error?.error?.message || error?.message || 'Unknown error';
         this.onError(MESSAGES.UPDATE_ERROR + `: ${errorMessage}`);
-        this.hideLoading();
       },
     });
   }
 
-  private createMemberForm = (): FormGroup =>
-    this.fb.group({
+  private createMemberForm() {
+    return this.fb.group({
       stepOne: this.fb.group({
         id: [this.data?.members?.id || ''],
         person_id: [this.data?.members?.person?.id || '', [Validators.required]],
@@ -312,12 +310,18 @@ export class MemberFormComponent implements OnInit, OnDestroy {
         rg: [this.data?.members?.rg || '', [Validators.required, Validators.maxLength(15)]],
         issuing_body: [
           this.data?.members?.issuing_body || '',
-          [Validators.required, Validators.maxLength(255)],
+          [Validators.required, Validators.maxLength(15)],
         ],
         civil_status_id: [this.data?.members?.civil_status?.id || '', [Validators.required]],
         color_race_id: [this.data?.members?.color_race?.id || '', [Validators.required]],
-        nationality: [this.data?.members?.nationality || '', [Validators.required]],
-        naturalness: [this.data?.members?.naturalness || '', [Validators.required]],
+        nationality: [
+          this.data?.members?.nationality || '',
+          [Validators.required, Validators.maxLength(100)],
+        ],
+        naturalness: [
+          this.data?.members?.naturalness || '',
+          [Validators.required, Validators.maxLength(100)],
+        ],
       }),
 
       stepTwo: this.fb.group({
@@ -352,17 +356,9 @@ export class MemberFormComponent implements OnInit, OnDestroy {
       stepFive: this.fb.group({}),
       stepSix: this.fb.group({}),
     });
-
-  private showLoading = () => {
-    this.loading.show();
-  };
-
-  private hideLoading = () => {
-    this.loading.hide();
-  };
+  }
 
   private loadInitialData() {
-    this.showLoading();
     forkJoin({
       persons: this.membersService.getPersons(),
       churchs: this.membersService.getChurch(),
@@ -372,12 +368,12 @@ export class MemberFormComponent implements OnInit, OnDestroy {
       memberOrigins: this.membersService.getMemberOrigins(),
     }).subscribe({
       next: ({ persons, churchs, civilStatus, colorRace, formations, memberOrigins }) => {
-        this.persons = persons;
-        this.churchs = churchs;
-        this.civilStatus = civilStatus;
-        this.colorRace = colorRace;
-        this.formations = formations;
-        this.memberOrigins = memberOrigins;
+        this.persons.set(persons);
+        this.churchs.set(churchs);
+        this.civilStatus.set(civilStatus);
+        this.colorRace.set(colorRace);
+        this.formations.set(formations);
+        this.memberOrigins.set(memberOrigins);
 
         if (this.data?.members) {
           this.handleEdit();
@@ -385,14 +381,13 @@ export class MemberFormComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.toast.openError(MESSAGES.LOADING_ERROR);
-        this.hideLoading();
       },
-      complete: () => this.hideLoading(),
+      complete: () => this.loading.hide(),
     });
   }
 
   private getCurrentStepFormGroup(stepIndex?: number): FormGroup {
-    switch (stepIndex ?? this.currentStep) {
+    switch (stepIndex ?? this.currentStep()) {
       case 0:
         return this.getStepFormGroup('stepOne');
       case 1:
@@ -426,7 +421,7 @@ export class MemberFormComponent implements OnInit, OnDestroy {
       ...stepOneData,
       ...stepTwoData,
       ...formattedStepThreeData,
-      member_id: this.memberId,
+      member_id: this.memberId(),
     };
   }
 
@@ -466,18 +461,16 @@ export class MemberFormComponent implements OnInit, OnDestroy {
       let oldValue = beforeData[field];
       let newValue = afterData[field];
 
-      // Handle date fields
       if (field.includes('_date')) {
         oldValue = oldValue ? dayjs(oldValue).format('YYYY-MM-DD') : null;
         newValue = newValue ? dayjs(newValue).format('YYYY-MM-DD') : null;
       }
 
-      // Only record changes if the new value is different, valid, and not an empty string
       if (
         oldValue !== newValue &&
-        newValue !== '' && // Skip empty strings
-        !(oldValue == null && newValue == null) && // Skip if both are null
-        (newValue != null || oldValue != null) // Ensure at least one value exists
+        newValue !== '' &&
+        !(oldValue == null && newValue == null) &&
+        (newValue != null || oldValue != null)
       ) {
         changes.push({
           field,
@@ -493,9 +486,9 @@ export class MemberFormComponent implements OnInit, OnDestroy {
 
   private handleEdit = () => {
     if (this.data?.members) {
-      this.isEditMode = true;
+      this.isEditMode.set(true);
       this.isInitialStepCompleted.set(true);
-      this.memberId = this.data.members.id;
+      this.memberId.set(this.data.members.id);
 
       const hasAnyDisability =
         this.data.members.def_physical ||
@@ -549,18 +542,17 @@ export class MemberFormComponent implements OnInit, OnDestroy {
         },
       });
 
-      this.history = this.data.members.history_member || [];
-
+      this.history.set(this.data.members.history_member || []);
       this.updateSearchControls();
     }
   };
 
   private updateSearchControls() {
     const stepOne = this.memberForm.get('stepOne')?.value;
-    const person = this.persons.find((p) => p.id === stepOne.person_id);
-    const church = this.churchs.find((c) => c.id === stepOne.church_id);
-    const civilStatus = this.civilStatus.find((cs) => cs.id === stepOne.civil_status_id);
-    const colorRace = this.colorRace.find((cr) => cr.id === stepOne.color_race_id);
+    const person = this.persons().find((p) => p.id === stepOne.person_id);
+    const church = this.churchs().find((c) => c.id === stepOne.church_id);
+    const civilStatus = this.civilStatus().find((cs) => cs.id === stepOne.civil_status_id);
+    const colorRace = this.colorRace().find((cr) => cr.id === stepOne.color_race_id);
 
     this.searchControlPerson.setValue(person?.name || '');
     this.searchControlChurch.setValue(church?.name || '');
@@ -568,23 +560,21 @@ export class MemberFormComponent implements OnInit, OnDestroy {
     this.searchControlColorRace.setValue(colorRace?.name || '');
 
     const stepTwo = this.memberForm.get('stepTwo')?.value;
-    const formation = this.formations.find((f) => f.id === stepTwo.formation_id);
+    const formation = this.formations().find((f) => f.id === stepTwo.formation_id);
     this.searchControlFormations.setValue(formation?.name || '');
 
     const stepThree = this.memberForm.get('stepThree')?.value;
-    const memberOrigin = this.memberOrigins.find((mo) => mo.id === stepThree.member_origin_id);
+    const memberOrigin = this.memberOrigins().find((mo) => mo.id === stepThree.member_origin_id);
     this.searchControlMemberOrigins.setValue(memberOrigin?.name || '');
   }
 
   private onSuccessUpdate(message: string, _closeDialog: boolean = false) {
-    this.hideLoading();
     this.toast.openSuccess(message);
     this.dialogRef.close(true);
     this.navigationService.setCurrentStep(0);
   }
 
   private onError(message: string) {
-    this.hideLoading();
     this.toast.openError(message);
   }
 }

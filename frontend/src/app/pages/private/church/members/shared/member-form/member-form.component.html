@@ -1,12 +1,17 @@
 <form [formGroup]="memberForm" class="form-field-group">
-  <mat-tab-group preserveContent dynamicHeight [(selectedIndex)]="currentStep">
-    <mat-tab label="Identificação" [disabled]="isTabDisabled(0)">
+  <mat-tab-group
+    preserveContent
+    dynamicHeight
+    [selectedIndex]="currentStep()"
+    (selectedIndexChange)="currentStep.set($event)"
+  >
+    <mat-tab label="Identificação">
       <app-identification
         [stepOneForm]="getStepFormGroup('stepOne')"
-        [persons]="persons"
-        [churchs]="churchs"
-        [civilStatus]="civilStatus"
-        [colorRace]="colorRace"
+        [persons]="persons()"
+        [churchs]="churchs()"
+        [civilStatus]="civilStatus()"
+        [colorRace]="colorRace()"
         [searchControlPerson]="searchControlPerson"
         [searchControlChurch]="searchControlChurch"
         [searchControlCivilStatus]="searchControlCivilStatus"
@@ -14,18 +19,18 @@
       ></app-identification>
     </mat-tab>
 
-    <mat-tab label="Informações complementares" [disabled]="isTabDisabled(1)">
+    <mat-tab label="Informações complementares">
       <app-additional-information
         [stepTwoForm]="getStepFormGroup('stepTwo')"
-        [formations]="formations"
+        [formations]="formations()"
         [searchControlFormations]="searchControlFormations"
       ></app-additional-information>
     </mat-tab>
 
-    <mat-tab label="Informações espirituais" [disabled]="isTabDisabled(2)">
+    <mat-tab label="Informações espirituais">
       <app-spiritual-information
         [stepThreeForm]="getStepFormGroup('stepThree')"
-        [memberOrigins]="memberOrigins"
+        [memberOrigins]="memberOrigins()"
         [searchControlMemberOrigins]="searchControlMemberOrigins"
       ></app-spiritual-information>
     </mat-tab>

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmService } from '@app/components/confirm/confirm.service';
 import { CrudComponent } from '@app/components/crud/crud.component';
@@ -6,7 +6,6 @@ import { ActionsProps, ColumnDefinitionsProps } from '@app/components/crud/types
 import { LoadingService } from '@app/components/loading/loading.service';
 import { MESSAGES } from '@app/components/toast/messages';
 import { ToastService } from '@app/components/toast/toast.service';
-import { Families } from '@app/model/Families';
 import { Members } from '@app/model/Members';
 import { AuthService } from '@app/services/auth/auth.service';
 import { FormService } from '@app/services/form-service.service';
@@ -21,6 +20,7 @@ import { StatusMemberComponent } from './shared/status-member/status-member.comp
   selector: 'app-members',
   templateUrl: './members.component.html',
   styleUrls: ['./members.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CrudComponent],
 })
 export class MembersComponent implements OnInit {
@@ -36,10 +36,9 @@ export class MembersComponent implements OnInit {
   private readonly hasCanWrite = this.authService.hasPermission(this.canWrite());
   private readonly hasCanDelete = this.authService.hasPermission(this.canDelete());
 
-  families!: Families[];
-  member = signal<Members[]>([]);
-  dataSourceMat = new MatTableDataSource<Members>([]);
-  columnDefinitions: ColumnDefinitionsProps[] = [
+  public readonly member = signal<Members[]>([]);
+  public readonly dataSourceMat = new MatTableDataSource<Members>([]);
+  public readonly columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'person.name', header: 'Nome', type: 'string' },
     { key: 'person.cpf', header: 'CPF', type: 'cpf' },
     { key: 'person.email', header: 'Email', type: 'email' },
@@ -53,7 +52,8 @@ export class MembersComponent implements OnInit {
       type: 'string',
     },
   ];
-  actions: ActionsProps[] = [
+
+  public readonly actions: ActionsProps[] = [
     {
       type: 'edit',
       icon: 'edit',
@@ -120,6 +120,7 @@ export class MembersComponent implements OnInit {
   }
 
   onCreate() {
+    this.membersService.setEditingMemberId(null);
     const modal = this.formService.openFormModal(
       'Adicionando novo membro',
       MemberFormComponent,
@@ -130,16 +131,13 @@ export class MembersComponent implements OnInit {
 
     modal.subscribe((result: Members) => {
       if (result) {
-        this.membersService.createMember(result).subscribe({
-          next: () => this.toastService.openSuccess(MESSAGES.CREATE_SUCCESS),
-          error: () => this.toastService.openError(MESSAGES.CREATE_ERROR),
-          complete: () => this.getMembersAll(),
-        });
+        this.getMembersAll();
       }
     });
   }
 
   private onEdit(member: Members) {
+    this.membersService.setEditingMemberId(member.id);
     const modal = this.formService.openFormModal(
       `Editando o membro: ${member.person.name}`,
       MemberFormComponent,
@@ -150,11 +148,7 @@ export class MembersComponent implements OnInit {
 
     modal.subscribe((result: Members) => {
       if (result) {
-        this.membersService.updateMember(result).subscribe({
-          next: () => this.toastService.openSuccess(MESSAGES.UPDATE_SUCCESS),
-          error: () => this.toastService.openError(MESSAGES.UPDATE_ERROR),
-          complete: () => this.getMembersAll(),
-        });
+        this.getMembersAll();
       }
     });
   }
@@ -179,41 +173,45 @@ export class MembersComponent implements OnInit {
   }
 
   private onHistory(member: Members) {
+    this.membersService.setEditingMemberId(member.id);
     this.formService.openFormModal(
       `Histórico do membro: ${member.person.name}`,
       HistoryComponent,
       { history_member: member, id: member.id },
-      ['cancel', 'save'],
+      ['cancel'],
       true,
     );
   }
 
   private onFiliation(member: Members) {
+    this.membersService.setEditingMemberId(member.id);
     this.formService.openFormModal(
       `Adicionando filiação ao membro: ${member.person.name}`,
       FamiliesComponent,
       { families: member.families, id: member.id },
-      ['cancel', 'save'],
+      ['cancel'],
       true,
     );
   }
 
   private onOrdination(member: Members) {
+    this.membersService.setEditingMemberId(member.id);
     this.formService.openFormModal(
       `Adicionando ordenação ao membro: ${member.person.name}`,
       OrdinationsComponent,
       { ordinations: member.ordination, id: member.id },
-      ['cancel', 'save'],
+      ['cancel'],
       true,
     );
   }
 
   private onStatusMember(member: Members) {
+    this.membersService.setEditingMemberId(member.id);
     this.formService.openFormModal(
       `Alterando status do membro: ${member?.person?.name}`,
       StatusMemberComponent,
       { status_member: member.status_member, id: member.id },
-      ['cancel', 'save'],
+      ['cancel'],
       true,
     );
   }

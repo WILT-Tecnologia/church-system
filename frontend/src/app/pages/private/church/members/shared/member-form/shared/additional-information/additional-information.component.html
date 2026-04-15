@@ -1,14 +1,12 @@
 <section class="py-4">
   <mat-card appearance="outlined">
     <mat-card-content>
-      <div [formGroup]="stepTwoForm">
+      <div [formGroup]="stepTwoForm()">
         <app-column>
           <mat-form-field appearance="fill">
             <mat-label>Profissão</mat-label>
             <input matInput formControlName="profission" />
-            @if (stepTwoForm.get('profission')?.invalid) {
-              <mat-error>{{ getErrorMessage('profission') }}</mat-error>
-            }
+            <mat-error>{{ stepTwoForm().get('profission')?.errors | errorMessage }}</mat-error>
           </mat-form-field>
         </app-column>
 
@@ -19,42 +17,47 @@
               type="text"
               matInput
               [matAutocomplete]="autoFormation"
-              [formControl]="searchControlFormations"
+              [formControl]="searchControlFormations()"
               placeholder="Selecione uma formação"
               (focus)="showAllFormations()"
               required
             />
-            <mat-autocomplete #autoFormation="matAutocomplete" (optionSelected)="onFormationsSelected($event)">
+            <mat-autocomplete
+              #autoFormation="matAutocomplete"
+              (optionSelected)="onFormationsSelected($event)"
+            >
               @for (formation of filteredFormations | async; track formation.id) {
                 <mat-option [value]="formation">
                   {{ formation.name }}
                 </mat-option>
               }
             </mat-autocomplete>
-            @if (stepTwoForm.get('formation_id')?.invalid) {
-              <mat-error>{{ getErrorMessage('formation_id') }}</mat-error>
-            }
+            <mat-error>{{ stepTwoForm().get('formation_id')?.errors | errorMessage }}</mat-error>
           </mat-form-field>
           @if (isFormationCourseVisible) {
             <mat-form-field>
               <mat-label>Curso de Formação</mat-label>
               <input matInput formControlName="formation_course" />
-              @if (stepTwoForm.get('formation_course')?.invalid) {
-                <mat-error>{{ getErrorMessage('formation_course') }}</mat-error>
-              }
+              <mat-error>
+                {{ stepTwoForm().get('formation_course')?.errors | errorMessage }}
+              </mat-error>
             </mat-form-field>
           }
         </app-column>
 
         <app-column [columns]="1">
           <label>Possui alguma deficiência ?</label>
-          <mat-radio-group color="primary" aria-label="Possui alguma deficiência" formControlName="has_disability">
+          <mat-radio-group
+            color="primary"
+            aria-label="Possui alguma deficiência"
+            formControlName="has_disability"
+          >
             <mat-radio-button [value]="true">Sim</mat-radio-button>
             <mat-radio-button [value]="false">Não</mat-radio-button>
           </mat-radio-group>
         </app-column>
 
-        @if (stepTwoForm.get('has_disability')?.value) {
+        @if (stepTwoForm().get('has_disability')?.value) {
           <app-column [columns]="1">
             <app-column [columns]="4">
               <div class="checkbox-column">
@@ -65,17 +68,24 @@
               </div>
               <div class="checkbox-column">
                 <mat-checkbox color="primary" formControlName="def_mental">Mental</mat-checkbox>
-                <mat-checkbox color="primary" formControlName="def_intellectual">Intelectual</mat-checkbox>
+                <mat-checkbox color="primary" formControlName="def_intellectual"
+                  >Intelectual</mat-checkbox
+                >
                 <mat-checkbox color="primary" formControlName="def_multiple">Múltipla</mat-checkbox>
               </div>
             </app-column>
-            @if (stepTwoForm.get('def_other')?.value) {
+            @if (stepTwoForm().get('def_other')?.value) {
               <mat-form-field appearance="fill">
                 <mat-label>Descreva a deficiência...</mat-label>
-                <textarea matInput rows="4" formControlName="def_other_description" matTextareaAutosize></textarea>
-                @if (stepTwoForm.get('def_other_description')?.invalid) {
-                  <mat-error>{{ getErrorMessage('def_other_description') }}</mat-error>
-                }
+                <textarea
+                  matInput
+                  rows="4"
+                  formControlName="def_other_description"
+                  matTextareaAutosize
+                ></textarea>
+                <mat-error>
+                  {{ stepTwoForm().get('def_other_description')?.errors | errorMessage }}
+                </mat-error>
               </mat-form-field>
             }
           </app-column>

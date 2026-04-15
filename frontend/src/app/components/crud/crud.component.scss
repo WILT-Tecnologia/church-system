@@ -171,6 +171,11 @@ th {
   font-weight: 400;
 }
 
+.rows,
+.mat-header-cell {
+  background-color: var(--white-color);
+}
+
 .rows:hover {
   background-color: var(--hover-color);
   border-radius: 1rem;

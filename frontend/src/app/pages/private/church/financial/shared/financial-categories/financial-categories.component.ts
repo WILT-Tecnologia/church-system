@@ -4,7 +4,6 @@ import { ConfirmService } from '@app/components/confirm/confirm.service';
 import { CrudComponent } from '@app/components/crud/crud.component';
 import { ActionsProps, ColumnDefinitionsProps } from '@app/components/crud/types';
 import { LoadingService } from '@app/components/loading/loading.service';
-import { ModalService } from '@app/components/modal/modal.service';
 import { MESSAGES } from '@app/components/toast/messages';
 import { ToastService } from '@app/components/toast/toast.service';
 import { FinancialCategories } from '@app/model/FinancialCategories';
@@ -22,7 +21,6 @@ import { FinancialCategoriesFormComponent } from './shared/financial-categories-
 export class FinancialCategoriesComponent implements OnInit {
   private readonly financialCategoriesService = inject(FinancialCategoriesService);
   private readonly authService = inject(AuthService);
-  private readonly dialogService = inject(ModalService);
   private readonly confirmService = inject(ConfirmService);
   private readonly toastService = inject(ToastService);
   private readonly loadingService = inject(LoadingService);

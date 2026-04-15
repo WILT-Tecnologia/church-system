@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, OnInit, Output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, output, signal } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmService } from '@app/components/confirm/confirm.service';
@@ -17,27 +17,31 @@ import { OrdinationsService } from './ordinations.service';
   selector: 'app-ordinations',
   templateUrl: './ordinations.component.html',
   styleUrls: ['./ordinations.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CrudComponent],
 })
 export class OrdinationsComponent implements OnInit {
-  private confirmService = inject(ConfirmService);
-  private loading = inject(LoadingService);
-  private toast = inject(ToastService);
-  private modal = inject(ModalService);
-  private ordinationService = inject(OrdinationsService);
-  private membersService = inject(MembersService);
-  public data = inject<{ ordinations: Ordination[]; id: number }>(MAT_DIALOG_DATA);
-  @Output() ordinationUpdated = new EventEmitter<Ordination[]>();
-  ordination = signal<Ordination[]>([]);
-  rendering = signal(true);
-  dataSourceMat = new MatTableDataSource<Ordination>([]);
-  columnDefinitions: ColumnDefinitionsProps[] = [
+  private readonly confirmService = inject(ConfirmService);
+  private readonly loading = inject(LoadingService);
+  private readonly toast = inject(ToastService);
+  private readonly modal = inject(ModalService);
+  private readonly ordinationService = inject(OrdinationsService);
+  private readonly membersService = inject(MembersService);
+  public readonly data = inject<{ ordinations: Ordination[]; id: number }>(MAT_DIALOG_DATA);
+
+  public readonly ordinationUpdated = output<Ordination[]>();
+  public readonly ordination = signal<Ordination[]>([]);
+  public readonly rendering = signal(true);
+  public readonly dataSourceMat = new MatTableDataSource<Ordination>([]);
+
+  public readonly columnDefinitions: ColumnDefinitionsProps[] = [
     { key: 'status', header: 'Status', type: 'boolean' },
     { key: 'occupation.name', header: 'Ocupação', type: 'string' },
     { key: 'initial_date', header: 'Data Inicial', type: 'date' },
     { key: 'end_date', header: 'Data Final', type: 'date' },
   ];
-  actions: ActionsProps[] = [
+
+  public readonly actions: ActionsProps[] = [
     {
       type: 'edit',
       icon: 'edit',
@@ -49,6 +53,7 @@ export class OrdinationsComponent implements OnInit {
       type: 'delete',
       icon: 'delete',
       label: 'Excluir',
+      color: 'warn',
       action: (ordination: Ordination) => this.handleDelete(ordination),
     },
   ];
@@ -58,26 +63,26 @@ export class OrdinationsComponent implements OnInit {
     this.loadOrdinations();
   }
 
-  get ordinationData(): Ordination[] {
-    return this.ordination();
-  }
-
   private loadOrdinations = () => {
     this.loading.show();
     const memberId = this.membersService.getEditingMemberId();
-    this.ordinationService.getOrdinationByMemberId(memberId!).subscribe({
-      next: (ordinationResp) => {
-        this.ordination.set(ordinationResp);
-        this.dataSourceMat.data = ordinationResp;
-        this.rendering.set(false);
-        this.ordinationUpdated.emit(ordinationResp);
-      },
-      error: () => {
-        this.loading.hide();
-        this.toast.openError(MESSAGES.LOADING_ERROR);
-      },
-      complete: () => this.loading.hide(),
-    });
+    if (memberId) {
+      this.ordinationService.getOrdinationByMemberId(memberId).subscribe({
+        next: (ordinationResp) => {
+          this.ordination.set(ordinationResp);
+          this.dataSourceMat.data = ordinationResp;
+          this.rendering.set(false);
+          this.ordinationUpdated.emit(ordinationResp);
+        },
+        error: () => {
+          this.loading.hide();
+          this.toast.openError(MESSAGES.LOADING_ERROR);
+        },
+        complete: () => this.loading.hide(),
+      });
+    } else {
+      this.loading.hide();
+    }
   };
 
   onCreate = () => {
@@ -129,7 +134,7 @@ export class OrdinationsComponent implements OnInit {
       'Cancelar',
     );
 
-    dialogRef.afterClosed().subscribe((result: Ordination) => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.loading.show();
         this.ordinationService.deleteOrdination(ordination.id).subscribe({

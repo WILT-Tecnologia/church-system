@@ -1,11 +1,11 @@
-@if (history_member && history_member.length > 0) {
+@if (history_member() && history_member().length > 0) {
   <div class="container">
     <div class="title">
       Mudanças realizadas:
       <mat-divider></mat-divider>
     </div>
     <div class="changes-wrapper">
-      @for (change of history_member; track $index) {
+      @for (change of history_member(); track $index) {
         <div class="change-card">
           <div class="change-card-content">
             <div class="change-info">

@@ -117,7 +117,7 @@
   <app-actions>
     <button type="button" mat-stroked-button color="warn" (click)="onCancel()">Cancelar</button>
     <button type="submit" mat-flat-button color="primary" [disabled]="statusMemberForm.invalid">
-      {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
+      {{ isEditMode() ? 'Atualizar' : 'Cadastrar' }}
     </button>
   </app-actions>
 </form>

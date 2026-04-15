@@ -1,71 +1,63 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import {
-  AbstractControl,
-  FormControl,
-  FormGroup,
-  ValidationErrors,
-  ValidatorFn,
-} from '@angular/forms';
-import { catchError, map, Observable, of } from 'rxjs';
-
-import { messages } from './message';
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ValidationService {
-  constructor(private http: HttpClient) {}
+  private readonly errorMessages: { [key: string]: (args?: any) => string } = {
+    minlength: (args: { requiredLength: number }) =>
+      `É preciso no mínimo ${args.requiredLength} caracteres.`,
+    maxlength: (args: { requiredLength: number }) =>
+      `Ultrapassou o limite máximo de ${args.requiredLength} caracteres.`,
+    min: (args: { min: number }) => `O valor mínimo é ${args.min}.`,
+    max: (args: { max: number }) => `O valor máximo é ${args.max}.`,
+    required: () => 'Este campo é obrigatório.',
+    email: () => 'Informe um e-mail válido.',
+    pattern: () => 'Formato inválido.',
+    nullValidator: () => 'Valor nulo não permitido.',
+    passwordMismatch: () => 'As senhas não coincidem.',
+    invalidPassword: () =>
+      'A senha deve ter pelo menos uma letra maiúscula, uma minúscula, um número e um caracter especial (@,$,!,%,*,?,&).',
+    emailExists: () => 'O e-mail já existe e pertence a um usuário.',
+    cpfInvalid: () => 'CPF inválido.',
+    cnpjInvalid: () => 'CNPJ inválido.',
+    phoneInvalid: () => 'Telefone inválido.',
+    invalidPhone: () => 'O telefone informado é inválido.',
+    invalidPhoneLength: () => 'O telefone deve ter 10 ou 11 dígitos.',
+    invalidPhoneStart: () => 'O telefone com 11 dígitos deve começar com 9.',
+    invalidPhoneSequence: () => 'O telefone não pode ter todos os dígitos iguais.',
+    invalidCpf: () => 'O CPF informado é inválido.',
+    invalidCpfLength: () => 'O CPF deve conter 11 dígitos.',
+    invalidCpfSequence: () => 'O CPF não pode conter todos os dígitos iguais.',
+    invalidCnpj: () => 'O CNPJ informado é inválido.',
+    invalidCnpjLength: () => 'O CNPJ deve conter 14 dígitos.',
+    invalidCnpjSequence: () => 'O CNPJ não pode conter todos os dígitos iguais.',
+    mask: () => 'O valor não está seguindo o padrão do estabelecido.',
+    dateInvalid: () => 'Data inválida.',
+    futureDate: () => 'A data deve ser futura.',
+    pastDate: () => 'A data deve ser passada.',
+    urlInvalid: () => 'URL inválida.',
+  };
 
-  getFieldValue(item: any, field: string): string | undefined {
-    return field.split('.').reduce((acc, part) => acc?.[part], item);
-  }
-
-  getErrorMessage(control: AbstractControl): string | null {
-    if (control && control.invalid && (control.dirty || control.touched)) {
-      const errors = control.errors;
-      if (errors) {
-        for (const errorKey in errors) {
-          if (typeof errors[errorKey] === 'string') {
-            return errors[errorKey];
-          }
-
-          if (messages[errorKey as keyof typeof messages]) {
-            const message = messages[errorKey as keyof typeof messages];
-            return message.replace('{{ length }}', errors[errorKey]?.requiredLength || '');
-          }
-
-          return errorKey;
-        }
-      }
+  /**
+   * Obtém a primeira mensagem de erro para o conjunto de erros fornecido.
+   * @param errors Objeto de erros do formulário.
+   * @returns Mensagem de erro amigável em Português.
+   */
+  getErrorMessage(errors: ValidationErrors | null): string {
+    if (!errors || Object.keys(errors).length === 0) {
+      return '';
     }
-    return null;
-  }
 
-  handleLaravelErrors(form: FormGroup, errors: Record<string, string[]>) {
-    Object.keys(errors).forEach((key) => {
-      const control = form.get(key);
-      if (control) {
-        const errorKey = errors[key][0];
+    const firstKey = Object.keys(errors)[0];
+    const messageGetter = this.errorMessages[firstKey];
 
-        control.setErrors({ [errorKey]: true });
+    if (messageGetter) {
+      return messageGetter(errors[firstKey]);
+    }
 
-        control.markAsTouched();
-      }
-    });
-  }
-
-  validateEmail(control: AbstractControl): Observable<ValidationErrors | null> {
-    const email = control.value;
-    return this.http.post<{ email?: string[] }>('/admin/users/check-email', { email }).pipe(
-      map((response) => {
-        if (response.email && response.email.length > 0) {
-          return { emailExists: response.email[0] };
-        }
-        return null;
-      }),
-      catchError(() => of(null)),
-    );
+    return 'Campo inválido.';
   }
 
   passwordValidator(): ValidatorFn {
@@ -76,40 +68,5 @@ export class ValidationService {
       const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
       return passwordRegex.test(control.value) ? null : { invalidPassword: true };
     };
-  }
-
-  dateValidator(control: FormControl) {
-    const value = control.value;
-    if (!value) return null;
-
-    // Verifica o formato dd/mm/yyyy
-    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
-      return { invalidDate: true };
-    }
-
-    const [day, month, year] = value.split('/').map(Number);
-    const date = new Date(year, month - 1, day);
-
-    return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day
-      ? null
-      : { invalidDate: true };
-  }
-
-  timeValidator(control: FormControl) {
-    const value = control.value;
-    if (!value) return null;
-
-    return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value) ? null : { invalidTime: true };
-  }
-
-  parseDate(dateString: string | null | undefined): Date | null {
-    if (!dateString) return null;
-
-    if (dateString.includes('/')) {
-      const [day, month, year] = dateString.split('/').map(Number);
-      return new Date(year, month - 1, day);
-    }
-
-    return new Date(dateString);
   }
 }

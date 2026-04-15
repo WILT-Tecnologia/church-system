@@ -1,12 +1,10 @@
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
-  Inject,
-  OnDestroy,
+  inject,
   OnInit,
-  Optional,
+  signal,
   ViewChild,
 } from '@angular/core';
 import {
@@ -40,7 +38,7 @@ import { StatusMember } from '@app/model/Members';
 import { ValidationService } from '@app/services/validation/validation.service';
 import dayjs from 'dayjs';
 import { provideNgxMask } from 'ngx-mask';
-import { forkJoin, map, Observable, startWith, Subject } from 'rxjs';
+import { forkJoin, map, Observable, startWith } from 'rxjs';
 import { StatusMemberService } from '../status-member.service';
 
 @Component({
@@ -69,31 +67,28 @@ import { StatusMemberService } from '../status-member.service';
     { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
   ],
 })
-export class StatusMemberFormComponent implements OnInit, OnDestroy {
-  statusMemberForm: FormGroup;
-  membersSituations: MemberSituations[] = [];
-  isEditMode: boolean = false;
-  searchMemberSituationControl = new FormControl();
-  filterMemberSituation: Observable<MemberSituations[]> = new Observable<MemberSituations[]>();
+export class StatusMemberFormComponent implements OnInit {
+  private readonly fb = inject(FormBuilder);
+  private readonly toast = inject(ToastService);
+  private readonly loading = inject(LoadingService);
+  private readonly statusMemberService = inject(StatusMemberService);
+  private readonly validationService = inject(ValidationService);
+  private readonly dialogRef = inject(MatDialogRef<StatusMemberFormComponent>);
+  public readonly data = inject<{ status_member: StatusMember }>(MAT_DIALOG_DATA);
 
-  readonly minDate = new Date(1900, 0, 1);
-  readonly maxDate = new Date(new Date().getFullYear() + 1, 12, 31);
-  private destroy$ = new Subject<void>();
+  public readonly statusMemberForm: FormGroup;
+  public readonly membersSituations = signal<MemberSituations[]>([]);
+  public readonly isEditMode = signal(false);
+  public readonly searchMemberSituationControl = new FormControl();
+  public filterMemberSituation!: Observable<MemberSituations[]>;
+
+  public readonly minDate = new Date(1900, 0, 1);
+  public readonly maxDate = new Date(new Date().getFullYear() + 1, 12, 31);
+
   @ViewChild('initial_period') initial_period!: MatDatepicker<Date>;
   @ViewChild('final_period') final_period!: MatDatepicker<Date>;
 
-  constructor(
-    private fb: FormBuilder,
-    private toast: ToastService,
-    private loading: LoadingService,
-    private statusMemberService: StatusMemberService,
-    private validationService: ValidationService,
-    private cdr: ChangeDetectorRef,
-    private dialogRef: MatDialogRef<StatusMemberFormComponent>,
-    @Optional()
-    @Inject(MAT_DIALOG_DATA)
-    public data: { status_member: StatusMember },
-  ) {
+  constructor() {
     this.statusMemberForm = this.createForm();
   }
 
@@ -102,14 +97,9 @@ export class StatusMemberFormComponent implements OnInit, OnDestroy {
     this.checkEditMode();
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   private checkEditMode() {
     if (this.data?.status_member?.id) {
-      this.isEditMode = true;
+      this.isEditMode.set(true);
       this.handleEdit();
     }
   }
@@ -138,8 +128,7 @@ export class StatusMemberFormComponent implements OnInit, OnDestroy {
   onSuccess(message: string) {
     this.hideLoading();
     this.toast.openSuccess(message);
-    this.dialogRef.close(this.statusMemberForm.value);
-    this.loadInitialData();
+    this.dialogRef.close(this.statusMemberForm.getRawValue());
   }
 
   onError(message: string) {
@@ -157,7 +146,7 @@ export class StatusMemberFormComponent implements OnInit, OnDestroy {
       membersSituations: this.statusMemberService.getMemberSituations(),
     }).subscribe({
       next: ({ membersSituations }) => {
-        this.membersSituations = membersSituations;
+        this.membersSituations.set(membersSituations);
       },
       error: () => this.onError(MESSAGES.LOADING_ERROR),
       complete: () => this.hideLoading(),
@@ -167,24 +156,16 @@ export class StatusMemberFormComponent implements OnInit, OnDestroy {
   showAllMembersSituations() {
     this.filterMemberSituation = this.searchMemberSituationControl.valueChanges.pipe(
       startWith(''),
-      map((value: any) => {
-        if (typeof value === 'string') {
-          return value;
-        } else {
-          return value ? value.name : '';
-        }
-      }),
+      map((value: any) => (typeof value === 'string' ? value : value?.name || '')),
       map((name) =>
-        name.length >= 1 ? this._filterMembersSituations(name) : this.membersSituations,
+        name.length >= 1 ? this._filterMembersSituations(name) : this.membersSituations(),
       ),
     );
   }
 
   private _filterMembersSituations(name: string): MemberSituations[] {
     const filterValue = name.toLowerCase();
-    return this.membersSituations.filter((membersSituations) =>
-      membersSituations.name.toLowerCase().includes(filterValue),
-    );
+    return this.membersSituations().filter((ms) => ms.name.toLowerCase().includes(filterValue));
   }
 
   onSelectedMemberSituations(event: MatAutocompleteSelectedEvent) {
@@ -197,12 +178,16 @@ export class StatusMemberFormComponent implements OnInit, OnDestroy {
   handleSubmit() {
     const statusMember = this.statusMemberForm;
 
-    if (statusMember.invalid) return;
+    if (statusMember.invalid) {
+      statusMember.markAllAsTouched();
+      this.searchMemberSituationControl.markAsTouched();
+      return;
+    }
 
-    if (this.isEditMode) {
-      this.handleUpdate(statusMember.value.id, statusMember.value);
+    if (this.isEditMode()) {
+      this.handleUpdate(statusMember.getRawValue().id, statusMember.getRawValue());
     } else {
-      this.handleCreate(statusMember.value);
+      this.handleCreate(statusMember.getRawValue());
     }
   }
 
@@ -224,7 +209,7 @@ export class StatusMemberFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  handleEdit = () => {
+  private handleEdit = () => {
     const statusMember = this.data.status_member;
 
     if (!statusMember.id) return;
@@ -249,8 +234,6 @@ export class StatusMemberFormComponent implements OnInit, OnDestroy {
       initial_period: initialPeriod,
       final_period: finalPeriod,
     });
-
-    this.cdr.detectChanges();
   };
 
   clearDate(fieldName: string): void {
